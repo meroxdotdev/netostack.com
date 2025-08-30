@@ -1,6 +1,6 @@
 <script lang="ts">
   import '../styles/pages.scss';
-  import { site, pages } from '$lib/constants/site';
+  import { site, pages, about } from '$lib/constants/site';
   import { ALL_PAGES } from '$lib/constants/nav';
   import Icon from '$lib/components/Icon.svelte';
   
@@ -54,9 +54,10 @@
 <!-- Hero Section -->
 <section class="hero">
   <div class="hero-content">
-    <h2>Professional Network Calculation Tools</h2>
+    <h2>{site.title}</h2>
     <p class="hero-description">
-      {site.heroDescription}
+      {about.line1}<br>
+      {about.line2}
     </p>
   </div>
 </section>
@@ -88,7 +89,7 @@
   padding: var(--spacing-xl) 0 var(--spacing-lg);
   
   .hero-content {
-    max-width: 600px;
+    max-width: 900px;
     margin: 0 auto;
     
     h2 {

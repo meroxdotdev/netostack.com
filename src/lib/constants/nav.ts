@@ -11,13 +11,13 @@ export const STANDALONE_PAGES: NavItem[] = [
     href: '/subnet-calculator',
     label: 'Subnet Calculator',
     description: 'Calculate subnet information, network addresses, broadcast addresses, and host ranges with visual network analysis',
-    icon: 'calculator'
+    icon: 'subnet-calculator'
   },
   {
     href: '/ip-address-convertor',
     label: 'IP Address Converter',
     description: 'Convert IP addresses between decimal, binary, hexadecimal, and octal number systems',
-    icon: 'transform'
+    icon: 'ip-convertor'
   }
 ];
 
@@ -35,13 +35,13 @@ export const SUB_NAV: Record<string, NavItem[]> = {
       href: '/cidr-convertor/cidr-to-subnet-mask', 
       label: 'CIDR → Mask',
       description: 'Convert CIDR notation (e.g. /24) to subnet mask format (255.255.255.0)',
-      icon: 'arrow-right'
+      icon: 'cidr-convertor'
     },
     { 
       href: '/cidr-convertor/subnet-mask-to-cidr', 
       label: 'Mask → CIDR',
       description: 'Convert subnet mask format (255.255.255.0) to CIDR notation (/24)',
-      icon: 'arrow-left'
+      icon: 'cidr-convertor'
     }
   ],
   '/ip-reference': [
@@ -49,19 +49,19 @@ export const SUB_NAV: Record<string, NavItem[]> = {
       href: '/ip-reference/network-classes', 
       label: 'Network Classes',
       description: 'IP address classes (A, B, C, D, E) and their characteristics',
-      icon: 'layers'
+      icon: 'network-classes'
     },
     { 
       href: '/ip-reference/reserved-ranges', 
       label: 'Reserved Ranges',
       description: 'Private networks, loopback, multicast, and special IP ranges',
-      icon: 'shield'
+      icon: 'reserved-ranges'
     },
     { 
       href: '/ip-reference/common-subnets', 
       label: 'Common Subnets',
       description: 'Quick reference for frequently used subnet configurations',
-      icon: 'grid'
+      icon: 'common-subnets'
     }
   ]
 };
