@@ -1,5 +1,3 @@
-@import './variables.scss';
-
 // Layout components
 .container {
   max-width: 1200px;
@@ -290,4 +288,207 @@
 
 .fade-in {
   animation: fadeIn 0.3s ease-out;
+}
+
+// Shared component cards
+.reference-card, .explainer-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  transition: all var(--transition-fast);
+  cursor: help;
+  
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--color-primary) 33%, transparent);
+  }
+}
+
+.explainer-card {
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  h4 {
+    color: var(--color-primary);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+  }
+  
+  p {
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+// Form field styles
+.form-field {
+  min-width: 250px;
+  
+  .field-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .field-icon {
+    position: absolute;
+    right: var(--spacing-sm);
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  
+  .field-error {
+    color: var(--color-error-light);
+    font-size: var(--font-size-xs);
+    margin-top: var(--spacing-xs);
+    margin-bottom: 0;
+  }
+  
+  .field-help {
+    color: var(--color-success-light);
+    font-size: var(--font-size-xs);
+    margin-top: var(--spacing-xs);
+    margin-bottom: 0;
+  }
+  
+  .status-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    svg {
+      width: 0.75rem;
+      height: 0.75rem;
+      color: var(--text-primary);
+    }
+    
+    &.success {
+      background-color: var(--color-success);
+    }
+    
+    &.error {
+      background-color: var(--color-error);
+    }
+  }
+  
+  .required {
+    color: var(--color-error);
+    margin-left: var(--spacing-xs);
+  }
+  
+  @media (max-width: 768px) {
+    min-width: auto;
+  }
+}
+
+// Copy button styles
+.copy-btn {
+  transition: all var(--transition-fast);
+  
+  &.copied {
+    color: var(--color-success-light);
+    background-color: rgba(35, 134, 54, 0.1);
+    border-color: var(--color-success);
+    transform: scale(1.05);
+    
+    &:hover {
+      background-color: rgba(35, 134, 54, 0.2);
+    }
+  }
+}
+
+// Info cards and values
+.info-cards {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+.info-card {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  .info-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+}
+
+.value-copy {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.ip-value, .binary-value {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  
+  &.success {
+    color: var(--color-success-light);
+    background-color: rgba(35, 134, 54, 0.1);
+  }
+  
+  &.error {
+    color: var(--color-error-light);
+    background-color: rgba(218, 54, 51, 0.1);
+  }
+  
+  &.info {
+    color: var(--color-info-light);
+    background-color: rgba(9, 105, 218, 0.1);
+  }
+  
+  &.warning {
+    color: var(--color-warning-light);
+    background-color: rgba(210, 153, 34, 0.1);
+  }
+}
+
+.binary-value {
+  font-size: var(--font-size-sm);
+}
+
+.metric-value {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  
+  &.success { 
+    color: var(--color-success-light); 
+  }
+  
+  &.info { 
+    color: var(--color-info-light); 
+  }
+}
+
+.cidr {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-left: var(--spacing-xs);
 }

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { validateCIDR } from '../utils/ip-validation.js';
-  import type { ValidationResult } from '../types/ip.js';
-  import Tooltip from './Tooltip.svelte';
-  import SvgIcon from './SvgIcon.svelte';
+  import { validateCIDR } from '$lib/utils/ip-validation.js';
+  import type { ValidationResult } from '$lib/types/ip.js';
+  import Tooltip from '$lib/components/Tooltip.svelte';
+  import SvgIcon from '$lib/components/SvgIcon.svelte';
 
   interface Props {
     value?: string;
@@ -129,9 +129,13 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .form-field {
     min-width: 300px;
+    
+    @media (max-width: 768px) {
+      min-width: auto;
+    }
   }
 
 
@@ -140,61 +144,55 @@
     font-size: var(--font-size-md);
     padding-right: 2.5rem;
     flex: 1;
-  }
-
-  .input-cidr.valid {
-    border-color: var(--color-success);
-  }
-
-  .input-cidr.invalid {
-    border-color: var(--color-error);
-  }
-
-  .input-cidr.focused {
-    box-shadow: var(--shadow-md);
+    
+    &.valid {
+      border-color: var(--color-success);
+    }
+    
+    &.invalid {
+      border-color: var(--color-error);
+    }
+    
+    &.focused {
+      box-shadow: var(--shadow-md);
+    }
   }
 
 
   .presets-section {
     margin-top: var(--spacing-md);
-  }
-
-  .presets-label {
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .presets-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-  }
-
-  .preset-btn {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: var(--font-size-xs);
-    border-radius: var(--radius-sm);
-    background-color: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-secondary);
-    transition: all var(--transition-fast);
-  }
-
-  .preset-btn:hover:not(:disabled) {
-    background-color: var(--surface-hover);
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-  }
-
-  .preset-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  @media (max-width: 768px) {
-    .form-field {
-      min-width: auto;
+    
+    .presets-label {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .presets-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+    
+    .preset-btn {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      font-size: var(--font-size-xs);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-secondary);
+      transition: all var(--transition-fast);
+      
+      &:hover:not(:disabled) {
+        background-color: var(--surface-hover);
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+      }
+      
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
     }
   }
 </style>

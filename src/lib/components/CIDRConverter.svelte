@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { cidrToMask, maskToCidr } from '../utils/ip-calculations.js';
-	import { validateSubnetMask } from '../utils/ip-validation.js';
-	import { COMMON_SUBNETS } from '../constants/networks.js';
-	import Tooltip from './Tooltip.svelte';
+	import { cidrToMask, maskToCidr } from '$lib/utils/ip-calculations.js';
+	import { validateSubnetMask } from '$lib/utils/ip-validation.js';
+	import { COMMON_SUBNETS } from '$lib/constants/networks.js';
+	import Tooltip from '$lib/components/Tooltip.svelte';
 	
 	let cidrValue = $state(24);
 	let maskValue = $state('255.255.255.0');

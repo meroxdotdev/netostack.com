@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { validateIPv4 } from '../utils/ip-validation.js';
-  import type { ValidationResult } from '../types/ip.js';
-  import SvgIcon from './SvgIcon.svelte';
+  import { validateIPv4 } from '$lib/utils/ip-validation.js';
+  import type { ValidationResult } from '$lib/types/ip.js';
+  import SvgIcon from '$lib/components/SvgIcon.svelte';
 
   interface Props {
     value?: string;
@@ -95,25 +95,23 @@
   {/if}
 </div>
 
-<style>
-
+<style lang="scss">
   .input-ip {
     font-family: var(--font-mono);
     font-size: var(--font-size-lg);
     padding-right: 2.5rem;
     flex: 1;
+    
+    &.valid {
+      border-color: var(--color-success);
+    }
+    
+    &.invalid {
+      border-color: var(--color-error);
+    }
+    
+    &.focused {
+      box-shadow: var(--shadow-md);
+    }
   }
-
-  .input-ip.valid {
-    border-color: var(--color-success);
-  }
-
-  .input-ip.invalid {
-    border-color: var(--color-error);
-  }
-
-  .input-ip.focused {
-    box-shadow: var(--shadow-md);
-  }
-
 </style>

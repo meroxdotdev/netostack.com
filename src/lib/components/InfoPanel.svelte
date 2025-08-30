@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { NETWORK_CLASSES, RESERVED_RANGES, COMMON_SUBNETS } from '../constants/networks.js';
-	import Tooltip from './Tooltip.svelte';
+	import { NETWORK_CLASSES, RESERVED_RANGES, COMMON_SUBNETS } from '$lib/constants/networks.js';
+	import Tooltip from '$lib/components/Tooltip.svelte';
 	
 	let selectedCategory = $state<'classes' | 'reserved' | 'subnets'>('classes');
 </script>
@@ -172,7 +172,7 @@
 	</section>
 </div>
 
-<style>
+<style lang="scss">
 	.reference-section {
 		display: flex;
 		flex-direction: column;
@@ -180,25 +180,17 @@
 		margin: var(--spacing-lg) 0;
 	}
 
-	.reference-card {
-		padding: var(--spacing-md);
-		border: 1px solid var(--border-primary);
-		border-radius: var(--radius-lg);
-		background-color: var(--bg-secondary);
-		transition: all var(--transition-fast);
-		cursor: help;
-	}
-
-	.reference-card:hover {
-		box-shadow: var(--shadow-md);
-		border-color: color-mix(in srgb, var(--color-primary) 33%, transparent);
-	}
-
 	.card-header-inline {
 		display: flex;
 		justify-content: space-between;
 		align-items: flex-start;
 		margin-bottom: var(--spacing-sm);
+		
+		@media (max-width: 768px) {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--spacing-sm);
+		}
 	}
 
 	.class-info {
@@ -216,24 +208,18 @@
 		justify-content: center;
 		font-weight: 700;
 		color: var(--text-primary);
+		
+		&.a { background-color: var(--color-info); }
+		&.b { background-color: var(--color-success); }
+		&.c { background-color: var(--color-warning); }
 	}
 
-	.class-badge.a {
-		background-color: var(--color-info);
-	}
-
-	.class-badge.b {
-		background-color: var(--color-success);
-	}
-
-	.class-badge.c {
-		background-color: var(--color-warning);
-	}
-
-	.class-details h3 {
-		font-weight: 600;
-		color: var(--text-primary);
-		margin: 0;
+	.class-details {
+		h3 {
+			font-weight: 600;
+			color: var(--text-primary);
+			margin: 0;
+		}
 	}
 
 	.mask-info {
@@ -261,11 +247,13 @@
 		color: var(--text-secondary);
 	}
 
-	.range-info h3 {
-		font-family: var(--font-mono);
-		font-weight: 600;
-		color: var(--text-primary);
-		margin: 0;
+	.range-info {
+		h3 {
+			font-family: var(--font-mono);
+			font-weight: 600;
+			color: var(--text-primary);
+			margin: 0;
+		}
 	}
 
 	.range-description {
@@ -292,6 +280,7 @@
 
 	.subnets-table {
 		margin: var(--spacing-lg) 0;
+		
 		:global(.tooltip-container) {
 			width: 100%;
 		}
@@ -307,30 +296,23 @@
 		color: var(--text-secondary);
 		border-bottom: 1px solid var(--border-primary);
 		margin-bottom: var(--spacing-sm);
-	}
-
-	.table-header > span:nth-child(1) {
-		display: flex;
-		align-items: center;
-		justify-content: flex-start;
-	}
-
-	.table-header > span:nth-child(2) {
-		display: flex;
-		align-items: center;
-		justify-content: flex-start;
-	}
-
-	.table-header > span:nth-child(3) {
-		display: flex;
-		align-items: center;
-		justify-content: flex-end;
-	}
-
-	.table-header > span:nth-child(4) {
-		display: flex;
-		align-items: center;
-		justify-content: flex-start;
+		
+		> span {
+			display: flex;
+			align-items: center;
+			
+			&:nth-child(1), &:nth-child(2), &:nth-child(4) {
+				justify-content: flex-start;
+			}
+			
+			&:nth-child(3) {
+				justify-content: flex-end;
+			}
+		}
+		
+		@media (max-width: 768px) {
+			display: none;
+		}
 	}
 
 	.table-row {
@@ -343,45 +325,80 @@
 		margin-bottom: var(--spacing-xs);
 		transition: background-color var(--transition-fast);
 		cursor: help;
+		
+		&:hover {
+			background-color: var(--surface-hover);
+		}
+		
+		@media (max-width: 768px) {
+			display: flex;
+			flex-direction: column;
+			grid-template-columns: 1fr;
+			gap: var(--spacing-xs);
+			padding: var(--spacing-md);
+		}
 	}
 
-	.table-row:hover {
-		background-color: var(--surface-hover);
+	.cidr-cell, .mask-cell, .hosts-cell, .usage-cell {
+		display: flex;
+		align-items: center;
+		font-family: var(--font-mono);
+		
+		@media (max-width: 768px) {
+			&::before {
+				color: var(--text-secondary);
+				font-weight: normal;
+			}
+		}
 	}
 
 	.cidr-cell {
-		font-family: var(--font-mono);
 		font-weight: 700;
 		color: var(--color-info-light);
-		display: flex;
-		align-items: center;
 		justify-content: flex-start;
+		
+		@media (max-width: 768px) {
+			&::before {
+				content: 'CIDR: ';
+			}
+		}
 	}
 
 	.mask-cell {
-		font-family: var(--font-mono);
 		font-size: var(--font-size-sm);
 		color: var(--text-primary);
-		display: flex;
-		align-items: center;
 		justify-content: flex-start;
+		
+		@media (max-width: 768px) {
+			&::before {
+				content: 'Mask: ';
+			}
+		}
 	}
 
 	.hosts-cell {
-		font-family: var(--font-mono);
 		font-size: var(--font-size-sm);
 		color: var(--color-success-light);
-		display: flex;
-		align-items: center;
 		justify-content: flex-end;
+		
+		@media (max-width: 768px) {
+			&::before {
+				content: 'Hosts: ';
+			}
+		}
 	}
 
 	.usage-cell {
 		font-size: var(--font-size-sm);
 		color: var(--text-secondary);
-		display: flex;
-		align-items: center;
 		justify-content: flex-start;
+		font-family: inherit;
+		
+		@media (max-width: 768px) {
+			&::before {
+				content: 'Usage: ';
+			}
+		}
 	}
 
 	.tips-section {
@@ -390,75 +407,30 @@
 		background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
 		border-radius: var(--radius-lg);
 		border: 1px solid var(--border-secondary);
-	}
-
-	.tips-header {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-sm);
-		font-weight: 600;
-		color: var(--text-primary);
-		margin-bottom: var(--spacing-sm);
-	}
-
-	.tip-icon {
-		width: 1rem;
-		height: 1rem;
-		color: var(--color-warning);
-	}
-
-	.tips-list {
-		list-style: none;
-		font-size: var(--font-size-sm);
-		color: var(--text-primary);
-		line-height: 1.6;
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-xs);
-	}
-
-	@media (max-width: 768px) {
-		.card-header-inline {
-			flex-direction: column;
-			align-items: flex-start;
+		
+		.tips-header {
+			display: flex;
+			align-items: center;
 			gap: var(--spacing-sm);
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: var(--spacing-sm);
+			
+			.tip-icon {
+				width: 1rem;
+				height: 1rem;
+				color: var(--color-warning);
+			}
 		}
-
-		.table-header,
-		.table-row {
-			grid-template-columns: 1fr;
-			gap: var(--spacing-xs);
-		}
-
-		.table-header {
-			display: none;
-		}
-
-		.table-row {
+		
+		.tips-list {
+			list-style: none;
+			font-size: var(--font-size-sm);
+			color: var(--text-primary);
+			line-height: 1.6;
 			display: flex;
 			flex-direction: column;
-			padding: var(--spacing-md);
-		}
-
-		.cidr-cell::before {
-			content: 'CIDR: ';
-			color: var(--text-secondary);
-			font-weight: normal;
-		}
-
-		.mask-cell::before {
-			content: 'Mask: ';
-			color: var(--text-secondary);
-		}
-
-		.hosts-cell::before {
-			content: 'Hosts: ';
-			color: var(--text-secondary);
-		}
-
-		.usage-cell::before {
-			content: 'Usage: ';
-			color: var(--text-secondary);
+			gap: var(--spacing-xs);
 		}
 	}
 </style>

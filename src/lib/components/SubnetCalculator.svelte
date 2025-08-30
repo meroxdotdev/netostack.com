@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { calculateSubnet } from '../utils/ip-calculations.js';
-  import { validateCIDR } from '../utils/ip-validation.js';
-  import CIDRInput from './CIDRInput.svelte';
-  import NetworkVisualizer from './NetworkVisualizer.svelte';
-  import Tooltip from './Tooltip.svelte';
-  import SvgIcon from './SvgIcon.svelte';
-  import type { SubnetInfo } from '../types/ip.js';
+  import { calculateSubnet } from '$lib/utils/ip-calculations.js';
+  import { validateCIDR } from '$lib/utils/ip-validation.js';
+  import CIDRInput from '$lib/components/CIDRInput.svelte';
+  import NetworkVisualizer from '$lib/components/NetworkVisualizer.svelte';
+  import Tooltip from '$lib/components/Tooltip.svelte';
+  import SvgIcon from '$lib/components/SvgIcon.svelte';
+  import type { SubnetInfo } from '$lib/types/ip.js';
 
   let cidrInput = $state('192.168.1.0/24');
   let subnetInfo: SubnetInfo | null = $state(null);
@@ -241,7 +241,7 @@
   </section>
 </div>
 
-<style>
+<style lang="scss">
   .calculating {
     opacity: 0.7;
     pointer-events: none;
@@ -254,12 +254,16 @@
     background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-secondary);
-  }
-
-  .explainer-section h3 {
-    margin-bottom: var(--spacing-lg);
-    text-align: center;
-    color: var(--color-primary);
+    
+    h3 {
+      margin-bottom: var(--spacing-lg);
+      text-align: center;
+      color: var(--color-primary);
+    }
+    
+    @media (max-width: 768px) {
+      padding: var(--spacing-md);
+    }
   }
 
   .explainer-grid {
@@ -267,34 +271,10 @@
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
-  }
-
-  .explainer-card {
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-    transition: all var(--transition-fast);
-  }
-
-  .explainer-card:hover {
-    border-color: color-mix(in srgb, var(--color-primary) 33%, transparent);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-
-  .explainer-card h4 {
-    color: var(--color-primary);
-    font-size: var(--font-size-md);
-    margin-bottom: var(--spacing-sm);
-    font-weight: 600;
-  }
-
-  .explainer-card p {
-    color: var(--text-primary);
-    font-size: var(--font-size-sm);
-    line-height: 1.6;
-    margin: 0;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   .tips-box {
@@ -302,42 +282,32 @@
     border: 1px solid var(--color-warning);
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
-  }
-
-  .tips-box h4 {
-    color: var(--color-warning);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .tips-box ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .tips-box li {
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
-    font-size: var(--font-size-sm);
-    line-height: 1.6;
-  }
-
-  .tips-box li::before {
-    content: "•";
-    color: var(--color-warning);
-    font-weight: bold;
-    display: inline-block;
-    width: 1em;
-    margin-right: var(--spacing-xs);
-  }
-
-  @media (max-width: 768px) {
-    .explainer-grid {
-      grid-template-columns: 1fr;
+    
+    h4 {
+      color: var(--color-warning);
+      margin-bottom: var(--spacing-sm);
     }
     
-    .explainer-section {
-      padding: var(--spacing-md);
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    li {
+      margin-bottom: var(--spacing-sm);
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+      line-height: 1.6;
+      
+      &::before {
+        content: "•";
+        color: var(--color-warning);
+        font-weight: bold;
+        display: inline-block;
+        width: 1em;
+        margin-right: var(--spacing-xs);
+      }
     }
   }
 </style>

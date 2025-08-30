@@ -20,6 +20,7 @@
 		"@tailwindcss/typography": "^0.5.16",
 		"autoprefixer": "^10.4.21",
 		"lucide-svelte": "^0.542.0",
+		"sass-embedded": "^1.91.0",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
 		"tailwindcss": "^4.1.12",
