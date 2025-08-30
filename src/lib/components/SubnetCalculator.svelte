@@ -277,6 +277,10 @@
     }
   }
 
+  .explainer-card {
+    cursor: default;
+  }
+
   .tips-box {
     background-color: var(--bg-primary);
     border: 1px solid var(--color-warning);

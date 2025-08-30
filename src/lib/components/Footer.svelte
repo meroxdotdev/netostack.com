@@ -1,5 +1,6 @@
 <script>
   import { TOP_NAV } from '$lib/constants/nav';
+  import { site, author, license } from '$lib/constants/site';
 </script>
 
 <footer class="footer">
@@ -9,11 +10,11 @@
     <a href="https://github.com/lissy93/ip-calc" target="_blank" rel="noopener noreferrer">View on GitHub</a>
   </p> -->
   <p class="footer-sub">
-    <a href="https://ip-calc.as93.net" target="_blank" rel="noopener noreferrer">IP-Calc</a>
+    <a href="{site.url}" target="_blank" rel="noopener noreferrer">{site.title}</a>
     is licensed under
-    <a href="https://github.com/lissy93/ip-calc/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT</a>,
+    <a href="{license.url}" target="_blank" rel="noopener noreferrer">{license.name}</a>,
     (C)
-    <a href="https://github.com/lissy93" target="_blank" rel="noopener noreferrer">Alicia Sykes</a> 2025
+    <a href="{author.githubUrl}" target="_blank" rel="noopener noreferrer">{author.name}</a> {license.date}
   </p>
   <p class="footer-sub">
     {#each TOP_NAV as item, i}

@@ -61,6 +61,11 @@ input::placeholder {
   color: var(--text-secondary);
 }
 
+::selection {
+  background-color: var(--color-primary);
+  color: var(--bg-primary);
+}
+
 /* Buttons */
 button {
   font-family: inherit;

@@ -1,16 +1,17 @@
 <script lang="ts">
   import IPConverter from '$lib/components/IPConverter.svelte';
+  import { site, pages } from '$lib/constants/site';
   import '../../styles/pages.scss';
   
 </script>
 
 <svelte:head>
-  <title>IP Address Converter - IP Calc</title>
-  <meta name="description" content="Convert IP addresses between decimal, binary, hexadecimal, and octal formats. Professional IP address conversion tool." />
-  <meta name="keywords" content="IP converter, IP address converter, binary IP, hexadecimal IP, octal IP, decimal IP" />
-  <meta property="og:title" content="IP Address Converter - IP Calc" />
-  <meta property="og:description" content="Convert IP addresses between different number formats with professional networking tools" />
-  <meta property="og:url" content="https://ip-calc.as93.net/ip-address-convertor" />
+  <title>{pages.ipConverter.title}</title>
+  <meta name="description" content="{pages.ipConverter.description}" />
+  <meta name="keywords" content="{site.keywords}" />
+  <meta property="og:title" content="{pages.ipConverter.title}" />
+  <meta property="og:description" content="{pages.ipConverter.description}" />
+  <meta property="og:url" content="{site.url}/ip-address-convertor" />
 </svelte:head>
 
   

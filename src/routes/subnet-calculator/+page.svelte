@@ -1,16 +1,17 @@
 <script lang="ts">
   import SubnetCalculator from '$lib/components/SubnetCalculator.svelte';
+  import { site, pages } from '$lib/constants/site';
   import '../../styles/pages.scss';
   
 </script>
 
 <svelte:head>
-  <title>Subnet Calculator - IP Calc</title>
-  <meta name="description" content="Calculate subnet information, network addresses, broadcast addresses, and host ranges. Professional subnet calculator with visual network analysis." />
-  <meta name="keywords" content="subnet calculator, network calculator, IP subnetting, CIDR, network analysis" />
-  <meta property="og:title" content="Subnet Calculator - IP Calc" />
-  <meta property="og:description" content="Professional subnet calculator with network visualization and detailed analysis" />
-  <meta property="og:url" content="https://ip-calc.as93.net/subnet-calculator" />
+  <title>{pages.subnetCalculator.title}</title>
+  <meta name="description" content="{pages.subnetCalculator.description}" />
+  <meta name="keywords" content="{site.keywords}" />
+  <meta property="og:title" content="{pages.subnetCalculator.title}" />
+  <meta property="og:description" content="{pages.subnetCalculator.description}" />
+  <meta property="og:url" content="{site.url}/subnet-calculator" />
 </svelte:head>
 
 <SubnetCalculator />

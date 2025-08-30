@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { TOP_NAV, isActive } from '$lib/constants/nav';
+  import { site } from '$lib/constants/site';
   import favicon from '$lib/assets/favicon.svg';
 
   // Props from +layout for theme state & toggler
@@ -25,7 +26,7 @@
           </a>
         </div>
         <div>
-          <h1><a href="/">IP Calc</a></h1>
+          <h1><a href="/">{site.title}</a></h1>
           <p class="subtitle">Network Reference</p>
         </div>
       </div>

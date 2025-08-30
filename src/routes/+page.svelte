@@ -1,5 +1,8 @@
 <script lang="ts">
   import '../styles/pages.scss';
+  import { site, pages } from '$lib/constants/site';
+  import { ALL_PAGES } from '$lib/constants/nav';
+  import Icon from '$lib/components/Icon.svelte';
   
   let darkMode = $state(true); // Default to hacker theme
 
@@ -35,43 +38,16 @@
   $effect(() => {
     initializeTheme();
   });
-
-  const sections = [
-    {
-      title: 'Subnet Calculator',
-      description: 'Calculate subnet information, network addresses, and host ranges',
-      href: '/subnet-calculator',
-      icon: 'calculator'
-    },
-    {
-      title: 'CIDR Converter',
-      description: 'Convert between CIDR notation and subnet masks',
-      href: '/cidr-convertor/cidr-to-subnet-mask',
-      icon: 'convert'
-    },
-    {
-      title: 'IP Address Converter',
-      description: 'Convert IP addresses between different formats',
-      href: '/ip-address-convertor',
-      icon: 'transform'
-    },
-    {
-      title: 'Network Reference',
-      description: 'Essential networking information, classes, and reserved ranges',
-      href: '/ip-reference/network-classes',
-      icon: 'reference'
-    }
-  ];
 </script>
 
 <svelte:head>
-  <title>IP Calc - Network Calculator & IP Tools</title>
-  <meta name="description" content="Comprehensive IP address calculator with subnet calculations, CIDR conversion, IP format conversion, and network reference tools." />
-  <meta name="keywords" content="IP calculator, subnet calculator, CIDR converter, network tools, IP tools, networking" />
-  <meta property="og:title" content="IP Calc - Network Calculator & IP Tools" />
-  <meta property="og:description" content="Comprehensive network calculator and IP tools for subnet calculations, CIDR conversion, and network analysis" />
+  <title>{pages.home.title}</title>
+  <meta name="description" content="{pages.home.description}" />
+  <meta name="keywords" content="{site.keywords}" />
+  <meta property="og:title" content="{pages.home.title}" />
+  <meta property="og:description" content="{pages.home.ogDescription}" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://ip-calc.as93.net" />
+  <meta property="og:url" content="{site.url}" />
 </svelte:head>
 
 
@@ -80,38 +56,21 @@
   <div class="hero-content">
     <h2>Professional Network Calculation Tools</h2>
     <p class="hero-description">
-      Comprehensive suite of networking tools for subnet calculations, CIDR conversions, 
-      IP format transformations, and network reference information.
+      {site.heroDescription}
     </p>
   </div>
 </section>
 
 <!-- Tools Grid -->
 <section class="tools-grid">
-  {#each sections as section}
-    <a href={section.href} class="tool-card">
+  {#each ALL_PAGES as page}
+    <a href={page.href} class="tool-card">
       <div class="tool-icon">
-        {#if section.icon === 'calculator'}
-          <svg fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8-4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8-4H7V7h2v2zm4 0h-2V7h2v2zm4 0h-2V7h2v2z"/>
-          </svg>
-        {:else if section.icon === 'convert'}
-          <svg fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        {:else if section.icon === 'transform'}
-          <svg fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
-        {:else if section.icon === 'reference'}
-          <svg fill="currentColor" viewBox="0 0 24 24">
-            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-          </svg>
-        {/if}
+        <Icon name={page.icon || 'default'} />
       </div>
       <div class="tool-content">
-        <h3>{section.title}</h3>
-        <p>{section.description}</p>
+        <h3>{page.label}</h3>
+        <p>{page.description}</p>
       </div>
       <div class="tool-arrow">
         <svg fill="currentColor" viewBox="0 0 20 20">
@@ -121,4 +80,135 @@
     </a>
   {/each}
 </section>
+
+<style lang="scss">
+/* Homepage specific styles */
+.hero {
+  text-align: center;
+  padding: var(--spacing-xl) 0 var(--spacing-lg);
+  
+  .hero-content {
+    max-width: 600px;
+    margin: 0 auto;
+    
+    h2 {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+      line-height: 1.2;
+      
+      @media (max-width: 768px) {
+        font-size: var(--font-size-xl);
+      }
+    }
+    
+    .hero-description {
+      font-size: var(--font-size-lg);
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 0;
+      
+      @media (max-width: 768px) {
+        font-size: var(--font-size-md);
+      }
+    }
+  }
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.tool-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition-fast);
+  position: relative;
+  
+  &:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    
+    .tool-arrow {
+      transform: translateX(4px);
+      color: var(--color-primary);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--spacing-md);
+  }
+}
+
+.tool-icon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-lg);
+  color: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.tool-content {
+  flex: 1;
+  
+  h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-xs) 0;
+  }
+  
+  p {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.tool-arrow {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+</style>
 

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { pages } from '$lib/constants/site';
   import { onMount } from 'svelte';
 
   onMount(() => {
@@ -8,8 +9,8 @@
 </script>
 
 <svelte:head>
-  <title>CIDR Converter - IP Calc</title>
-  <meta name="description" content="Convert between CIDR notation and subnet masks. Professional networking tools." />
+  <title>{pages.cidrConverter.title}</title>
+  <meta name="description" content="{pages.cidrConverter.description}" />
 </svelte:head>
 
 <!-- This page automatically redirects to the first sub-page -->
