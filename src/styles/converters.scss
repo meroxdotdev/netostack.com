@@ -93,78 +93,10 @@
     gap: var(--spacing-sm);
   }
   
-  .preset-btn {
-    padding: var(--spacing-xs) var(--spacing-md);
-    font-size: var(--font-size-sm);
-    font-family: var(--font-mono);
-    border-radius: var(--radius-sm);
-    background-color: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-secondary);
-    transition: all var(--transition-fast);
-    
-    &:hover {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-      color: var(--color-primary);
-    }
-    
-    &.active {
-      background-color: var(--color-primary);
-      color: var(--text-primary);
-      border-color: var(--color-primary);
-    }
-  }
+  /* Preset button styles moved to base.scss for reuse */
 }
 
-/* Mask preset specific styles */
-.presets-section .presets-grid.mask-presets {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  
-  .preset-btn {
-    font-size: var(--font-size-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-}
 
-/* Result section styles */
-.result-section {
-  margin-top: var(--spacing-lg);
-  
-  h3 {
-    margin-bottom: var(--spacing-md);
-  }
-  
-  .result-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-md);
-    
-    .result-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--spacing-sm);
-      background-color: var(--bg-tertiary);
-      border-radius: var(--radius-sm);
-      
-      .result-label {
-        color: var(--text-secondary);
-        font-size: var(--font-size-sm);
-      }
-      
-      .result-value {
-        color: var(--text-primary);
-        font-family: var(--font-mono);
-        font-weight: 600;
-      }
-    }
-  }
-}
 
 /* Reference component styles */
 .reference-section {
@@ -297,78 +229,8 @@
   }
 }
 
-.range-categories,
-.planning-tips,
-.class-comparison {
-  margin-top: var(--spacing-md);
-  
-  h4 {
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
-  }
-  
-  ul {
-    list-style: none;
-    padding: 0;
-    
-    li {
-      padding: var(--spacing-xs) 0;
-      border-bottom: 1px solid var(--border-primary);
-      
-      &:last-child {
-        border-bottom: none;
-      }
-    }
-  }
-}
 
-.comparison-grid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  
-  .comparison-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-sm);
-    background-color: var(--bg-tertiary);
-    border-radius: var(--radius-sm);
-    
-    .class-name {
-      font-weight: 600;
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-sm);
-      
-      &.class-a {
-        background-color: var(--color-info);
-        color: var(--text-primary);
-      }
-      
-      &.class-b {
-        background-color: var(--color-success);
-        color: var(--text-primary);
-      }
-      
-      &.class-c {
-        background-color: var(--color-warning);
-        color: var(--text-primary);
-      }
-    }
-    
-    span:last-child {
-      font-size: var(--font-size-sm);
-      color: var(--text-secondary);
-    }
-  }
-}
 
-/* Fix for input prefix positioning in mask converter */
-.input-group .input-prefix.mask-prefix {
-  right: 3rem;
-  left: auto;
-}
 
 /* Subnet table styles for CommonSubnetsReference */
 .subnets-table {

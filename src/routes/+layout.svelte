@@ -57,6 +57,7 @@
 <style>
 main {
   max-width: 1200px;
+  min-height: 76vh;
   margin: 1.5rem auto 1rem;
   padding: 0 var(--spacing-md);
   margin: 1rem auto;

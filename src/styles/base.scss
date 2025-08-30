@@ -80,11 +80,6 @@ button:hover:not(:disabled) {
   border-color: var(--color-primary);
 }
 
-button.btn-primary {
-  background-color: var(--color-primary);
-  color: var(--bg-primary);
-  border-color: var(--color-primary);
-}
 
 button.btn-icon {
   width: 2rem;
@@ -225,11 +220,6 @@ code, pre {
   transition: all var(--transition-fast);
 }
 
-.tab.active {
-  background-color: var(--bg-secondary);
-  color: var(--color-primary);
-  box-shadow: var(--shadow-sm);
-}
 
 /* Form groups */
 .form-group {
@@ -340,10 +330,6 @@ code, pre {
   color: var(--bg-primary);
 }
 
-.theme-toggle.dark .toggle-slider {
-  transform: translateX(1.5rem);
-  background-color: var(--color-primary);
-}
 
 /* Screen reader only */
 .sr-only {
@@ -441,12 +427,6 @@ code, pre {
   gap: var(--spacing-md);
 }
 
-.binary-row .info-label {
-  width: 80px;
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin: 0;
-}
 
 .binary-value {
   font-family: var(--font-mono);
@@ -531,25 +511,44 @@ code, pre {
   background-color: var(--color-error);
 }
 
-.required {
-  color: var(--color-error);
-  margin-left: var(--spacing-xs);
-}
 
-/* Copy button styles */
+/* Button variants */
 .copy-btn {
   transition: all var(--transition-fast);
+  
+  &.copied {
+    color: var(--color-success-light);
+    background-color: rgba(35, 134, 54, 0.1);
+    border-color: var(--color-success);
+    transform: scale(1.05);
+    
+    &:hover {
+      background-color: rgba(35, 134, 54, 0.2);
+    }
+  }
 }
 
-.copy-btn.copied {
-  color: var(--color-success-light);
-  background-color: rgba(35, 134, 54, 0.1);
-  border-color: var(--color-success);
-  transform: scale(1.05);
-}
-
-.copy-btn.copied:hover {
-  background-color: rgba(35, 134, 54, 0.2);
+.preset-btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-mono);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-secondary);
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+  
+  &.active {
+    background-color: var(--color-primary);
+    color: var(--text-primary);
+    border-color: var(--color-primary);
+  }
 }
 
 @media (max-width: 768px) {

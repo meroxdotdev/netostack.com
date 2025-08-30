@@ -85,40 +85,6 @@
   }
 }
 
-.footer {
-  text-align: center;
-  padding: var(--spacing-lg);
-  border-top: 1px solid var(--border-primary);
-  margin-top: var(--spacing-xl);
-  
-  .footer-content {
-    max-width: 600px;
-    margin: 0 auto;
-    
-    p {
-      color: var(--text-secondary);
-      font-size: var(--font-size-sm);
-      margin-bottom: var(--spacing-xs);
-    }
-    
-    .footer-sub {
-      font-size: var(--font-size-xs) !important;
-      opacity: 0.8;
-    }
-    
-    a {
-      color: var(--color-primary);
-      text-decoration: none;
-      transition: color var(--transition-fast);
-      
-      &:hover {
-        color: var(--color-primary-light);
-        text-decoration: underline;
-      }
-    }
-  }
-}
-
 /* Homepage specific styles */
 .hero {
   text-align: center;
@@ -205,7 +171,7 @@
   justify-content: center;
   background-color: var(--color-primary);
   border-radius: var(--radius-lg);
-  color: var(--text-primary);
+  color: var(--bg-secondary);
   flex-shrink: 0;
   
   svg {

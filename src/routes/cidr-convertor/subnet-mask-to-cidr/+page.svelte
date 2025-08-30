@@ -29,12 +29,50 @@
 	</div>
 </div>
 
-<style>
-  .converter-section { margin: var(--spacing-lg) 0; }
-	.mask-input { font-family:var(--font-mono);font-size:var(--font-size-lg); }
-	.result-display { padding:var(--spacing-md);border-radius:var(--radius-lg);margin-top:var(--spacing-md); }
-	.result-display.success { background:linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));border:1px solid var(--color-success); }
-	.result-content { text-align:center; }
-	.result-label { display:block;font-size:var(--font-size-sm);color:var(--text-secondary);margin-bottom:var(--spacing-xs); }
-	.result-value { display:block;font-size:var(--font-size-2xl);font-family:var(--font-mono);font-weight:700;color:var(--text-primary); }
+<style lang="scss">
+  .converter-section {
+    margin: var(--spacing-lg) 0;
+    display: flex;
+    width: 100%;
+    gap: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+    .form-group {
+      flex: 1;
+    }
+    .result-display {
+      min-width: 20rem;
+    }
+  }
+  .mask-input {
+		min-width: 16rem;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-lg);
+  }
+  .result-display {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-md);
+    &.success {
+      background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+      border: 1px solid var(--color-success);
+    }
+    .result-content {
+      text-align: center;
+      .result-label {
+        display: block;
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-xs);
+      }
+      .result-value {
+        display: block;
+        font-size: var(--font-size-2xl);
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+    }
+  }
 </style>
+

@@ -1,6 +1,5 @@
-<!-- src/routes/reference/+page.svelte -->
 <script lang="ts">
-	// No heavy logic needed on the landing page
+	  import SvgIcon from '$lib/components/SvgIcon.svelte';
 </script>
 
 <div class="card">
@@ -32,16 +31,14 @@
 	<!-- Quick Tips -->
 	<section class="tips-section">
 		<h4 class="tips-header">
-			<svg class="tip-icon" fill="currentColor" viewBox="0 0 20 20">
-				<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-			</svg>
+			<SvgIcon icon="bulb" size="md" />
 			Pro Tips
 		</h4>
 		<ul class="tips-list">
-			<li>• Always plan for future growth when choosing subnet sizes</li>
-			<li>• Use /30 subnets for point-to-point links to save addresses</li>
-			<li>• Consider VLSM (Variable Length Subnet Masking) for efficient allocation</li>
-			<li>• Private addresses (RFC 1918) are not routable on the Internet</li>
+			<li>Always plan for future growth when choosing subnet sizes</li>
+			<li>Use /30 subnets for point-to-point links to save addresses</li>
+			<li>Consider VLSM (Variable Length Subnet Masking) for efficient allocation</li>
+			<li>Private addresses (RFC 1918) are not routable on the Internet</li>
 		</ul>
 	</section>
 </div>
@@ -73,34 +70,38 @@
 			box-shadow: var(--shadow-md);
 		}
 	}
-
+	
 	.tips-section {
-		margin-top: var(--spacing-xl);
-		padding: var(--spacing-md);
-		background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
-		border-radius: var(--radius-lg);
-		border: 1px solid var(--border-secondary);
-
-		.tips-header {
-			display: flex;
-			align-items: center;
-			gap: var(--spacing-sm);
-			font-weight: 600;
-			color: var(--text-primary);
-			margin-bottom: var(--spacing-sm);
-
-			.tip-icon {
-				width: 1rem; height: 1rem; color: var(--color-warning);
-			}
-		}
-
-		.tips-list {
-			list-style: none;
-			font-size: var(--font-size-sm);
-			color: var(--text-primary);
-			line-height: 1.6;
-			display: flex; flex-direction: column; gap: var(--spacing-xs);
-			margin: 0; padding: 0;
-		}
+    background-color: var(--bg-primary);
+    border: 1px solid var(--color-warning);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    
+    h4 {
+      color: var(--color-warning);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    li {
+      margin-bottom: var(--spacing-sm);
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+      line-height: 1.6;
+      
+      &::before {
+        content: "•";
+        color: var(--color-warning);
+        font-weight: bold;
+        display: inline-block;
+        width: 1em;
+        margin-right: var(--spacing-xs);
+      }
+    }
 	}
 </style>

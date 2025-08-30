@@ -38,19 +38,104 @@
 	</div>
 </div>
 
-<style>
-  	.converter-section { margin: var(--spacing-lg) 0; }
-	.slider-label { display:block;font-size:var(--font-size-sm);font-weight:600;color:var(--text-primary);margin-bottom:var(--spacing-sm);cursor:help; }
-	.slider-container { position:relative; }
-	.cidr-slider { width:100%;height:0.5rem;background-color:var(--bg-tertiary);border-radius:var(--radius-lg);appearance:none;cursor:pointer;outline:none; }
-	.cidr-slider::-webkit-slider-thumb { appearance:none;height:1.25rem;width:1.25rem;border-radius:50%;background:var(--color-primary);cursor:pointer;box-shadow:var(--shadow-md);transition:transform var(--transition-fast); }
-	.cidr-slider::-webkit-slider-thumb:hover { transform:scale(1.1); }
-	.cidr-slider::-moz-range-thumb { height:1.25rem;width:1.25rem;border-radius:50%;background:var(--color-primary);cursor:pointer;border:none;box-shadow:var(--shadow-md);transition:transform var(--transition-fast); }
-	.cidr-slider::-moz-range-thumb:hover { transform:scale(1.1); }
-	.slider-markers { display:flex;justify-content:space-between;font-size:var(--font-size-xs);color:var(--text-secondary);margin-top:var(--spacing-xs); }
-	.result-display { padding:var(--spacing-md);border-radius:var(--radius-lg);margin-top:var(--spacing-md); }
-	.result-display.info { background:linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));border:1px solid var(--color-info); }
-	.result-content { text-align:center; }
-	.result-label { display:block;font-size:var(--font-size-sm);color:var(--text-secondary);margin-bottom:var(--spacing-xs); }
-	.result-value { display:block;font-size:var(--font-size-2xl);font-family:var(--font-mono);font-weight:700;color:var(--text-primary); }
+<style lang="scss">
+  .converter-section {
+    margin: var(--spacing-lg) 0;
+    display: flex;
+    width: 100%;
+    gap: 2rem;
+    align-items: center;
+		flex-wrap: wrap;
+    .form-group {
+      flex: 1;
+    }
+    .result-display {
+      min-width: 20rem;
+    }
+  }
+
+  .slider-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+    cursor: help;
+  }
+
+  .slider-container {
+    position: relative;
+
+    .slider-markers {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      margin-top: var(--spacing-xs);
+    }
+  }
+
+  .cidr-slider {
+    width: 100%;
+    height: 0.5rem;
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    &::-webkit-slider-thumb {
+      appearance: none;
+      height: 1.25rem;
+      width: 1.25rem;
+      border-radius: 50%;
+      background: var(--color-primary);
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: transform var(--transition-fast);
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+
+    &::-moz-range-thumb {
+      height: 1.25rem;
+      width: 1.25rem;
+      border-radius: 50%;
+      background: var(--color-primary);
+      cursor: pointer;
+      border: none;
+      box-shadow: var(--shadow-md);
+      transition: transform var(--transition-fast);
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .result-display {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-md);
+    &.info {
+      background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+      border: 1px solid var(--color-info);
+    }
+    .result-content {
+      text-align: center;
+      .result-label {
+        display: block;
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-xs);
+      }
+      .result-value {
+        display: block;
+        font-size: var(--font-size-2xl);
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+    }
+  }
 </style>
+

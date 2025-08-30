@@ -13,11 +13,4 @@
   <meta property="og:url" content="https://ip-calc.as93.net/subnet-calculator" />
 </svelte:head>
 
-<div class="page">
-
-  <!-- Main Content -->
-  <div class="container">
-    <SubnetCalculator />
-  </div>
-</div>
-
+<SubnetCalculator />
