@@ -296,6 +296,9 @@
 
   .class-info {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .class-value {
