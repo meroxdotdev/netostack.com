@@ -1,0 +1,76 @@
+// Theme Colors
+:root {
+  // Background colors
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  
+  // Text colors
+  --text-primary: #c9d1d9;
+  --text-secondary: #7d8590;
+  
+  // Primary brand color
+  --color-primary: #dbf465;
+  --color-primary-hover: #c5e146;
+  --color-primary-dark: #a8c237;
+  
+  // Action colors
+  --color-success: #238636;
+  --color-success-light: #2ea043;
+  --color-warning: #d29922;
+  --color-warning-light: #fb8500;
+  --color-error: #da3633;
+  --color-error-light: #f85149;
+  --color-info: #0969da;
+  --color-info-light: #1f6feb;
+  
+  // Border and surface colors
+  --border-primary: #30363d;
+  --border-secondary: #21262d;
+  --surface-hover: #262c36;
+  --surface-active: #2f3640;
+  
+  // Shadows
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  
+  // Border radius
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  
+  // Spacing (using rem for scalability)
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  // Font
+  --font-mono: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  
+  // Transitions
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+// Light mode overrides (for future use)
+.theme-light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #f0f2f5;
+  --text-primary: #24292f;
+  --text-secondary: #656d76;
+  --border-primary: #d1d9e0;
+  --border-secondary: #d8dee4;
+  --surface-hover: #f3f4f6;
+  --surface-active: #e5e7ea;
+}
