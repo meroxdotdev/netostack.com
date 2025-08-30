@@ -198,32 +198,32 @@
     <h3>Understanding Subnet Calculations</h3>
     
     <div class="explainer-grid">
-      <div class="explainer-card">
+      <div class="explainer-card no-hover">
         <h4>Network Address</h4>
         <p>The first IP address in a subnet, used to identify the network itself. Hosts cannot be assigned this address as it represents the entire network segment.</p>
       </div>
 
-      <div class="explainer-card">
+      <div class="explainer-card no-hover">
         <h4>Broadcast Address</h4>
         <p>The last IP address in a subnet, used to send messages to all devices on the network. When a packet is sent to this address, it reaches every host in the subnet.</p>
       </div>
 
-      <div class="explainer-card">
+      <div class="explainer-card no-hover">
         <h4>Subnet Mask</h4>
         <p>Defines which portion of an IP address represents the network and which represents the host. A mask of /24 means the first 24 bits identify the network.</p>
       </div>
 
-      <div class="explainer-card">
+      <div class="explainer-card no-hover">
         <h4>Wildcard Mask</h4>
         <p>The inverse of a subnet mask, used in access control lists. Where the subnet mask has 1s, the wildcard has 0s, and vice versa.</p>
       </div>
 
-      <div class="explainer-card">
+      <div class="explainer-card no-hover">
         <h4>Usable Hosts</h4>
         <p>The number of IP addresses available for devices. Always 2 less than total addresses because network and broadcast addresses are reserved.</p>
       </div>
 
-      <div class="explainer-card">
+      <div class="explainer-card no-hover">
         <h4>CIDR Notation</h4>
         <p>Classless Inter-Domain Routing notation (e.g., /24) indicates how many bits are used for the network portion. Higher numbers mean smaller subnets with fewer hosts.</p>
       </div>

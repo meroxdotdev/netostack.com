@@ -115,22 +115,22 @@
 		<h3>Understanding CIDR and Subnet Masks</h3>
 
 		<div class="explainer-grid">
-			<div class="explainer-card">
+			<div class="explainer-card no-hover">
 				<h4>CIDR Notation</h4>
 				<p>CIDR (Classless Inter-Domain Routing) uses a slash followed by a number (e.g., /24) to indicate how many bits are used for the network portion of an IP address.</p>
 			</div>
 
-			<div class="explainer-card">
+			<div class="explainer-card no-hover">
 				<h4>Subnet Mask</h4>
 				<p>A 32-bit number that masks an IP address to divide it into network and host portions. Written in dotted decimal notation (e.g., 255.255.255.0).</p>
 			</div>
 
-			<div class="explainer-card">
+			<div class="explainer-card no-hover">
 				<h4>Network Bits</h4>
 				<p>The leftmost bits in an IP address that identify the network. More network bits mean smaller subnets with fewer available host addresses.</p>
 			</div>
 
-			<div class="explainer-card">
+			<div class="explainer-card no-hover">
 				<h4>Host Bits</h4>
 				<p>The remaining bits used for host addresses within the network. More host bits allow for more devices but fewer possible subnets.</p>
 			</div>
@@ -286,26 +286,6 @@
       padding: var(--spacing-md);
       transition: all var(--transition-fast);
 			cursor: default;
-
-      &:hover {
-        border-color: color-mix(in srgb, var(--color-primary) 33%, transparent);
-        box-shadow: var(--shadow-md);
-        transform: translateY(-2px);
-      }
-
-      h4 {
-        color: var(--color-primary);
-        font-size: var(--font-size-md);
-        margin-bottom: var(--spacing-sm);
-        font-weight: 600;
-      }
-
-      p {
-        color: var(--text-primary);
-        font-size: var(--font-size-sm);
-        line-height: 1.6;
-        margin: 0;
-      }
     }
 
     .conversion-examples {
@@ -381,11 +361,9 @@
         padding: 0;
 
         li {
-          margin-bottom: var(--spacing-sm);
+          margin-bottom: var(--spacing-xs);
           color: var(--text-primary);
           font-size: var(--font-size-sm);
-          line-height: 1.6;
-
           &::before {
             content: "•";
             color: var(--color-warning);

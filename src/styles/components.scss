@@ -148,16 +148,19 @@
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
   transition: all var(--transition-fast);
-  cursor: help;
+
+  &:not(.no-hover) {
+    cursor: help;
+  }
   
-  &:hover {
+  &:not(.no-hover):hover {
     box-shadow: var(--shadow-md);
     border-color: color-mix(in srgb, var(--color-primary) 33%, transparent);
   }
 }
 
 .explainer-card {
-  &:hover {
+  &:not(.no-hover):hover {
     transform: translateY(-2px);
   }
   

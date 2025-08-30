@@ -687,20 +687,12 @@
     font-size: var(--font-size-sm);
     font-weight: 600;
     color: var(--text-primary);
+    width: fit-content;
+    display: flex;
+    &.class-a { background-color: var(--color-info); }
+    &.class-b { background-color: var(--color-success); }
+    &.class-c { background-color: var(--color-warning); }
   }
-
-  .class-badge.class-a {
-    background-color: var(--color-info);
-  }
-
-  .class-badge.class-b {
-    background-color: var(--color-success);
-  }
-
-  .class-badge.class-c {
-    background-color: var(--color-warning);
-  }
-
   .class-notes {
     margin-top: var(--spacing-md);
     padding: var(--spacing-md);

@@ -89,11 +89,8 @@
     }
     
     li {
-      margin-bottom: var(--spacing-sm);
       color: var(--text-primary);
-      font-size: var(--font-size-sm);
-      line-height: 1.6;
-      
+      font-size: var(--font-size-sm);      
       &::before {
         content: "•";
         color: var(--color-warning);

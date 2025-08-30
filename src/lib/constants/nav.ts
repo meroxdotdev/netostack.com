@@ -25,6 +25,7 @@ export const TOP_NAV: NavItem[] = [
   { href: '/subnet-calculator', label: 'Subnet Calc' },
   { href: '/cidr-convertor', label: 'CIDR Convert' },
   { href: '/ip-address-convertor', label: 'IP Convert' },
+  { href: '/ip-family-convertor', label: 'IPv4/IPv6' },
   { href: '/ip-reference', label: 'Reference' }
 ];
 
@@ -42,6 +43,20 @@ export const SUB_NAV: Record<string, NavItem[]> = {
       label: 'Mask → CIDR',
       description: 'Convert subnet mask format (255.255.255.0) to CIDR notation (/24)',
       icon: 'cidr-convertor'
+    }
+  ],
+  '/ip-family-convertor': [
+    {
+      href: '/ip-family-convertor/ipv4-to-ipv6',
+      label: 'IPv4 → IPv6',
+      description: 'Convert IPv4 addresses to IPv6 format using IPv4-mapped IPv6 addressing',
+      icon: 'ipv4-ipv6'
+    },
+    {
+      href: '/ip-family-convertor/ipv6-to-ipv4',
+      label: 'IPv6 → IPv4',
+      description: 'Extract IPv4 addresses from IPv4-mapped IPv6 addresses',
+      icon: 'ipv6-ipv4'
     }
   ],
   '/ip-reference': [
