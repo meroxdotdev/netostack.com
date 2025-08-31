@@ -647,7 +647,7 @@
     border-radius: var(--radius-sm);
     font-size: var(--font-size-sm);
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--bg-primary);
   }
 
   .format-badge.binary {
@@ -686,7 +686,7 @@
     border-radius: var(--radius-sm);
     font-size: var(--font-size-sm);
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--bg-primary);
     width: fit-content;
     display: flex;
     &.class-a { background-color: var(--color-info); }

@@ -463,7 +463,7 @@
 
   .type-badge {
     background-color: var(--color-info);
-    color: white;
+    color: var(--bg-primary);
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--radius-sm);
     font-size: var(--font-size-xs);

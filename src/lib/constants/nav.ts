@@ -71,6 +71,12 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       label: 'CIDR Summarizer',
       description: 'Optimize mixed IP addresses, CIDR blocks, and ranges into minimal CIDR prefixes',
       icon: 'cidr-summarize'
+    },
+    { 
+      href: '/cidr/split',
+      label: 'Subnet Splitter',
+      description: 'Split a network into N equal child subnets or to a target prefix length',
+      icon: 'subnet-splitter'
     }
   ],
   '/ip-address-convertor': [

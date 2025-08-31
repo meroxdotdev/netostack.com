@@ -315,16 +315,14 @@
 
   .result-header {
     background: linear-gradient(135deg, var(--color-success), var(--color-success-light));
-    padding: var(--spacing-md);
-    color: white;
-    
+    padding: var(--spacing-md);    
     h4 {
       margin: 0;
       display: flex;
       align-items: center;
       gap: var(--spacing-sm);
       font-size: var(--font-size-md);
-      
+      color: var(--bg-primary);
       :global(.icon) {
         width: 1.2rem;
         height: 1.2rem;

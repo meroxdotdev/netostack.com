@@ -327,51 +327,51 @@ fe80::/10`
   {/if}
 </div>
 
-<style>
+<style lang="scss">
+  /* ---------- Reusable tokens (no visual change) ---------- */
+  %section-title {
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-md);
+  }
+
+  %bg-surface {
+    background-color: var(--bg-secondary);
+  }
+
+  %tooltip-fade {
+    opacity: 0.7;
+    transition: opacity var(--transition-fast);
+    &:hover { opacity: 1; }
+  }
+
+  /* ---------- Mode selection ---------- */
   .mode-section {
     margin-bottom: var(--spacing-lg);
-    
-    h3 {
-      color: var(--color-primary);
-      margin-bottom: var(--spacing-md);
-    }
-    
+    h3 { @extend %section-title; }
     .tabs {
       .tab {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
-        
         :global(.tooltip-trigger) {
-          opacity: 0.7;
-          transition: opacity var(--transition-fast);
-          
-          &:hover {
-            opacity: 1;
-          }
+          @extend %tooltip-fade;
         }
       }
     }
   }
 
+  /* ---------- Input section ---------- */
   .input-section {
     margin-bottom: var(--spacing-lg);
-    
-    h3, h4 {
-      color: var(--color-primary);
-      margin-bottom: var(--spacing-md);
-    }
-    
+    h3, h4 { @extend %section-title; }
     .input-wrapper {
       position: relative;
-      
       .clear-btn {
         position: absolute;
         top: var(--spacing-sm);
         right: var(--spacing-sm);
       }
     }
-    
     .input-textarea {
       width: 100%;
       min-height: 200px;
@@ -382,15 +382,14 @@ fe80::/10`
     }
   }
 
+  /* ---------- Examples ---------- */
   .examples-section {
     margin-top: var(--spacing-md);
-    
     .examples-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: var(--spacing-sm);
     }
-    
     .example-btn {
       padding: var(--spacing-sm);
       background-color: var(--bg-tertiary);
@@ -398,7 +397,6 @@ fe80::/10`
       border-radius: var(--radius-sm);
       font-size: var(--font-size-sm);
       transition: all var(--transition-fast);
-      
       &:hover {
         background-color: var(--surface-hover);
         border-color: var(--color-primary);
@@ -407,6 +405,7 @@ fe80::/10`
     }
   }
 
+  /* ---------- Results top-level ---------- */
   .results-section {
     border-top: 2px solid var(--border-secondary);
     padding-top: var(--spacing-lg);
@@ -417,13 +416,11 @@ fe80::/10`
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
-    
     h3 {
       color: var(--color-primary);
       margin: 0;
     }
   }
-
   .results-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -431,48 +428,29 @@ fe80::/10`
     margin-bottom: var(--spacing-lg);
   }
 
+  /* ---------- Result panels (IPv4 / IPv6) ---------- */
   .result-panel {
-    background-color: var(--bg-secondary);
+    @extend %bg-surface;
     border-radius: var(--radius-lg);
     overflow: hidden;
-    
-    &.ipv4 {
-      border: 2px solid var(--color-info);
-    }
-    
-    &.ipv6 {
-      border: 2px solid var(--color-success);
-    }
-    
+    &.ipv4 { border: 2px solid var(--color-info); }
+    &.ipv6 { border: 2px solid var(--color-success); }
     .panel-header {
       padding: var(--spacing-md);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      
       h4 {
         margin: 0;
-        color: var(--text-primary);
+        color: var(--bg-secondary);
         font-size: var(--font-size-md);
       }
     }
-    
     &.ipv4 .panel-header {
       background: linear-gradient(135deg, var(--color-info), var(--color-info-light));
-      color: white;
-      
-      h4 {
-        color: white;
-      }
     }
-    
     &.ipv6 .panel-header {
       background: linear-gradient(135deg, var(--color-success), var(--color-success-light));
-      color: white;
-      
-      h4 {
-        color: white;
-      }
     }
   }
 
@@ -499,11 +477,9 @@ fe80::/10`
     color: var(--text-primary);
   }
 
+  /* ---------- Stats ---------- */
   .stats-section {
-    h4 {
-      color: var(--color-primary);
-      margin-bottom: var(--spacing-md);
-    }
+    h4 { @extend %section-title; }
   }
 
   .stats-grid {
@@ -513,8 +489,8 @@ fe80::/10`
   }
 
   .stat-card {
+    @extend %bg-surface;
     padding: var(--spacing-md);
-    background-color: var(--bg-secondary);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-primary);
     display: flex;
@@ -535,51 +511,42 @@ fe80::/10`
     font-size: var(--font-size-lg);
     font-weight: 600;
     color: var(--color-primary);
-    
-    &.large {
-      font-size: var(--font-size-xl);
-    }
+    &.large { font-size: var(--font-size-xl); }
   }
 
+  /* ---------- Errors ---------- */
   .error-list {
     margin: var(--spacing-sm) 0;
     padding-left: var(--spacing-md);
-    
     li {
       color: var(--color-error);
       margin-bottom: var(--spacing-xs);
     }
   }
 
+  /* ---------- Labels & tooltips ---------- */
   label {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    
     :global(.tooltip-trigger) {
       color: var(--text-secondary);
-      opacity: 0.7;
-      transition: opacity var(--transition-fast);
-      
-      &:hover {
-        opacity: 1;
-        color: var(--color-info);
-      }
+      @extend %tooltip-fade;
+      &:hover { color: var(--color-info); }
     }
   }
 
+  /* ---------- Buttons (local tweaks) ---------- */
   .btn {
     &.copied {
       color: var(--color-success);
       background-color: rgba(35, 134, 54, 0.1);
       border-color: var(--color-success);
     }
-    
     :global(.icon) {
       width: 1rem;
       height: 1rem;
     }
-    
     &.btn-xs :global(.icon) {
       width: 0.75rem;
       height: 0.75rem;
@@ -590,15 +557,13 @@ fe80::/10`
     .results-grid {
       grid-template-columns: 1fr;
     }
-    
     .stats-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .examples-grid {
       grid-template-columns: 1fr;
     }
-    
     .summary-header {
       flex-direction: column;
       gap: var(--spacing-sm);
@@ -606,3 +571,4 @@ fe80::/10`
     }
   }
 </style>
+

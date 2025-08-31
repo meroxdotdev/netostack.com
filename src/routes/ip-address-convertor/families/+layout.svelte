@@ -168,7 +168,7 @@ h3 :global(.icon) {
   }
 
   .format-badge {
-    color: var(--text-primary);
+    color: var(--bg-primary);
     border-radius: var(--radius-xs);
     padding: 0.1rem 0.25rem;
     &.ipv4 { background-color: var(--color-info); }

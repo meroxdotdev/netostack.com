@@ -928,7 +928,7 @@
       hsl(calc(220 + var(--network-index) * 40), 60%, 60%)
     );
     border-radius: var(--radius-md);
-    color: white;
+    color: var(--bg-primary);
     display: flex;
     justify-content: space-between;
     align-items: center;

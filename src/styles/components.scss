@@ -222,7 +222,8 @@
     svg {
       width: 0.75rem;
       height: 0.75rem;
-      color: var(--text-primary);
+      color: var(--bg-secondary);
+      // color: var(--text-primary);
     }
     
     &.success {
