@@ -77,6 +77,12 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       label: 'Subnet Splitter',
       description: 'Split a network into N equal child subnets or to a target prefix length',
       icon: 'subnet-splitter'
+    },
+    { 
+      href: '/cidr/diff',
+      label: 'Set Difference',
+      description: 'Compute A - B set operations on CIDR blocks, ranges, and IP addresses',
+      icon: 'set-difference'
     }
   ],
   '/ip-address-convertor': [

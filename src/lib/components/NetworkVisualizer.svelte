@@ -359,7 +359,7 @@
 						
 						&.network-bit {
 							background-color: var(--color-info);
-							color: var(--text-primary);
+							color: var(--bg-secondary);
 						}
 						
 						&.host-bit {

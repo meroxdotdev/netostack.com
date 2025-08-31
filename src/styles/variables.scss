@@ -9,10 +9,11 @@
   /* Text colors */
   --text-primary: #c9d1d9;
   --text-secondary: #7d8590;
+  --text-tertiary: #6272a4;
   
   /* Primary brand color */
-  --color-primary: #dbf465;
-  --color-primary-hover: #c5e146;
+  --color-primary: #e3ed70; // was #f1fa8c;
+  --color-primary-hover: #FFFFA5;
   --color-primary-dark: #a8c237;
   
   /* Action colors */
@@ -24,6 +25,10 @@
   --color-error-light: #FF6E6E;
   --color-info: #8be9fd;
   --color-info-light: #A4FFFF;
+
+  --color-purple: #BD93F9;
+  --color-pink: #ff79c6;
+
   
   /* Border and surface colors */
   --border-primary: #30363d;
