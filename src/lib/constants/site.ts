@@ -54,6 +54,10 @@ export const pages = {
   ipConverter: {
     title: 'IP Address Converter - IP Calc',
     description: 'Convert IP addresses between decimal, binary, hexadecimal, and octal formats. Professional IP address conversion tool.'
+  },
+  ipv6SubnetCalculator: {
+    title: 'IPv6 Subnet Calculator - IP Calc',
+    description: 'Calculate IPv6 subnets with 128-bit addressing. Plan modern networks with IPv6 prefix lengths, address compression, and visualizations.'
   }
 };
 

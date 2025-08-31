@@ -61,6 +61,9 @@
     background-color: var(--bg-tertiary);
     border-bottom: 1px solid var(--border-primary);
     padding: var(--spacing-sm) 0;
+    @media (max-width: 768px) {
+      display: none;
+    }
   }
   
   /* Flat navigation styles (existing) */

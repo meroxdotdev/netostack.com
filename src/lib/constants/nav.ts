@@ -24,10 +24,16 @@ export const TOP_NAV: NavItem[] = [
 export const SUB_NAV: Record<string, NavItem[] | NavGroup[]> = {
   '/subnetting': [
     { 
-      href: '/subnetting/subnet-calculator', 
-      label: 'Subnet Calculator',
+      href: '/subnetting/ipv4-subnet-calculator', 
+      label: 'IPv4 Subnet Calculator',
       description: 'Calculate subnet information, network addresses, broadcast addresses, and host ranges with visual network analysis',
       icon: 'subnet-calculator'
+    },
+    { 
+      href: '/subnetting/ipv6-subnet-calculator', 
+      label: 'IPv6 Subnet Calculator',
+      description: 'Calculate IPv6 subnets with 128-bit addressing and modern network prefix planning',
+      icon: 'ipv6-subnet-calculator'
     },
     { 
       href: '/subnetting/vlsm-calculator', 
@@ -50,10 +56,10 @@ export const SUB_NAV: Record<string, NavItem[] | NavGroup[]> = {
       icon: 'cidr-convertor'
     },
     { 
-      href: '/cidr-convertor/subnet-mask-to-cidr', 
+      href: '/cidr-convertor/subnet-mask-to-cidr',
       label: 'Mask → CIDR',
       description: 'Convert subnet mask format (255.255.255.0) to CIDR notation (/24)',
-      icon: 'cidr-convertor'
+      icon: 'cidr-convertor-mask'
     }
   ],
   '/ip-address-convertor': [
