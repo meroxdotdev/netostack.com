@@ -202,7 +202,10 @@
   }
 
   .mode-item {
+    border: 1px solid var(--border-primary);
     border-left: 4px solid var(--color-info);
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
   }
 
   .mode-example {

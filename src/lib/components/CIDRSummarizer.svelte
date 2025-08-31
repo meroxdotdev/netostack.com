@@ -47,6 +47,14 @@
 10.0.0.4`
     },
     {
+      label: 'Mode Comparison',
+      content: `192.168.1.1
+192.168.1.3
+192.168.1.5
+192.168.1.7
+192.168.1.9-192.168.1.12`
+    },
+    {
       label: 'Complex Mix',
       content: `172.16.0.0/12
 192.168.1.1
@@ -166,13 +174,13 @@ fe80::/10`
           class="input-textarea"
           rows="8"
         ></textarea>
+        
         <button 
           type="button" 
           class="btn btn-secondary btn-sm clear-btn"
           onclick={clearInput}
         >
-          <Icon name="trash" size="sm" />
-          Clear
+          <Tooltip text="Clear input"><Icon name="trash" size="sm" /></Tooltip>
         </button>
       </div>
     </div>
@@ -308,7 +316,7 @@ fe80::/10`
               <span class="stat-label">Summarized IPv6 Blocks</span>
               <span class="stat-value">{result.stats.summarizedIpv6Count}</span>
             </div>
-            <div class="stat-card span-full">
+            <div class="stat-card">
               <span class="stat-label">Total Addresses Covered</span>
               <span class="stat-value large">{result.stats.totalAddressesCovered}</span>
             </div>
@@ -513,10 +521,7 @@ fe80::/10`
     flex-direction: column;
     align-items: center;
     text-align: center;
-    
-    &.span-full {
-      grid-column: 1 / -1;
-    }
+    justify-content: space-between;
   }
 
   .stat-label {

@@ -227,6 +227,54 @@ function rangeToCIDRs(range: IPRange): string[] {
   return cidrs;
 }
 
+/* Convert ranges to CIDR blocks with minimal cover mode */
+function rangeToCIDRsMinimal(range: IPRange): string[] {
+  const cidrs: string[] = [];
+  let start = range.start;
+  const end = range.end;
+  const maxPrefix = range.version === 4 ? 32 : 128;
+  
+  // Safety counter to prevent infinite loops
+  let iterations = 0;
+  const maxIterations = 100; // Lower limit for minimal cover
+  
+  while (start <= end && iterations < maxIterations) {
+    iterations++;
+    
+    // For minimal cover, try to find larger blocks first
+    let prefixLength = 0; // Start with largest possible block
+    let blockSize = 1n << BigInt(maxPrefix);
+    
+    // Find the largest block that starts at or before start and covers as much as possible
+    for (let p = 0; p <= maxPrefix; p++) {
+      const testBlockSize = 1n << BigInt(maxPrefix - p);
+      const alignedStart = start & ~(testBlockSize - 1n);
+      
+      // Accept block if it's aligned and doesn't go too far past our end
+      if (alignedStart <= start && start + testBlockSize - 1n <= end + testBlockSize / 4n) {
+        blockSize = testBlockSize;
+        prefixLength = p;
+        start = alignedStart; // Align to block boundary
+      } else {
+        break;
+      }
+    }
+    
+    const ip = range.version === 4 ? bigIntToIPv4(start) : bigIntToIPv6(start);
+    cidrs.push(`${ip}/${prefixLength}`);
+    
+    start += blockSize;
+  }
+  
+  if (iterations >= maxIterations) {
+    // Fallback for complex ranges
+    const ip = range.version === 4 ? bigIntToIPv4(range.start) : bigIntToIPv6(range.start);
+    return [`${ip}/${maxPrefix}`];
+  }
+  
+  return cidrs;
+}
+
 /* Main summarization function */
 export function summarizeCIDRs(
   inputText: string,
@@ -273,12 +321,17 @@ export function summarizeCIDRs(
     }
   });
   
-  // Merge and convert to CIDRs
+  // Merge ranges first
   const mergedIpv4 = mergeRanges(ipv4Ranges);
   const mergedIpv6 = mergeRanges(ipv6Ranges);
   
-  const ipv4CIDRs = mergedIpv4.flatMap(rangeToCIDRs);
-  const ipv6CIDRs = mergedIpv6.flatMap(rangeToCIDRs);
+  // Apply different algorithms based on mode
+  const ipv4CIDRs = mode === 'minimal-cover' 
+    ? mergedIpv4.flatMap(rangeToCIDRsMinimal)
+    : mergedIpv4.flatMap(rangeToCIDRs);
+  const ipv6CIDRs = mode === 'minimal-cover'
+    ? mergedIpv6.flatMap(rangeToCIDRsMinimal) 
+    : mergedIpv6.flatMap(rangeToCIDRs);
   
   // Calculate statistics
   const totalV4 = mergedIpv4.reduce((sum, r) => {

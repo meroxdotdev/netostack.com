@@ -21,7 +21,7 @@ export const TOP_NAV: NavItem[] = [
 ];
 
 // Sections that have sub-pages (drives the conditional SubHeader)
-export const SUB_NAV: Record<string, NavItem[] | NavGroup[]> = {
+export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
   '/subnetting': [
     { 
       href: '/subnetting/ipv4-subnet-calculator', 
