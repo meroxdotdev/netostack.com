@@ -1,7 +1,7 @@
 <script lang="ts">
-  import '../../styles/pages.scss';
-  import '../../styles/converters.scss';
-  import '../../styles/components.scss';
+  import '../../../styles/pages.scss';
+  import '../../../styles/converters.scss';
+  import '../../../styles/components.scss';
   import { site, pages } from '$lib/constants/site';
   import Icon from '$lib/components/Icon.svelte';
 </script>

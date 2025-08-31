@@ -9,7 +9,7 @@
   <meta name="keywords" content="IPv4, IPv6, conversion, IPv4-mapped IPv6, IP address converter, network tools" />
   <meta property="og:title" content="IPv4 to IPv6 Converter - {site.title}" />
   <meta property="og:description" content="Convert IPv4 addresses to IPv6 format using IPv4-mapped IPv6 addressing" />
-  <meta property="og:url" content="{site.url}/ip-family-convertor/ipv4-to-ipv6" />
+  <meta property="og:url" content="{site.url}/ip-address-convertor/families/ipv4-to-ipv6" />
 </svelte:head>
 
 <IPFamilyConverter 

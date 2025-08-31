@@ -5,6 +5,11 @@ export type NavItem = {
   icon?: string;
 };
 
+export type NavGroup = {
+  title: string;
+  items: NavItem[];
+};
+
 // Individual standalone pages
 export const STANDALONE_PAGES: NavItem[] = [
   {
@@ -12,12 +17,6 @@ export const STANDALONE_PAGES: NavItem[] = [
     label: 'Subnet Calculator',
     description: 'Calculate subnet information, network addresses, broadcast addresses, and host ranges with visual network analysis',
     icon: 'subnet-calculator'
-  },
-  {
-    href: '/ip-address-convertor',
-    label: 'IP Address Converter',
-    description: 'Convert IP addresses between decimal, binary, hexadecimal, and octal number systems',
-    icon: 'ip-convertor'
   }
 ];
 
@@ -25,12 +24,11 @@ export const TOP_NAV: NavItem[] = [
   { href: '/subnet-calculator', label: 'Subnet Calc' },
   { href: '/cidr-convertor', label: 'CIDR Convert' },
   { href: '/ip-address-convertor', label: 'IP Convert' },
-  { href: '/ip-family-convertor', label: 'IPv4/IPv6' },
   { href: '/ip-reference', label: 'Reference' }
 ];
 
 // Sections that have sub-pages (drives the conditional SubHeader)
-export const SUB_NAV: Record<string, NavItem[]> = {
+export const SUB_NAV: Record<string, NavItem[] | NavGroup[]> = {
   '/cidr-convertor': [
     { 
       href: '/cidr-convertor/cidr-to-subnet-mask', 
@@ -45,18 +43,34 @@ export const SUB_NAV: Record<string, NavItem[]> = {
       icon: 'cidr-convertor'
     }
   ],
-  '/ip-family-convertor': [
+  '/ip-address-convertor': [
     {
-      href: '/ip-family-convertor/ipv4-to-ipv6',
-      label: 'IPv4 → IPv6',
-      description: 'Convert IPv4 addresses to IPv6 format using IPv4-mapped IPv6 addressing',
-      icon: 'ipv4-ipv6'
+      title: 'Number Formats',
+      items: [
+        {
+          href: '/ip-address-convertor/representations',
+          label: 'Format Representations',
+          description: 'Convert IP addresses between decimal, binary, hexadecimal, and octal number systems',
+          icon: 'ip-convertor'
+        }
+      ]
     },
     {
-      href: '/ip-family-convertor/ipv6-to-ipv4',
-      label: 'IPv6 → IPv4',
-      description: 'Extract IPv4 addresses from IPv4-mapped IPv6 addresses',
-      icon: 'ipv6-ipv4'
+      title: 'IP Families',
+      items: [
+        {
+          href: '/ip-address-convertor/families/ipv4-to-ipv6',
+          label: 'IPv4 → IPv6',
+          description: 'Convert IPv4 addresses to IPv6 format using IPv4-mapped IPv6 addressing',
+          icon: 'ipv4-ipv6'
+        },
+        {
+          href: '/ip-address-convertor/families/ipv6-to-ipv4',
+          label: 'IPv6 → IPv4',
+          description: 'Extract IPv4 addresses from IPv4-mapped IPv6 addresses',
+          icon: 'ipv6-ipv4'
+        }
+      ]
     }
   ],
   '/ip-reference': [
@@ -87,10 +101,27 @@ export function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(href + '/');
 }
 
+// Helper function to extract all nav items from mixed structure
+function extractAllNavItems(navStructure: (NavItem | NavGroup)[]): NavItem[] {
+  const items: NavItem[] = [];
+  
+  for (const item of navStructure) {
+    if ('href' in item) {
+      // It's a NavItem
+      items.push(item);
+    } else if ('title' in item && 'items' in item) {
+      // It's a NavGroup
+      items.push(...item.items);
+    }
+  }
+  
+  return items;
+}
+
 // All pages for homepage navigation - combines standalone pages with sub-pages
 export const ALL_PAGES: NavItem[] = [
   ...STANDALONE_PAGES,
-  ...Object.values(SUB_NAV).flat()
+  ...Object.values(SUB_NAV).map(section => extractAllNavItems(section as (NavItem | NavGroup)[])).flat()
 ];
 
 // Helper: find the section key (e.g. '/reference') that matches a pathname
