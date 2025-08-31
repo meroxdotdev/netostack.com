@@ -11,17 +11,10 @@ export type NavGroup = {
 };
 
 // Individual standalone pages
-export const STANDALONE_PAGES: NavItem[] = [
-  {
-    href: '/subnet-calculator',
-    label: 'Subnet Calculator',
-    description: 'Calculate subnet information, network addresses, broadcast addresses, and host ranges with visual network analysis',
-    icon: 'subnet-calculator'
-  }
-];
+export const STANDALONE_PAGES: NavItem[] = [];
 
 export const TOP_NAV: NavItem[] = [
-  { href: '/subnet-calculator', label: 'Subnet Calc' },
+  { href: '/subnetting', label: 'Subnetting' },
   { href: '/cidr-convertor', label: 'CIDR Convert' },
   { href: '/ip-address-convertor', label: 'IP Convert' },
   { href: '/ip-reference', label: 'Reference' }
@@ -29,6 +22,20 @@ export const TOP_NAV: NavItem[] = [
 
 // Sections that have sub-pages (drives the conditional SubHeader)
 export const SUB_NAV: Record<string, NavItem[] | NavGroup[]> = {
+  '/subnetting': [
+    { 
+      href: '/subnetting/subnet-calculator', 
+      label: 'Subnet Calculator',
+      description: 'Calculate subnet information, network addresses, broadcast addresses, and host ranges with visual network analysis',
+      icon: 'subnet-calculator'
+    },
+    { 
+      href: '/subnetting/vlsm-calculator', 
+      label: 'VLSM Calculator',
+      description: 'Variable Length Subnet Mask calculator to break networks into multiple smaller subnets with optimal allocation',
+      icon: 'vlsm-calculator'
+    }
+  ],
   '/cidr-convertor': [
     { 
       href: '/cidr-convertor/cidr-to-subnet-mask', 

@@ -1,17 +1,18 @@
 <script lang="ts">
-  import SubnetCalculator from '$lib/components/SubnetCalculator.svelte';
-  import { site, pages } from '$lib/constants/site';
-  import '../../styles/pages.scss';
+  import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
   
+  onMount(() => {
+    goto('/subnetting/subnet-calculator', { replaceState: true });
+  });
 </script>
 
 <svelte:head>
-  <title>{pages.subnetCalculator.title}</title>
-  <meta name="description" content="{pages.subnetCalculator.description}" />
-  <meta name="keywords" content="{site.keywords}" />
-  <meta property="og:title" content="{pages.subnetCalculator.title}" />
-  <meta property="og:description" content="{pages.subnetCalculator.description}" />
-  <meta property="og:url" content="{site.url}/subnet-calculator" />
+  <title>Redirecting to Subnet Calculator...</title>
+  <meta http-equiv="refresh" content="0; url=/subnetting/subnet-calculator" />
 </svelte:head>
 
-<SubnetCalculator />
+<div>
+  <p>Redirecting to the new subnet calculator location...</p>
+  <p>If you are not redirected automatically, <a href="/subnetting/subnet-calculator">click here</a>.</p>
+</div>
