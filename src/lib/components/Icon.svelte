@@ -123,6 +123,8 @@
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path opacity=".4" d=""/><path d="M96 320C96 306.7 106.7 296 120 296L520 296C533.3 296 544 306.7 544 320C544 333.3 533.3 344 520 344L120 344C106.7 344 96 333.3 96 320z"/></svg>
   {:else if name === 'containment'}
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path opacity=".4" d=""/><path d="M527.7 142.7C540.3 138.4 547 124.8 542.7 112.3C538.4 99.8 524.8 93 512.3 97.3L112.3 233.3C102.6 236.6 96 245.7 96 256C96 266.3 102.5 275.4 112.3 278.7L512.3 414.7C524.8 419 538.5 412.3 542.7 399.7C546.9 387.1 540.3 373.5 527.7 369.3L194.6 256L527.7 142.7zM120 496C106.7 496 96 506.7 96 520C96 533.3 106.7 544 120 544L520 544C533.3 544 544 533.3 544 520C544 506.7 533.3 496 520 496L120 496z"/></svg>
+  {:else if name === 'next-available-subnet'}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path opacity=".4" d="M144 288L144 352L344 352C357.3 352 368 362.7 368 376L368 441.4L489.4 320L368 198.6L368 264C368 277.3 357.3 288 344 288L144 288z"/><path d="M489.4 320L368 198.6L368 264C368 277.3 357.3 288 344 288L144 288L144 352L344 352C357.3 352 368 362.7 368 376L368 441.4L489.4 320zM534.7 297.4C547.2 309.9 547.2 330.2 534.7 342.7L374.7 502.7C365.5 511.9 351.8 514.6 339.8 509.6L339.8 509.6C327.8 504.6 320 493 320 480L320 400L144 400C117.5 400 96 378.5 96 352L96 288C96 261.5 117.5 240 144 240L320 240L320 160C320 147.1 327.8 135.4 339.8 130.4L339.8 130.4C351.8 125.4 365.5 128.2 374.7 137.3L534.7 297.3z"/></svg>
   {:else}
     <!-- Default fallback icon -->
     <svg fill="currentColor" viewBox="0 0 24 24">
@@ -139,6 +141,10 @@
     max-width: 5rem;
     display: inline-block;
     vertical-align: middle;
+    &.w-2 {
+      width: 1rem;
+      height: 1rem;
+    }
     &.w-4 {
       width: 1.25rem;
       height: 1.25rem;

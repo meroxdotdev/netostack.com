@@ -74,9 +74,15 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
     },
     { 
       href: '/cidr/split',
-      label: 'Subnet Splitter',
+      label: 'CIDR Split',
       description: 'Split a network into N equal child subnets or to a target prefix length',
       icon: 'subnet-splitter'
+    },
+    { 
+      href: '/cidr/next-available',
+      label: 'Next Available Subnet',
+      description: 'Find available subnets from pools minus allocations with first-fit or best-fit policies',
+      icon: 'next-available-subnet'
     },
     {
       title: 'Set Operations',
