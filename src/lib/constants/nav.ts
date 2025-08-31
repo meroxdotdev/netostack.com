@@ -75,6 +75,23 @@ export const SUB_NAV: Record<string, NavItem[] | NavGroup[]> = {
       ]
     },
     {
+      title: 'IPv6 Notation',
+      items: [
+        {
+          href: '/ip-address-convertor/notation/ipv6-expand',
+          label: 'IPv6 Expand',
+          description: 'Expand compressed IPv6 addresses to full 128-bit hexadecimal format',
+          icon: 'ipv6-expand'
+        },
+        {
+          href: '/ip-address-convertor/notation/ipv6-compress',
+          label: 'IPv6 Compress',
+          description: 'Compress expanded IPv6 addresses using :: notation and removing leading zeros',
+          icon: 'ipv6-compress'
+        }
+      ]
+    },
+    {
       title: 'IP Families',
       items: [
         {

@@ -58,6 +58,14 @@ export const pages = {
   ipv6SubnetCalculator: {
     title: 'IPv6 Subnet Calculator - IP Calc',
     description: 'Calculate IPv6 subnets with 128-bit addressing. Plan modern networks with IPv6 prefix lengths, address compression, and visualizations.'
+  },
+  ipv6Expand: {
+    title: 'IPv6 Address Expander - IP Calc',
+    description: 'Expand compressed IPv6 addresses to full 128-bit format. Convert short IPv6 notation like 2001:db8::1 to complete format.'
+  },
+  ipv6Compress: {
+    title: 'IPv6 Address Compressor - IP Calc', 
+    description: 'Compress expanded IPv6 addresses to shortened format using :: notation and removing leading zeros.'
   }
 };
 

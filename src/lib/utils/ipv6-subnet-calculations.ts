@@ -26,7 +26,7 @@ export interface IPv6ValidationResult {
 }
 
 /* Expand IPv6 address to full 128-bit representation */
-function expandIPv6(address: string): string {
+export function expandIPv6(address: string): string {
   // Remove prefix if present
   const cleanAddress = address.split('/')[0];
   
@@ -49,7 +49,7 @@ function expandIPv6(address: string): string {
 }
 
 /* Compress IPv6 address using :: notation */
-function compressIPv6(address: string): string {
+export function compressIPv6(address: string): string {
   const expanded = expandIPv6(address);
   const groups = expanded.split(':');
   

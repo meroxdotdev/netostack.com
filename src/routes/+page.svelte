@@ -3,41 +3,6 @@
   import { site, pages, about } from '$lib/constants/site';
   import { ALL_PAGES } from '$lib/constants/nav';
   import Icon from '$lib/components/Icon.svelte';
-  
-  let darkMode = $state(true); // Default to hacker theme
-
-  /**
-   * Initialize theme from localStorage
-   */
-  function initializeTheme() {
-    if (typeof window === 'undefined') return;
-    
-    const saved = localStorage.getItem('theme');
-    if (saved === 'light') {
-      darkMode = false;
-      document.documentElement.classList.add('theme-light');
-    }
-  }
-
-  /**
-   * Toggle theme
-   */
-  function toggleTheme() {
-    darkMode = !darkMode;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-      if (darkMode) {
-        document.documentElement.classList.remove('theme-light');
-      } else {
-        document.documentElement.classList.add('theme-light');
-      }
-    }
-  }
-
-  // Initialize on mount
-  $effect(() => {
-    initializeTheme();
-  });
 </script>
 
 <svelte:head>
@@ -55,10 +20,7 @@
 <section class="hero">
   <div class="hero-content">
     <h2>{site.title}</h2>
-    <p class="hero-description">
-      {about.line1}<br>
-      {about.line2}
-    </p>
+    <p class="hero-description">{about.line1}</p>
   </div>
 </section>
 
