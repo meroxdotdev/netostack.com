@@ -1,4 +1,4 @@
-<!-- src/routes/cidr-convertor/+layout.svelte -->
+<!-- src/routes/cidr/mask-converter/+layout.svelte -->
 <script lang="ts">
 	import { setContext } from 'svelte';
 	import { writable, derived, get } from 'svelte/store';

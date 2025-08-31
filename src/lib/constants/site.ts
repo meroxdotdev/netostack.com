@@ -66,6 +66,10 @@ export const pages = {
   ipv6Compress: {
     title: 'IPv6 Address Compressor - IP Calc', 
     description: 'Compress expanded IPv6 addresses to shortened format using :: notation and removing leading zeros.'
+  },
+  cidrSummarizer: {
+    title: 'CIDR Summarization Tool - IP Calc',
+    description: 'Optimize mixed IPv4/IPv6 addresses, CIDR blocks, and ranges into minimal CIDR prefixes with route aggregation.'
   }
 };
 

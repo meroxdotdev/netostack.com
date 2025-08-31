@@ -1,4 +1,4 @@
-<!-- src/routes/cidr-convertor/cidr-to-subnet-mask/+page.svelte -->
+<!-- src/routes/cidr/mask-converter/cidr-to-subnet-mask/+page.svelte -->
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { CIDR_CTX, type CidrContext } from '$lib/contexts/cidr';

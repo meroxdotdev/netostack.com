@@ -15,7 +15,7 @@ export const STANDALONE_PAGES: NavItem[] = [];
 
 export const TOP_NAV: NavItem[] = [
   { href: '/subnetting', label: 'Subnetting' },
-  { href: '/cidr-convertor', label: 'CIDR Convert' },
+  { href: '/cidr', label: 'CIDR Convert' },
   { href: '/ip-address-convertor', label: 'IP Tools' },
   { href: '/ip-reference', label: 'Reference' }
 ];
@@ -48,18 +48,29 @@ export const SUB_NAV: Record<string, NavItem[] | NavGroup[]> = {
       icon: 'supernet-calculator'
     }
   ],
-  '/cidr-convertor': [
-    { 
-      href: '/cidr-convertor/cidr-to-subnet-mask', 
-      label: 'CIDR → Mask',
-      description: 'Convert CIDR notation (e.g. /24) to subnet mask format (255.255.255.0)',
-      icon: 'cidr-convertor'
+  '/cidr': [
+    {
+      title: 'CIDR',
+      items: [
+        {
+          href: '/cidr/mask-converter/cidr-to-subnet-mask', 
+          label: 'CIDR → Mask',
+          description: 'Convert CIDR notation (e.g. /24) to subnet mask format (255.255.255.0)',
+          icon: 'cidr-convertor'
+        },
+        { 
+          href: '/cidr/mask-converter/subnet-mask-to-cidr',
+          label: 'Mask → CIDR',
+          description: 'Convert subnet mask format (255.255.255.0) to CIDR notation (/24)',
+          icon: 'cidr-convertor-mask'
+        },
+      ],
     },
     { 
-      href: '/cidr-convertor/subnet-mask-to-cidr',
-      label: 'Mask → CIDR',
-      description: 'Convert subnet mask format (255.255.255.0) to CIDR notation (/24)',
-      icon: 'cidr-convertor-mask'
+      href: '/cidr/summarize',
+      label: 'CIDR Summarizer',
+      description: 'Optimize mixed IP addresses, CIDR blocks, and ranges into minimal CIDR prefixes',
+      icon: 'cidr-summarize'
     }
   ],
   '/ip-address-convertor': [

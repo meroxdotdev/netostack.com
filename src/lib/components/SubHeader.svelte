@@ -3,25 +3,26 @@
   import { SUB_NAV, findSectionKey, isActive, type NavItem, type NavGroup } from '$lib/constants/nav';
 
   $: currentPath = $page.url.pathname;
-  $: sectionKey = findSectionKey(currentPath); // e.g. '/reference' or '/cidr-convertor'
+  $: sectionKey = findSectionKey(currentPath); // e.g. '/reference' or '/cidr'
   $: navStructure = sectionKey ? SUB_NAV[sectionKey] : null;
   
-  // Check if the structure contains groups or just items
-  $: hasGroups = navStructure && navStructure.length > 0 && 'title' in navStructure[0];
+  // Check if the structure contains any groups
+  $: hasGroups = navStructure && navStructure.some(item => 'title' in item);
 </script>
 
 {#if navStructure}
   <nav class="sub-nav" aria-label="Section">
     <div class="container">
       {#if hasGroups}
-        <!-- Grouped navigation -->
-        <div class="sub-nav-groups">
-          {#each navStructure as group}
-            {#if 'title' in group}
+        <!-- Mixed navigation with groups and flat items -->
+        <div class="mixed-nav">
+          <!-- Render all groups first -->
+          {#each navStructure as item}
+            {#if 'title' in item}
               <div class="nav-group">
-                <div class="group-title">{group.title}</div>
+                <div class="group-title">{item.title}</div>
                 <div class="group-links">
-                  {#each group.items as link}
+                  {#each item.items as link}
                     <a
                       href={link.href}
                       class="sub-nav-link {isActive(currentPath, link.href) ? 'active' : ''}"
@@ -34,6 +35,26 @@
               </div>
             {/if}
           {/each}
+          
+          <!-- Render standalone links under "More" group if any exist -->
+          {#if navStructure.some(item => 'href' in item)}
+            <div class="nav-group">
+              <div class="group-title">More</div>
+              <div class="group-links">
+                {#each navStructure as item}
+                  {#if 'href' in item}
+                    <a
+                      href={item.href}
+                      class="sub-nav-link {isActive(currentPath, item.href) ? 'active' : ''}"
+                      aria-current={isActive(currentPath, item.href) ? 'page' : undefined}
+                    >
+                      {item.label}
+                    </a>
+                  {/if}
+                {/each}
+              </div>
+            </div>
+          {/if}
         </div>
       {:else}
         <!-- Flat navigation -->
@@ -92,7 +113,15 @@
     font-weight: 500;
   }
   
-  /* Grouped navigation styles (new) */
+  /* Mixed navigation styles */
+  .mixed-nav {
+    display: flex;
+    gap: var(--spacing-xl);
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  /* Grouped navigation styles (legacy) */
   .sub-nav-groups {
     display: flex;
     gap: var(--spacing-xl);
@@ -125,6 +154,7 @@
       gap: var(--spacing-sm);
     }
     
+    .mixed-nav,
     .sub-nav-groups {
       flex-direction: column;
       gap: var(--spacing-md);

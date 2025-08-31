@@ -4,7 +4,7 @@
   import { onMount } from 'svelte';
 
   onMount(() => {
-    goto('/cidr-convertor/cidr-to-subnet-mask', { replaceState: true });
+    goto('/cidr/mask-converter/cidr-to-subnet-mask', { replaceState: true });
   });
 </script>
 
