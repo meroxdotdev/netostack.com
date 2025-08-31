@@ -506,13 +506,15 @@
   .subnet-segment {
     position: absolute;
     height: 100%;
-    background: linear-gradient(45deg, var(--color-primary), var(--color-info));
-    border-right: 1px solid var(--bg-primary);
+    background: linear-gradient(45deg, var(--color-primary), var(--color-primary-hover));
+    border-right: 3px solid var(--bg-primary);
     transition: all var(--transition-fast);
+    opacity: 0.85;
     cursor: pointer;
     
     &:hover {
       filter: brightness(1.1);
+      opacity: 1;
       z-index: 2;
     }
     

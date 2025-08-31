@@ -116,16 +116,9 @@
   /* Mixed navigation styles */
   .mixed-nav {
     display: flex;
-    gap: var(--spacing-xl);
+    gap: var(--spacing-md);
     flex-wrap: wrap;
     align-items: flex-start;
-  }
-
-  /* Grouped navigation styles (legacy) */
-  .sub-nav-groups {
-    display: flex;
-    gap: var(--spacing-xl);
-    flex-wrap: wrap;
   }
   
   .nav-group {

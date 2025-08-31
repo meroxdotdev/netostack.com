@@ -1,57 +1,42 @@
 <script lang="ts">
-  import { computeCIDRDifference, type DiffResult, type AlignmentMode } from '$lib/utils/cidr-diff.js';
+  import { computeCIDROverlap, type OverlapResult } from '$lib/utils/cidr-overlap.js';
   import { tooltip } from '$lib/actions/tooltip.js';
   import Tooltip from './Tooltip.svelte';
   import Icon from './Icon.svelte';
 
   let setA = $state(`192.168.1.0/24
-192.168.2.0/24`);
-  let setB = $state(`192.168.1.100-192.168.1.200
-192.168.2.50/26`);
-  let alignment = $state<AlignmentMode>('minimal');
-  let constrainedPrefix = $state(24);
-  let result = $state<DiffResult | null>(null);
+10.0.0.0/16`);
+  let setB = $state(`192.168.1.128/25
+10.0.1.0/24`);
+  let mergeInputs = $state(true);
+  let showOnlyBoolean = $state(false);
+  let result = $state<OverlapResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
   let userModified = $state(false);
 
-  const alignmentModes = [
-    {
-      value: 'minimal' as const,
-      label: 'Minimal',
-      description: 'Generate the most efficient CIDR blocks'
-    },
-    {
-      value: 'constrained' as const,
-      label: 'Constrained',
-      description: 'Align to specific prefix boundaries'
-    }
-  ];
-
   const examples = [
     {
-      label: 'Basic IPv4 Subtraction',
+      label: 'Basic Overlap',
       setA: '192.168.1.0/24',
       setB: '192.168.1.128/25'
     },
     {
-      label: 'Multiple Ranges',
-      setA: `10.0.0.0/16
-172.16.0.0/16`,
-      setB: `10.0.1.0/24
-172.16.50.0/24`
+      label: 'No Overlap',
+      setA: '192.168.1.0/24',
+      setB: '192.168.2.0/24'
     },
     {
-      label: 'IPv6 Example',
+      label: 'Partial Overlap',
+      setA: `192.168.1.0/25
+192.168.2.0/24`,
+      setB: `192.168.1.64/26
+192.168.3.0/24`
+    },
+    {
+      label: 'IPv6 Overlap',
       setA: '2001:db8::/48',
       setB: '2001:db8:1::/64'
-    },
-    {
-      label: 'Mixed Operations',
-      setA: `192.168.0.0/16
-2001:db8::/32`,
-      setB: `192.168.100.0/24
-2001:db8:abcd::/48`
     }
   ];
 
@@ -61,7 +46,7 @@
     setB = example.setB;
     selectedExample = example.label;
     userModified = false;
-    performDiff();
+    performOverlapCheck();
   }
 
   /* Copy to clipboard */
@@ -82,19 +67,20 @@
     let content = '';
     if (format === 'json') {
       content = JSON.stringify({
+        hasOverlap: result.hasOverlap,
         ipv4: result.ipv4,
         ipv6: result.ipv6,
         stats: result.stats
       }, null, 2);
     } else {
-      const sections = [];
+      const lines = [`Overlap: ${result.hasOverlap ? 'Yes' : 'No'}`];
       if (result.ipv4.length > 0) {
-        sections.push('IPv4:', ...result.ipv4);
+        lines.push('IPv4 Intersection:', ...result.ipv4);
       }
       if (result.ipv6.length > 0) {
-        sections.push('IPv6:', ...result.ipv6);
+        lines.push('IPv6 Intersection:', ...result.ipv6);
       }
-      content = sections.join('\n');
+      content = lines.join('\n');
     }
     
     copyToClipboard(content, `all-${format}`);
@@ -107,26 +93,22 @@
     result = null;
   }
 
-  /* Perform difference computation */
-  function performDiff() {
-    if (!setA.trim()) {
+  /* Perform overlap check */
+  function performOverlapCheck() {
+    if (!setA.trim() && !setB.trim()) {
       result = null;
       return;
     }
 
     try {
-      result = computeCIDRDifference(
-        setA, 
-        setB, 
-        alignment, 
-        alignment === 'constrained' ? constrainedPrefix : undefined
-      );
+      result = computeCIDROverlap(setA, setB, mergeInputs);
     } catch (error) {
       result = {
+        hasOverlap: false,
         ipv4: [],
         ipv6: [],
-        stats: { inputA: { count: 0, addresses: '0' }, inputB: { count: 0, addresses: '0' }, output: { count: 0, addresses: '0' }, removed: { count: 0, addresses: '0' }, efficiency: 0 },
-        visualization: { setA: [], setB: [], result: [], version: 4, totalRange: { start: 0n, end: 0n } },
+        stats: { setA: { count: 0, addresses: '0' }, setB: { count: 0, addresses: '0' }, intersection: { count: 0, addresses: '0' }, overlapPercent: 0 },
+        visualization: { setA: [], setB: [], intersection: [], version: 4, totalRange: { start: 0n, end: 0n } },
         errors: [error instanceof Error ? error.message : 'Unknown error']
       };
     }
@@ -149,17 +131,19 @@
   }
 
   /* Generate tooltip text for visualization segments */
-  function getSegmentTooltip(range: { start: bigint; end: bigint; cidr?: string }, type: 'A' | 'B' | 'result'): string {
+  function getSegmentTooltip(range: { start: bigint; end: bigint; cidr?: string }, type: 'A' | 'B' | 'intersection'): string {
     const version = result?.visualization.version || 4;
     const startIP = version === 4 ? 
       [Math.floor(Number(range.start) / 16777216) % 256, Math.floor(Number(range.start) / 65536) % 256, Math.floor(Number(range.start) / 256) % 256, Number(range.start) % 256].join('.') :
-      'IPv6'; // Simplified for tooltip
+      'IPv6';
     const endIP = version === 4 ? 
       [Math.floor(Number(range.end) / 16777216) % 256, Math.floor(Number(range.end) / 65536) % 256, Math.floor(Number(range.end) / 256) % 256, Number(range.end) % 256].join('.') :
       'IPv6';
     const size = range.end - range.start + 1n;
     
-    return `Set ${type}\nRange: ${startIP} - ${endIP}\nSize: ${size.toLocaleString()}${range.cidr ? `\nCIDR: ${range.cidr}` : ''}`;
+    const label = type === 'A' ? 'Set A' : type === 'B' ? 'Set B' : 'Intersection';
+    
+    return `${label}\nRange: ${startIP} - ${endIP}\nSize: ${size.toLocaleString()}${range.cidr ? `\nCIDR: ${range.cidr}` : ''}`;
   }
 
   // Track user modifications
@@ -171,56 +155,41 @@
 
   // Reactive computation
   $effect(() => {
-    if (setA.trim()) {
-      performDiff();
+    if (setA.trim() || setB.trim()) {
+      performOverlapCheck();
     }
   });
 </script>
 
 <div class="card">
   <header class="card-header">
-    <h2>CIDR Difference Calculator</h2>
-    <p>Compute A - B where A and B are sets of IP addresses, CIDR blocks, or ranges. Shows minimal non-overlapping results.</p>
+    <h2>CIDR Overlap Checker</h2>
+    <p>Determine if two sets of IP addresses, CIDR blocks, or ranges intersect and show the overlapping regions.</p>
   </header>
 
-  <!-- Alignment Mode -->
-  <div class="mode-section">
-    <h3>Alignment Mode</h3>
-    <div class="tabs">
-      {#each alignmentModes as mode}
-        <button 
-          type="button"
-          class="tab"
-          class:active={alignment === mode.value}
-          onclick={() => alignment = mode.value}
-        >
-          {mode.label}
-          <Tooltip text={mode.description} position="top">
+  <!-- Options -->
+  <div class="options-section">
+    <h3>Options</h3>
+    <div class="options-grid">
+      <label class="checkbox-label">
+        <input type="checkbox" bind:checked={mergeInputs} onchange={() => userModified = true} />
+        <span class="checkbox-text">
+          Merge overlapping inputs first
+          <Tooltip text="Combine overlapping ranges within each set before comparison">
             <Icon name="help" size="sm" />
           </Tooltip>
-        </button>
-      {/each}
+        </span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" bind:checked={showOnlyBoolean} onchange={() => userModified = true} />
+        <span class="checkbox-text">
+          Show only boolean result
+          <Tooltip text="Display just yes/no overlap instead of detailed intersection blocks">
+            <Icon name="help" size="sm" />
+          </Tooltip>
+        </span>
+      </label>
     </div>
-    
-    {#if alignment === 'constrained'}
-      <div class="constraint-input">
-        <label for="constrained-prefix">
-          Constrained prefix length
-          <Tooltip text="Force alignment to this prefix boundary">
-            <Icon name="help" size="sm" />
-          </Tooltip>
-        </label>
-        <input
-          id="constrained-prefix"
-          type="number"
-          bind:value={constrainedPrefix}
-          oninput={() => userModified = true}
-          min="8"
-          max="30"
-          class="input-field constraint-field"
-        />
-      </div>
-    {/if}
   </div>
 
   <!-- Input Section -->
@@ -229,8 +198,8 @@
       <!-- Set A -->
       <div class="input-group">
         <h3>
-          Set A (Base)
-          <Tooltip text="The base set of IP addresses, CIDR blocks, or ranges">
+          Set A
+          <Tooltip text="First set of IP addresses, CIDR blocks, or ranges">
             <Icon name="help" size="sm" />
           </Tooltip>
         </h3>
@@ -248,8 +217,8 @@
       <!-- Set B -->
       <div class="input-group">
         <h3>
-          Set B (Subtract)
-          <Tooltip text="The set to subtract from Set A (can be empty)">
+          Set B
+          <Tooltip text="Second set of IP addresses, CIDR blocks, or ranges">
             <Icon name="help" size="sm" />
           </Tooltip>
         </h3>
@@ -257,7 +226,7 @@
           <textarea
             bind:value={setB}
             oninput={() => userModified = true}
-            placeholder="192.168.1.128/25&#10;10.0.0.50-10.0.0.75"
+            placeholder="192.168.1.128/25&#10;10.0.0.50-10.0.0.150"
             class="input-textarea set-b"
             rows="6"
           ></textarea>
@@ -270,9 +239,9 @@
         type="button" 
         class="btn btn-secondary btn-sm"
         onclick={clearInputs}
-        use:tooltip={{ text: 'Clear both input sets', position: 'top' }}
       >
         <Icon name="trash" size="sm" />
+        Clear All
       </button>
     </div>
 
@@ -308,11 +277,29 @@
         </div>
       {/if}
 
-      {#if result.ipv4.length > 0 || result.ipv6.length > 0}
+      <!-- Overlap Status -->
+      <div class="status-section">
+        <div class="status-card {result.hasOverlap ? 'overlap' : 'no-overlap'}">
+          <div class="status-icon">
+            <Icon name={result.hasOverlap ? 'check-circle' : 'x-circle'} size="lg" />
+          </div>
+          <div class="status-content">
+            <h3>{result.hasOverlap ? 'Overlap Detected' : 'No Overlap'}</h3>
+            <p>
+              {result.hasOverlap 
+                ? `Sets A and B have overlapping address ranges (${result.stats.overlapPercent}% of smaller set)`
+                : 'Sets A and B do not share any common address ranges'
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {#if !showOnlyBoolean && (result.ipv4.length > 0 || result.ipv6.length > 0)}
         <!-- Statistics -->
         <div class="stats-section">
           <div class="summary-header">
-            <h3>Difference Results (A - B)</h3>
+            <h3>Intersection Results (A ∩ B)</h3>
             <div class="export-buttons">
               <button 
                 type="button"
@@ -336,75 +323,90 @@
           </div>
 
           <div class="stats-grid">
-            <div class="stat-card input-a">
-              <span class="stat-label">Set A (Input)</span>
-              <span class="stat-value">{result.stats.inputA.count} items</span>
-              <span class="stat-detail">{result.stats.inputA.addresses} addresses</span>
+            <div class="stat-card set-a">
+              <span class="stat-label">Set A</span>
+              <span class="stat-value">{result.stats.setA.count} items</span>
+              <span class="stat-detail">{result.stats.setA.addresses} addresses</span>
             </div>
-            <div class="stat-card input-b">
-              <span class="stat-label">Set B (Subtract)</span>
-              <span class="stat-value">{result.stats.inputB.count} items</span>
-              <span class="stat-detail">{result.stats.inputB.addresses} addresses</span>
+            <div class="stat-card set-b">
+              <span class="stat-label">Set B</span>
+              <span class="stat-value">{result.stats.setB.count} items</span>
+              <span class="stat-detail">{result.stats.setB.addresses} addresses</span>
             </div>
-            <div class="stat-card result">
-              <span class="stat-label">Result (A - B)</span>
-              <span class="stat-value">{result.stats.output.count} CIDRs</span>
-              <span class="stat-detail">{result.stats.output.addresses} addresses</span>
+            <div class="stat-card intersection">
+              <span class="stat-label">Intersection</span>
+              <span class="stat-value">{result.stats.intersection.count} CIDRs</span>
+              <span class="stat-detail">{result.stats.intersection.addresses} addresses</span>
             </div>
-            <div class="stat-card efficiency" data-efficiency={result.stats.efficiency >= 80 ? 'high' : result.stats.efficiency >= 50 ? 'medium' : 'low'}>
-              <span class="stat-label">Efficiency</span>
-              <span class="stat-value">{result.stats.efficiency}%</span>
-              <span class="stat-detail">{result.stats.removed.addresses} removed</span>
+            <div class="stat-card overlap-percent">
+              <span class="stat-label">Overlap</span>
+              <span class="stat-value">{result.stats.overlapPercent}%</span>
+              <span class="stat-detail">of smaller set</span>
             </div>
           </div>
         </div>
 
         <!-- Visualization -->
-        {#if result.visualization.setA.length > 0}
+        {#if result.visualization.setA.length > 0 || result.visualization.setB.length > 0}
           <div class="visualization-section">
-            <h4>Set Operation Visualization</h4>
+            <h4>Overlap Visualization</h4>
             <div class="viz-legend">
               <div class="legend-item">
                 <div class="legend-color set-a-color"></div>
-                <span>Set A (Base)</span>
+                <span>Set A</span>
               </div>
               <div class="legend-item">
                 <div class="legend-color set-b-color"></div>
-                <span>Set B (Subtract)</span>
+                <span>Set B</span>
               </div>
               <div class="legend-item">
-                <div class="legend-color result-color"></div>
-                <span>Result (A - B)</span>
+                <div class="legend-color intersection-color"></div>
+                <span>Intersection (A ∩ B)</span>
               </div>
             </div>
             
-            <div class="visualization-bar">
-              <!-- Set A (background) -->
-              {#each result.visualization.setA as range}
-                <div 
-                  class="viz-segment set-a-segment"
-                  style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
-                  use:tooltip={{ text: getSegmentTooltip(range, 'A'), position: 'top' }}
-                ></div>
-              {/each}
+            <div class="visualization-stack">
+              <!-- Set A Bar -->
+              <div class="viz-bar set-a-bar">
+                <div class="bar-label">Set A</div>
+                <div class="bar-segments">
+                  {#each result.visualization.setA as range}
+                    <div 
+                      class="viz-segment set-a-segment"
+                      style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
+                      use:tooltip={{ text: getSegmentTooltip(range, 'A'), position: 'top' }}
+                    ></div>
+                  {/each}
+                </div>
+              </div>
               
-              <!-- Set B (overlay) -->
-              {#each result.visualization.setB as range}
-                <div 
-                  class="viz-segment set-b-segment"
-                  style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
-                  use:tooltip={{ text: getSegmentTooltip(range, 'B'), position: 'top' }}
-                ></div>
-              {/each}
+              <!-- Set B Bar -->
+              <div class="viz-bar set-b-bar">
+                <div class="bar-label">Set B</div>
+                <div class="bar-segments">
+                  {#each result.visualization.setB as range}
+                    <div 
+                      class="viz-segment set-b-segment"
+                      style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
+                      use:tooltip={{ text: getSegmentTooltip(range, 'B'), position: 'top' }}
+                    ></div>
+                  {/each}
+                </div>
+              </div>
               
-              <!-- Result (final) -->
-              {#each result.visualization.result as range}
-                <div 
-                  class="viz-segment result-segment"
-                  style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
-                  use:tooltip={{ text: getSegmentTooltip(range, 'result'), position: 'bottom' }}
-                ></div>
-              {/each}
+              <!-- Intersection Highlights -->
+              <div class="viz-bar intersection-bar">
+                <div class="bar-label">A ∩ B</div>
+                <div class="bar-segments">
+                  {#each result.visualization.intersection as range}
+                    <div 
+                      class="viz-segment intersection-segment"
+                      style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
+                      use:tooltip={{ text: getSegmentTooltip(range, 'intersection'), position: 'bottom' }}
+                    ></div>
+                  {/each}
+                </div>
+              </div>
             </div>
           </div>
         {/if}
@@ -415,7 +417,7 @@
           {#if result.ipv4.length > 0}
             <div class="result-panel ipv4">
               <div class="panel-header">
-                <h4>IPv4 Results ({result.ipv4.length})</h4>
+                <h4>IPv4 Intersection ({result.ipv4.length})</h4>
                 <button 
                   type="button"
                   class="btn btn-icon"
@@ -447,7 +449,7 @@
           {#if result.ipv6.length > 0}
             <div class="result-panel ipv6">
               <div class="panel-header">
-                <h4>IPv6 Results ({result.ipv6.length})</h4>
+                <h4>IPv6 Intersection ({result.ipv6.length})</h4>
                 <button 
                   type="button"
                   class="btn btn-icon"
@@ -475,11 +477,6 @@
             </div>
           {/if}
         </div>
-      {:else}
-        <div class="info-panel info">
-          <h3>No Results</h3>
-          <p>The difference A - B resulted in an empty set. Set B completely contains or covers Set A.</p>
-        </div>
       {/if}
     </div>
   {/if}
@@ -496,48 +493,40 @@
     background-color: var(--bg-secondary);
   }
 
-  /* Mode section */
-  .mode-section {
+  /* Options section */
+  .options-section {
     margin-bottom: var(--spacing-lg);
     
     h3 { @extend %section-title; }
     
-    .tabs {
-      margin-bottom: var(--spacing-md);
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-sm);
+    }
+    
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-sm);
+      cursor: pointer;
       
-      .tab {
+      input[type="checkbox"] {
+        margin-top: 2px;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      
+      .checkbox-text {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
         
-        &.active {
-          outline: 2px solid var(--color-primary);
-          outline-offset: -2px;
-        }
-        
         :global(.tooltip-trigger) {
+          color: var(--text-secondary);
           opacity: 0.7;
-          transition: opacity var(--transition-fast);
-          
           &:hover { opacity: 1; }
-        }
-      }
-    }
-    
-    .constraint-input {
-      .constraint-field {
-        width: 120px;
-        
-        /* Hide number input spinner */
-        &::-webkit-outer-spin-button,
-        &::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-        
-        /* Firefox */
-        &[type=number] {
-          -moz-appearance: textfield;
         }
       }
     }
@@ -555,7 +544,6 @@
     }
     
     .input-group {
-      max-width: none;
       h3 {
         @extend %section-title;
         display: flex;
@@ -576,12 +564,15 @@
       font-family: var(--font-mono);
       font-size: var(--font-size-sm);
       resize: vertical;
-      border-left: 4px solid var(--color-primary);
+      
+      &.set-a { border-left: 4px solid var(--color-primary); }
+      &.set-b { border-left: 4px solid var(--color-primary); }
     }
     
     .input-actions {
       display: flex;
-      justify-content: end;
+      justify-content: center;
+      margin-bottom: var(--spacing-lg);
     }
   }
 
@@ -593,7 +584,7 @@
     
     .examples-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: var(--spacing-sm);
     }
     
@@ -625,6 +616,42 @@
     padding-top: var(--spacing-lg);
   }
 
+  /* Status section */
+  .status-section {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .status-card {
+    @extend %bg-surface;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    
+    &.overlap {
+      border-color: var(--color-success);
+      .status-icon :global(.icon) { color: var(--color-success); }
+    }
+    
+    &.no-overlap {
+      border-color: var(--color-error);
+      .status-icon :global(.icon) { color: var(--color-error); }
+    }
+    
+    .status-content h3 {
+      margin: 0 0 var(--spacing-xs) 0;
+      color: var(--text-primary);
+    }
+    
+    .status-content p {
+      margin: 0;
+      color: var(--text-secondary);
+    }
+  }
+
+  /* Stats and other sections reuse styles from CIDRDiff */
   .summary-header {
     display: flex;
     justify-content: space-between;
@@ -642,10 +669,9 @@
     }
   }
 
-  /* Stats */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
   }
@@ -660,17 +686,10 @@
     align-items: center;
     text-align: center;
     
-    &.input-a { border-left: 4px solid var(--color-primary); }
-    &.input-b { border-left: 4px solid var(--color-primary); }
-    &.result { border-left: 4px solid var(--color-primary); }
-    &.efficiency { 
-      border-left: 4px solid var(--color-primary);
-      
-      /* Semantic colors based on efficiency */
-      &[data-efficiency="high"] { border-left-color: var(--color-success); }
-      &[data-efficiency="medium"] { border-left-color: var(--color-warning); }
-      &[data-efficiency="low"] { border-left-color: var(--color-error); }
-    }
+    &.set-a { border-left: 4px solid var(--color-primary); }
+    &.set-b { border-left: 4px solid var(--color-primary); }
+    &.intersection { border-left: 4px solid var(--color-primary); }
+    &.overlap-percent { border-left: 4px solid var(--color-primary); }
   }
 
   .stat-label {
@@ -717,20 +736,43 @@
           
           &.set-a-color { background-color: var(--color-info); }
           &.set-b-color { background-color: var(--color-warning); }
-          &.result-color { background-color: var(--color-success); }
+          &.intersection-color { background-color: var(--color-success); }
         }
       }
     }
   }
 
-  .visualization-bar {
-    position: relative;
-    height: 60px;
+  .visualization-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
     background-color: var(--bg-tertiary);
     border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
     border: 2px solid var(--border-primary);
-    overflow: hidden;
-    margin-bottom: var(--spacing-sm);
+  }
+
+  .viz-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    
+    .bar-label {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-secondary);
+      width: 60px;
+      text-align: right;
+    }
+    
+    .bar-segments {
+      flex: 1;
+      position: relative;
+      height: 24px;
+      background-color: var(--bg-primary);
+      border-radius: var(--radius-xs);
+      border: 1px solid var(--border-primary);
+    }
   }
 
   .viz-segment {
@@ -741,24 +783,17 @@
     
     &.set-a-segment {
       background-color: var(--color-info);
-      opacity: 0.6;
-      z-index: 1;
+      opacity: 0.7;
     }
     
     &.set-b-segment {
       background-color: var(--color-warning);
-      opacity: 0.8;
-      z-index: 2;
-      top: 25%;
-      height: 50%;
+      opacity: 0.7;
     }
     
-    &.result-segment {
+    &.intersection-segment {
       background-color: var(--color-success);
       opacity: 0.9;
-      z-index: 3;
-      top: 10%;
-      height: 80%;
       border: 1px solid var(--bg-primary);
     }
     
@@ -768,7 +803,7 @@
     }
   }
 
-  /* Result panels */
+  /* Result panels - reuse from CIDRDiff */
   .results-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -780,12 +815,14 @@
     border-radius: var(--radius-lg);
     overflow: hidden;
     border: 2px solid var(--color-primary);
+    
     .panel-header {
-      padding: var(--spacing-sm);
+      padding: var(--spacing-md);
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--color-primary);
+      
       h4 {
         margin: 0;
         color: var(--bg-primary);
@@ -799,8 +836,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
-    max-height: 600px;
-    overflow: auto;
   }
 
   .cidr-item {
@@ -866,16 +901,31 @@
       grid-template-columns: 1fr;
     }
     
-    .summary-header {
+    .summary-header,
+    .status-card {
       flex-direction: column;
       gap: var(--spacing-sm);
       align-items: stretch;
+    }
+    
+    .status-card {
+      text-align: center;
     }
     
     .viz-legend {
       flex-direction: column;
       align-items: flex-start;
       gap: var(--spacing-sm);
+    }
+    
+    .viz-bar {
+      flex-direction: column;
+      gap: var(--spacing-xs);
+      
+      .bar-label {
+        width: auto;
+        text-align: left;
+      }
     }
   }
 </style>

@@ -115,6 +115,14 @@
     <svg fill="currentColor" viewBox="0 0 24 24">
       <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
     </svg>
+  {:else if name === 'union'}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path opacity=".4" d=""/><path d="M152 96C165.3 96 176 106.7 176 120L176 352C176 431.5 240.5 496 320 496C399.5 496 464 431.5 464 352L464 120C464 106.7 474.7 96 488 96C501.3 96 512 106.7 512 120L512 352C512 458 426 544 320 544C214 544 128 458 128 352L128 120C128 106.7 138.7 96 152 96z"/></svg>
+  {:else if name === 'intersection'}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path opacity=".4" d=""/><path d="M152 544C165.3 544 176 533.3 176 520L176 288C176 208.5 240.5 144 320 144C399.5 144 464 208.5 464 288L464 520C464 533.3 474.7 544 488 544C501.3 544 512 533.3 512 520L512 288C512 182 426 96 320 96C214 96 128 182 128 288L128 520C128 533.3 138.7 544 152 544z"/></svg>
+  {:else if name === 'diff'}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path opacity=".4" d=""/><path d="M96 320C96 306.7 106.7 296 120 296L520 296C533.3 296 544 306.7 544 320C544 333.3 533.3 344 520 344L120 344C106.7 344 96 333.3 96 320z"/></svg>
+  {:else if name === 'containment'}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2025 Fonticons, Inc.--><path opacity=".4" d=""/><path d="M527.7 142.7C540.3 138.4 547 124.8 542.7 112.3C538.4 99.8 524.8 93 512.3 97.3L112.3 233.3C102.6 236.6 96 245.7 96 256C96 266.3 102.5 275.4 112.3 278.7L512.3 414.7C524.8 419 538.5 412.3 542.7 399.7C546.9 387.1 540.3 373.5 527.7 369.3L194.6 256L527.7 142.7zM120 496C106.7 496 96 506.7 96 520C96 533.3 106.7 544 120 544L520 544C533.3 544 544 533.3 544 520C544 506.7 533.3 496 520 496L120 496z"/></svg>
   {:else}
     <!-- Default fallback icon -->
     <svg fill="currentColor" viewBox="0 0 24 24">

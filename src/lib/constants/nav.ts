@@ -78,11 +78,28 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       description: 'Split a network into N equal child subnets or to a target prefix length',
       icon: 'subnet-splitter'
     },
-    { 
-      href: '/cidr/diff',
-      label: 'Set Difference',
-      description: 'Compute A - B set operations on CIDR blocks, ranges, and IP addresses',
-      icon: 'set-difference'
+    {
+      title: 'Set Operations',
+      items: [
+        { 
+          href: '/cidr/set-operations/diff',
+          label: 'Difference (A - B)',
+          description: 'Compute A - B set operations on CIDR blocks, ranges, and IP addresses',
+          icon: 'diff'
+        },
+        { 
+          href: '/cidr/set-operations/overlap',
+          label: 'Overlap (A ∩ B)',
+          description: 'Detect intersections between two sets of IP addresses and ranges',
+          icon: 'intersection'
+        },
+        { 
+          href: '/cidr/set-operations/contains',
+          label: 'Contains (A ⊆ B)',
+          description: 'Check if one set fully contains another with detailed containment analysis',
+          icon: 'containment'
+        }
+      ]
     }
   ],
   '/ip-address-convertor': [
