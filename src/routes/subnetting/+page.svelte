@@ -8,11 +8,11 @@
 </script>
 
 <svelte:head>
-  <title>Subnetting Tools - Subnet & VLSM Calculators | {site.name}</title>
-  <meta name="description" content="Comprehensive subnetting tools including subnet calculator and VLSM calculator for network planning and IP address allocation." />
-  <meta name="keywords" content="{site.keywords}, subnetting, subnet calculator, VLSM, variable length subnet mask, network planning" />
-  <meta property="og:title" content="Subnetting Tools - Subnet & VLSM Calculators" />
-  <meta property="og:description" content="Comprehensive subnetting tools including subnet calculator and VLSM calculator for network planning and IP address allocation." />
+  <title>Subnetting Tools - Subnet, VLSM & Supernet Calculators | {site.name}</title>
+  <meta name="description" content="Comprehensive subnetting and supernetting tools including subnet calculator, VLSM calculator, and supernet calculator for network planning, IP allocation, and route aggregation." />
+  <meta name="keywords" content="{site.keywords}, subnetting, subnet calculator, VLSM, supernet, supernetting, route aggregation, network planning" />
+  <meta property="og:title" content="Subnetting Tools - Subnet, VLSM & Supernet Calculators" />
+  <meta property="og:description" content="Comprehensive subnetting and supernetting tools including subnet calculator, VLSM calculator, and supernet calculator for network planning, IP allocation, and route aggregation." />
   <meta property="og:url" content="{site.url}/subnetting" />
 </svelte:head>
 
@@ -21,7 +21,7 @@
     <h1>Subnetting Tools</h1>
     <p class="page-description">
       Comprehensive tools for subnet planning, network design, and IP address allocation. 
-      Calculate traditional subnets or use VLSM for optimal address space utilization.
+      Calculate traditional subnets, use VLSM for optimal address space utilization, or aggregate networks with supernetting.
     </p>
   </header>
 

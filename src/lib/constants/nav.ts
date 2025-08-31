@@ -16,7 +16,7 @@ export const STANDALONE_PAGES: NavItem[] = [];
 export const TOP_NAV: NavItem[] = [
   { href: '/subnetting', label: 'Subnetting' },
   { href: '/cidr-convertor', label: 'CIDR Convert' },
-  { href: '/ip-address-convertor', label: 'IP Convert' },
+  { href: '/ip-address-convertor', label: 'IP Tools' },
   { href: '/ip-reference', label: 'Reference' }
 ];
 
@@ -34,6 +34,12 @@ export const SUB_NAV: Record<string, NavItem[] | NavGroup[]> = {
       label: 'VLSM Calculator',
       description: 'Variable Length Subnet Mask calculator to break networks into multiple smaller subnets with optimal allocation',
       icon: 'vlsm-calculator'
+    },
+    { 
+      href: '/subnetting/supernet-calculator', 
+      label: 'Supernet Calculator',
+      description: 'Aggregate multiple networks into supernets for route summarization and efficient routing table management',
+      icon: 'supernet-calculator'
     }
   ],
   '/cidr-convertor': [
