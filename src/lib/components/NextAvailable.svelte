@@ -218,22 +218,18 @@
         class="tab"
         class:active={searchMode === 'prefix'}
         onclick={() => { searchMode = 'prefix'; userModified = true; }}
+        use:tooltip={{ text: 'Search for subnets with specific prefix length (e.g., /24)', position: 'top' }}
       >
         By Prefix
-        <Tooltip text="Search for subnets with specific prefix length (e.g., /24)" position="top">
-          <Icon name="help" size="sm" />
-        </Tooltip>
       </button>
       <button 
         type="button"
         class="tab"
         class:active={searchMode === 'hosts'}
         onclick={() => { searchMode = 'hosts'; userModified = true; }}
+        use:tooltip={{ text: 'Search for subnets that can accommodate N hosts', position: 'top' }}
       >
         By Host Count
-        <Tooltip text="Search for subnets that can accommodate N hosts" position="top">
-          <Icon name="help" size="sm" />
-        </Tooltip>
       </button>
     </div>
   </div>
@@ -242,11 +238,8 @@
   <div class="input-section">
     <div class="input-grid">
       <div class="input-group">
-        <label for="pools">
+        <label for="pools" use:tooltip={{ text: 'Available IP address pools (one per line)', position: 'top' }}>
           Pool CIDRs
-          <Tooltip text="Available IP address pools (one per line)">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </label>
         <textarea
           id="pools"
@@ -259,11 +252,8 @@
       </div>
 
       <div class="input-group">
-        <label for="allocations">
+        <label for="allocations" use:tooltip={{ text: 'Already allocated subnets/ranges (optional, one per line)', position: 'top' }}>
           Existing Allocations
-          <Tooltip text="Already allocated subnets/ranges (optional, one per line)">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </label>
         <textarea
           id="allocations"
@@ -280,11 +270,8 @@
     <div class="params-grid">
       {#if searchMode === 'prefix'}
         <div class="input-group">
-          <label for="desired-prefix">
+          <label for="desired-prefix" use:tooltip={{ text: 'Desired subnet prefix (e.g., 24 for /24 subnets)', position: 'top' }}>
             Target Prefix Length
-            <Tooltip text="Desired subnet prefix (e.g., 24 for /24 subnets)">
-              <Icon name="help" size="sm" />
-            </Tooltip>
           </label>
           <input
             id="desired-prefix"
@@ -298,11 +285,8 @@
         </div>
       {:else}
         <div class="input-group">
-          <label for="desired-hosts">
+          <label for="desired-hosts" use:tooltip={{ text: 'Minimum number of hosts the subnet must accommodate', position: 'top' }}>
             Required Host Count
-            <Tooltip text="Minimum number of hosts the subnet must accommodate">
-              <Icon name="help" size="sm" />
-            </Tooltip>
           </label>
           <input
             id="desired-hosts"
@@ -316,11 +300,8 @@
       {/if}
 
       <div class="input-group">
-        <label for="policy">
+        <label for="policy" use:tooltip={{ text: 'First-fit: lowest address. Best-fit: smallest gap.', position: 'top' }}>
           Allocation Policy
-          <Tooltip text="First-fit: lowest address. Best-fit: smallest gap.">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </label>
         <select
           id="policy"
@@ -334,11 +315,8 @@
       </div>
 
       <div class="input-group">
-        <label for="max-candidates">
+        <label for="max-candidates" use:tooltip={{ text: 'Maximum number of subnet suggestions to return', position: 'top' }}>
           Max Candidates
-          <Tooltip text="Maximum number of subnet suggestions to return">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </label>
         <input
           id="max-candidates"
@@ -354,7 +332,7 @@
 
     <!-- Options -->
     <div class="options-section">
-      <label class="checkbox-label">
+      <label class="checkbox-label" use:tooltip={{ text: 'For IPv4, treat network and broadcast addresses as unusable', position: 'top' }}>
         <input 
           type="checkbox" 
           bind:checked={ipv4UsableHosts} 
@@ -362,9 +340,6 @@
         />
         <span class="checkbox-text">
           IPv4 usable hosts (exclude network/broadcast)
-          <Tooltip text="For IPv4, treat network and broadcast addresses as unusable">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </span>
       </label>
     </div>
@@ -669,24 +644,19 @@
     h3 { @extend %section-title; }
     
     .tabs {
+      display: flex;
+      gap: var(--spacing-sm);
       margin-bottom: var(--spacing-md);
       
       .tab {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
+        max-width: 12rem;
         
         &.active {
           outline: 2px solid var(--color-primary);
           outline-offset: -2px;
-        }
-        
-        :global(.tooltip-trigger) {
-          color: var(--text-secondary);
-          opacity: 0.7;
-          transition: opacity var(--transition-fast);
-          
-          &:hover { opacity: 1; }
         }
       }
     }
@@ -712,18 +682,11 @@
     
     .input-group {
       label {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
+        display: block;
         margin-bottom: var(--spacing-sm);
         font-weight: 600;
         color: var(--text-primary);
-        
-        :global(.tooltip-trigger) {
-          color: var(--text-secondary);
-          opacity: 0.7;
-          &:hover { opacity: 1; }
-        }
+        cursor: pointer;
       }
     }
     
@@ -737,27 +700,31 @@
       
       .checkbox-label {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: var(--spacing-sm);
         cursor: pointer;
+        padding: var(--spacing-sm);
+        background-color: var(--bg-secondary);
+        border-radius: var(--radius-sm);
+        transition: all var(--transition-fast);
+        width: fit-content;
+        
+        &:hover {
+          background-color: var(--surface-hover);
+        }
         
         input[type="checkbox"] {
-          margin-top: 2px;
-          width: 16px;
-          height: 16px;
+          width: 18px;
+          height: 18px;
           flex-shrink: 0;
+          cursor: pointer;
+          accent-color: var(--color-primary);
         }
         
         .checkbox-text {
-          display: flex;
-          align-items: center;
-          gap: var(--spacing-xs);
-          
-          :global(.tooltip-trigger) {
-            color: var(--text-secondary);
-            opacity: 0.7;
-            &:hover { opacity: 1; }
-          }
+          color: var(--text-primary);
+          font-size: var(--font-size-sm);
+          line-height: 1.4;
         }
       }
     }

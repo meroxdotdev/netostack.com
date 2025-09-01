@@ -186,41 +186,38 @@
   <!-- Alignment Mode -->
   <div class="mode-section">
     <h3>Alignment Mode</h3>
-    <div class="tabs">
-      {#each alignmentModes as mode}
-        <button 
-          type="button"
-          class="tab"
-          class:active={alignment === mode.value}
-          onclick={() => alignment = mode.value}
-        >
-          {mode.label}
-          <Tooltip text={mode.description} position="top">
-            <Icon name="help" size="sm" />
-          </Tooltip>
-        </button>
-      {/each}
-    </div>
-    
-    {#if alignment === 'constrained'}
-      <div class="constraint-input">
-        <label for="constrained-prefix">
-          Constrained prefix length
-          <Tooltip text="Force alignment to this prefix boundary">
-            <Icon name="help" size="sm" />
-          </Tooltip>
-        </label>
-        <input
-          id="constrained-prefix"
-          type="number"
-          bind:value={constrainedPrefix}
-          oninput={() => userModified = true}
-          min="8"
-          max="30"
-          class="input-field constraint-field"
-        />
+    <div class="tabs-container">
+      <div class="tabs">
+        {#each alignmentModes as mode}
+          <button 
+            type="button"
+            class="tab"
+            class:active={alignment === mode.value}
+            onclick={() => alignment = mode.value}
+            use:tooltip={{ text: mode.description, position: 'top' }}
+          >
+            {mode.label}
+          </button>
+        {/each}
       </div>
-    {/if}
+      
+      {#if alignment === 'constrained'}
+        <div class="constraint-input">
+          <label for="constrained-prefix" use:tooltip={{ text: 'Force alignment to this prefix boundary', position: 'top' }}>
+            Constrained prefix length
+          </label>
+          <input
+            id="constrained-prefix"
+            type="number"
+            bind:value={constrainedPrefix}
+            oninput={() => userModified = true}
+            min="8"
+            max="30"
+            class="input-field constraint-field"
+          />
+        </div>
+      {/if}
+    </div>
   </div>
 
   <!-- Input Section -->
@@ -228,11 +225,8 @@
     <div class="input-grid">
       <!-- Set A -->
       <div class="input-group">
-        <h3>
+        <h3 use:tooltip={{ text: 'The base set of IP addresses, CIDR blocks, or ranges', position: 'top' }}>
           Set A (Base)
-          <Tooltip text="The base set of IP addresses, CIDR blocks, or ranges">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </h3>
         <div class="input-wrapper">
           <textarea
@@ -247,11 +241,8 @@
 
       <!-- Set B -->
       <div class="input-group">
-        <h3>
+        <h3 use:tooltip={{ text: 'The set to subtract from Set A (can be empty)', position: 'top' }}>
           Set B (Subtract)
-          <Tooltip text="The set to subtract from Set A (can be empty)">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </h3>
         <div class="input-wrapper">
           <textarea
@@ -278,7 +269,12 @@
 
     <!-- Examples -->
     <div class="examples-section">
-      <h4>Quick Examples</h4>
+      <h4>
+        Quick Examples
+        <Tooltip text="Click any example to load it into the input fields">
+          <Icon name="help" size="sm" />
+        </Tooltip>
+      </h4>
       <div class="examples-grid">
         {#each examples as example}
           <button 
@@ -362,7 +358,12 @@
         <!-- Visualization -->
         {#if result.visualization.setA.length > 0}
           <div class="visualization-section">
-            <h4>Set Operation Visualization</h4>
+            <h4>
+              Set Operation Visualization
+              <Tooltip text="Visual representation showing the relationship between sets A, B, and the result">
+                <Icon name="help" size="sm" />
+              </Tooltip>
+            </h4>
             <div class="viz-legend">
               <div class="legend-item">
                 <div class="legend-color set-a-color"></div>
@@ -502,29 +503,42 @@
     
     h3 { @extend %section-title; }
     
+    .tabs-container {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      flex-wrap: wrap;
+    }
+    
     .tabs {
-      margin-bottom: var(--spacing-md);
+      display: flex;
+      gap: var(--spacing-sm);
+      margin: 0;
       
       .tab {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
+        max-width: 12rem;
         
         &.active {
           outline: 2px solid var(--color-primary);
           outline-offset: -2px;
         }
-        
-        :global(.tooltip-trigger) {
-          opacity: 0.7;
-          transition: opacity var(--transition-fast);
-          
-          &:hover { opacity: 1; }
-        }
       }
     }
     
     .constraint-input {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      
+      label {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+        cursor: pointer;
+      }
+      
       .constraint-field {
         width: 120px;
         
@@ -551,7 +565,6 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--spacing-lg);
-      margin-bottom: var(--spacing-md);
     }
     
     .input-group {
@@ -876,6 +889,14 @@
       flex-direction: column;
       align-items: flex-start;
       gap: var(--spacing-sm);
+    }
+    
+    .mode-section {
+      .tabs-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+      }
     }
   }
 </style>

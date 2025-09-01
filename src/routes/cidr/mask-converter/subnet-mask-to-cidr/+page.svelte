@@ -1,9 +1,14 @@
 <!-- src/routes/cidr/mask-converter/subnet-mask-to-cidr/+page.svelte -->
 <script lang="ts">
 	import { getContext } from 'svelte';
+	import { derived } from 'svelte/store';
 	import { CIDR_CTX, type CidrContext } from '$lib/contexts/cidr';
+	import { validateSubnetMask } from '$lib/utils/ip-validation.js';
 
 	const { cidr, mask, handleMaskChange } = getContext<CidrContext>(CIDR_CTX);
+	
+	// Track validation state reactively
+	const isValid = derived(mask, ($mask) => validateSubnetMask($mask).valid);
 </script>
 
 <div class="converter-section fade-in">
@@ -15,7 +20,7 @@
 			type="text"
 			value={$mask}
 			placeholder="255.255.255.0"
-			class="mask-input"
+			class="mask-input {$isValid ? '' : 'invalid'}"
 			on:input={(e) => handleMaskChange((e.target as HTMLInputElement).value)}
 		/>
 	</div>
@@ -48,6 +53,11 @@
 		min-width: 16rem;
     font-family: var(--font-mono);
     font-size: var(--font-size-lg);
+    
+    &.invalid {
+      border-color: var(--color-error);
+      box-shadow: 0 0 0 1px var(--color-error);
+    }
   }
   .result-display {
     padding: var(--spacing-md);

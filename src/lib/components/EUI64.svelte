@@ -1,11 +1,13 @@
 <script lang="ts">
   import { convertEUI64Addresses, type EUI64Result } from '$lib/utils/eui64.js';
+  import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/Icon.svelte';
   
   let inputText = $state('00:1A:2B:3C:4D:5E\n02:1A:2B:FF:FE:3C:4D:5F\n08:00:27:12:34:56\n0A:00:27:FF:FE:12:34:57');
   let globalPrefix = $state('2001:db8::/64');
   let result = $state<EUI64Result | null>(null);
   let isLoading = $state(false);
+  let copiedStates = $state<Record<string, boolean>>({});
   
   function convertAddresses() {
     if (!inputText.trim()) {
@@ -58,8 +60,14 @@
     URL.revokeObjectURL(url);
   }
   
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
+  async function copyToClipboard(text: string, id: string = text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      copiedStates[id] = true;
+      setTimeout(() => copiedStates[id] = false, 3000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   }
   
   // Auto-convert when inputs change
@@ -71,17 +79,19 @@
   });
 </script>
 
-<div class="container">
-  <div class="header">
-    <h1>EUI-64 Converter</h1>
+<div class="card">
+  <header class="card-header">
+    <h2>EUI-64 Converter</h2>
     <p>Convert between MAC addresses and IPv6 EUI-64 interface identifiers with automatic IPv6 address generation</p>
-  </div>
+  </header>
 
   <div class="input-section">
-    <div class="card">
-      <h2>Address Conversion</h2>
+    <div class="inputs-section">
+      <h3>Address Conversion</h3>
       <div class="input-group">
-        <label for="inputs">MAC Addresses or EUI-64 Identifiers</label>
+        <label for="inputs" use:tooltip={{ text: 'Enter MAC addresses (48-bit) or EUI-64 identifiers (64-bit)', position: 'top' }}>
+          MAC Addresses or EUI-64 Identifiers
+        </label>
         <textarea
           id="inputs"
           bind:value={inputText}
@@ -94,7 +104,9 @@
       </div>
 
       <div class="input-group">
-        <label for="prefix">IPv6 Global Prefix (Optional)</label>
+        <label for="prefix" use:tooltip={{ text: 'IPv6 network prefix for generating global addresses (e.g., 2001:db8::/64)', position: 'top' }}>
+          IPv6 Global Prefix (Optional)
+        </label>
         <input
           id="prefix"
           type="text"
@@ -107,8 +119,8 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>EUI-64 Information</h2>
+    <div class="info-section">
+      <h3>EUI-64 Information</h3>
       <div class="info-content">
         <p><strong>EUI-64</strong> (Extended Unique Identifier 64-bit) is used to generate IPv6 interface identifiers from MAC addresses:</p>
         <ul>
@@ -209,16 +221,34 @@
                     <div class="addresses-section">
                       <div class="address-item">
                         <span class="address-label">MAC Address:</span>
-                        <code onclick={() => copyToClipboard(conversion.macAddress)} title="Click to copy">
-                          {conversion.macAddress}
-                        </code>
+                        <div class="code-container">
+                          <code>{conversion.macAddress}</code>
+                          <button 
+                            type="button"
+                            class="btn btn-icon btn-xs"
+                            class:copied={copiedStates[conversion.macAddress]}
+                            onclick={() => copyToClipboard(conversion.macAddress, conversion.macAddress)}
+                            use:tooltip={{ text: 'Copy to clipboard', position: 'top' }}
+                          >
+                            <Icon name={copiedStates[conversion.macAddress] ? 'check' : 'copy'} size="xs" />
+                          </button>
+                        </div>
                       </div>
                       
                       <div class="address-item">
                         <span class="address-label">EUI-64:</span>
-                        <code onclick={() => copyToClipboard(conversion.eui64Address)} title="Click to copy">
-                          {conversion.eui64Address}
-                        </code>
+                        <div class="code-container">
+                          <code>{conversion.eui64Address}</code>
+                          <button 
+                            type="button"
+                            class="btn btn-icon btn-xs"
+                            class:copied={copiedStates[conversion.eui64Address]}
+                            onclick={() => copyToClipboard(conversion.eui64Address, conversion.eui64Address)}
+                            use:tooltip={{ text: 'Copy to clipboard', position: 'top' }}
+                          >
+                            <Icon name={copiedStates[conversion.eui64Address] ? 'check' : 'copy'} size="xs" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -226,16 +256,34 @@
                       <h4>Generated IPv6 Addresses</h4>
                       <div class="ipv6-item">
                         <span class="ipv6-label">Link-Local:</span>
-                        <code onclick={() => copyToClipboard(conversion.ipv6LinkLocal)} title="Click to copy">
-                          {conversion.ipv6LinkLocal}
-                        </code>
+                        <div class="code-container">
+                          <code>{conversion.ipv6LinkLocal}</code>
+                          <button 
+                            type="button"
+                            class="btn btn-icon btn-xs"
+                            class:copied={copiedStates[conversion.ipv6LinkLocal]}
+                            onclick={() => copyToClipboard(conversion.ipv6LinkLocal, conversion.ipv6LinkLocal)}
+                            use:tooltip={{ text: 'Copy to clipboard', position: 'top' }}
+                          >
+                            <Icon name={copiedStates[conversion.ipv6LinkLocal] ? 'check' : 'copy'} size="xs" />
+                          </button>
+                        </div>
                       </div>
                       
                       <div class="ipv6-item">
                         <span class="ipv6-label">Global:</span>
-                        <code onclick={() => copyToClipboard(conversion.ipv6Global)} title="Click to copy">
-                          {conversion.ipv6Global}
-                        </code>
+                        <div class="code-container">
+                          <code>{conversion.ipv6Global}</code>
+                          <button 
+                            type="button"
+                            class="btn btn-icon btn-xs"
+                            class:copied={copiedStates[conversion.ipv6Global]}
+                            onclick={() => copyToClipboard(conversion.ipv6Global, conversion.ipv6Global)}
+                            use:tooltip={{ text: 'Copy to clipboard', position: 'top' }}
+                          >
+                            <Icon name={copiedStates[conversion.ipv6Global] ? 'check' : 'copy'} size="xs" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -315,7 +363,7 @@
   .input-section {
     display: grid;
     gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
   }
 
   @media (min-width: 768px) {
@@ -324,19 +372,93 @@
     }
   }
 
-  .card {
+  .inputs-section {
     background: var(--bg-secondary);
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
   }
 
-  .card h2 {
+  .inputs-section h3 {
     color: var(--text-primary);
     font-size: var(--font-size-lg);
     margin-bottom: var(--spacing-md);
     font-weight: 600;
+  }
+
+  .info-section {
+    background: var(--bg-info);
+    border: 1px solid var(--border-info);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+  }
+
+  .info-section h3 {
+    color: var(--color-info-dark);
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+  }
+
+  .info-content {
+    color: var(--color-info-dark);
+  }
+
+  .info-content p {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .info-content ul {
+    margin: 0;
+    color: var(--color-info-dark);
+    padding-left: var(--spacing-lg);
+  }
+
+  .code-container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs);
+    flex: 1;
+  }
+
+  .code-container code {
+    background: transparent;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    padding: 0.375rem 0.75rem;
+    flex: 1;
+    border-radius: 0;
+  }
+
+  .code-container button {
+    background: var(--color-primary);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: var(--radius-xs);
+    padding: var(--spacing-xs);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+    flex-shrink: 0;
+  }
+
+  .code-container button:hover {
+    background: var(--color-primary-hover);
+  }
+
+  .code-container button.copied {
+    background: var(--color-success);
+  }
+
+  .code-container button.copied:hover {
+    background: var(--color-success);
   }
 
   .input-group {
@@ -382,15 +504,6 @@
   .input-help {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-  }
-
-  .info-content {
-    color: var(--text-primary);
-  }
-
-  .info-content ul {
-    color: var(--text-secondary);
-    padding-left: var(--spacing-lg);
   }
 
   .info-content li {
@@ -674,22 +787,6 @@
     font-size: var(--font-size-sm);
   }
 
-  .address-item code,
-  .ipv6-item code {
-    background: var(--color-primary);
-    color: var(--bg-primary);
-    padding: 0.375rem 0.75rem;
-    border-radius: var(--radius-sm);
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: var(--transition-fast);
-    font-weight: 600;
-  }
-
-  .address-item code:hover,
-  .ipv6-item code:hover {
-    background: var(--color-primary-hover);
-  }
 
   .properties-grid {
     display: grid;

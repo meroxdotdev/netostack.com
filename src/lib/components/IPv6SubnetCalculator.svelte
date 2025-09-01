@@ -155,7 +155,7 @@
     <div class="results-section">
       {#if subnetResult.success && subnetResult.subnet}
         <!-- Network Information -->
-        <div class="info-panel success">
+        <div class="info-panel">
           <h3>IPv6 Subnet Information</h3>
           <div class="info-grid">
             <div class="info-item">

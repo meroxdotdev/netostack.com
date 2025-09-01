@@ -91,6 +91,27 @@
   .sub-nav-links {
     display: flex;
     gap: var(--spacing-md);
+    overflow-x: auto;
+    padding-bottom: var(--spacing-xs);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-primary) transparent;
+  }
+  
+  .sub-nav-links::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .sub-nav-links::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .sub-nav-links::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: var(--radius-sm);
+  }
+  
+  .sub-nav-links::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
   }
   
   .sub-nav-link {
@@ -100,6 +121,8 @@
     color: var(--text-secondary);
     text-decoration: none;
     transition: all var(--transition-fast);
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   
   .sub-nav-link:hover {
@@ -117,14 +140,35 @@
   .mixed-nav {
     display: flex;
     gap: var(--spacing-md);
-    flex-wrap: wrap;
     align-items: flex-start;
+    overflow-x: auto;
+    padding-bottom: var(--spacing-xs);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-primary) transparent;
+  }
+  
+  .mixed-nav::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .mixed-nav::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .mixed-nav::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: var(--radius-sm);
+  }
+  
+  .mixed-nav::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
   }
   
   .nav-group {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
+    flex-shrink: 0;
   }
   
   .group-title {
@@ -134,11 +178,13 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: var(--spacing-xs) var(--spacing-md);
+    white-space: nowrap;
   }
   
   .group-links {
     display: flex;
     gap: var(--spacing-md);
+    flex-shrink: 0;
   }
   
   /* Responsive styles */
@@ -147,10 +193,8 @@
       gap: var(--spacing-sm);
     }
     
-    .mixed-nav,
-    .sub-nav-groups {
-      flex-direction: column;
-      gap: var(--spacing-md);
+    .mixed-nav {
+      gap: var(--spacing-sm);
     }
     
     .group-links {

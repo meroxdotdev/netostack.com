@@ -87,33 +87,13 @@
       </div>
     </div>
 
-    <div class="use-cases">
+    <div class="use-cases-box">
       <h4>Common Use Cases</h4>
-      <ul class="use-case-list">
-        <li>
-          <Icon name="building" size="sm" />
-          <div>
-            <strong>Office Networks:</strong> Split a /24 into department subnets
-          </div>
-        </li>
-        <li>
-          <Icon name="cloud" size="sm" />
-          <div>
-            <strong>Cloud VPCs:</strong> Create isolated subnets for different tiers
-          </div>
-        </li>
-        <li>
-          <Icon name="network" size="sm" />
-          <div>
-            <strong>VLSM Design:</strong> Plan hierarchical network addressing
-          </div>
-        </li>
-        <li>
-          <Icon name="server" size="sm" />
-          <div>
-            <strong>Data Centers:</strong> Segment networks for different services
-          </div>
-        </li>
+      <ul>
+        <li><strong>Office Networks:</strong> Split a /24 into department subnets</li>
+        <li><strong>Cloud VPCs:</strong> Create isolated subnets for different tiers</li>
+        <li><strong>VLSM Design:</strong> Plan hierarchical network addressing</li>
+        <li><strong>Data Centers:</strong> Segment networks for different services</li>
       </ul>
     </div>
 
@@ -244,34 +224,38 @@
     }
   }
 
-  .use-cases {
+  .use-cases-box {
     margin: var(--spacing-xl) 0;
-  }
+    background-color: var(--bg-primary);
+    border: 1px solid var(--color-info);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
 
-  .use-case-list {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-    
-    li {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-md);
-      padding: var(--spacing-md);
-      background-color: var(--bg-primary);
-      border: 1px solid var(--border-secondary);
-      border-radius: var(--radius-md);
-      
-      :global(.icon) {
-        color: var(--color-primary);
-        flex-shrink: 0;
-      }
-      
-      div {
+    h4 {
+      color: var(--color-info);
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        margin-bottom: var(--spacing-xs);
+        color: var(--text-primary);
+        font-size: var(--font-size-sm);
+        &::before {
+          content: "•";
+          color: var(--color-info);
+          font-weight: bold;
+          display: inline-block;
+          width: 1em;
+          margin-right: var(--spacing-xs);
+        }
+        
         strong {
-          color: var(--color-primary);
+          color: var(--color-info);
         }
       }
     }

@@ -147,34 +147,14 @@
     </div>
   </div>
 
-  <div class="best-practices">
+  <div class="best-practices-box">
     <h4>Best Practices</h4>
-    <div class="practices-list">
-      <div class="practice-item">
-        <Icon name="check-circle" size="sm" />
-        <div>
-          <strong>Validate Inputs:</strong> Always verify CIDR notation and IP formats before operations
-        </div>
-      </div>
-      <div class="practice-item">
-        <Icon name="check-circle" size="sm" />
-        <div>
-          <strong>Document Operations:</strong> Export results and maintain records of set operations
-        </div>
-      </div>
-      <div class="practice-item">
-        <Icon name="check-circle" size="sm" />
-        <div>
-          <strong>Test in Stages:</strong> For complex operations, break into smaller steps for verification
-        </div>
-      </div>
-      <div class="practice-item">
-        <Icon name="check-circle" size="sm" />
-        <div>
-          <strong>Monitor Results:</strong> Use visualization to verify operations produce expected outcomes
-        </div>
-      </div>
-    </div>
+    <ul>
+      <li><strong>Validate Inputs:</strong> Always verify CIDR notation and IP formats before operations</li>
+      <li><strong>Document Operations:</strong> Export results and maintain records of set operations</li>
+      <li><strong>Test in Stages:</strong> For complex operations, break into smaller steps for verification</li>
+      <li><strong>Monitor Results:</strong> Use visualization to verify operations produce expected outcomes</li>
+    </ul>
   </div>
 </section>
 
@@ -341,34 +321,38 @@
   }
 
   /* Best practices */
-  .practices-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .practice-item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md);
+  .best-practices-box {
     background-color: var(--bg-primary);
-    border: 1px solid var(--border-secondary);
+    border: 1px solid var(--color-info);
     border-radius: var(--radius-md);
-    
-    :global(.icon) {
-      color: var(--color-success);
-      flex-shrink: 0;
-      margin-top: 2px;
+    padding: var(--spacing-md);
+
+    h4 {
+      color: var(--color-info);
+      margin: 0 0 var(--spacing-sm) 0;
     }
-    
-    div {
-      font-size: var(--font-size-sm);
-      color: var(--text-secondary);
-      line-height: 1.5;
-      
-      strong {
-        color: var(--color-primary);
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        margin-bottom: var(--spacing-xs);
+        color: var(--text-primary);
+        font-size: var(--font-size-sm);
+        &::before {
+          content: "•";
+          color: var(--color-info);
+          font-weight: bold;
+          display: inline-block;
+          width: 1em;
+          margin-right: var(--spacing-xs);
+        }
+        
+        strong {
+          color: var(--color-info);
+        }
       }
     }
   }
@@ -382,12 +366,6 @@
     }
     
     .operation-header {
-      flex-direction: column;
-      text-align: center;
-      gap: var(--spacing-sm);
-    }
-    
-    .practice-item {
       flex-direction: column;
       text-align: center;
       gap: var(--spacing-sm);

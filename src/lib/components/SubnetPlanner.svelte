@@ -227,40 +227,37 @@
         class="tab"
         class:active={strategy === 'fit-best'}
         onclick={() => { strategy = 'fit-best'; performPlanning(); }}
+        use:tooltip={{ text: 'Sort by size (largest first) for optimal space usage', position: 'top' }}
       >
         Fit Best
-        <Tooltip text="Sort by size (largest first) for optimal space usage" position="top">
-          <Icon name="help" size="sm" />
-        </Tooltip>
       </button>
       <button 
         type="button"
         class="tab"
         class:active={strategy === 'preserve-order'}
         onclick={() => { strategy = 'preserve-order'; performPlanning(); }}
+        use:tooltip={{ text: 'Allocate in the order specified (may waste space)', position: 'top' }}
       >
         Preserve Order
-        <Tooltip text="Allocate in the order specified (may waste space)" position="top">
-          <Icon name="help" size="sm" />
-        </Tooltip>
       </button>
+      <div class="options">
+        <label class="checkbox-label">
+          <input 
+            type="checkbox" 
+            bind:checked={usableHosts}
+            onchange={() => performPlanning()}
+          />
+          <span class="checkbox-text">
+            IPv4 usable hosts (exclude network/broadcast)
+            <Tooltip text="For IPv4, treat network and broadcast addresses as unusable">
+              <Icon name="help" size="sm" />
+            </Tooltip>
+          </span>
+        </label>
+      </div>
     </div>
     
-    <div class="options">
-      <label class="checkbox-label">
-        <input 
-          type="checkbox" 
-          bind:checked={usableHosts}
-          onchange={() => performPlanning()}
-        />
-        <span class="checkbox-text">
-          IPv4 usable hosts (exclude network/broadcast)
-          <Tooltip text="For IPv4, treat network and broadcast addresses as unusable">
-            <Icon name="help" size="sm" />
-          </Tooltip>
-        </span>
-      </label>
-    </div>
+
   </div>
 
   <!-- Parent Network -->
@@ -319,7 +316,7 @@
           class:dragging={draggedIndex === index}
         >
           <div class="drag-handle">
-            <Icon name="grip-vertical" size="sm" />
+            <Icon name="draggable" size="sm" />
           </div>
           
           <div class="request-priority">
@@ -611,11 +608,15 @@
     
     .strategy-tabs {
       margin-bottom: var(--spacing-md);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
       
       .tab {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
+        max-width: 12rem;
         
         &.active {
           outline: 2px solid var(--color-primary);

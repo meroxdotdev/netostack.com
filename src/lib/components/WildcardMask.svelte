@@ -1,10 +1,12 @@
 <script lang="ts">
   import { convertWildcardMasks, type WildcardResult } from '$lib/utils/wildcard-mask.js';
+  import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/Icon.svelte';
   
   let inputText = $state('192.168.1.0/24\n10.0.0.0 255.255.255.0\n172.16.0.0 0.0.255.255');
   let result = $state<WildcardResult | null>(null);
   let isLoading = $state(false);
+  let copiedStates = $state<Record<string, boolean>>({});
   
   // ACL options
   let generateACL = $state(false);
@@ -68,8 +70,14 @@
     URL.revokeObjectURL(url);
   }
   
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
+  async function copyToClipboard(text: string, id: string = text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      copiedStates[id] = true;
+      setTimeout(() => copiedStates[id] = false, 3000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   }
   
   function copyACLRules(type: 'cisco' | 'juniper' | 'generic') {
@@ -89,17 +97,19 @@
   });
 </script>
 
-<div class="container">
-  <div class="header">
-    <h1>Wildcard Mask Converter</h1>
+<div class="card">
+  <header class="card-header">
+    <h2>Wildcard Mask Converter</h2>
     <p>Convert between CIDR notation, subnet masks, and wildcard masks with ACL rule generation</p>
-  </div>
+  </header>
 
   <div class="input-section">
-    <div class="card">
-      <h2>Network Inputs</h2>
+    <div class="inputs-section">
+      <h3>Network Inputs</h3>
       <div class="input-group">
-        <label for="inputs">IP Addresses, CIDRs, or Ranges</label>
+        <label for="inputs" use:tooltip={{ text: 'Enter networks in CIDR, subnet mask, or wildcard mask format', position: 'top' }}>
+          IP Addresses, CIDRs, or Ranges
+        </label>
         <textarea
           id="inputs"
           bind:value={inputText}
@@ -112,19 +122,19 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>ACL Options</h2>
-      <div class="input-group">
-        <label>
+    <div class="acl-section">
+      <h3>ACL Options</h3>
+      <div class="checkbox-group">
+        <label class="checkbox-label" use:tooltip={{ text: 'Generate access control list rules for network devices', position: 'top' }}>
           <input type="checkbox" bind:checked={generateACL} />
-          Generate ACL Rules
+          <span class="checkbox-text">Generate ACL Rules</span>
         </label>
       </div>
       
       {#if generateACL}
         <div class="acl-settings">
           <div class="input-group">
-            <label for="acl-type">Action</label>
+            <label for="acl-type" use:tooltip={{ text: 'Whether to permit or deny traffic matching this rule', position: 'top' }}>Action</label>
             <select id="acl-type" bind:value={aclType}>
               <option value="permit">Permit</option>
               <option value="deny">Deny</option>
@@ -132,7 +142,7 @@
           </div>
           
           <div class="input-group">
-            <label for="protocol">Protocol</label>
+            <label for="protocol" use:tooltip={{ text: 'Network protocol (ip, tcp, udp, etc.)', position: 'top' }}>Protocol</label>
             <input
               id="protocol"
               type="text"
@@ -142,7 +152,7 @@
           </div>
           
           <div class="input-group">
-            <label for="destination">Destination</label>
+            <label for="destination" use:tooltip={{ text: 'Destination network or "any" for all destinations', position: 'top' }}>Destination</label>
             <input
               id="destination"
               type="text"
@@ -230,23 +240,50 @@
                   <div class="conversion-details">
                     <div class="detail-row">
                       <span class="label">CIDR:</span>
-                      <code onclick={() => copyToClipboard(conversion.cidr)} title="Click to copy">
-                        {conversion.cidr}
-                      </code>
+                      <div class="code-container">
+                        <code>{conversion.cidr}</code>
+                        <button 
+                          type="button"
+                          class="btn btn-icon btn-xs"
+                          class:copied={copiedStates[conversion.cidr]}
+                          onclick={() => copyToClipboard(conversion.cidr, conversion.cidr)}
+                          use:tooltip={{ text: 'Copy to clipboard', position: 'top' }}
+                        >
+                          <Icon name={copiedStates[conversion.cidr] ? 'check' : 'copy'} size="xs" />
+                        </button>
+                      </div>
                     </div>
                     
                     <div class="detail-row">
                       <span class="label">Subnet Mask:</span>
-                      <code onclick={() => copyToClipboard(conversion.subnetMask)} title="Click to copy">
-                        {conversion.subnetMask}
-                      </code>
+                      <div class="code-container">
+                        <code>{conversion.subnetMask}</code>
+                        <button 
+                          type="button"
+                          class="btn btn-icon btn-xs"
+                          class:copied={copiedStates[conversion.subnetMask]}
+                          onclick={() => copyToClipboard(conversion.subnetMask, conversion.subnetMask)}
+                          use:tooltip={{ text: 'Copy to clipboard', position: 'top' }}
+                        >
+                          <Icon name={copiedStates[conversion.subnetMask] ? 'check' : 'copy'} size="xs" />
+                        </button>
+                      </div>
                     </div>
                     
                     <div class="detail-row">
                       <span class="label">Wildcard Mask:</span>
-                      <code onclick={() => copyToClipboard(conversion.wildcardMask)} title="Click to copy">
-                        {conversion.wildcardMask}
-                      </code>
+                      <div class="code-container">
+                        <code>{conversion.wildcardMask}</code>
+                        <button 
+                          type="button"
+                          class="btn btn-icon btn-xs"
+                          class:copied={copiedStates[conversion.wildcardMask]}
+                          onclick={() => copyToClipboard(conversion.wildcardMask, conversion.wildcardMask)}
+                          use:tooltip={{ text: 'Copy to clipboard', position: 'top' }}
+                        >
+                          <Icon name={copiedStates[conversion.wildcardMask] ? 'check' : 'copy'} size="xs" />
+                        </button>
+                      </div>
                     </div>
                     
                     <div class="network-info">
@@ -343,33 +380,10 @@
 </div>
 
 <style>
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--spacing-lg);
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: var(--spacing-xl);
-  }
-
-  .header h1 {
-    font-size: var(--font-size-2xl);
-    font-weight: 700;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .header p {
-    color: var(--text-secondary);
-    font-size: var(--font-size-lg);
-  }
-
   .input-section {
     display: grid;
     gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
   }
 
   @media (min-width: 768px) {
@@ -378,25 +392,61 @@
     }
   }
 
-  .card {
+  .inputs-section,
+  .acl-section {
     background: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
   }
 
-  .card h2 {
+  .inputs-section h3,
+  .acl-section h3 {
     color: var(--text-primary);
     font-size: var(--font-size-lg);
     margin-bottom: var(--spacing-md);
     font-weight: 600;
   }
 
-  .card h3 {
-    color: var(--text-primary);
-    font-size: var(--font-size-lg);
+  .checkbox-group {
     margin-bottom: var(--spacing-md);
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    width: fit-content;
+    
+    &:hover {
+      background-color: var(--surface-hover);
+    }
+    
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      cursor: pointer;
+      accent-color: var(--color-primary);
+    }
+    
+    .checkbox-text {
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+      line-height: 1.4;
+      font-weight: 600;
+    }
+  }
+
+  .acl-settings {
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-primary);
+    margin-top: var(--spacing-md);
   }
 
   .input-group {
@@ -680,21 +730,29 @@
     color: var(--text-primary);
   }
 
-  .detail-row code {
-    background: var(--color-primary);
-    color: var(--bg-primary);
-    padding: 0.375rem 0.75rem;
-    border-radius: var(--radius-sm);
-    font-family: var(--font-mono);
-    cursor: pointer;
-    display: inline-block;
-    margin: 0.125rem;
-    transition: var(--transition-fast);
-    font-weight: 600;
+  .code-container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
   }
 
-  .detail-row code:hover {
-    background: var(--color-primary-hover);
+  .code-container code {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--color-primary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+  }
+
+  .btn {
+    &.copied {
+      color: var(--color-success);
+      background-color: rgba(35, 134, 54, 0.1);
+      border-color: var(--color-success);
+    }
   }
 
   .network-info {

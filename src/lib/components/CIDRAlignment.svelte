@@ -70,15 +70,15 @@
   });
 </script>
 
-<div class="container">
-  <div class="header">
-    <h1>CIDR Boundary Alignment</h1>
+<div class="card">
+  <header class="card-header">
+    <h2>CIDR Boundary Alignment</h2>
     <p>Check if IP addresses, ranges, and CIDR blocks align to specific prefix boundaries</p>
-  </div>
+  </header>
 
   <div class="input-section">
-    <div class="card">
-      <h2>Network Inputs</h2>
+    <div class="inputs-card">
+      <h3>Network Inputs</h3>
       <div class="input-group">
         <label for="inputs">IP Addresses, CIDRs, or Ranges</label>
         <textarea
@@ -238,34 +238,11 @@
 </div>
 
 <style>
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--spacing-lg);
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: var(--spacing-xl);
-  }
-
-  .header h1 {
-    font-size: var(--font-size-2xl);
-    font-weight: 700;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .header p {
-    color: var(--text-secondary);
-    font-size: var(--font-size-lg);
-  }
-
   .input-section {
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
   }
 
-  .card {
+  .inputs-card {
     background: var(--bg-secondary);
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-lg);
@@ -273,7 +250,7 @@
     margin-bottom: var(--spacing-lg);
   }
 
-  .card h2 {
+  .inputs-card h3 {
     color: var(--text-primary);
     font-size: var(--font-size-lg);
     margin-bottom: var(--spacing-md);
