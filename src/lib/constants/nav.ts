@@ -46,6 +46,12 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       label: 'Supernet Calculator',
       description: 'Aggregate multiple networks into supernets for route summarization and efficient routing table management',
       icon: 'supernet-calculator'
+    },
+    { 
+      href: '/subnetting/planner', 
+      label: 'Subnet Planner',
+      description: 'Design VLSM networks with drag-and-drop subnet planning and optimize address allocation strategies',
+      icon: 'subnet-planner'
     }
   ],
   '/cidr': [
@@ -84,6 +90,18 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       description: 'Find available subnets from pools minus allocations with first-fit or best-fit policies',
       icon: 'next-available-subnet'
     },
+    { 
+      href: '/cidr/alignment',
+      label: 'CIDR Alignment',
+      description: 'Check if IP addresses and ranges align to CIDR prefix boundaries with optimization suggestions',
+      icon: 'alignment'
+    },
+    { 
+      href: '/cidr/wildcard-mask',
+      label: 'Wildcard Mask Converter',
+      description: 'Convert between CIDR, subnet masks, and wildcard masks with ACL rule generation',
+      icon: 'wildcard-mask'
+    },
     {
       title: 'Set Operations',
       items: [
@@ -121,6 +139,29 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       ]
     },
     {
+      title: 'Address Calculations',
+      items: [
+        {
+          href: '/ip-address-convertor/distance',
+          label: 'IP Distance Calculator',
+          description: 'Calculate the number of addresses between two IPs with inclusive/exclusive counting',
+          icon: 'calculator'
+        },
+        {
+          href: '/ip-address-convertor/nth-ip',
+          label: 'Nth IP Calculator',
+          description: 'Resolve the IP address at a specific index within networks and ranges with offset support',
+          icon: 'hash'
+        },
+        {
+          href: '/ip-address-convertor/random',
+          label: 'Random IP Generator',
+          description: 'Generate random IP addresses from networks with uniqueness control and seeded randomness',
+          icon: 'shuffle'
+        }
+      ]
+    },
+    {
       title: 'IPv6 Notation',
       items: [
         {
@@ -134,6 +175,18 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'IPv6 Compress',
           description: 'Compress expanded IPv6 addresses using :: notation and removing leading zeros',
           icon: 'ipv6-compress'
+        },
+        {
+          href: '/ip-address-convertor/notation/normalize',
+          label: 'IPv6 Normalizer',
+          description: 'Normalize IPv6 addresses to RFC 5952 canonical form with step-by-step transformation',
+          icon: 'check-square'
+        },
+        {
+          href: '/ip-address-convertor/notation/zone-id',
+          label: 'IPv6 Zone ID Handler',
+          description: 'Process IPv6 addresses with zone identifiers for link-local and multicast addresses',
+          icon: 'link'
         }
       ]
     },
@@ -151,6 +204,23 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'IPv6 → IPv4',
           description: 'Extract IPv4 addresses from IPv4-mapped IPv6 addresses',
           icon: 'ipv6-ipv4'
+        }
+      ]
+    },
+    {
+      title: 'Address Generation',
+      items: [
+        {
+          href: '/ip-address-convertor/eui64',
+          label: 'EUI-64 Converter',
+          description: 'Convert between MAC addresses and IPv6 EUI-64 interface identifiers with IPv6 generation',
+          icon: 'shuffle'
+        },
+        {
+          href: '/ip-address-convertor/ula-generator',
+          label: 'ULA Generator',
+          description: 'Generate RFC 4193 Unique Local Addresses with cryptographically secure Global IDs',
+          icon: 'key'
         }
       ]
     }
