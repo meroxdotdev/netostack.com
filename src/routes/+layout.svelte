@@ -2,6 +2,7 @@
 	import '../styles/base.scss';
 	import '../styles/variables.scss';
 	import '../styles/components.scss';
+	import '../styles/ref-pages.scss';
 	import favicon from '$lib/assets/favicon.svg';
 
   
