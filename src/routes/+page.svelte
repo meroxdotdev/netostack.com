@@ -1,8 +1,7 @@
 <script lang="ts">
   import '../styles/pages.scss';
   import { site, pages, about } from '$lib/constants/site';
-  import { ALL_PAGES } from '$lib/constants/nav';
-  import Icon from '$lib/components/Icon.svelte';
+  import ToolsGrid from '$lib/components/ToolsGrid.svelte';
 </script>
 
 <svelte:head>
@@ -25,24 +24,7 @@
 </section>
 
 <!-- Tools Grid -->
-<section class="tools-grid">
-  {#each ALL_PAGES as page}
-    <a href={page.href} class="tool-card">
-      <div class="tool-icon">
-        <Icon name={page.icon || 'default'} />
-      </div>
-      <div class="tool-content">
-        <h3>{page.label}</h3>
-        <p>{page.description}</p>
-      </div>
-      <div class="tool-arrow">
-        <svg fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-        </svg>
-      </div>
-    </a>
-  {/each}
-</section>
+<ToolsGrid />
 
 <style lang="scss">
 /* Homepage specific styles */
@@ -76,101 +58,6 @@
         font-size: var(--font-size-md);
       }
     }
-  }
-}
-
-.tools-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
-  }
-  
-  @media (min-width: 1200px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.tool-card {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-lg);
-  text-decoration: none;
-  color: inherit;
-  transition: all var(--transition-fast);
-  position: relative;
-  
-  &:hover {
-    background-color: var(--surface-hover);
-    border-color: var(--color-primary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-    
-    .tool-arrow {
-      transform: translateX(4px);
-      color: var(--color-primary);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-    padding: var(--spacing-md);
-  }
-}
-
-.tool-icon {
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-primary);
-  border-radius: var(--radius-lg);
-  color: var(--bg-secondary);
-  flex-shrink: 0;
-}
-
-.tool-content {
-  flex: 1;
-  
-  h3 {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 var(--spacing-xs) 0;
-  }
-  
-  p {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
-    margin: 0;
-    line-height: 1.5;
-  }
-}
-
-.tool-arrow {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: var(--text-secondary);
-  transition: all var(--transition-fast);
-  flex-shrink: 0;
-  
-  svg {
-    width: 100%;
-    height: 100%;
-  }
-  
-  @media (max-width: 768px) {
-    display: none;
   }
 }
 </style>

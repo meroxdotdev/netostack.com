@@ -94,7 +94,7 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       href: '/cidr/alignment',
       label: 'CIDR Alignment',
       description: 'Check if IP addresses and ranges align to CIDR prefix boundaries with optimization suggestions',
-      icon: 'alignment'
+      icon: 'cidr-alignment'
     },
     { 
       href: '/cidr/wildcard-mask',
@@ -145,19 +145,19 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/distance',
           label: 'IP Distance Calculator',
           description: 'Calculate the number of addresses between two IPs with inclusive/exclusive counting',
-          icon: 'calculator'
+          icon: 'ip-distance'
         },
         {
           href: '/ip-address-convertor/nth-ip',
           label: 'Nth IP Calculator',
           description: 'Resolve the IP address at a specific index within networks and ranges with offset support',
-          icon: 'hash'
+          icon: 'nth-ip'
         },
         {
           href: '/ip-address-convertor/random',
           label: 'Random IP Generator',
           description: 'Generate random IP addresses from networks with uniqueness control and seeded randomness',
-          icon: 'shuffle'
+          icon: 'random-ip'
         }
       ]
     },
@@ -180,13 +180,13 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/notation/normalize',
           label: 'IPv6 Normalizer',
           description: 'Normalize IPv6 addresses to RFC 5952 canonical form with step-by-step transformation',
-          icon: 'check-square'
+          icon: 'ip-normalize'
         },
         {
           href: '/ip-address-convertor/notation/zone-id',
           label: 'IPv6 Zone ID Handler',
           description: 'Process IPv6 addresses with zone identifiers for link-local and multicast addresses',
-          icon: 'link'
+          icon: 'zone-id-handler'
         }
       ]
     },
@@ -214,13 +214,13 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/eui64',
           label: 'EUI-64 Converter',
           description: 'Convert between MAC addresses and IPv6 EUI-64 interface identifiers with IPv6 generation',
-          icon: 'shuffle'
+          icon: 'eui64-converter'
         },
         {
           href: '/ip-address-convertor/ula-generator',
           label: 'ULA Generator',
           description: 'Generate RFC 4193 Unique Local Addresses with cryptographically secure Global IDs',
-          icon: 'key'
+          icon: 'ula-generator'
         }
       ]
     }

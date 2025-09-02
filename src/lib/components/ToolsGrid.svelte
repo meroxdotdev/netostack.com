@@ -1,0 +1,31 @@
+<script lang="ts">
+  import { ALL_PAGES } from '$lib/constants/nav';
+  import ToolCard from './ToolCard.svelte';
+  import type { NavItem } from '$lib/constants/nav';
+
+  export let tools: NavItem[] = ALL_PAGES;
+</script>
+
+<section class="tools-grid">
+  {#each tools as tool}
+    <ToolCard {tool} />
+  {/each}
+</section>
+
+<style lang="scss">
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+</style>
