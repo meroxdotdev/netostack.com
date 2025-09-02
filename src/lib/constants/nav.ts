@@ -17,7 +17,7 @@ export const TOP_NAV: NavItem[] = [
   { href: '/subnetting', label: 'Subnetting' },
   { href: '/cidr', label: 'CIDR Convert' },
   { href: '/ip-address-convertor', label: 'IP Tools' },
-  { href: '/ip-reference', label: 'Reference' }
+  { href: '/reference', label: 'Reference' }
 ];
 
 // Sections that have sub-pages (drives the conditional SubHeader)
@@ -225,26 +225,153 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       ]
     }
   ],
-  '/ip-reference': [
-    { 
-      href: '/ip-reference/network-classes', 
-      label: 'Network Classes',
-      description: 'IP address classes (A, B, C, D, E) and their characteristics',
-      icon: 'network-classes'
+  '/reference': [
+    {
+      title: 'Fundamentals',
+      items: [
+        {
+          href: '/reference/cidr',
+          label: 'CIDR Notation Explained',
+          description: 'What CIDR is, why it replaced IP classes, and how to read network prefixes',
+          icon: 'hash'
+        },
+        {
+          href: '/reference/vlsm',
+          label: 'VLSM in Plain English',
+          description: 'Variable Length Subnet Masking - when to use it and common pitfalls',
+          icon: 'scissors'
+        },
+        {
+          href: '/reference/supernetting',
+          label: 'Route Summarization / Supernetting',
+          description: 'Combine multiple networks into single routes for efficient routing',
+          icon: 'layers'
+        }
+      ]
     },
-    { 
-      href: '/ip-reference/reserved-ranges', 
-      label: 'Reserved Ranges',
-      description: 'Private networks, loopback, multicast, and special IP ranges',
-      icon: 'reserved-ranges'
+    {
+      title: 'IPv6 Addressing',
+      items: [
+        {
+          href: '/reference/ipv6-address-types',
+          label: 'IPv6 Address Types & Key Prefixes',
+          description: 'Global unicast, ULA, link-local, multicast, and special IPv6 addresses',
+          icon: 'globe'
+        },
+        {
+          href: '/reference/ipv6-prefix-lengths',
+          label: 'Common IPv6 Prefix Lengths',
+          description: 'Quick reference for /128, /127, /64, /60, /56, /48, /32 with typical uses',
+          icon: 'grid'
+        },
+        {
+          href: '/reference/ipv6-embedded-ipv4',
+          label: 'IPv4 in IPv6',
+          description: 'IPv4-mapped addresses, 6to4, Teredo, and transition mechanisms',
+          icon: 'shuffle'
+        },
+        {
+          href: '/reference/ipv6-privacy-addresses',
+          label: 'IPv6 Privacy Addresses',
+          description: 'SLAAC privacy extensions: temporary vs stable interface identifiers',
+          icon: 'eye-off'
+        }
+      ]
     },
-    { 
-      href: '/ip-reference/common-subnets', 
-      label: 'Common Subnets',
-      description: 'Quick reference for frequently used subnet configurations',
-      icon: 'common-subnets'
+    {
+      title: 'Special Addresses',
+      items: [
+        {
+          href: '/reference/special-use-ipv4',
+          label: 'Special-Use IPv4 Blocks (RFC 6890)',
+          description: 'Reserved IPv4 ranges including private networks, CGNAT, and test blocks',
+          icon: 'shield'
+        },
+        {
+          href: '/reference/private-vs-public-ip',
+          label: 'Private vs Public IP Addresses',
+          description: 'Understanding private/public IPs, NAT implications, and identification',
+          icon: 'lock'
+        },
+        {
+          href: '/reference/cgnat',
+          label: 'Carrier-Grade NAT Explained',
+          description: 'CGNAT (100.64.0.0/10), how to identify it, and service impacts',
+          icon: 'layers'
+        },
+        {
+          href: '/reference/link-local-apipa',
+          label: 'Link-Local & APIPA Addresses',
+          description: 'IPv4 APIPA (169.254/16) and IPv6 link-local (fe80::/10) at a glance',
+          icon: 'wifi'
+        },
+        {
+          href: '/reference/multicast',
+          label: 'IPv4 & IPv6 Multicast Basics',
+          description: 'Multicast scopes, well-known groups, and local subnet limitations',
+          icon: 'radio'
+        }
+      ]
+    },
+    {
+      title: 'DNS & Protocols',
+      items: [
+        {
+          href: '/reference/reverse-dns',
+          label: 'Reverse DNS (PTR Records)',
+          description: 'How in-addr.arpa and ip6.arpa work with examples for IPv4 and IPv6',
+          icon: 'corner-down-left'
+        },
+        {
+          href: '/reference/reverse-zones',
+          label: 'Reverse Zones for CIDR Delegation',
+          description: 'Minimal reverse DNS zones needed to delegate IPv4 and IPv6 CIDR blocks',
+          icon: 'corner-down-left'
+        },
+        {
+          href: '/reference/icmp',
+          label: 'ICMP & ICMPv6: Common Types',
+          description: 'Practical guide to ICMP message types for network troubleshooting',
+          icon: 'activity'
+        },
+        {
+          href: '/reference/arp-vs-ndp',
+          label: 'ARP vs NDP',
+          description: 'Side-by-side comparison of IPv4 ARP and IPv6 Neighbor Discovery',
+          icon: 'git-compare'
+        }
+      ]
+    },
+    {
+      title: 'Network Operations',
+      items: [
+        {
+          href: '/reference/asn',
+          label: 'What is an ASN?',
+          description: 'Autonomous Systems, BGP basics, and how IP addresses map to ASNs',
+          icon: 'share-2'
+        },
+        {
+          href: '/reference/ports',
+          label: 'Common TCP/UDP Ports',
+          description: 'Quick reference for frequently used port numbers and services',
+          icon: 'server'
+        },
+        {
+          href: '/reference/wildcard-masks',
+          label: 'ACL Wildcard Masks',
+          description: 'Wildcard masks vs netmasks, quick conversions and ACL examples',
+          icon: 'filter'
+        },
+        {
+          href: '/reference/mtu-mss',
+          label: 'Common MTU/MSS Values',
+          description: 'MTU and MSS values for Ethernet, PPPoE, VPN, and overhead calculations',
+          icon: 'package'
+        }
+      ]
     }
-  ]
+  ],
 };
 
 // Helper: is a nav item active for a given pathname?

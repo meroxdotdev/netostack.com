@@ -28,6 +28,24 @@
       icon: "globe"
     },
     {
+      title: "Common IPv6 Prefix Lengths",
+      path: "/reference/ipv6-prefix-lengths",
+      description: "Quick reference for /128, /127, /64, /60, /56, /48, /32 with typical uses",
+      icon: "grid"
+    },
+    {
+      title: "IPv4 in IPv6",
+      path: "/reference/ipv6-embedded-ipv4", 
+      description: "IPv4-mapped addresses, 6to4, Teredo, and transition mechanisms",
+      icon: "shuffle"
+    },
+    {
+      title: "IPv4 & IPv6 Multicast Basics",
+      path: "/reference/multicast",
+      description: "Multicast scopes, well-known groups, and local subnet limitations",
+      icon: "radio"
+    },
+    {
       title: "Special-Use IPv4 Blocks (RFC 6890)",
       path: "/reference/special-use-ipv4",
       description: "Reserved IPv4 ranges including private networks, CGNAT, and test blocks", 
@@ -38,6 +56,72 @@
       path: "/reference/ports",
       description: "Quick reference for frequently used port numbers and services",
       icon: "server"
+    },
+    {
+      title: "ACL Wildcard Masks",
+      path: "/reference/wildcard-masks",
+      description: "Wildcard masks vs netmasks, quick conversions and ACL examples",
+      icon: "filter"
+    },
+    {
+      title: "Common MTU/MSS Values",
+      path: "/reference/mtu-mss", 
+      description: "MTU and MSS values for Ethernet, PPPoE, VPN, and overhead calculations",
+      icon: "package"
+    },
+    {
+      title: "Reverse DNS (PTR Records)",
+      path: "/reference/reverse-dns",
+      description: "How in-addr.arpa and ip6.arpa work with examples for IPv4 and IPv6",
+      icon: "corner-down-left"
+    },
+    {
+      title: "What is an ASN?",
+      path: "/reference/asn",
+      description: "Autonomous Systems, BGP basics, and how IP addresses map to ASNs",
+      icon: "share-2"
+    },
+    {
+      title: "ICMP & ICMPv6: Common Types",
+      path: "/reference/icmp", 
+      description: "Practical guide to ICMP message types for network troubleshooting",
+      icon: "activity"
+    },
+    {
+      title: "ARP vs NDP",
+      path: "/reference/arp-vs-ndp",
+      description: "Side-by-side comparison of IPv4 ARP and IPv6 Neighbor Discovery",
+      icon: "git-compare"
+    },
+    {
+      title: "Private vs Public IP Addresses",
+      path: "/reference/private-vs-public-ip",
+      description: "Understanding private/public IPs, NAT implications, and identification",
+      icon: "lock"
+    },
+    {
+      title: "Carrier-Grade NAT Explained", 
+      path: "/reference/cgnat",
+      description: "CGNAT (100.64.0.0/10), how to identify it, and service impacts",
+      icon: "layers"
+    },
+    {
+      title: "Link-Local & APIPA Addresses",
+      path: "/reference/link-local-apipa",
+      description: "IPv4 APIPA (169.254/16) and IPv6 link-local (fe80::/10) at a glance",
+      icon: "wifi"
+    },
+    {
+      title: "Reverse Zones for CIDR Delegation",
+      path: "/reference/reverse-zones",
+      description: "Minimal reverse DNS zones needed to delegate IPv4 and IPv6 CIDR blocks",
+      icon: "corner-down-left"
+    },
+    {
+      title: "IPv6 Privacy Addresses",
+      path: "/reference/ipv6-privacy-addresses", 
+      description: "SLAAC privacy extensions: temporary vs stable interface identifiers",
+      icon: "eye-off"
     }
   ];
 </script>
@@ -99,11 +183,11 @@
       <h2>More References Coming Soon</h2>
       <p>We're continuously adding more networking references. Coming soon:</p>
       <ul>
-        <li>IPv6 Prefix Lengths Guide</li>
-        <li>Multicast Addressing Basics</li> 
-        <li>NAT Types Explained</li>
-        <li>Wildcard Masks for ACLs</li>
-        <li>Common MTU/MSS Values</li>
+        <li>DHCPv4 vs DHCPv6 Differences</li>
+        <li>NAT Types and Behavior</li>
+        <li>Network Troubleshooting Methodologies</li>
+        <li>IPv6 Transition Mechanisms</li>
+        <li>QoS Basics and DSCP Markings</li>
         <li>And more...</li>
       </ul>
     </div>
@@ -112,7 +196,7 @@
 
 <style>
   .reference-link {
-    text-decoration: none;
+    text-decoration: none !important;
     color: inherit;
     transition: var(--transition-fast);
     cursor: pointer;
