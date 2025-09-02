@@ -82,6 +82,7 @@
     background-color: var(--bg-tertiary);
     border-bottom: 1px solid var(--border-primary);
     padding: var(--spacing-sm) 0;
+    display: none;
     @media (max-width: 768px) {
       display: none;
     }

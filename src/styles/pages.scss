@@ -9,6 +9,12 @@
   }
 }
 
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 .nav-links {
   display: flex;
   gap: var(--spacing-md);

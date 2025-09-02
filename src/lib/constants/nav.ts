@@ -1,3 +1,5 @@
+import { site, author, license } from '$lib/constants/site';
+
 export type NavItem = {
   href: string;
   label: string;
@@ -233,19 +235,19 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/cidr',
           label: 'CIDR Notation Explained',
           description: 'What CIDR is, why it replaced IP classes, and how to read network prefixes',
-          icon: 'hash'
+          icon: 'ref-cidr'
         },
         {
           href: '/reference/vlsm',
           label: 'VLSM in Plain English',
           description: 'Variable Length Subnet Masking - when to use it and common pitfalls',
-          icon: 'scissors'
+          icon: 'ref-vlsm'
         },
         {
           href: '/reference/supernetting',
           label: 'Route Summarization / Supernetting',
           description: 'Combine multiple networks into single routes for efficient routing',
-          icon: 'layers'
+          icon: 'ref-supernetting'
         }
       ]
     },
@@ -256,25 +258,25 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/ipv6-address-types',
           label: 'IPv6 Address Types & Key Prefixes',
           description: 'Global unicast, ULA, link-local, multicast, and special IPv6 addresses',
-          icon: 'globe'
+          icon: 'ref-ipv6-address-types'
         },
         {
           href: '/reference/ipv6-prefix-lengths',
           label: 'Common IPv6 Prefix Lengths',
           description: 'Quick reference for /128, /127, /64, /60, /56, /48, /32 with typical uses',
-          icon: 'grid'
+          icon: 'ref-ipv6-prefix-lens'
         },
         {
           href: '/reference/ipv6-embedded-ipv4',
           label: 'IPv4 in IPv6',
           description: 'IPv4-mapped addresses, 6to4, Teredo, and transition mechanisms',
-          icon: 'shuffle'
+          icon: 'ref-ipv4-in-ipv6'
         },
         {
           href: '/reference/ipv6-privacy-addresses',
           label: 'IPv6 Privacy Addresses',
           description: 'SLAAC privacy extensions: temporary vs stable interface identifiers',
-          icon: 'eye-off'
+          icon: 'ref-ipv6-privacy-address'
         }
       ]
     },
@@ -285,31 +287,31 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/special-use-ipv4',
           label: 'Special-Use IPv4 Blocks (RFC 6890)',
           description: 'Reserved IPv4 ranges including private networks, CGNAT, and test blocks',
-          icon: 'shield'
+          icon: 'ref-special-blocks'
         },
         {
           href: '/reference/private-vs-public-ip',
           label: 'Private vs Public IP Addresses',
           description: 'Understanding private/public IPs, NAT implications, and identification',
-          icon: 'lock'
+          icon: 'ref-public-vs-private'
         },
         {
           href: '/reference/cgnat',
           label: 'Carrier-Grade NAT Explained',
           description: 'CGNAT (100.64.0.0/10), how to identify it, and service impacts',
-          icon: 'layers'
+          icon: 'ref-carrier-nat'
         },
         {
           href: '/reference/link-local-apipa',
           label: 'Link-Local & APIPA Addresses',
           description: 'IPv4 APIPA (169.254/16) and IPv6 link-local (fe80::/10) at a glance',
-          icon: 'wifi'
+          icon: 'ref-link-local-apia'
         },
         {
           href: '/reference/multicast',
           label: 'IPv4 & IPv6 Multicast Basics',
           description: 'Multicast scopes, well-known groups, and local subnet limitations',
-          icon: 'radio'
+          icon: 'ref-multicast-basics'
         }
       ]
     },
@@ -320,25 +322,25 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/reverse-dns',
           label: 'Reverse DNS (PTR Records)',
           description: 'How in-addr.arpa and ip6.arpa work with examples for IPv4 and IPv6',
-          icon: 'corner-down-left'
+          icon: 'ref-reverse-dns'
         },
         {
           href: '/reference/reverse-zones',
           label: 'Reverse Zones for CIDR Delegation',
           description: 'Minimal reverse DNS zones needed to delegate IPv4 and IPv6 CIDR blocks',
-          icon: 'corner-down-left'
+          icon: 'ref-reverse-zones'
         },
         {
           href: '/reference/icmp',
           label: 'ICMP & ICMPv6: Common Types',
           description: 'Practical guide to ICMP message types for network troubleshooting',
-          icon: 'activity'
+          icon: 'ref-icmp'
         },
         {
           href: '/reference/arp-vs-ndp',
           label: 'ARP vs NDP',
           description: 'Side-by-side comparison of IPv4 ARP and IPv6 Neighbor Discovery',
-          icon: 'git-compare'
+          icon: 'ref-arp-vs-ndp'
         }
       ]
     },
@@ -349,30 +351,36 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/asn',
           label: 'What is an ASN?',
           description: 'Autonomous Systems, BGP basics, and how IP addresses map to ASNs',
-          icon: 'share-2'
+          icon: 'ref-asn'
         },
         {
           href: '/reference/ports',
           label: 'Common TCP/UDP Ports',
           description: 'Quick reference for frequently used port numbers and services',
-          icon: 'server'
+          icon: 'ref-ports'
         },
         {
           href: '/reference/wildcard-masks',
           label: 'ACL Wildcard Masks',
           description: 'Wildcard masks vs netmasks, quick conversions and ACL examples',
-          icon: 'filter'
+          icon: 'ref-wildcard-masks'
         },
         {
           href: '/reference/mtu-mss',
           label: 'Common MTU/MSS Values',
           description: 'MTU and MSS values for Ethernet, PPPoE, VPN, and overhead calculations',
-          icon: 'package'
+          icon: 'ref-mtu-mss'
         }
       ]
     }
   ],
 };
+
+export const footerLinks: NavItem[] = [
+  { href: '/about', label: 'About' },
+  { href: site.repo, label: 'GitHub' },
+  { href: author.portfolio, label: 'More Apps →' },
+];
 
 // Helper: is a nav item active for a given pathname?
 export function isActive(pathname: string, href: string): boolean {

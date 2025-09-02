@@ -2,7 +2,10 @@
 <script lang="ts">
 	import { setContext } from 'svelte';
 	import { writable, derived, get } from 'svelte/store';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import Tooltip from '$lib/components/Tooltip.svelte';
+	import Icon from '$lib/components/Icon.svelte';
 	import { cidrToMask, maskToCidr } from '$lib/utils/ip-calculations.js';
 	import { validateSubnetMask } from '$lib/utils/ip-validation.js';
 	import { COMMON_SUBNETS } from '$lib/constants/networks.js';
@@ -38,21 +41,50 @@
 
 	const subnetInfo = derived(cidr, ($c) => getSubnetInfo($c));
 
+	// Dynamic title based on current route
+	$: isCidrToMask = $page.url.pathname.includes('cidr-to-subnet-mask');
+	$: title = isCidrToMask ? 'CIDR → Subnet Mask Converter' : 'Subnet Mask → CIDR Converter';
+	$: description = isCidrToMask 
+		? 'Convert CIDR notation to subnet mask format'
+		: 'Convert subnet mask format to CIDR notation';
+
+	// Switch between converter modes
+	function switchMode() {
+		const newPath = isCidrToMask 
+			? '/cidr/mask-converter/subnet-mask-to-cidr'
+			: '/cidr/mask-converter/cidr-to-subnet-mask';
+		goto(newPath);
+	}
+
 	// Provide everything to children through context
-	const ctx: CidrContext = {
-		cidr,
-		mask,
-		handleMaskChange,
-		getSubnetInfo,
-		COMMON_SUBNETS
-	};
-	setContext(CIDR_CTX, ctx);
+  const ctx: CidrContext = {
+    cidr,
+    mask,
+    handleMaskChange,
+    getSubnetInfo,
+    COMMON_SUBNETS: Array.from(COMMON_SUBNETS)
+  };
+  setContext(CIDR_CTX, ctx);
 </script>
 
 <div class="card">
 	<header class="card-header">
-		<h2>CIDR ↔ Subnet Mask Converter</h2>
-		<p>Convert between CIDR notation and subnet mask formats.</p>
+    <div class="left">
+      <h2>{title}</h2>
+      <p>{description}</p>
+    </div>
+    <div class="right">
+      <Tooltip text="Switch converter direction" position="left">
+        <button 
+          class="switch-button"
+          onclick={switchMode}
+          aria-label="Switch between CIDR to subnet mask and subnet mask to CIDR converters"
+        >
+          <Icon name="refresh" size="sm" />
+          Switch
+        </button>
+      </Tooltip>
+    </div>
 	</header>
 
 	<!-- Per-page converter UIs render here -->
@@ -179,6 +211,62 @@
 </div>
 
 <style lang="scss">
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    .left {
+      flex: 1;
+      min-width: 200px;
+    }
+    .right {
+      min-width: 100px;
+      text-align: right;
+    }
+  }
+
+  .switch-button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background-color: var(--surface-hover);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    :global(.icon) {
+      transition: transform var(--transition-fast);
+    }
+
+    &:hover :global(.icon) {
+      transform: rotate(180deg);
+    }
+  }
   .info-panel {
     margin-top: var(--spacing-xl);
 

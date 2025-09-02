@@ -37,7 +37,7 @@
     margin: 0 auto;
     
     h2 {
-      font-size: var(--font-size-2xl);
+      font-size: var(--font-size-3xl);
       font-weight: 700;
       color: var(--text-primary);
       margin-bottom: var(--spacing-md);

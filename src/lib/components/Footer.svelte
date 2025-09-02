@@ -1,5 +1,5 @@
 <script>
-  import { TOP_NAV } from '$lib/constants/nav';
+  import { TOP_NAV, footerLinks } from '$lib/constants/nav';
   import { site, author, license } from '$lib/constants/site';
 </script>
 
@@ -17,10 +17,9 @@
     <a href="{author.githubUrl}" target="_blank" rel="noopener noreferrer">{author.name}</a> {license.date}
   </p>
   <p class="footer-sub">
-    {#each TOP_NAV as item, i}
-      <a href="{item.href}">{item.label}</a>{i < TOP_NAV.length - 1 ? ' • ' : ''}
+    {#each footerLinks as item, i}
+      <a href="{item.href}">{item.label}</a>{i < footerLinks.length - 1 ? ' • ' : ''}
     {/each}
-    • <a href="/about">About</a>
   </p>
 </footer>
 

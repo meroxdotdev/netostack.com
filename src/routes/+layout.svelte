@@ -63,7 +63,7 @@ main {
   padding: 0 var(--spacing-md);
   margin: 1rem auto;
   background: var(--bg-primary);
-  padding: var(--spacing-lg) 0;
+  padding: var(--spacing-lg) var(--spacing-md);
 }
 </style>
 
