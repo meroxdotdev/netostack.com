@@ -27,7 +27,7 @@
         </div>
         <div>
           <h1><a href="/">{site.title}</a></h1>
-          <p class="subtitle">Network Reference</p>
+          <p class="subtitle">The sysadmin's Swiss Army knife</p>
         </div>
       </div>
 

@@ -1,7 +1,11 @@
 <script lang="ts">
   import '../styles/pages.scss';
   import { site, pages, about } from '$lib/constants/site';
+  import { ALL_PAGES, type NavItem } from '$lib/constants/nav';
   import ToolsGrid from '$lib/components/ToolsGrid.svelte';
+  import SearchFilter from '$lib/components/SearchFilter.svelte';
+  let filteredTools: NavItem[] = $state(ALL_PAGES);
+  let searchQuery: string = $state('');
 </script>
 
 <svelte:head>
@@ -23,26 +27,26 @@
   </div>
 </section>
 
+<!-- Search Filter -->
+<SearchFilter bind:filteredTools bind:searchQuery />
+
 <!-- Tools Grid -->
-<ToolsGrid />
+<ToolsGrid tools={filteredTools} {searchQuery} />
 
 <style lang="scss">
 /* Homepage specific styles */
 .hero {
   text-align: center;
-  padding: var(--spacing-xl) 0 var(--spacing-lg);
-  
+  padding: var(--spacing-xl) 0 var(--spacing-sm);
   .hero-content {
     max-width: 900px;
     margin: 0 auto;
-    
     h2 {
       font-size: var(--font-size-3xl);
       font-weight: 700;
       color: var(--text-primary);
       margin-bottom: var(--spacing-md);
       line-height: 1.2;
-      
       @media (max-width: 768px) {
         font-size: var(--font-size-xl);
       }
@@ -53,7 +57,6 @@
       color: var(--text-secondary);
       line-height: 1.6;
       margin: 0;
-      
       @media (max-width: 768px) {
         font-size: var(--font-size-md);
       }

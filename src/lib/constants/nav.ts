@@ -5,6 +5,7 @@ export type NavItem = {
   label: string;
   description?: string;
   icon?: string;
+  keywords?: string[];
 };
 
 export type NavGroup = {
@@ -29,31 +30,36 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       href: '/subnetting/ipv4-subnet-calculator', 
       label: 'IPv4 Subnet Calculator',
       description: 'Calculate subnet information, network addresses, broadcast addresses, and host ranges with visual network analysis',
-      icon: 'subnet-calculator'
+      icon: 'subnet-calculator',
+      keywords: ['subnet', 'calculator', 'ipv4', 'network', 'broadcast', 'hosts', 'cidr', 'netmask']
     },
     { 
       href: '/subnetting/ipv6-subnet-calculator', 
       label: 'IPv6 Subnet Calculator',
       description: 'Calculate IPv6 subnets with 128-bit addressing and modern network prefix planning',
-      icon: 'ipv6-subnet-calculator'
+      icon: 'ipv6-subnet-calculator',
+      keywords: ['subnet', 'calculator', 'ipv6', 'network', 'prefix', '128-bit', 'addressing']
     },
     { 
       href: '/subnetting/vlsm-calculator', 
       label: 'VLSM Calculator',
       description: 'Variable Length Subnet Mask calculator to break networks into multiple smaller subnets with optimal allocation',
-      icon: 'vlsm-calculator'
+      icon: 'vlsm-calculator',
+      keywords: ['vlsm', 'variable', 'length', 'subnet', 'mask', 'calculator', 'subnets', 'allocation']
     },
     { 
       href: '/subnetting/supernet-calculator', 
       label: 'Supernet Calculator',
       description: 'Aggregate multiple networks into supernets for route summarization and efficient routing table management',
-      icon: 'supernet-calculator'
+      icon: 'supernet-calculator',
+      keywords: ['supernet', 'calculator', 'aggregate', 'route', 'summarization', 'routing', 'table']
     },
     { 
       href: '/subnetting/planner', 
       label: 'Subnet Planner',
       description: 'Design VLSM networks with drag-and-drop subnet planning and optimize address allocation strategies',
-      icon: 'subnet-planner'
+      icon: 'subnet-planner',
+      keywords: ['subnet', 'planner', 'design', 'vlsm', 'networks', 'planning', 'allocation']
     }
   ],
   '/cidr': [
@@ -64,13 +70,15 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/cidr/mask-converter/cidr-to-subnet-mask', 
           label: 'CIDR → Mask',
           description: 'Convert CIDR notation (e.g. /24) to subnet mask format (255.255.255.0)',
-          icon: 'cidr-convertor'
+          icon: 'cidr-convertor',
+          keywords: ['cidr', 'convert', 'converter', 'mask', 'subnet', 'notation', '/24', '255.255.255.0']
         },
         { 
           href: '/cidr/mask-converter/subnet-mask-to-cidr',
           label: 'Mask → CIDR',
           description: 'Convert subnet mask format (255.255.255.0) to CIDR notation (/24)',
-          icon: 'cidr-convertor-mask'
+          icon: 'cidr-convertor-mask',
+          keywords: ['mask', 'convert', 'converter', 'cidr', 'subnet', 'notation', '/24', '255.255.255.0']
         },
       ],
     },
@@ -78,13 +86,15 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       href: '/cidr/summarize',
       label: 'CIDR Summarizer',
       description: 'Optimize mixed IP addresses, CIDR blocks, and ranges into minimal CIDR prefixes',
-      icon: 'cidr-summarize'
+      icon: 'cidr-summarize',
+      keywords: ['cidr', 'summarize', 'summarizer', 'optimize', 'ip', 'blocks', 'ranges', 'prefixes']
     },
     { 
       href: '/cidr/split',
       label: 'CIDR Split',
       description: 'Split a network into N equal child subnets or to a target prefix length',
-      icon: 'subnet-splitter'
+      icon: 'subnet-splitter',
+      keywords: ['cidr', 'split', 'splitter', 'network', 'subnets', 'child', 'prefix']
     },
     { 
       href: '/cidr/next-available',
@@ -136,7 +146,8 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/representations',
           label: 'Format Representations',
           description: 'Convert IP addresses between decimal, binary, hexadecimal, and octal number systems',
-          icon: 'ip-convertor'
+          icon: 'ip-convertor',
+          keywords: ['ip', 'convert', 'converter', 'format', 'decimal', 'binary', 'hexadecimal', 'octal', 'representation']
         }
       ]
     },
@@ -147,7 +158,8 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/distance',
           label: 'IP Distance Calculator',
           description: 'Calculate the number of addresses between two IPs with inclusive/exclusive counting',
-          icon: 'ip-distance'
+          icon: 'ip-distance',
+          keywords: ['ip', 'distance', 'calculator', 'addresses', 'between', 'counting', 'range']
         },
         {
           href: '/ip-address-convertor/nth-ip',
@@ -159,7 +171,8 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/random',
           label: 'Random IP Generator',
           description: 'Generate random IP addresses from networks with uniqueness control and seeded randomness',
-          icon: 'random-ip'
+          icon: 'random-ip',
+          keywords: ['random', 'ip', 'generator', 'generate', 'addresses', 'networks', 'seeded']
         }
       ]
     },

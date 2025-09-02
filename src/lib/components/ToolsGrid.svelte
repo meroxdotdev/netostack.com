@@ -1,16 +1,22 @@
 <script lang="ts">
   import { ALL_PAGES } from '$lib/constants/nav';
   import ToolCard from './ToolCard.svelte';
+  import NoResults from './NoResults.svelte';
   import type { NavItem } from '$lib/constants/nav';
 
   export let tools: NavItem[] = ALL_PAGES;
+  export let searchQuery: string = '';
 </script>
 
-<section class="tools-grid">
-  {#each tools as tool}
-    <ToolCard {tool} />
-  {/each}
-</section>
+{#if tools.length === 0 && searchQuery}
+  <NoResults {searchQuery} />
+{:else}
+  <section class="tools-grid">
+    {#each tools as tool}
+      <ToolCard {tool} />
+    {/each}
+  </section>
+{/if}
 
 <style lang="scss">
 .tools-grid {
