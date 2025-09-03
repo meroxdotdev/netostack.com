@@ -20,6 +20,7 @@ export const TOP_NAV: NavItem[] = [
   { href: '/subnetting', label: 'Subnetting' },
   { href: '/cidr', label: 'CIDR Convert' },
   { href: '/ip-address-convertor', label: 'IP Tools' },
+  { href: '/dns', label: 'DNS Tools' },
   { href: '/reference', label: 'Reference' }
 ];
 
@@ -64,7 +65,7 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
   ],
   '/cidr': [
     {
-      title: 'CIDR',
+      title: 'CIDR Masks',
       items: [
         {
           href: '/cidr/mask-converter/cidr-to-subnet-mask', 
@@ -100,7 +101,36 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       href: '/cidr/next-available',
       label: 'Next Available Subnet',
       description: 'Find available subnets from pools minus allocations with first-fit or best-fit policies',
-      icon: 'next-available-subnet'
+      icon: 'next-available-subnet',
+      keywords: ['next', 'available', 'subnet', 'pools', 'allocations', 'first-fit', 'best-fit']
+    },
+    { 
+      href: '/cidr/gaps',
+      label: 'Free Space Finder',
+      description: 'List all free blocks in pool CIDRs minus allocations, filterable by target prefix length',
+      icon: 'cidr-gaps',
+      keywords: ['free', 'space', 'gaps', 'finder', 'blocks', 'pools', 'allocations', 'prefix']
+    },
+    { 
+      href: '/cidr/deaggregate',
+      label: 'CIDR Deaggregate',
+      description: 'Decompose CIDR blocks and ranges into uniform target prefix subnets (e.g., break into /24s)',
+      icon: 'cidr-deaggregate',
+      keywords: ['cidr', 'deaggregate', 'decompose', 'break', 'uniform', 'prefix', 'subnets', 'split']
+    },
+    { 
+      href: '/cidr/compare',
+      label: 'CIDR Compare',
+      description: 'Compare two lists of CIDR blocks to identify added, removed, and unchanged entries after normalization',
+      icon: 'cidr-compare',
+      keywords: ['cidr', 'compare', 'diff', 'audit', 'added', 'removed', 'unchanged', 'normalization']
+    },
+    { 
+      href: '/cidr/allocator',
+      label: 'CIDR Allocator',
+      description: 'Pack requested subnet sizes into network pools using bin-packing algorithms (first-fit, best-fit)',
+      icon: 'cidr-allocator',
+      keywords: ['cidr', 'allocator', 'bin-packing', 'first-fit', 'best-fit', 'subnet', 'allocation', 'packing']
     },
     { 
       href: '/cidr/alignment',
@@ -173,6 +203,27 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           description: 'Generate random IP addresses from networks with uniqueness control and seeded randomness',
           icon: 'random-ip',
           keywords: ['random', 'ip', 'generator', 'generate', 'addresses', 'networks', 'seeded']
+        },
+        {
+          href: '/ip-address-convertor/regex',
+          label: 'IP Regex Generator',
+          description: 'Generate safe regular expressions for matching IPv4 and IPv6 addresses with customizable validation options',
+          icon: 'ip-regex-generator',
+          keywords: ['regex', 'regular', 'expression', 'ipv4', 'ipv6', 'pattern', 'matching', 'validation']
+        },
+        {
+          href: '/ip-address-convertor/validator',
+          label: 'IP Address Validator',
+          description: 'Validate IPv4 and IPv6 addresses with detailed error analysis and format checking',
+          icon: 'ip-validator',
+          keywords: ['ip', 'validator', 'validation', 'check', 'verify', 'ipv4', 'ipv6', 'format', 'address']
+        },
+        {
+          href: '/ip-address-convertor/enumerate',
+          label: 'IP Enumerate',
+          description: 'Safely enumerate all IP addresses in CIDR blocks and ranges with CSV/JSON export',
+          icon: 'ip-enumerate',
+          keywords: ['enumerate', 'list', 'generate', 'cidr', 'range', 'all', 'ips', 'export', 'csv', 'json']
         }
       ]
     },
@@ -202,6 +253,27 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'IPv6 Zone ID Handler',
           description: 'Process IPv6 addresses with zone identifiers for link-local and multicast addresses',
           icon: 'zone-id-handler'
+        },
+        {
+          href: '/ip-address-convertor/ipv6/solicited-node',
+          label: 'IPv6 Solicited-Node',
+          description: 'Compute solicited-node multicast addresses from IPv6 unicast for Neighbor Discovery Protocol',
+          icon: 'ipv6-solicited-node',
+          keywords: ['ipv6', 'solicited-node', 'multicast', 'ndp', 'neighbor', 'discovery', 'ff02::1:ff']
+        },
+        {
+          href: '/ip-address-convertor/ipv6/teredo',
+          label: 'IPv6 Teredo Parser',
+          description: 'Parse Teredo IPv6 addresses to extract server IPv4, flags, mapped port, and client IPv4 components',
+          icon: 'ipv6-teredo',
+          keywords: ['ipv6', 'teredo', 'tunnel', '2001:0000', 'parse', 'server', 'client', 'port', 'flags']
+        },
+        {
+          href: '/ip-address-convertor/ipv6/nat64',
+          label: 'IPv6 NAT64 Translator',
+          description: 'Translate between IPv4 and IPv6 addresses using NAT64 prefix (64:ff9b::/96 or custom)',
+          icon: 'ipv6-nat64',
+          keywords: ['ipv6', 'nat64', 'translate', 'ipv4', 'prefix', '64:ff9b', 'converter', 'translation']
         }
       ]
     },
@@ -236,6 +308,20 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'ULA Generator',
           description: 'Generate RFC 4193 Unique Local Addresses with cryptographically secure Global IDs',
           icon: 'ula-generator'
+        }
+      ]
+    }
+  ],
+  '/dns': [
+    {
+      title: 'Reverse DNS',
+      items: [
+        {
+          href: '/dns/ptr-generator',
+          label: 'PTR Record Generator',
+          description: 'Generate PTR record names for IPv4 and IPv6 addresses and CIDR blocks with zone file stubs',
+          icon: 'ptr-generator',
+          keywords: ['ptr', 'records', 'reverse', 'dns', 'in-addr.arpa', 'ip6.arpa', 'zone', 'file', 'generator']
         }
       ]
     }
