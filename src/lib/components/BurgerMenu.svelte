@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
   import { SUB_NAV } from '$lib/constants/nav';
   import Icon from './Icon.svelte';
   import { type NavItem, type NavGroup, footerLinks } from '$lib/constants/nav';
@@ -31,6 +32,11 @@
   // Close menu when clicking a link
   function handleLinkClick() {
     isOpen = false;
+  }
+
+  // Check if a link is currently active
+  function isActiveLink(href: string): boolean {
+    return $page.url.pathname === href || $page.url.pathname.startsWith(href + '/');
   }
 
 
@@ -91,7 +97,7 @@
 
   <!-- Menu Overlay -->
   {#if isOpen}
-    <div class="menu-overlay" aria-hidden="true"></div>
+    <div class="menu-overlay" aria-hidden="true" on:click={() => isOpen = false}></div>
   {/if}
 
   <!-- Menu Content -->
@@ -136,6 +142,7 @@
                       <a 
                         href={item.href}
                         class="menu-item"
+                        class:active={isActiveLink(item.href)}
                         on:click={handleLinkClick}
                         title={item.description}
                         aria-label={`${item.label}: ${item.description}`}
@@ -154,6 +161,7 @@
                     <a 
                       href={item.href}
                       class="menu-item"
+                      class:active={isActiveLink(item.href)}
                       on:click={handleLinkClick}
                       title={item.description}
                       aria-label={`${item.label}: ${item.description}`}
@@ -361,6 +369,14 @@
     padding-bottom: var(--spacing-xs);
     border-bottom: 1px solid var(--border-secondary);
   }
+  
+  &.active h3 {
+    color: var(--color-primary);
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-md);
+    border-bottom-color: var(--color-primary);
+  }
 }
 
 .menu-group {
@@ -407,6 +423,23 @@
   &:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+  }
+  
+  &.active {
+    background-color: var(--color-primary);
+    color: var(--bg-primary);
+    font-weight: 600;
+    transform: translateX(4px);
+    
+    :global(.icon) {
+      color: var(--bg-primary);
+    }
+    
+    &:hover {
+      background-color: var(--color-primary);
+      color: var(--bg-primary);
+      transform: translateX(6px);
+    }
   }
 }
 

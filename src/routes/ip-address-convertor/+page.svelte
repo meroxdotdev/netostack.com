@@ -41,7 +41,6 @@
 
   <ToolsGrid tools={ipTools} />
 
-
 </div>
 
 <style>
