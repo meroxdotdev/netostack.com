@@ -324,6 +324,32 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           keywords: ['ptr', 'records', 'reverse', 'dns', 'in-addr.arpa', 'ip6.arpa', 'zone', 'file', 'generator']
         }
       ]
+    },
+    {
+      title: 'Record Generators',
+      items: [
+        {
+          href: '/dns/generators/a-aaaa-bulk',
+          label: 'A/AAAA Bulk Generator',
+          description: 'Bulk create A and AAAA record sets from IP lists with TTL and RRset controls',
+          icon: 'dns-a-records',
+          keywords: ['dns', 'a', 'aaaa', 'records', 'bulk', 'generator', 'ttl', 'rrset']
+        },
+        {
+          href: '/dns/generators/cname-builder',
+          label: 'CNAME Builder',
+          description: 'Build valid CNAME records with loop detection and self-target checks',
+          icon: 'dns-cname',
+          keywords: ['dns', 'cname', 'canonical', 'alias', 'builder', 'loop', 'detection', 'validation']
+        },
+        {
+          href: '/dns/generators/mx-planner',
+          label: 'MX Record Planner',
+          description: 'Plan MX record priorities with fallback guidance and sample configurations',
+          icon: 'dns-mx',
+          keywords: ['dns', 'mx', 'mail', 'exchange', 'priority', 'fallback', 'planner', 'email']
+        }
+      ]
     }
   ],
   '/reference': [
@@ -514,4 +540,18 @@ export const ALL_PAGES: NavItem[] = [
 export function findSectionKey(pathname: string): string | null {
   const keys = Object.keys(SUB_NAV);
   return keys.find((k) => isActive(pathname, k)) ?? null;
+}
+
+// Helper: get page details for SEO from navigation
+export function getPageDetails(href: string): { title: string; description: string; keywords: string[] } | null {
+  for (const item of ALL_PAGES) {
+    if (item.href === href) {
+      return {
+        title: item.label,
+        description: item.description || '',
+        keywords: item.keywords || []
+      };
+    }
+  }
+  return null;
 }
