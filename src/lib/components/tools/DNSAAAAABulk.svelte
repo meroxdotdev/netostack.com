@@ -569,7 +569,7 @@ $ORIGIN ${zoneName}.
   }
   
   .zone-file-content {
-    background: var(--bg-secondary);
+    background: var(--bg-primary);
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-md);
     padding: var(--spacing-md);

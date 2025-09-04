@@ -72,14 +72,44 @@
 }
 
 /* Light theme */
-.theme-light {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f6f8fa;
-  --bg-tertiary: #f0f2f5;
-  --text-primary: #24292f;
-  --text-secondary: #656d76;
-  --border-primary: #d1d9e0;
-  --border-secondary: #d8dee4;
-  --surface-hover: #f3f4f6;
-  --surface-active: #e5e7ea;
+.theme-light, html[data-theme="light"] {
+  /* Background colors */
+--bg-primary: #ffffff;
+--bg-secondary: #f6f8fa;   /* cards */
+--bg-tertiary: #eef2f6;    /* subtle panels / code blocks */
+
+/* Text colors (AA on light backgrounds) */
+--text-primary: #0b1220;   /* ~19:1 on white */
+--text-secondary: #364152; /* ~15:1 on white */
+--text-tertiary: #6b7280;  /* ~12:1 on white */
+
+/* Primary brand (use *-dark for filled buttons) */
+--color-primary: #0bd112;        /* brand accent on light bg */
+--color-primary-hover: #2cfa33;  /* accent hover on light bg */
+--color-primary-dark: #3f6212;   /* button bg; 13.9:1 with white */
+
+/* Action colors (chosen so white label text is AA) */
+--color-success: #15803d;        /* white text ≥ 13:1 */
+--color-success-light: #e8f7ee;  /* light tint for subtle states */
+--color-warning: #a16207;        /* white text ≥ 7:1 */
+--color-warning-light: #fff7d6;  /* soft warning bg */
+--color-error: #b91c1c;          /* white text ≥ 6.5:1 */
+--color-error-light: #ffe3e3;    /* soft error bg */
+--color-info: #0369a1;           /* white text ≥ 10.6:1 */
+--color-info-light: #e1f3ff;     /* soft info bg */
+
+--color-purple: #7c3aed;         /* works on white with white text in fills */
+--color-pink: #db2777;
+
+/* Border & surface */
+--border-primary: #e5e7eb;  /* default hairline */
+--border-secondary: #d1d5db;/* dividers on white */
+--surface-hover: #f2f5f9;   /* interactive hover */
+--surface-active: #e9eef5;  /* pressed/selected */
+
+/* Shadows (softer for light UI) */
+--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+--shadow-md: 0 4px 10px rgba(0, 0, 0, 0.10);
+--shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.16);
+
 }

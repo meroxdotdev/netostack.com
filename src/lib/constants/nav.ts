@@ -348,6 +348,48 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           description: 'Plan MX record priorities with fallback guidance and sample configurations',
           icon: 'dns-mx',
           keywords: ['dns', 'mx', 'mail', 'exchange', 'priority', 'fallback', 'planner', 'email']
+        },
+        {
+          href: '/dns/generators/srv-builder',
+          label: 'SRV Record Builder',
+          description: 'Compose SRV records with service, protocol, priority, weight, port, and target validation',
+          icon: 'dns-srv',
+          keywords: ['dns', 'srv', 'service', 'protocol', 'priority', 'weight', 'port', 'target', 'builder']
+        },
+        {
+          href: '/dns/generators/txt-escape',
+          label: 'TXT Record Escape Tool',
+          description: 'Safely escape and split TXT record strings into 255-character chunks with validation',
+          icon: 'dns-txt',
+          keywords: ['dns', 'txt', 'escape', 'split', 'chunks', 'validation', 'text', 'records']
+        },
+        {
+          href: '/dns/generators/spf-builder',
+          label: 'SPF Policy Builder',
+          description: 'Craft SPF policies with mechanism validation, qualifier control, and DNS lookup counting',
+          icon: 'dns-spf',
+          keywords: ['dns', 'spf', 'policy', 'sender', 'framework', 'mechanisms', 'qualifiers', 'validation']
+        },
+        {
+          href: '/dns/dkim-keygen',
+          label: 'DKIM Key Generator',
+          description: 'Generate DKIM RSA keypairs (1024/2048-bit) with selectors and DNS TXT records',
+          icon: 'dns-dkim',
+          keywords: ['dns', 'dkim', 'keys', 'rsa', 'domainkeys', 'selector', 'txt', 'records', 'generator']
+        },
+        {
+          href: '/dns/dmarc-builder',
+          label: 'DMARC Policy Builder',
+          description: 'Create DMARC policies with alignment options, reporting addresses, and failure handling',
+          icon: 'dns-dmarc',
+          keywords: ['dns', 'dmarc', 'policy', 'alignment', 'reporting', 'quarantine', 'reject', 'builder']
+        },
+        {
+          href: '/dns/caa-builder',
+          label: 'CAA Record Builder',
+          description: 'Build CAA records for certificate authority authorization with misconfiguration warnings',
+          icon: 'dns-caa',
+          keywords: ['dns', 'caa', 'certificate', 'authority', 'authorization', 'ssl', 'tls', 'builder']
         }
       ]
     }

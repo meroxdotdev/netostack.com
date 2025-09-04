@@ -17,10 +17,16 @@
     { id: '2', priority: 20, mailserver: 'mail2.example.com.', ttl: 3600, role: 'backup' }
   ]);
   
-  // Derived sorted array for display
-  const sortedMxRecords = $derived([...mxRecords].sort((a, b) => a.priority - b.priority));
+  let autoSort = $state(true);
   let showExamples = $state(false);
   let showGuidance = $state(true);
+  
+  // Derived array for display - sorted or original order based on autoSort
+  const displayMxRecords = $derived(
+    autoSort 
+      ? [...mxRecords].sort((a, b) => a.priority - b.priority)
+      : mxRecords
+  );
 
   const examples = [
     {
@@ -103,7 +109,7 @@
   }
 
   function sortRecords() {
-    mxRecords = [...mxRecords].sort((a, b) => a.priority - b.priority);
+    autoSort = !autoSort;
   }
 
   function validateMXRecord(record: MXRecord): { valid: boolean; issues: string[] } {
@@ -140,7 +146,9 @@
   }
 
   function generateZoneFileRecords() {
-    return sortedMxRecords.map(record => 
+    // Always sort for zone file output regardless of display preference
+    const sortedRecords = [...mxRecords].sort((a, b) => a.priority - b.priority);
+    return sortedRecords.map(record => 
       `${domain}. ${record.ttl} IN MX ${record.priority} ${record.mailserver}`
     ).join('\n');
   }
@@ -189,13 +197,13 @@
         <div class="section-header">
           <h3>MX Records</h3>
           <button class="sort-btn" onclick={sortRecords}>
-            <Icon name="arrow-up-down" size="sm" />
-            Sort by Priority
+            <Icon name="sort" size="sm" />
+            {autoSort ? 'Original Order' : 'Sort by Priority'}
           </button>
         </div>
 
         <div class="records-list">
-          {#each mxRecords as record (record.id)}
+          {#each displayMxRecords as record (record.id)}
             {@const validation = validateMXRecord(record)}
             <div class="record-row" class:error={!validation.valid}>
               <div class="priority-input">
@@ -320,7 +328,7 @@
           <div>Mail Server</div>
           <div>Status</div>
         </div>
-        {#each sortedMxRecords as record}
+        {#each displayMxRecords as record}
           {@const validation = validateMXRecord(record)}
           <div class="table-row" class:error={!validation.valid}>
             <div class="domain">{domain}</div>

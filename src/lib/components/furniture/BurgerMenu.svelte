@@ -526,7 +526,8 @@
       '/subnetting': 'Subnetting',
       '/cidr': 'CIDR Tools',
       '/ip-address-convertor': 'IP Tools',
-      '/reference': 'Reference'
+      '/reference': 'Reference',
+      '/dns': 'DNS'
     };
     return titleMap[sectionKey] || sectionKey.replace('/', '').replace('-', ' ');
   }
