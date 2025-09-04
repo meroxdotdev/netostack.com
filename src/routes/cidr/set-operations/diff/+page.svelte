@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CIDRDiff from '$lib/components/CIDRDiff.svelte';
+  import CIDRDiff from '$lib/components/tools/CIDRDiff.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

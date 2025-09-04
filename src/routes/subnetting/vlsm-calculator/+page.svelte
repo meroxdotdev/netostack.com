@@ -1,5 +1,5 @@
 <script lang="ts">
-  import VLSMCalculator from '$lib/components/VLSMCalculator.svelte';
+  import VLSMCalculator from '$lib/components/tools/VLSMCalculator.svelte';
   import { site, pages } from '$lib/constants/site';
   import '../../../styles/pages.scss';
 </script>

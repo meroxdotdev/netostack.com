@@ -1,6 +1,6 @@
 <!-- src/routes/reference/reserved-ranges/+page.svelte -->
 <script lang="ts">
-	import Tooltip from '$lib/components/Tooltip.svelte';
+	import Tooltip from '$lib/components/global/Tooltip.svelte';
 	import { RESERVED_RANGES } from '$lib/constants/networks.js';
 </script>
 

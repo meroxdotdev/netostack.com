@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import IPEnumerate from '$lib/components/IPEnumerate.svelte';
+  import IPEnumerate from '$lib/components/tools/IPEnumerate.svelte';
 </script>
 
 <svelte:head>

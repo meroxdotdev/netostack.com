@@ -1,5 +1,5 @@
 <script lang="ts">
-  import NthIP from '$lib/components/NthIP.svelte';
+  import NthIP from '$lib/components/tools/NthIP.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

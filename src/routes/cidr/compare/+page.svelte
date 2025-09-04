@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import CIDRCompare from '$lib/components/CIDRCompare.svelte';
+  import CIDRCompare from '$lib/components/tools/CIDRCompare.svelte';
 </script>
 
 <svelte:head>

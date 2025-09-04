@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EUI64 from '$lib/components/EUI64.svelte';
+  import EUI64 from '$lib/components/tools/EUI64.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

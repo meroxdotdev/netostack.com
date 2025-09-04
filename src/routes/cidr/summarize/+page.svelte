@@ -1,7 +1,7 @@
 <script lang="ts">
-  import CIDRSummarizer from '$lib/components/CIDRSummarizer.svelte';
+  import CIDRSummarizer from '$lib/components/tools/CIDRSummarizer.svelte';
   import { site } from '$lib/constants/site';
-  import Icon from '$lib/components/Icon.svelte';
+  import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
 <svelte:head>

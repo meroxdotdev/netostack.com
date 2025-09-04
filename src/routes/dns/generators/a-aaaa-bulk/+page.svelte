@@ -1,7 +1,7 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
   import { getPageDetails } from '$lib/constants/nav';
-  import DNSAAAAABulk from '$lib/components/DNSAAAAABulk.svelte';
+  import DNSAAAAABulk from '$lib/components/tools/DNSAAAAABulk.svelte';
   import '../../../../styles/pages.scss';
 
   const pageDetails = getPageDetails('/dns/generators/a-aaaa-bulk');

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import IPv6NotationConverter from '$lib/components/IPv6NotationConverter.svelte';
+  import IPv6NotationConverter from '$lib/components/tools/IPv6NotationConverter.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

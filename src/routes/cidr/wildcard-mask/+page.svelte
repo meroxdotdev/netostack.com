@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WildcardMask from '$lib/components/WildcardMask.svelte';
+  import WildcardMask from '$lib/components/tools/WildcardMask.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

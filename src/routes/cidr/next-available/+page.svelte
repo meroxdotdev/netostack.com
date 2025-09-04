@@ -1,5 +1,5 @@
 <script lang="ts">
-  import NextAvailable from '$lib/components/NextAvailable.svelte';
+  import NextAvailable from '$lib/components/tools/NextAvailable.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

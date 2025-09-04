@@ -1,5 +1,5 @@
 <script lang="ts">
-  import RandomIP from '$lib/components/RandomIP.svelte';
+  import RandomIP from '$lib/components/tools/RandomIP.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

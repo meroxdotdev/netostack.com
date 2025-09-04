@@ -6,9 +6,9 @@
 	import favicon from '$lib/assets/favicon.svg';
 
   
-  import Header from '$lib/components/Header.svelte';
-  import SubHeader from '$lib/components/SubHeader.svelte';
-  import Footer from '$lib/components/Footer.svelte';
+  import Header from '$lib/components/furniture/Header.svelte';
+  import SubHeader from '$lib/components/furniture/SubHeader.svelte';
+  import Footer from '$lib/components/furniture/Footer.svelte';
 
 	let { children } = $props();
 

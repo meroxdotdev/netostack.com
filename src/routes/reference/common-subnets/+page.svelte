@@ -1,6 +1,6 @@
 <!-- src/routes/reference/common-subnets/+page.svelte -->
 <script lang="ts">
-	import Tooltip from '$lib/components/Tooltip.svelte';
+	import Tooltip from '$lib/components/global/Tooltip.svelte';
 	import { COMMON_SUBNETS } from '$lib/constants/networks.js';
 </script>
 

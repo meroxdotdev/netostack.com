@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import IPValidator from '$lib/components/IPValidator.svelte';
+  import IPValidator from '$lib/components/tools/IPValidator.svelte';
 </script>
 
 <svelte:head>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import IPv6SolicitedNode from '$lib/components/IPv6SolicitedNode.svelte';
+  import IPv6SolicitedNode from '$lib/components/tools/IPv6SolicitedNode.svelte';
 </script>
 
 <svelte:head>

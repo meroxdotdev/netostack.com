@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import IPv6NAT64 from '$lib/components/IPv6NAT64.svelte';
+  import IPv6NAT64 from '$lib/components/tools/IPv6NAT64.svelte';
 </script>
 
 <svelte:head>

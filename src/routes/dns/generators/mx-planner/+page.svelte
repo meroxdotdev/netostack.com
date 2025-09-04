@@ -1,7 +1,7 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
   import { getPageDetails } from '$lib/constants/nav';
-  import DNSMXPlanner from '$lib/components/DNSMXPlanner.svelte';
+  import DNSMXPlanner from '$lib/components/tools/DNSMXPlanner.svelte';
   import '../../../../styles/pages.scss';
 
   const pageDetails = getPageDetails('/dns/generators/mx-planner');

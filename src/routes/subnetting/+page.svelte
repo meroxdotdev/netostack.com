@@ -1,7 +1,7 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
   import { SUB_NAV } from '$lib/constants/nav';
-  import ToolsGrid from '$lib/components/ToolsGrid.svelte';
+  import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import type { NavItem, NavGroup } from '$lib/constants/nav';
   import '../../styles/pages.scss';
 

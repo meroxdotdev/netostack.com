@@ -1,0 +1,834 @@
+<script lang="ts">
+  import { computeCIDRDifference, type DiffResult } from '$lib/utils/cidr-diff.js';
+  import { tooltip } from '$lib/actions/tooltip.js';
+  import Icon from '$lib/components/global/Icon.svelte';
+  
+  let pools = $state(`192.168.0.0/16
+10.0.0.0/8`);
+  let allocations = $state(`192.168.1.0/24
+192.168.10.0/24
+10.0.0.0/16`);
+  let targetPrefix = $state<number | null>(null);
+  let result = $state<{
+    success: boolean;
+    error?: string;
+    availableBlocks: string[];
+    totalBlocks: number;
+    totalAddresses: number;
+    stats?: DiffResult['stats'];
+    visualization?: DiffResult['visualization'];
+  } | null>(null);
+  let copiedStates = $state<Record<string, boolean>>({});
+  let selectedExample = $state<string | null>(null);
+  let userModified = $state(false);
+
+  const examples = [
+    {
+      label: 'Office Network Gaps',
+      pools: '192.168.0.0/16',
+      allocations: `192.168.1.0/24
+192.168.10.0/24
+192.168.100.0/24`,
+      targetPrefix: 24
+    },
+    {
+      label: 'Large Pool Analysis', 
+      pools: '10.0.0.0/8',
+      allocations: `10.0.0.0/16
+10.1.0.0/16
+10.255.0.0/16`,
+      targetPrefix: null
+    },
+    {
+      label: 'Multi-Pool Setup',
+      pools: `172.16.0.0/12
+192.168.0.0/16`,
+      allocations: `172.16.1.0/24
+192.168.100.0/24`,
+      targetPrefix: 28
+    }
+  ];
+
+  function loadExample(example: typeof examples[0]) {
+    pools = example.pools;
+    allocations = example.allocations;
+    targetPrefix = example.targetPrefix;
+    selectedExample = example.label;
+    userModified = false;
+    calculateGaps();
+  }
+
+  function calculateGaps() {
+    try {
+      if (!pools.trim()) {
+        result = null;
+        return;
+      }
+
+      // Use CIDR diff to get all available blocks (A - B = pools - allocations)
+      const diffResult = computeCIDRDifference(pools, allocations || '', 'detailed');
+      
+      // Check for errors
+      if (diffResult.errors.length > 0) {
+        result = {
+          success: false,
+          error: diffResult.errors.join('; '),
+          availableBlocks: [],
+          totalBlocks: 0,
+          totalAddresses: 0
+        };
+        return;
+      }
+      
+      // Combine IPv4 and IPv6 results
+      const allBlocks = [...diffResult.ipv4, ...diffResult.ipv6];
+      
+      // Filter by target prefix if specified
+      let filteredBlocks = allBlocks;
+      if (targetPrefix !== null) {
+        filteredBlocks = allBlocks.filter(block => {
+          // Extract prefix length from CIDR notation
+          const match = block.match(/\/(\d+)$/);
+          if (!match) return false;
+          const prefixLength = parseInt(match[1]);
+          return prefixLength <= targetPrefix; // Can be subdivided to target prefix
+        });
+      }
+      
+      // Calculate total addresses
+      const totalAddresses = filteredBlocks.reduce((sum, block) => {
+        const match = block.match(/\/(\d+)$/);
+        if (!match) return sum;
+        const prefixLength = parseInt(match[1]);
+        const version = block.includes(':') ? 6 : 4;
+        const totalBits = version === 4 ? 32 : 128;
+        return sum + Math.pow(2, totalBits - prefixLength);
+      }, 0);
+      
+      result = {
+        success: true,
+        availableBlocks: filteredBlocks,
+        totalBlocks: filteredBlocks.length,
+        totalAddresses: totalAddresses,
+        stats: diffResult.stats,
+        visualization: diffResult.visualization
+      };
+    } catch (error) {
+      result = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        availableBlocks: [],
+        totalBlocks: 0,
+        totalAddresses: 0
+      };
+    }
+  }
+
+  function handleInputChange() {
+    userModified = true;
+    selectedExample = null;
+    calculateGaps();
+  }
+
+  async function copyToClipboard(text: string, id: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      copiedStates[id] = true;
+      setTimeout(() => {
+        copiedStates[id] = false;
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  }
+
+  // Visualization helper functions
+  function getBlockPosition(start: bigint, totalRange: { start: bigint; end: bigint }): number {
+    const rangeSize = totalRange.end - totalRange.start;
+    const blockOffset = start - totalRange.start;
+    return Number((blockOffset * 10000n) / rangeSize) / 100;
+  }
+
+  function getBlockWidth(start: bigint, end: bigint, totalRange: { start: bigint; end: bigint }): number {
+    const rangeSize = totalRange.end - totalRange.start;
+    const blockSize = end - start + 1n;
+    return Number((blockSize * 10000n) / rangeSize) / 100;
+  }
+
+  function formatAddress(addr: bigint, version: 4 | 6): string {
+    if (version === 4) {
+      // Convert bigint to IPv4 dotted decimal
+      const num = Number(addr);
+      return [
+        (num >>> 24) & 0xff,
+        (num >>> 16) & 0xff,
+        (num >>> 8) & 0xff,
+        num & 0xff
+      ].join('.');
+    } else {
+      // Convert bigint to IPv6 (simplified)
+      const hex = addr.toString(16).padStart(32, '0');
+      return [0,1,2,3,4,5,6,7]
+        .map(i => hex.substr(i * 4, 4))
+        .join(':')
+        .replace(/(:0{1,3})+/g, ':')
+        .replace(/^:|:$/g, '')
+        .replace(/::/g, '::');
+    }
+  }
+
+  // Calculate on component load
+  calculateGaps();
+</script>
+
+<div class="card">
+  <header class="card-header">
+    <h2>Free Space Finder</h2>
+    <p>Discover all available address blocks within network pools</p>
+  </header>
+
+  <!-- Examples -->
+  <section class="examples-section">
+    <h4>Quick Examples</h4>
+    <div class="examples-grid">
+      {#each examples as example}
+        <button
+          class="example-card {selectedExample === example.label ? 'active' : ''}"
+          onclick={() => loadExample(example)}
+        >
+          <div class="example-label">{example.label}</div>
+          <div class="example-preview">
+            {example.pools.split('\n')[0]}
+            {example.pools.includes('\n') ? '...' : ''}
+          </div>
+        </button>
+      {/each}
+    </div>
+  </section>
+
+  <!-- Input Section -->
+  <section class="input-section">
+    <div class="input-grid">
+      <div class="input-group">
+        <label 
+          for="pools"
+          use:tooltip="{"Enter network pools - one CIDR block per line (e.g., 192.168.0.0/16)"}"
+        >
+          Network Pools
+        </label>
+        <textarea
+          id="pools"
+          bind:value={pools}
+          oninput={handleInputChange}
+          placeholder="192.168.0.0/16&#10;10.0.0.0/8"
+          rows="4"
+          required
+        ></textarea>
+      </div>
+
+      <div class="input-group">
+        <label 
+          for="allocations"
+          use:tooltip={"Enter allocated/used blocks - one CIDR block per line"}
+        >
+          Allocated Blocks
+        </label>
+        <textarea
+          id="allocations"
+          bind:value={allocations}
+          oninput={handleInputChange}
+          placeholder="192.168.1.0/24&#10;192.168.10.0/24"
+          rows="4"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="input-group">
+        <label 
+          for="target-prefix"
+          use:tooltip={"Filter results to show only blocks that can accommodate the target prefix length"}
+        >
+          Target Prefix Length (Optional)
+        </label>
+        <div class="prefix-input-wrapper">
+          <input
+            id="target-prefix"
+            type="number"
+            bind:value={targetPrefix}
+            oninput={handleInputChange}
+            min="1"
+            max="32"
+            placeholder="e.g., 24"
+          />
+          <span class="prefix-hint">/{targetPrefix || 'xx'}</span>
+          <button
+            class="clear-filter"
+            onclick={() => { targetPrefix = null; handleInputChange(); }}
+            aria-label="Clear filter"
+          >
+            <Icon name="x" size="xs" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results Section -->
+  {#if result}
+    <section class="results-section">
+      {#if result.success}
+        <div class="results-header">
+          <h3>Available Free Space</h3>
+          <div class="results-summary">
+            <span class="metric">
+              <Icon name="free-blocks" size="sm" />
+              {result.totalBlocks} free blocks
+            </span>
+            <span class="metric">
+              <Icon name="network" size="sm" />
+              {result.totalAddresses.toLocaleString()} addresses
+            </span>
+          </div>
+        </div>
+
+        {#if result.availableBlocks.length > 0}
+          <div class="free-blocks-grid">
+            {#each result.availableBlocks as block, index}
+              {@const blockAddresses = (() => {
+                const match = block.match(/\/(\d+)$/);
+                if (!match) return 0;
+                const prefixLength = parseInt(match[1]);
+                const version = block.includes(':') ? 6 : 4;
+                const totalBits = version === 4 ? 32 : 128;
+                return Math.pow(2, totalBits - prefixLength);
+              })()}
+              <div class="free-block-card">
+                <div class="block-header">
+                  <code class="block-cidr">{block}</code>
+                  <button
+                    class="copy-button {copiedStates[`block-${index}`] ? 'copied' : ''}"
+                    onclick={() => copyToClipboard(block, `block-${index}`)}
+                    aria-label="Copy CIDR block"
+                  >
+                    <Icon name={copiedStates[`block-${index}`] ? 'check' : 'copy'} size="xs" />
+                  </button>
+                </div>
+                <div class="block-info">
+                  <span class="address-count">
+                    {blockAddresses.toLocaleString()} addresses
+                  </span>
+                  {#if targetPrefix && blockAddresses >= Math.pow(2, 32 - targetPrefix)}
+                    <span class="can-fit">
+                      <Icon name="check-circle" size="xs" />
+                      Can fit /{targetPrefix}
+                    </span>
+                  {/if}
+                </div>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <div class="no-gaps">
+            <Icon name="alert-circle" />
+            <h4>No Available Space</h4>
+            <p>All address space in the pools is allocated or there are no pools defined.</p>
+          </div>
+        {/if}
+
+        <!-- Address Space Visualization -->
+        {#if result.availableBlocks.length > 0 && result.visualization}
+          <div class="visualization-section">
+            <h4>Address Space Visualization</h4>
+            <div class="visualization-container">
+              <div class="viz-legend">
+                <div class="legend-item">
+                  <div class="legend-color pools"></div>
+                  <span>Network Pools</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color allocated"></div>
+                  <span>Allocated Space</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color available"></div>
+                  <span>Available Space</span>
+                </div>
+              </div>
+              
+              <div class="address-blocks">
+                <!-- Pool blocks (background) -->
+                {#each result.visualization.setA as pool}
+                  <div 
+                    class="address-block pool-block"
+                    style="left: {getBlockPosition(pool.start, result.visualization.totalRange)}%; width: {getBlockWidth(pool.start, pool.end, result.visualization.totalRange)}%"
+                    title="Pool: {pool.cidr || `${formatAddress(pool.start, result.visualization.version)}-${formatAddress(pool.end, result.visualization.version)}`}"
+                  >
+                  </div>
+                {/each}
+                
+                <!-- Allocated blocks -->
+                {#each result.visualization.setB as allocation}
+                  <div 
+                    class="address-block allocated-block"
+                    style="left: {getBlockPosition(allocation.start, result.visualization.totalRange)}%; width: {getBlockWidth(allocation.start, allocation.end, result.visualization.totalRange)}%"
+                    title="Allocated: {allocation.cidr || `${formatAddress(allocation.start, result.visualization.version)}-${formatAddress(allocation.end, result.visualization.version)}`}"
+                  >
+                  </div>
+                {/each}
+                
+                <!-- Available blocks (result) -->
+                {#each result.visualization.result as available}
+                  <div 
+                    class="address-block available-block"
+                    style="left: {getBlockPosition(available.start, result.visualization.totalRange)}%; width: {getBlockWidth(available.start, available.end, result.visualization.totalRange)}%"
+                    title="Available: {available.cidr}"
+                  >
+                    <span class="block-label">{available.cidr}</span>
+                  </div>
+                {/each}
+              </div>
+              
+              <div class="address-scale">
+                <span class="scale-start">{formatAddress(result.visualization.totalRange.start, result.visualization.version)}</span>
+                <span class="scale-end">{formatAddress(result.visualization.totalRange.end, result.visualization.version)}</span>
+              </div>
+            </div>
+          </div>
+        {/if}
+
+      {:else}
+        <div class="error-message">
+          <Icon name="alert-triangle" />
+          <h4>Calculation Error</h4>
+          <p>{result.error || 'Unknown error occurred'}</p>
+        </div>
+      {/if}
+    </section>
+  {/if}
+</div>
+
+<style lang="scss">
+  .examples-section {
+    margin-bottom: var(--spacing-lg);
+    
+    h3 {
+      margin-bottom: var(--spacing-md);
+      color: var(--color-info-light);
+    }
+  }
+
+  .examples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-sm);
+  }
+
+  .example-card {
+    padding: var(--spacing-sm);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+
+    &:hover {
+      background-color: var(--surface-hover);
+      border-color: var(--color-primary);
+    }
+
+    &.active {
+      background-color: var(--surface-hover);
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  .example-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .example-preview {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+  }
+
+  .input-section {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .filter-section {
+    border-top: 1px solid var(--border-secondary);
+    padding-top: var(--spacing-md);
+  }
+
+  .prefix-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 200px;
+
+    input {
+      padding-right: 3rem;
+    }
+
+    .prefix-hint {
+      position: absolute;
+      right: 2.5rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: var(--font-size-sm);
+      pointer-events: none;
+    }
+
+    .clear-filter {
+      position: absolute;
+      right: var(--spacing-xs);
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: var(--spacing-xs);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+
+      &:hover {
+        background-color: var(--surface-hover);
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .results-section {
+    border-top: 1px solid var(--border-secondary);
+    padding-top: var(--spacing-lg);
+  }
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+
+    h3 {
+      color: var(--color-success-light);
+      margin: 0;
+    }
+  }
+
+  .results-summary {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+  }
+
+  .metric {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+
+    :global(.icon) {
+      color: var(--color-info);
+    }
+  }
+
+  .free-blocks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  .free-block-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    transition: all var(--transition-fast);
+
+    &:hover {
+      border-color: var(--color-success);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  .block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .block-cidr {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--color-success-light);
+    background-color: var(--bg-tertiary);
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+  }
+
+  .copy-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background-color: var(--surface-hover);
+      color: var(--text-primary);
+    }
+
+    &.copied {
+      color: var(--color-success);
+    }
+  }
+
+  .block-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .address-count {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .can-fit {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    color: var(--color-success);
+    font-weight: 500;
+
+    :global(.icon) {
+      color: var(--color-success);
+    }
+  }
+
+  .no-gaps {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-secondary);
+
+    :global(.icon) {
+      font-size: 2rem;
+      color: var(--color-warning);
+      margin-bottom: var(--spacing-md);
+    }
+
+    h4 {
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+  }
+
+  .error-message {
+    text-align: center;
+    padding: var(--spacing-lg);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--color-error);
+    border-radius: var(--radius-md);
+
+    :global(.icon) {
+      font-size: 1.5rem;
+      color: var(--color-error);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    h4 {
+      color: var(--color-error-light);
+      margin-bottom: var(--spacing-sm);
+    }
+  }
+
+  .visualization-toggle {
+    margin-top: var(--spacing-lg);
+    text-align: center;
+  }
+
+  .toggle-viz {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background-color: var(--surface-hover);
+      border-color: var(--color-primary);
+    }
+
+    &.active {
+      background-color: var(--color-primary);
+      color: var(--bg-primary);
+    }
+  }
+
+  .visualization-section {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+
+    h4 {
+      color: var(--color-info-light);
+      margin-bottom: var(--spacing-md);
+      text-align: center;
+    }
+  }
+
+  .visualization-container {
+    .viz-legend {
+      display: flex;
+      justify-content: center;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-secondary);
+
+      &.pools {
+        background-color: var(--color-info);
+        opacity: 0.3;
+      }
+
+      &.allocated {
+        background-color: var(--color-error);
+        opacity: 0.7;
+      }
+
+      &.available {
+        background-color: var(--color-success);
+      }
+    }
+
+    .address-blocks {
+      position: relative;
+      height: 60px;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-md);
+      overflow: hidden;
+    }
+
+    .address-block {
+      position: absolute;
+      height: 100%;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-xs);
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: opacity var(--transition-fast);
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      &.pool-block {
+        background-color: var(--color-info);
+        opacity: 0.3;
+        z-index: 1;
+      }
+
+      &.allocated-block {
+        background-color: var(--color-error);
+        opacity: 0.7;
+        z-index: 2;
+      }
+
+      &.available-block {
+        background-color: var(--color-success);
+        z-index: 3;
+        color: var(--bg-primary);
+        font-weight: 600;
+
+        .block-label {
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 100%;
+        }
+      }
+    }
+
+    .address-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--font-size-xs);
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      padding: 0 var(--spacing-xs);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .input-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .examples-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .free-blocks-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .results-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .results-summary {
+      justify-content: center;
+    }
+  }
+</style>

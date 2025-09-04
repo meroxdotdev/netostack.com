@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import FreeSpaceFinder from '$lib/components/FreeSpaceFinder.svelte';
+  import FreeSpaceFinder from '$lib/components/tools/FreeSpaceFinder.svelte';
 </script>
 
 <svelte:head>

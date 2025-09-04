@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CIDRAlignment from '$lib/components/CIDRAlignment.svelte';
+  import CIDRAlignment from '$lib/components/tools/CIDRAlignment.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

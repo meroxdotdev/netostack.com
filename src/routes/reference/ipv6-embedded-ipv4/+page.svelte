@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ipv6EmbeddedIPv4Content } from '$lib/content/ipv6-embedded-ipv4.js';
   import { site } from '$lib/constants/site';
-  import Icon from '$lib/components/Icon.svelte';
+  import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
 <svelte:head>

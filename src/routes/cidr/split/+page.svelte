@@ -1,7 +1,7 @@
 <script lang="ts">
-  import CIDRSplitter from '$lib/components/CIDRSplitter.svelte';
+  import CIDRSplitter from '$lib/components/tools/CIDRSplitter.svelte';
   import { site } from '$lib/constants/site';
-  import Icon from '$lib/components/Icon.svelte';
+  import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
 <svelte:head>

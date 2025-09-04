@@ -2,8 +2,7 @@
   import '../../../styles/pages.scss';
   import '../../../styles/converters.scss';
   import '../../../styles/components.scss';
-  import { site, pages } from '$lib/constants/site';
-  import Icon from '$lib/components/Icon.svelte';
+  import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
 

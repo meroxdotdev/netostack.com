@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site, pages } from '$lib/constants/site';
-  import IPFamilyConverter from '$lib/components/IPFamilyConverter.svelte';
+  import IPFamilyConverter from '$lib/components/tools/IPFamilyConverter.svelte';
 </script>
 
 <svelte:head>

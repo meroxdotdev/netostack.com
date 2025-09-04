@@ -1,5 +1,5 @@
 <script lang="ts">
-  import IPv6ZoneID from '$lib/components/IPv6ZoneID.svelte';
+  import IPv6ZoneID from '$lib/components/tools/IPv6ZoneID.svelte';
 </script>
 
 <svelte:head>

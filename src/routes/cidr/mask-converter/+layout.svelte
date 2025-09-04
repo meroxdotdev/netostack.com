@@ -4,8 +4,8 @@
 	import { writable, derived, get } from 'svelte/store';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import Tooltip from '$lib/components/Tooltip.svelte';
-	import Icon from '$lib/components/Icon.svelte';
+	import Tooltip from '$lib/components/global/Tooltip.svelte';
+	import Icon from '$lib/components/global/Icon.svelte';
 	import { cidrToMask, maskToCidr } from '$lib/utils/ip-calculations.js';
 	import { validateSubnetMask } from '$lib/utils/ip-validation.js';
 	import { COMMON_SUBNETS } from '$lib/constants/networks.js';

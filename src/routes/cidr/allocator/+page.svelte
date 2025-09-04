@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import CIDRAllocator from '$lib/components/CIDRAllocator.svelte';
+  import CIDRAllocator from '$lib/components/tools/CIDRAllocator.svelte';
 </script>
 
 <svelte:head>

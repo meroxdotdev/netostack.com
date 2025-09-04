@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CIDRContains from '$lib/components/CIDRContains.svelte';
+  import CIDRContains from '$lib/components/tools/CIDRContains.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

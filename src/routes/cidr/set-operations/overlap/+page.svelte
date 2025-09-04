@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CIDROverlap from '$lib/components/CIDROverlap.svelte';
+  import CIDROverlap from '$lib/components/tools/CIDROverlap.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

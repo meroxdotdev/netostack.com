@@ -1,7 +1,7 @@
 <script lang="ts">
   import { specialIPv4Content } from '$lib/content/special-use-ipv4.js';
   import { site } from '$lib/constants/site';
-  import Icon from '$lib/components/Icon.svelte';
+  import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
 <svelte:head>

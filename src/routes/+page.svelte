@@ -2,8 +2,8 @@
   import '../styles/pages.scss';
   import { site, pages, about } from '$lib/constants/site';
   import { ALL_PAGES, SUB_NAV, type NavItem, type NavGroup } from '$lib/constants/nav';
-  import ToolsGrid from '$lib/components/ToolsGrid.svelte';
-  import SearchFilter from '$lib/components/SearchFilter.svelte';
+  import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
+  import SearchFilter from '$lib/components/furniture/SearchFilter.svelte';
   
   // Helper function to extract nav items from mixed structure
   function extractNavItems(items: (NavItem | NavGroup)[]): NavItem[] {

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import SupernetCalculator from '$lib/components/SupernetCalculator.svelte';
+  import SupernetCalculator from '$lib/components/tools/SupernetCalculator.svelte';
   import { site } from '$lib/constants/site';
   import '$lib/../styles/pages.scss';
-  import Icon from '$lib/components/Icon.svelte';
+  import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
 <svelte:head>

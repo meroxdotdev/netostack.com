@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import CIDRDeaggregate from '$lib/components/CIDRDeaggregate.svelte';
+  import CIDRDeaggregate from '$lib/components/tools/CIDRDeaggregate.svelte';
 </script>
 
 <svelte:head>

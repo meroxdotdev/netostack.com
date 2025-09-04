@@ -1,5 +1,5 @@
 <script lang="ts">
-  import IPDistance from '$lib/components/IPDistance.svelte';
+  import IPDistance from '$lib/components/tools/IPDistance.svelte';
   import { site } from '$lib/constants/site';
 </script>
 

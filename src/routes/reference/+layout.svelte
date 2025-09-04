@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { SUB_NAV } from '$lib/constants/nav';
-  import Icon from '$lib/components/Icon.svelte';
+  import Icon from '$lib/components/global/Icon.svelte';
 
   let { children } = $props();
 

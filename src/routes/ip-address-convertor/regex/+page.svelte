@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import IPRegexGenerator from '$lib/components/IPRegexGenerator.svelte';
+  import IPRegexGenerator from '$lib/components/tools/IPRegexGenerator.svelte';
 </script>
 
 <svelte:head>

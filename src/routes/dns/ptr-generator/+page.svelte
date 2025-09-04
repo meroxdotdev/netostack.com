@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import PTRGenerator from '$lib/components/PTRGenerator.svelte';
+  import PTRGenerator from '$lib/components/tools/PTRGenerator.svelte';
 </script>
 
 <svelte:head>

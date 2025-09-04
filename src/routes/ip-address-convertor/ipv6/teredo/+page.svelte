@@ -1,6 +1,6 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import IPv6Teredo from '$lib/components/IPv6Teredo.svelte';
+  import IPv6Teredo from '$lib/components/tools/IPv6Teredo.svelte';
 </script>
 
 <svelte:head>

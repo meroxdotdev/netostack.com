@@ -1,5 +1,5 @@
 <script lang="ts">
-  import IPConverter from '$lib/components/IPConverter.svelte';
+  import IPConverter from '$lib/components/tools/IPConverter.svelte';
   import { site, pages } from '$lib/constants/site';
   import '../../../styles/pages.scss';
   

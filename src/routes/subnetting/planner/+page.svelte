@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SubnetPlanner from '$lib/components/SubnetPlanner.svelte';
+  import SubnetPlanner from '$lib/components/tools/SubnetPlanner.svelte';
 </script>
 
 <svelte:head>
