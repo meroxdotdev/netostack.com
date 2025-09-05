@@ -371,25 +371,74 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           keywords: ['dns', 'spf', 'policy', 'sender', 'framework', 'mechanisms', 'qualifiers', 'validation']
         },
         {
-          href: '/dns/dkim-keygen',
+          href: '/dns/generators/dkim-keygen',
           label: 'DKIM Key Generator',
           description: 'Generate DKIM RSA keypairs (1024/2048-bit) with selectors and DNS TXT records',
           icon: 'dns-dkim',
           keywords: ['dns', 'dkim', 'keys', 'rsa', 'domainkeys', 'selector', 'txt', 'records', 'generator']
         },
         {
-          href: '/dns/dmarc-builder',
+          href: '/dns/generators/dmarc-builder',
           label: 'DMARC Policy Builder',
           description: 'Create DMARC policies with alignment options, reporting addresses, and failure handling',
           icon: 'dns-dmarc',
           keywords: ['dns', 'dmarc', 'policy', 'alignment', 'reporting', 'quarantine', 'reject', 'builder']
         },
         {
-          href: '/dns/caa-builder',
+          href: '/dns/generators/caa-builder',
           label: 'CAA Record Builder',
           description: 'Build CAA records for certificate authority authorization with misconfiguration warnings',
           icon: 'dns-caa',
           keywords: ['dns', 'caa', 'certificate', 'authority', 'authorization', 'ssl', 'tls', 'builder']
+        },
+        {
+          href: '/dns/generators/tlsa-generator',
+          label: 'TLSA Generator',
+          description: 'Create TLSA (DANE) records from certificates or hashes with usage, selector, and matching type options',
+          icon: 'dns-tlsa',
+          keywords: ['dns', 'tlsa', 'dane', 'certificate', 'hash', 'usage', 'selector', 'matching', 'tls', 'ssl']
+        },
+        {
+          href: '/dns/generators/sshfp-generator',
+          label: 'SSHFP Generator',
+          description: 'Generate SSHFP records from SSH public keys or fingerprints with algorithm and fingerprint type selection',
+          icon: 'dns-sshfp',
+          keywords: ['dns', 'sshfp', 'ssh', 'public', 'key', 'fingerprint', 'algorithm', 'security']
+        },
+        {
+          href: '/dns/generators/svcb-https-builder',
+          label: 'SVCB/HTTPS Builder',
+          description: 'Build SVCB and HTTPS resource records with service parameters like ALPN, port, and ECH configuration',
+          icon: 'dns-svcb',
+          keywords: ['dns', 'svcb', 'https', 'service', 'binding', 'alpn', 'port', 'ech', 'parameters']
+        },
+        {
+          href: '/dns/generators/naptr-builder',
+          label: 'NAPTR Builder',
+          description: 'Construct NAPTR records for service discovery with order, preference, flags, service, regexp, and replacement fields',
+          icon: 'dns-naptr',
+          keywords: ['dns', 'naptr', 'service', 'discovery', 'order', 'preference', 'flags', 'regexp', 'replacement']
+        },
+        {
+          href: '/dns/generators/loc-builder',
+          label: 'LOC Builder',
+          description: 'Create LOC records from coordinates and convert between latitude/longitude and DNS LOC format',
+          icon: 'dns-loc',
+          keywords: ['dns', 'loc', 'location', 'coordinates', 'latitude', 'longitude', 'altitude', 'precision']
+        },
+        {
+          href: '/dns/generators/rp-builder',
+          label: 'RP Builder', 
+          description: 'Generate RP (Responsible Person) records with mailbox and TXT domain name references',
+          icon: 'dns-rp',
+          keywords: ['dns', 'rp', 'responsible', 'person', 'mailbox', 'contact', 'txt', 'domain']
+        },
+        {
+          href: '/dns/generators/idn-punycode',
+          label: 'IDN Punycode Converter',
+          description: 'Convert Unicode domain names to Punycode and back with IDNA2008 normalization support',
+          icon: 'dns-idn',
+          keywords: ['dns', 'idn', 'punycode', 'unicode', 'domain', 'international', 'idna2008', 'normalization']
         }
       ]
     }

@@ -142,18 +142,18 @@
 }
 
 // Shared component cards
-.reference-card, .explainer-card {
+.reference-card, .explainer-card, .info-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
   transition: all var(--transition-fast);
 
-  &:not(.no-hover) {
+  &:not(.no-hover):not(.info-card) {
     cursor: help;
   }
   
-  &:not(.no-hover):hover {
+  &:not(.no-hover):not(.info-card):hover {
     box-shadow: var(--shadow-md);
     border-color: color-mix(in srgb, var(--color-primary) 33%, transparent);
   }
