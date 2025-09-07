@@ -317,38 +317,31 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       title: 'Reverse DNS',
       items: [
         {
-          href: '/dns/ptr-generator',
-          label: 'PTR Record Generator',
-          description: 'Generate PTR record names for IPv4 and IPv6 addresses and CIDR blocks with zone file stubs',
-          icon: 'ptr-generator',
-          keywords: ['ptr', 'records', 'reverse', 'dns', 'in-addr.arpa', 'ip6.arpa', 'zone', 'file', 'generator']
-        },
-        {
           href: '/dns/reverse/ptr-generator',
           label: 'PTR Generator',
           description: 'Convert IPs/CIDRs to PTR names (in-addr.arpa / ip6.arpa) and example zone lines',
-          icon: '--ptr-generator',
+          icon: 'ptr-generator',
           keywords: ['ptr', 'generator', 'reverse', 'dns', 'in-addr.arpa', 'ip6.arpa', 'cidr', 'zone']
         },
         {
           href: '/dns/reverse/zone-generator',
           label: 'Reverse Zone Generator',
           description: 'Generate full reverse zone files from CIDR + hostname template',
-          icon: '--dns-zone',
+          icon: 'dns-reverse-zones-gen',
           keywords: ['reverse', 'zone', 'generator', 'cidr', 'hostname', 'template', 'zone', 'file', 'soa', 'ns']
         },
         {
           href: '/dns/reverse/reverse-zones',
           label: 'Reverse Zones Calculator',
           description: 'Minimal set of reverse zones needed to delegate a CIDR (v4 & v6 nibble math)',
-          icon: '--calculator',
+          icon: 'dns-reverse-zones-calc',
           keywords: ['reverse', 'zones', 'calculator', 'delegation', 'cidr', 'nibble', 'octet', 'boundaries']
         },
         {
           href: '/dns/reverse/ptr-sweep-planner',
           label: 'PTR Sweep Planner',
           description: 'Plan PTR coverage for a block; list missing/extra PTRs against naming pattern',
-          icon: '--search',
+          icon: 'dns-ptr-sweep',
           keywords: ['ptr', 'sweep', 'planner', 'coverage', 'missing', 'extra', 'naming', 'pattern', 'analysis']
         }
       ]
@@ -467,6 +460,39 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           description: 'Convert Unicode domain names to Punycode and back with IDNA2008 normalization support',
           icon: 'dns-idn',
           keywords: ['dns', 'idn', 'punycode', 'unicode', 'domain', 'international', 'idna2008', 'normalization']
+        }
+      ]
+    },
+    {
+      title: 'DNS Utilities',
+      items: [
+        {
+          href: '/dns/record-validator',
+          label: 'DNS Record Validator',
+          description: 'Validate individual DNS resource record syntax (A/AAAA/CNAME/MX/TXT/SRV/CAA) with error detection',
+          icon: 'dns-record-validator',
+          keywords: ['dns', 'record', 'validator', 'syntax', 'a', 'aaaa', 'cname', 'mx', 'txt', 'srv', 'caa', 'validation']
+        },
+        {
+          href: '/dns/ttl-calculator',
+          label: 'TTL Calculator',
+          description: 'Humanize DNS TTL values and compute cache expiry times with recommendations',
+          icon: 'dns-ttl',
+          keywords: ['dns', 'ttl', 'time', 'live', 'cache', 'expiry', 'calculator', 'humanize', 'recommendations']
+        },
+        {
+          href: '/dns/edns-size-estimator',
+          label: 'EDNS Size Estimator',
+          description: 'Estimate DNS message size and UDP fragmentation risk with EDNS buffer recommendations',
+          icon: 'dns-edns',
+          keywords: ['dns', 'edns', 'message', 'size', 'udp', 'fragmentation', 'buffer', 'estimator', 'optimization']
+        },
+        {
+          href: '/dns/label-normalizer',
+          label: 'DNS Label Normalizer',
+          description: 'Normalize domain labels with homograph attack detection and script mixing warnings',
+          icon: 'dns-label-normalize',
+          keywords: ['dns', 'label', 'normalize', 'domain', 'homograph', 'attack', 'script', 'mixing', 'security', 'idn']
         }
       ]
     }

@@ -353,7 +353,7 @@
 			<!-- Information Section -->
 			<div class="info-section">
 				<div class="card info-card">
-					<h3>About RP Records</h3>
+					<h4>About RP Records</h4>
 					<p>
 						RP (Responsible Person) records identify the responsible person for a domain or host. They specify both a mailbox (encoded as a domain name) and optionally point to a TXT record with additional contact information. This allows automated discovery of administrative contacts.
 					</p>
@@ -576,11 +576,12 @@
 				padding: var(--spacing-xs);
 				border: 1px solid var(--color-success);
 				border-radius: var(--radius-sm);
-				background: white;
+				background: var(--bg-primary);
+				color: var(--text-primary);
 
 				&:focus {
 					outline: none;
-					box-shadow: 0 0 0 2px var(--color-success-light);
+					box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-success), transparent 80%);
 				}
 			}
 		}
@@ -772,14 +773,14 @@
 		margin-top: var(--spacing-xl);
 
 		.info-card {
-			background: color-mix(in srgb, var(--color-info) 8%, transparent);
-			border-color: var(--color-info);
+			background: var(--bg-secondary);
+			border: 1px solid var(--border-primary);
 			margin-bottom: var(--spacing-lg);
 			flex-direction: column;
-			align-items: flex-start;
-
-			h3 {
-				color: var(--color-info);
+    	align-items: baseline;
+			
+			h4 {
+				color: var(--text-primary);
 				font-weight: 600;
 				margin: 0 0 var(--spacing-sm);
 			}
@@ -798,6 +799,9 @@
 			margin-bottom: var(--spacing-lg);
 
 			.card {
+				background: var(--bg-secondary);
+				border: 1px solid var(--border-primary);
+				
 				h4 {
 					color: var(--text-primary);
 					font-weight: 600;
@@ -848,11 +852,13 @@
 		}
 
 		.best-practices-card {
-			background: color-mix(in srgb, var(--color-warning) 8%, transparent);
-			border-color: var(--color-warning);
+			background: var(--bg-secondary);
+			border: 1px solid var(--border-primary);
 
 			h4 {
-				color: var(--color-warning);
+				color: var(--text-primary);
+				font-weight: 600;
+				margin: 0 0 var(--spacing-sm);
 			}
 
 			.best-practices {
@@ -860,11 +866,11 @@
 				padding-left: var(--spacing-md);
 
 				li {
-					color: var(--color-warning);
+					color: var(--text-primary);
 					margin-bottom: var(--spacing-xs);
 
 					&::marker {
-						color: var(--color-warning);
+						color: var(--color-primary);
 					}
 				}
 			}

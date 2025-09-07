@@ -480,16 +480,15 @@
 							<li>Mixed ASCII/Unicode domain handling</li>
 						</ul>
 					</div>
-				</div>
-
-				<div class="card security-card">
-					<h3>Security Considerations</h3>
-					<ul class="security-list">
-						<li><strong>Homograph attacks:</strong> visually similar characters from different scripts</li>
-						<li>Always validate and normalize IDN input in applications</li>
-						<li>Consider implementing mixed-script detection</li>
-						<li>Be aware of browser IDN display policies</li>
-					</ul>
+					<div class="card security-card">
+						<h4>Security Considerations</h4>
+						<ul class="security-list">
+							<li><strong>Homograph attacks:</strong> visually similar characters from different scripts</li>
+							<li>Always validate and normalize IDN input in applications</li>
+							<li>Consider implementing mixed-script detection</li>
+							<li>Be aware of browser IDN display policies</li>
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -974,7 +973,8 @@
 				}
 
 				.use-cases,
-				.features {
+				.features,
+				.security-list {
 					margin: 0;
 					padding-left: var(--spacing-md);
 
@@ -990,27 +990,8 @@
 			}
 		}
 
-		.security-card {
-			background: color-mix(in srgb, var(--color-warning-light) 8%, transparent);
-			border-color: var(--color-warning);
-			padding: var(--spacing-md);
-			h3 {
-				color: var(--color-warning);
-				margin-bottom: var(--spacing-sm);
-			}
-			.security-list {
-				margin: 0;
-				padding-left: var(--spacing-md);
-				li {
-					color: var(--text-primary);
-					&::marker {
-						color: var(--color-warning);
-					}
-					strong {
-						font-weight: 600;
-					}
-				}
-			}
+		.security-card .security-list li::marker {
+			color: var(--color-warning) !important;
 		}
 	}
 </style>
