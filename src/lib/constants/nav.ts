@@ -322,6 +322,34 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           description: 'Generate PTR record names for IPv4 and IPv6 addresses and CIDR blocks with zone file stubs',
           icon: 'ptr-generator',
           keywords: ['ptr', 'records', 'reverse', 'dns', 'in-addr.arpa', 'ip6.arpa', 'zone', 'file', 'generator']
+        },
+        {
+          href: '/dns/reverse/ptr-generator',
+          label: 'PTR Generator',
+          description: 'Convert IPs/CIDRs to PTR names (in-addr.arpa / ip6.arpa) and example zone lines',
+          icon: '--ptr-generator',
+          keywords: ['ptr', 'generator', 'reverse', 'dns', 'in-addr.arpa', 'ip6.arpa', 'cidr', 'zone']
+        },
+        {
+          href: '/dns/reverse/zone-generator',
+          label: 'Reverse Zone Generator',
+          description: 'Generate full reverse zone files from CIDR + hostname template',
+          icon: '--dns-zone',
+          keywords: ['reverse', 'zone', 'generator', 'cidr', 'hostname', 'template', 'zone', 'file', 'soa', 'ns']
+        },
+        {
+          href: '/dns/reverse/reverse-zones',
+          label: 'Reverse Zones Calculator',
+          description: 'Minimal set of reverse zones needed to delegate a CIDR (v4 & v6 nibble math)',
+          icon: '--calculator',
+          keywords: ['reverse', 'zones', 'calculator', 'delegation', 'cidr', 'nibble', 'octet', 'boundaries']
+        },
+        {
+          href: '/dns/reverse/ptr-sweep-planner',
+          label: 'PTR Sweep Planner',
+          description: 'Plan PTR coverage for a block; list missing/extra PTRs against naming pattern',
+          icon: '--search',
+          keywords: ['ptr', 'sweep', 'planner', 'coverage', 'missing', 'extra', 'naming', 'pattern', 'analysis']
         }
       ]
     },

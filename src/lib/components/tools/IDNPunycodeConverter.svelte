@@ -514,9 +514,6 @@
 		box-shadow: var(--shadow-sm);
 
 		.card-header {
-			border-bottom: 1px solid var(--border-primary);
-			padding: var(--spacing-lg);
-
 			h1 {
 				color: var(--text-primary);
 				font-size: var(--font-size-2xl);
@@ -528,10 +525,6 @@
 				color: var(--text-secondary);
 				margin: var(--spacing-xs) 0 0;
 			}
-		}
-
-		.card-content {
-			padding: var(--spacing-lg);
 		}
 	}
 
@@ -574,16 +567,19 @@
 
 	.examples-section {
 		margin-bottom: var(--spacing-lg);
+		background: var(--bg-tertiary);
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border-primary);
 
 		summary {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			padding: var(--spacing-md);
-			background: var(--bg-tertiary);
-			border: 1px solid var(--border-primary);
+			padding: var(--spacing-md) var(--spacing-sm);
 			border-radius: var(--radius-md);
 			cursor: pointer;
+			color: var(--text-primary);
+			font-weight: 600;
 			transition: var(--transition-fast);
 
 			&:hover {
@@ -599,9 +595,8 @@
 			}
 
 			.chevron {
-				width: 20px;
-				height: 20px;
-				color: var(--text-secondary);
+				width: 16px;
+				height: 16px;
 				transition: transform var(--transition-fast);
 			}
 		}
@@ -614,27 +609,21 @@
 			display: grid;
 			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 			gap: var(--spacing-sm);
-			margin-top: var(--spacing-md);
 			padding: var(--spacing-md);
-			background: var(--color-primary);
-			color: var(--bg-primary);
-			border: 1px solid var(--border-primary);
 			border-radius: 0 0 var(--radius-md) var(--radius-md);
 		}
 
 		.example-btn {
 			text-align: left;
 			padding: var(--spacing-sm);
-			background: var(--color-info);
-			color: white;
 			border: none;
+			border: 1px solid var(--border-primary);
 			border-radius: var(--radius-sm);
 			transition: var(--transition-fast);
 			cursor: pointer;
 
 			&:hover {
-				background: var(--color-info-light);
-				color: var(--bg-primary);
+				border-color: var(--color-primary);
 			}
 
 			.example-domain {
