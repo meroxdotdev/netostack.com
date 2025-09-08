@@ -495,6 +495,39 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           keywords: ['dns', 'label', 'normalize', 'domain', 'homograph', 'attack', 'script', 'mixing', 'security', 'idn']
         }
       ]
+    },
+    {
+      title: 'Zone File Tools',
+      items: [
+        {
+          href: '/dns/zone/linter',
+          label: 'Zone Linter',
+          description: 'Normalize and canonicalize BIND zone files with error checking and formatting',
+          icon: 'dns-zone-linter',
+          keywords: ['dns', 'zone', 'linter', 'normalize', 'canonicalize', 'bind', 'error', 'checking', 'format']
+        },
+        {
+          href: '/dns/zone/diff',
+          label: 'Zone Diff',
+          description: 'Compare two zone files and identify added, removed, and changed DNS records',
+          icon: 'dns-zone-diff',
+          keywords: ['dns', 'zone', 'diff', 'compare', 'changes', 'added', 'removed', 'modified', 'migration']
+        },
+        {
+          href: '/dns/zone/stats',
+          label: 'Zone Statistics',
+          description: 'Analyze zone file structure, record distribution, and configuration health',
+          icon: 'dns-zone-stats',
+          keywords: ['dns', 'zone', 'statistics', 'analysis', 'records', 'distribution', 'health', 'metrics']
+        },
+        {
+          href: '/dns/zone/name-length-checker',
+          label: 'Name Length Checker',
+          description: 'Validate DNS names against RFC length limits: 63 bytes per label, 255 bytes per FQDN',
+          icon: 'dns-name-length',
+          keywords: ['dns', 'name', 'length', 'validator', 'rfc', 'limits', 'label', 'fqdn', 'validation']
+        }
+      ]
     }
   ],
   '/reference': [
