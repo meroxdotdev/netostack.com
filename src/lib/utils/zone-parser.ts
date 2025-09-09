@@ -76,6 +76,166 @@ const MAX_FQDN_LENGTH = 255;
 const DEFAULT_CLASS = 'IN';
 const DEFAULT_TTL = 3600;
 
+// Helper validation functions
+function isValidDomainName(name: string): boolean {
+  if (!name || name.length > MAX_FQDN_LENGTH) return false;
+  
+  // Allow @ as placeholder for origin
+  if (name === '@') return true;
+  
+  // Split by dots and validate each label
+  const labels = name.split('.');
+  
+  // Remove empty trailing label (for FQDN ending with .)
+  if (labels[labels.length - 1] === '') {
+    labels.pop();
+  }
+  
+  for (const label of labels) {
+    if (!isValidLabel(label)) return false;
+  }
+  
+  return true;
+}
+
+function isValidLabel(label: string): boolean {
+  if (!label || label.length > MAX_LABEL_LENGTH) return false;
+  
+  // Must start and end with alphanumeric
+  if (!/^[a-zA-Z0-9]/.test(label) || !/[a-zA-Z0-9]$/.test(label)) {
+    // Exception for single character labels and wildcards
+    if (label.length === 1 || label === '*') return true;
+    return false;
+  }
+  
+  // Can contain hyphens in the middle
+  return /^[a-zA-Z0-9-*]+$/.test(label);
+}
+
+function isValidIPv4(ip: string): boolean {
+  const parts = ip.split('.');
+  if (parts.length !== 4) return false;
+  
+  return parts.every(part => {
+    const num = parseInt(part, 10);
+    return !isNaN(num) && num >= 0 && num <= 255 && part === num.toString();
+  });
+}
+
+function isValidIPv6(ip: string): boolean {
+  // Basic IPv6 validation - simplified for now
+  const ipv6Regex = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
+  return ipv6Regex.test(ip) || ip === '::' || /^::1$/.test(ip);
+}
+
+function validateRData(type: string, rdata: string, owner: string): void {
+  switch (type) {
+    case 'A':
+      if (!isValidIPv4(rdata)) {
+        throw new Error(`Invalid IPv4 address in A record: "${rdata}"`);
+      }
+      break;
+      
+    case 'AAAA':
+      if (!isValidIPv6(rdata)) {
+        throw new Error(`Invalid IPv6 address in AAAA record: "${rdata}"`);
+      }
+      break;
+      
+    case 'CNAME':
+    case 'NS':
+    case 'PTR':
+      if (!rdata.trim()) {
+        throw new Error(`${type} record cannot have empty target`);
+      }
+      if (!isValidDomainName(rdata.trim())) {
+        throw new Error(`Invalid domain name in ${type} record: "${rdata}"`);
+      }
+      break;
+      
+    case 'MX':
+      const mxParts = rdata.trim().split(/\s+/);
+      if (mxParts.length !== 2) {
+        throw new Error('MX record must have format "priority target"');
+      }
+      const priority = parseInt(mxParts[0]);
+      if (isNaN(priority) || priority < 0 || priority > 65535) {
+        throw new Error(`Invalid MX priority: ${mxParts[0]} (must be 0-65535)`);
+      }
+      if (!isValidDomainName(mxParts[1])) {
+        throw new Error(`Invalid MX target: "${mxParts[1]}"`);
+      }
+      break;
+      
+    case 'SOA':
+      const soaParts = rdata.trim().split(/\s+/);
+      if (soaParts.length < 7) {
+        throw new Error('SOA record must have 7 fields: mname rname serial refresh retry expire minimum');
+      }
+      if (!isValidDomainName(soaParts[0])) {
+        throw new Error(`Invalid SOA mname: "${soaParts[0]}"`);
+      }
+      if (!isValidDomainName(soaParts[1])) {
+        throw new Error(`Invalid SOA rname: "${soaParts[1]}"`);
+      }
+      // Validate numeric fields
+      for (let i = 2; i < 7; i++) {
+        const value = parseInt(soaParts[i]);
+        if (isNaN(value) || value < 0) {
+          throw new Error(`Invalid SOA numeric value: "${soaParts[i]}"`);
+        }
+      }
+      break;
+      
+    case 'SRV':
+      const srvParts = rdata.trim().split(/\s+/);
+      if (srvParts.length !== 4) {
+        throw new Error('SRV record must have format "priority weight port target"');
+      }
+      const srvPriority = parseInt(srvParts[0]);
+      const srvWeight = parseInt(srvParts[1]);
+      const srvPort = parseInt(srvParts[2]);
+      
+      if (isNaN(srvPriority) || srvPriority < 0 || srvPriority > 65535) {
+        throw new Error(`Invalid SRV priority: ${srvParts[0]}`);
+      }
+      if (isNaN(srvWeight) || srvWeight < 0 || srvWeight > 65535) {
+        throw new Error(`Invalid SRV weight: ${srvParts[1]}`);
+      }
+      if (isNaN(srvPort) || srvPort < 0 || srvPort > 65535) {
+        throw new Error(`Invalid SRV port: ${srvParts[2]}`);
+      }
+      if (!isValidDomainName(srvParts[3])) {
+        throw new Error(`Invalid SRV target: "${srvParts[3]}"`);
+      }
+      break;
+      
+    case 'TXT':
+      // TXT records can contain any text, but should be properly quoted if containing spaces
+      if (!rdata.trim()) {
+        throw new Error('TXT record cannot be empty');
+      }
+      break;
+      
+    case 'CAA':
+      const caaParts = rdata.trim().split(/\s+/);
+      if (caaParts.length < 3) {
+        throw new Error('CAA record must have format "flags tag value"');
+      }
+      const caaFlags = parseInt(caaParts[0]);
+      if (isNaN(caaFlags) || caaFlags < 0 || caaFlags > 255) {
+        throw new Error(`Invalid CAA flags: ${caaParts[0]} (must be 0-255)`);
+      }
+      break;
+      
+    default:
+      // For other record types, just ensure RDATA is not empty
+      if (!rdata.trim()) {
+        throw new Error(`${type} record cannot have empty RDATA`);
+      }
+  }
+}
+
 export function parseZoneFile(content: string): ParsedZone {
   const lines = content.split('\n');
   const records: ResourceRecord[] = [];
@@ -98,11 +258,15 @@ export function parseZoneFile(content: string): ParsedZone {
       // Handle $ORIGIN directive
       if (line.startsWith('$ORIGIN')) {
         const match = line.match(/^\$ORIGIN\s+(\S+)/);
-        if (match) {
-          currentOrigin = match[1];
-          if (!currentOrigin.endsWith('.')) {
-            currentOrigin += '.';
-          }
+        if (!match) {
+          throw new Error('Invalid $ORIGIN directive syntax');
+        }
+        currentOrigin = match[1];
+        if (!currentOrigin.endsWith('.')) {
+          currentOrigin += '.';
+        }
+        if (!isValidDomainName(currentOrigin)) {
+          throw new Error(`Invalid domain name in $ORIGIN: "${currentOrigin}"`);
         }
         continue;
       }
@@ -110,10 +274,20 @@ export function parseZoneFile(content: string): ParsedZone {
       // Handle $TTL directive
       if (line.startsWith('$TTL')) {
         const match = line.match(/^\$TTL\s+(\d+)/);
-        if (match) {
-          defaultTTL = parseInt(match[1]);
+        if (!match) {
+          throw new Error('Invalid $TTL directive syntax');
         }
+        const newTTL = parseInt(match[1]);
+        if (newTTL < 0 || newTTL > 2147483647) {
+          throw new Error(`Invalid $TTL value: ${newTTL} (must be 0-2147483647)`);
+        }
+        defaultTTL = newTTL;
         continue;
+      }
+
+      // Check for unknown directives
+      if (line.startsWith('$')) {
+        throw new Error(`Unknown directive: ${line.split(/\s+/)[0]}`);
       }
 
       // Parse resource record
@@ -168,7 +342,9 @@ function parseResourceRecord(
   if (!cleanLine) return null;
 
   const parts = cleanLine.split(/\s+/);
-  if (parts.length < 3) return null;
+  if (parts.length < 3) {
+    throw new Error(`Invalid record format: insufficient fields (minimum 3 required, found ${parts.length})`);
+  }
 
   let owner = parts[0];
   let ttl: number | undefined;
@@ -184,9 +360,17 @@ function parseResourceRecord(
     owner = owner + '.' + origin;
   }
 
+  // Validate owner name
+  if (!isValidDomainName(owner)) {
+    throw new Error(`Invalid owner name: "${owner}"`);
+  }
+
   // Parse TTL (optional)
   if (/^\d+$/.test(parts[partIndex])) {
     ttl = parseInt(parts[partIndex]);
+    if (ttl < 0 || ttl > 2147483647) {
+      throw new Error(`Invalid TTL value: ${ttl} (must be 0-2147483647)`);
+    }
     partIndex++;
   }
 
@@ -197,12 +381,26 @@ function parseResourceRecord(
   }
 
   // Parse type (required)
-  if (partIndex >= parts.length) return null;
+  if (partIndex >= parts.length) {
+    throw new Error('Missing record type');
+  }
   type = parts[partIndex].toUpperCase();
   partIndex++;
 
+  // Validate record type
+  const validTypes = ['A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT', 'CAA', 'DNAME', 'HINFO', 'LOC', 'NAPTR', 'RP', 'SSHFP', 'SVCB', 'HTTPS', 'TLSA'];
+  if (!validTypes.includes(type)) {
+    throw new Error(`Unknown or unsupported record type: "${type}"`);
+  }
+
   // Parse RDATA (rest of the line)
+  if (partIndex >= parts.length) {
+    throw new Error(`Missing RDATA for ${type} record`);
+  }
   rdata = parts.slice(partIndex).join(' ');
+
+  // Validate RDATA based on record type
+  validateRData(type, rdata, owner);
 
   return {
     owner,

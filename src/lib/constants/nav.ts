@@ -528,6 +528,46 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           keywords: ['dns', 'name', 'length', 'validator', 'rfc', 'limits', 'label', 'fqdn', 'validation']
         }
       ]
+    },
+    {
+      title: 'DNSSEC Tools',
+      items: [
+        {
+          href: '/dns/dnssec/dnskey-tag',
+          label: 'DNSKEY Key Tag Calculator',
+          description: 'Compute the DNSKEY key tag from a DNSKEY RR (RFC 4034 algorithm) and display it alongside key meta',
+          icon: 'dns-dnskey',
+          keywords: ['dnssec', 'dnskey', 'key', 'tag', 'calculator', 'rfc', '4034', 'algorithm', 'ksk', 'zsk']
+        },
+        {
+          href: '/dns/dnssec/ds-generator',
+          label: 'DS Record Generator',
+          description: 'Generate DS records (SHA-1/256/384) from a DNSKEY or public key, with copyable output for parent submission',
+          icon: 'dns-ds',
+          keywords: ['dnssec', 'ds', 'delegation', 'signer', 'sha1', 'sha256', 'sha384', 'parent', 'zone', 'trust']
+        },
+        {
+          href: '/dns/dnssec/nsec3-hash',
+          label: 'NSEC3 Hash Calculator',
+          description: 'Calculate NSEC3 owner hashes for a name given salt, iterations, and algorithm, showing the hashed owner FQDN',
+          icon: 'dns-nsec3',
+          keywords: ['dnssec', 'nsec3', 'hash', 'calculator', 'salt', 'iterations', 'algorithm', 'sha1', 'privacy']
+        },
+        {
+          href: '/dns/dnssec/cds-cdnskey-builder',
+          label: 'CDS/CDNSKEY Builder',
+          description: 'Build CDS/CDNSKEY RRs from child DNSKEYs to enable automated DS updates at the parent',
+          icon: 'dns-cds',
+          keywords: ['dnssec', 'cds', 'cdnskey', 'builder', 'automated', 'ds', 'updates', 'parent', 'child', 'delegation']
+        },
+        {
+          href: '/dns/dnssec/rrsig-planner',
+          label: 'RRSIG Planner',
+          description: 'Suggest RRSIG validity windows (inception/expiration) based on TTLs and desired overlap, with renewal lead-time guidance',
+          icon: 'dns-rrsig',
+          keywords: ['dnssec', 'rrsig', 'planner', 'validity', 'windows', 'inception', 'expiration', 'ttl', 'overlap', 'renewal']
+        }
+      ]
     }
   ],
   '/reference': [

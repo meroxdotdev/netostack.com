@@ -30,6 +30,9 @@ export const author = {
   url: 'https://aliciasykes.com',
   portfolio: 'https://as93.net',
   sponsor: 'https://github.com/sponsors/lissy93',
+  // avatar: 'https://i.ibb.co/678bNCjD/alicia-sykes-184-Edit.jpg',
+  // avatar: 'https://apps.aliciasykes.com/profile.jpg',
+  avatar: 'https://i.ibb.co/Q7XTgybB/DSC-0444-2.jpg',
 };
 
 export const pages = {
