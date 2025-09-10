@@ -1,18 +1,22 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../../styles/diagnostics-pages.scss';
   
   let domain = $state('google.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
+  let selectedExampleIndex = $state<number | null>(null);
   
   const examples = [
     { domain: 'google.com', description: 'Google DNS infrastructure check' },
     { domain: 'github.com', description: 'GitHub nameserver configuration' },
     { domain: 'cloudflare.com', description: 'Cloudflare NS/SOA setup' },
-    { domain: 'stackoverflow.com', description: 'Stack Overflow DNS consistency' }
+    { domain: 'stackoverflow.com', description: 'Stack Overflow DNS consistency' },
+    { domain: 'microsoft.com', description: 'Microsoft nameserver analysis' },
+    { domain: 'aws.amazon.com', description: 'AWS subdomain NS/SOA check' }
   ];
   
   async function checkNSSOA() {
@@ -42,9 +46,14 @@
     }
   }
   
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     domain = example.domain;
+    selectedExampleIndex = index;
     checkNSSOA();
+  }
+  
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
   }
   
   function parseSOA(soaString: string): any {
@@ -152,7 +161,12 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button class="example-card" onclick={() => loadExample(example)}>
+          <button 
+            class="example-card" 
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+            use:tooltip={`Check NS/SOA consistency for ${example.domain}`}
+          >
             <h5>{example.domain}</h5>
             <p>{example.description}</p>
           </button>
@@ -175,7 +189,7 @@
             type="text" 
             bind:value={domain} 
             placeholder="example.com"
-            onchange={() => { if (domain) checkNSSOA(); }}
+            onchange={() => { clearExampleSelection(); if (domain) checkNSSOA(); }}
           />
         </label>
       </div>
@@ -337,78 +351,76 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- Configuration Analysis -->
+                <div class="recommendations-section">
+                  <h5>Configuration Analysis</h5>
+                  <div class="recommendation-list">
+                    <!-- Serial number check -->
+                    {#if parsed.serial.toString().length === 10 && parsed.serial.toString().startsWith('202')}
+                      <div class="recommendation-item success">
+                        <Icon name="check-circle" size="sm" />
+                        <span>Serial number appears to use YYYYMMDDNN format (recommended)</span>
+                      </div>
+                    {:else}
+                      <div class="recommendation-item warning">
+                        <Icon name="alert-circle" size="sm" />
+                        <span>Consider using YYYYMMDDNN format for serial numbers for easier tracking</span>
+                      </div>
+                    {/if}
+
+                    <!-- Refresh interval check -->
+                    {#if parsed.refresh >= 3600 && parsed.refresh <= 86400}
+                      <div class="recommendation-item success">
+                        <Icon name="check-circle" size="sm" />
+                        <span>Refresh interval ({formatTime(parsed.refresh)}) is within recommended range</span>
+                      </div>
+                    {:else if parsed.refresh < 3600}
+                      <div class="recommendation-item warning">
+                        <Icon name="alert-circle" size="sm" />
+                        <span>Refresh interval ({formatTime(parsed.refresh)}) is quite frequent - consider increasing</span>
+                      </div>
+                    {:else}
+                      <div class="recommendation-item warning">
+                        <Icon name="alert-circle" size="sm" />
+                        <span>Refresh interval ({formatTime(parsed.refresh)}) is quite long - consider reducing</span>
+                      </div>
+                    {/if}
+
+                    <!-- Retry interval check -->
+                    {#if parsed.retry >= 600 && parsed.retry < parsed.refresh}
+                      <div class="recommendation-item success">
+                        <Icon name="check-circle" size="sm" />
+                        <span>Retry interval is properly configured</span>
+                      </div>
+                    {:else if parsed.retry >= parsed.refresh}
+                      <div class="recommendation-item error">
+                        <Icon name="x-circle" size="sm" />
+                        <span>Retry interval should be less than refresh interval</span>
+                      </div>
+                    {:else}
+                      <div class="recommendation-item warning">
+                        <Icon name="alert-circle" size="sm" />
+                        <span>Retry interval ({formatTime(parsed.retry)}) might be too short</span>
+                      </div>
+                    {/if}
+
+                    <!-- Expire check -->
+                    {#if parsed.expire >= 604800}
+                      <div class="recommendation-item success">
+                        <Icon name="check-circle" size="sm" />
+                        <span>Expire time ({formatTime(parsed.expire)}) provides good resilience</span>
+                      </div>
+                    {:else}
+                      <div class="recommendation-item warning">
+                        <Icon name="alert-circle" size="sm" />
+                        <span>Expire time ({formatTime(parsed.expire)}) is quite short - consider at least 1 week</span>
+                      </div>
+                    {/if}
+                  </div>
+                </div>
               </div>
             {/if}
-          </div>
-        {/if}
-
-        <!-- Recommendations -->
-        {#if parsed}
-          <div class="recommendations-section">
-            <h4>Configuration Analysis</h4>
-            <div class="recommendation-list">
-              <!-- Serial number check -->
-              {#if parsed.serial.toString().length === 10 && parsed.serial.toString().startsWith('202')}
-                <div class="recommendation-item success">
-                  <Icon name="check-circle" size="sm" />
-                  <span>Serial number appears to use YYYYMMDDNN format (recommended)</span>
-                </div>
-              {:else}
-                <div class="recommendation-item warning">
-                  <Icon name="alert-circle" size="sm" />
-                  <span>Consider using YYYYMMDDNN format for serial numbers for easier tracking</span>
-                </div>
-              {/if}
-
-              <!-- Refresh interval check -->
-              {#if parsed.refresh >= 3600 && parsed.refresh <= 86400}
-                <div class="recommendation-item success">
-                  <Icon name="check-circle" size="sm" />
-                  <span>Refresh interval ({formatTime(parsed.refresh)}) is within recommended range</span>
-                </div>
-              {:else if parsed.refresh < 3600}
-                <div class="recommendation-item warning">
-                  <Icon name="alert-circle" size="sm" />
-                  <span>Refresh interval ({formatTime(parsed.refresh)}) is quite frequent - consider increasing</span>
-                </div>
-              {:else}
-                <div class="recommendation-item warning">
-                  <Icon name="alert-circle" size="sm" />
-                  <span>Refresh interval ({formatTime(parsed.refresh)}) is quite long - consider reducing</span>
-                </div>
-              {/if}
-
-              <!-- Retry interval check -->
-              {#if parsed.retry >= 600 && parsed.retry < parsed.refresh}
-                <div class="recommendation-item success">
-                  <Icon name="check-circle" size="sm" />
-                  <span>Retry interval is properly configured</span>
-                </div>
-              {:else if parsed.retry >= parsed.refresh}
-                <div class="recommendation-item error">
-                  <Icon name="x-circle" size="sm" />
-                  <span>Retry interval should be less than refresh interval</span>
-                </div>
-              {:else}
-                <div class="recommendation-item warning">
-                  <Icon name="alert-circle" size="sm" />
-                  <span>Retry interval ({formatTime(parsed.retry)}) might be too short</span>
-                </div>
-              {/if}
-
-              <!-- Expire check -->
-              {#if parsed.expire >= 604800}
-                <div class="recommendation-item success">
-                  <Icon name="check-circle" size="sm" />
-                  <span>Expire time ({formatTime(parsed.expire)}) provides good resilience</span>
-                </div>
-              {:else}
-                <div class="recommendation-item warning">
-                  <Icon name="alert-circle" size="sm" />
-                  <span>Expire time ({formatTime(parsed.expire)}) is quite short - consider at least 1 week</span>
-                </div>
-              {/if}
-            </div>
           </div>
         {/if}
       </div>
@@ -706,17 +718,6 @@
     font-family: var(--font-mono);
   }
 
-  // Animation and utility classes
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .text-green-500 {
-    color: var(--color-success);
-  }
+  // Page-specific styles only (common utilities moved to diagnostics-pages.scss)
 </style>

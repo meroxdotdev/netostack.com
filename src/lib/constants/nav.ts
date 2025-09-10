@@ -625,6 +625,46 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           keywords: ['ns', 'soa', 'nameserver', 'consistency', 'check', 'resolution', 'parameters', 'health', 'serial']
         }
       ]
+    },
+    {
+      title: 'HTTP Diagnostics',
+      items: [
+        {
+          href: '/diagnostics/http/headers',
+          label: 'HTTP Headers Analyzer',
+          description: 'Analyze HTTP headers and response metadata with custom method and header support',
+          icon: 'http-headers',
+          keywords: ['http', 'headers', 'analyzer', 'response', 'metadata', 'custom', 'method', 'request']
+        },
+        {
+          href: '/diagnostics/http/redirect-trace',
+          label: 'Redirect Trace',
+          description: 'Follow HTTP redirects and trace the full chain with security upgrade detection',
+          icon: 'redirect-trace',
+          keywords: ['http', 'redirect', 'trace', 'chain', 'hsts', 'security', 'upgrade', 'follow']
+        },
+        {
+          href: '/diagnostics/http/security',
+          label: 'Security Headers Analyzer',
+          description: 'Analyze security headers (HSTS, CSP, X-Frame-Options) with grading and recommendations',
+          icon: 'security-headers',
+          keywords: ['http', 'security', 'headers', 'hsts', 'csp', 'x-frame-options', 'analyzer', 'grade']
+        },
+        {
+          href: '/diagnostics/http/cors-check',
+          label: 'CORS Policy Checker',
+          description: 'Test CORS policies with preflight requests and origin validation',
+          icon: 'cors-check',
+          keywords: ['cors', 'policy', 'check', 'preflight', 'origin', 'validation', 'cross-origin', 'options']
+        },
+        {
+          href: '/diagnostics/http/perf',
+          label: 'HTTP Performance Analyzer',
+          description: 'Measure HTTP performance timing including DNS, TCP, TLS, and TTFB metrics',
+          icon: 'http-perf',
+          keywords: ['http', 'performance', 'timing', 'dns', 'tcp', 'tls', 'ttfb', 'metrics', 'analyzer']
+        }
+      ]
     }
   ],
   '/reference': [

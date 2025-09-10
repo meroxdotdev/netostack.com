@@ -13,6 +13,7 @@
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
+  let selectedExampleIndex = $state<number | null>(null);
 
   // Reactive validation state
   const isInputValid = $derived(() => {
@@ -78,23 +79,41 @@
       
       if (!response.ok) {
         const errorText = await response.text();
-        let errorMessage = `Lookup failed (${response.status})`;
         
         try {
-          const errorData = JSON.parse(errorText);
-          if (errorData.error) {
-            errorMessage = errorData.error;
+          const responseData = JSON.parse(errorText);
+          
+          // Handle 404 as "no records found" (warning, not error)
+          if (response.status === 404 && responseData.noRecords) {
+            results = {
+              noRecords: true,
+              message: responseData.message,
+              name: responseData.name,
+              type: responseData.type,
+              resolver: useCustomResolver && customResolver ? customResolver.trim() : resolver
+            };
+            return; // Don't throw error, just set results
           }
-        } catch {
+
+          // Handle other structured errors
+          if (responseData.error) {
+            throw new Error(responseData.error);
+          }
+          
+          // Use API message if available
+          if (responseData.message) {
+            throw new Error(responseData.message);
+          }
+        } catch (parseError) {
           // If not JSON, use status-based message
           if (response.status === 400) {
-            errorMessage = 'Invalid request. Please check your input values.';
+            throw new Error('Invalid request. Please check your input values.');
           } else if (response.status === 500) {
-            errorMessage = 'DNS lookup service temporarily unavailable. Please try again.';
+            throw new Error('DNS lookup service temporarily unavailable. Please try again.');
           }
         }
         
-        throw new Error(errorMessage);
+        throw new Error(`Lookup failed (${response.status})`);
       }
       
       results = await response.json();
@@ -106,10 +125,15 @@
     }
   }
   
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     domainName = example.domain;
     recordType = example.type;
+    selectedExampleIndex = index;
     performLookup();
+  }
+  
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
   }
   
   async function copyResults() {
@@ -137,7 +161,12 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button class="example-card" onclick={() => loadExample(example)}>
+          <button 
+            class="example-card" 
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+            use:tooltip={`Query ${example.type} records for ${example.domain}`}
+          >
             <h5>{example.domain} ({example.type})</h5>
             <p>{example.description}</p>
           </button>
@@ -152,7 +181,8 @@
       <h3>Lookup Configuration</h3>
     </div>
     <div class="card-content">
-      <div class="form-grid">
+      <!-- First Row: Domain Name -->
+      <div class="form-row">
         <div class="form-group">
           <label for="domain" use:tooltip={"Enter the domain name to query"}>
             Domain Name
@@ -162,50 +192,51 @@
             type="text" 
             bind:value={domainName} 
             placeholder="example.com"
-            onchange={() => { if (domainName) performLookup(); }}
+            onchange={() => { clearExampleSelection(); if (domainName) performLookup(); }}
           />
         </div>
-        
+      </div>
+      
+      <!-- Second Row: Record Type and DNS Resolver -->
+      <div class="form-row two-columns">
         <div class="form-group">
           <label for="type" use:tooltip={"Select the DNS record type to query"}>
             Record Type
           </label>
-          <select id="type" bind:value={recordType} onchange={() => { if (domainName) performLookup(); }}>
+          <select id="type" bind:value={recordType} onchange={() => { clearExampleSelection(); if (domainName) performLookup(); }}>
             {#each recordTypes as type}
               <option value={type.value} title={type.description}>{type.label}</option>
             {/each}
           </select>
         </div>
         
-        <div class="form-group resolver-group">
+        <div class="form-group">
           <label use:tooltip={"Choose a DNS resolver to use for the query"}>
             DNS Resolver
           </label>
-          <div class="resolver-options">
-            {#if !useCustomResolver}
-              <select bind:value={resolver} onchange={() => { if (domainName) performLookup(); }}>
-                {#each resolvers as res}
-                  <option value={res.value}>{res.label}</option>
-                {/each}
-              </select>
-            {/if}
-            {#if useCustomResolver}
-              <input 
-                type="text" 
-                bind:value={customResolver} 
-                placeholder="8.8.8.8 or custom IP"
-                onchange={() => { if (domainName) performLookup(); }}
-              />
-            {/if}
-            <label class="checkbox-group">
-              <input 
-                type="checkbox" 
-                bind:checked={useCustomResolver}
-                onchange={() => { if (domainName) performLookup(); }}
-              />
-              Use custom resolver
-            </label>
-          </div>
+          {#if !useCustomResolver}
+            <select bind:value={resolver} onchange={() => { clearExampleSelection(); if (domainName) performLookup(); }}>
+              {#each resolvers as res}
+                <option value={res.value}>{res.label}</option>
+              {/each}
+            </select>
+          {/if}
+          {#if useCustomResolver}
+            <input 
+              type="text" 
+              bind:value={customResolver} 
+              placeholder="8.8.8.8 or custom IP"
+              onchange={() => { clearExampleSelection(); if (domainName) performLookup(); }}
+            />
+          {/if}
+          <label class="checkbox-group">
+            <input 
+              type="checkbox" 
+              bind:checked={useCustomResolver}
+              onchange={() => { clearExampleSelection(); if (domainName) performLookup(); }}
+            />
+            Use custom resolver
+          </label>
         </div>
       </div>
       
@@ -225,7 +256,7 @@
 
   <!-- Warnings -->
   {#if results?.warnings?.length > 0}
-    <div class="card warning-card">
+    <div class="card warning-card warns">
       <div class="card-content">
         <div class="warning-content">
           <Icon name="alert-triangle" size="sm" />
@@ -239,10 +270,26 @@
     </div>
   {/if}
 
+  <!-- No Records Warning -->
+  {#if results?.noRecords}
+    <div class="card warning-card">
+      <div class="card-content">
+        <div class="warning-content">
+          <Icon name="info" size="md" />
+          <div>
+            <strong>No Records Found</strong>
+            <p>{results.message}</p>
+            <p class="help-text">Using resolver: {results.resolver}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+
   <!-- Results -->
-  {#if results}
+  {#if results && !results.noRecords}
     <div class="card results-card">
-      <div class="card-header">
+      <div class="card-header row">
         <h3>DNS Records Found</h3>
         {#if results.Answer?.length > 0}
           <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
@@ -266,9 +313,11 @@
             {/each}
           </div>
         {:else}
-          <div class="no-records">
-            <Icon name="alert-circle" size="md" />
-            <p>No records found for <code>{domainName}</code> ({recordType})</p>
+          <div class="card warning-card no-records">
+            <div class="warning-content">
+              <Icon name="alert-triangle" size="md" />
+              <p>No records found for <code>{domainName}</code> ({recordType})</p>
+            </div>
           </div>
         {/if}
       </div>
@@ -291,28 +340,17 @@
 </div>
 
 <style lang="scss">
-  // Page-specific styles - shared styles now handled by diagnostics-pages.scss
-
   .action-section {
     display: flex;
     justify-content: center;
     margin-top: var(--spacing-xl);
   }
 
+  .warns {
+    margin-bottom: var(--spacing-md);
+  }
+
   .mono {
     font-family: var(--font-mono);
-  }
-
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .text-green-500 {
-    color: var(--color-success);
   }
 </style>

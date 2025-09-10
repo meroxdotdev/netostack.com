@@ -11,6 +11,7 @@
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
+  let selectedExampleIndex = $state<number | null>(null);
   
   const resolvers = [
     { value: 'cloudflare', label: 'Cloudflare (1.1.1.1)' },
@@ -27,12 +28,54 @@
   ];
   
   function isValidIP(ip: string): boolean {
-    // Basic IPv4/IPv6 validation
+    // Basic IPv4 validation
     const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-    const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$/;
-    const ipv6CompressedRegex = /^(?:[0-9a-fA-F]{1,4}:)*::(?:[0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:)*::[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:)*::$/;
     
-    return ipv4Regex.test(ip) || ipv6Regex.test(ip) || ipv6CompressedRegex.test(ip);
+    if (ipv4Regex.test(ip)) return true;
+    
+    // IPv6 validation - comprehensive approach
+    try {
+      // Remove any zone identifier (e.g., %eth0)
+      const cleanIp = ip.split('%')[0].toLowerCase();
+      
+      // Special cases
+      if (cleanIp === '::' || cleanIp === '::1') return true;
+      
+      // Check for invalid characters
+      if (!/^[0-9a-f:]+$/.test(cleanIp)) return false;
+      
+      // Check for double colon (can only appear once)
+      const doubleColonCount = (cleanIp.match(/::/g) || []).length;
+      if (doubleColonCount > 1) return false;
+      
+      // Split by double colon if present
+      const parts = cleanIp.split('::');
+      
+      if (parts.length === 1) {
+        // No compression - must be full format with exactly 8 groups
+        const groups = cleanIp.split(':');
+        if (groups.length !== 8) return false;
+        
+        // Each group must be 1-4 hex digits
+        return groups.every(group => /^[0-9a-f]{1,4}$/.test(group));
+        
+      } else if (parts.length === 2) {
+        // Has compression
+        const leftGroups = parts[0] ? parts[0].split(':').filter(g => g !== '') : [];
+        const rightGroups = parts[1] ? parts[1].split(':').filter(g => g !== '') : [];
+        
+        // Total groups must be less than 8 (compression fills the gap)
+        if (leftGroups.length + rightGroups.length >= 8) return false;
+        
+        // Each group must be 1-4 hex digits
+        const allGroups = [...leftGroups, ...rightGroups];
+        return allGroups.every(group => /^[0-9a-f]{1,4}$/.test(group));
+      }
+      
+      return false;
+    } catch {
+      return false;
+    }
   }
   
   async function performReverseLookup() {
@@ -71,9 +114,14 @@
     }
   }
   
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     ipAddress = example.ip;
+    selectedExampleIndex = index;
     performReverseLookup();
+  }
+  
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
   }
   
   async function copyResults() {
@@ -101,7 +149,12 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button class="example-card" onclick={() => loadExample(example)}>
+          <button 
+            class="example-card" 
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+            use:tooltip={`Perform reverse lookup for ${example.ip} (${example.description})`}
+          >
             <h5>{example.ip}</h5>
             <p>{example.description}</p>
           </button>
@@ -126,7 +179,7 @@
               bind:value={ipAddress} 
               placeholder="8.8.8.8 or 2001:db8::1"
               class:invalid={ipAddress && !isValidIP(ipAddress.trim())}
-              onchange={() => { if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}
+              onchange={() => { clearExampleSelection(); if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}
             />
             {#if ipAddress && !isValidIP(ipAddress.trim())}
               <span class="error-text">Invalid IP address format</span>
@@ -143,7 +196,7 @@
                   type="text" 
                   bind:value={customResolver} 
                   placeholder="8.8.8.8 or custom IP"
-                  onchange={() => { if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}
+                  onchange={() => { clearExampleSelection(); if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}
                 />
               {:else}
                 <select bind:value={resolver} onchange={() => { if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}>
@@ -156,7 +209,7 @@
                 <input 
                   type="checkbox" 
                   bind:checked={useCustomResolver}
-                  onchange={() => { if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}
+                  onchange={() => { clearExampleSelection(); if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}
                 />
                 Use custom resolver
               </label>
@@ -198,7 +251,7 @@
   <!-- Results -->
   {#if results}
     <div class="card results-card">
-      <div class="card-header">
+      <div class="card-header row">
         <h3>Reverse DNS Results</h3>
         {#if results.Answer?.length > 0}
           <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
@@ -431,16 +484,5 @@
     font-family: var(--font-mono);
   }
 
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .text-green-500 {
-    color: var(--color-success);
-  }
+  // Shared utilities moved to diagnostics-pages.scss
 </style>

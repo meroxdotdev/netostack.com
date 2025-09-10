@@ -2,12 +2,14 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import { isValidDomainName, formatDNSError } from '$lib/utils/dns-validation.js';
+  import '../../../../styles/diagnostics-pages.scss';
   
   let domainName = $state('github.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
+  let selectedExampleIndex = $state<number | null>(null);
 
   // Reactive validation state
   const isInputValid = $derived(() => {
@@ -19,7 +21,9 @@
     { domain: 'github.com', description: 'GitHub CAA configuration' },
     { domain: 'www.google.com', description: 'Google subdomain CAA inheritance' },
     { domain: 'api.stripe.com', description: 'Stripe API subdomain CAA' },
-    { domain: 'blog.cloudflare.com', description: 'Cloudflare blog CAA setup' }
+    { domain: 'blog.cloudflare.com', description: 'Cloudflare blog CAA setup' },
+    { domain: 'microsoft.com', description: 'Microsoft CAA settings' },
+    { domain: 'amazon.com', description: 'Amazon CAA implementation' }
   ];
   
   async function checkCAA() {
@@ -80,9 +84,14 @@
     }
   }
   
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     domainName = example.domain;
+    selectedExampleIndex = index;
     checkCAA();
+  }
+  
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
   }
   
   function parseCAA(record: string): { flag: number, tag: string, value: string } | null {
@@ -180,7 +189,12 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button class="example-card" onclick={() => loadExample(example)}>
+          <button 
+            class="example-card" 
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+            use:tooltip={`Check CAA policy for ${example.domain}`}
+          >
             <h5>{example.domain}</h5>
             <p>{example.description}</p>
           </button>
@@ -204,7 +218,7 @@
             bind:value={domainName} 
             placeholder="example.com"
             class:invalid={domainName && !isValidDomainName(domainName.trim())}
-            onchange={() => { if (isInputValid) checkCAA(); }}
+            onchange={() => { clearExampleSelection(); if (isInputValid) checkCAA(); }}
           />
           {#if domainName && !isValidDomainName(domainName.trim())}
             <span class="error-text">Invalid domain name format</span>
@@ -431,6 +445,7 @@
 </div>
 
 <style lang="scss">
+
   // Page-specific styles - shared styles removed
   // Use shared .lookup-btn instead of .check-btn
 
@@ -737,19 +752,7 @@
     }
   }
 
-  // Animation and utility classes
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .text-green-500 {
-    color: var(--color-success);
-  }
+  // Shared utilities moved to diagnostics-pages.scss
 
   .text-success {
     color: var(--color-success);

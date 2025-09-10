@@ -527,7 +527,8 @@
       '/cidr': 'CIDR Tools',
       '/ip-address-convertor': 'IP Tools',
       '/reference': 'Reference',
-      '/dns': 'DNS'
+      '/dns': 'DNS',
+      '/diagnostics': 'Diagnostics'
     };
     return titleMap[sectionKey] || sectionKey.replace('/', '').replace('-', ' ');
   }

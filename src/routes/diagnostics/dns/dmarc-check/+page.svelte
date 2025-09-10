@@ -1,18 +1,22 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../../styles/diagnostics-pages.scss';
   
   let domain = $state('google.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
+  let selectedExampleIndex = $state<number | null>(null);
   
   const examples = [
     { domain: 'google.com', description: 'Google DMARC policy' },
     { domain: 'github.com', description: 'GitHub enterprise DMARC' },
     { domain: 'microsoft.com', description: 'Microsoft DMARC configuration' },
-    { domain: 'paypal.com', description: 'PayPal strict DMARC policy' }
+    { domain: 'paypal.com', description: 'PayPal strict DMARC policy' },
+    { domain: 'amazon.com', description: 'Amazon DMARC implementation' },
+    { domain: 'salesforce.com', description: 'Salesforce DMARC setup' }
   ];
   
   async function checkDMARC() {
@@ -42,9 +46,14 @@
     }
   }
   
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     domain = example.domain;
+    selectedExampleIndex = index;
     checkDMARC();
+  }
+  
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
   }
   
   function getPolicyColor(policy: string): string {
@@ -183,7 +192,12 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button class="example-card" onclick={() => loadExample(example)}>
+          <button 
+            class="example-card" 
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+            use:tooltip={`Check DMARC policy for ${example.domain} (${example.description})`}
+          >
             <h5>{example.domain}</h5>
             <p>{example.description}</p>
           </button>
@@ -206,7 +220,7 @@
             type="text" 
             bind:value={domain} 
             placeholder="example.com"
-            onchange={() => { if (domain) checkDMARC(); }}
+            onchange={() => { clearExampleSelection(); if (domain) checkDMARC(); }}
           />
         </label>
       </div>
@@ -226,7 +240,7 @@
   </div>
 
   <!-- Results -->
-  {#if results && !results.error}
+  {#if results && results.hasRecord}
     <div class="card results-card">
       <div class="card-header">
         <h3>DMARC Policy Analysis</h3>
@@ -236,10 +250,10 @@
         </button>
       </div>
       <div class="card-content">
-        <!-- Status Overview -->
-        <div class="status-overview">
-          {#if results && !results.error}
-            {@const issues = getIssues()}
+        {#if results && results.hasRecord}
+          {@const issues = getIssues()}
+          <!-- Status Overview -->
+          <div class="status-overview">
             <div class="status-item {issues.length === 0 ? 'success' : issues.some(i => i.severity === 'high') ? 'error' : 'warning'}">
               <Icon name={issues.length === 0 ? 'shield-check' : issues.some(i => i.severity === 'high') ? 'shield-x' : 'shield-alert'} size="md" />
               <div>
@@ -261,8 +275,8 @@
                 </p>
               </div>
             </div>
-          {/if}
-        </div>
+          </div>
+        {/if}
 
         <!-- Original Record -->
         {#if results.record}
@@ -415,25 +429,41 @@
               </div>
             </div>
           </div>
-        {/if}
-
-        <!-- Issues -->
-        {#if issues.length > 0}
-          <div class="issues-section">
-            <h4>Issues & Recommendations</h4>
-            <div class="issues-list">
-              {#each issues as issue}
-                <div class="issue-item {getSeverityColor(issue.severity)}">
-                  <Icon name={issue.severity === 'high' ? 'alert-triangle' : issue.severity === 'medium' ? 'alert-circle' : 'info'} size="sm" />
-                  <div class="issue-content">
-                    <span class="issue-severity">{issue.severity.toUpperCase()}</span>
-                    <span class="issue-message">{issue.message}</span>
+          
+          <!-- Issues -->
+          {#if issues.length > 0}
+            <div class="issues-section">
+              <h4>Issues & Recommendations</h4>
+              <div class="issues-list">
+                {#each issues as issue}
+                  <div class="issue-item {getSeverityColor(issue.severity)}">
+                    <Icon name={issue.severity === 'high' ? 'alert-triangle' : issue.severity === 'medium' ? 'alert-circle' : 'info'} size="sm" />
+                    <div class="issue-content">
+                      <span class="issue-severity">{issue.severity.toUpperCase()}</span>
+                      <span class="issue-message">{issue.message}</span>
+                    </div>
                   </div>
-                </div>
-              {/each}
+                {/each}
+              </div>
             </div>
-          </div>
+          {/if}
         {/if}
+      </div>
+    </div>
+  {/if}
+
+  <!-- No Record Found (but not an error) -->
+  {#if results && results.hasRecord === false}
+    <div class="card warning-card">
+      <div class="card-content">
+        <div class="warning-content">
+          <Icon name="info" size="md" />
+          <div>
+            <strong>No DMARC Record Found</strong>
+            <p>Domain <code>{domain}</code> does not have a DMARC policy configured at <code>{results.domain}</code>.</p>
+            <p class="help-text">This means the domain is not protected by DMARC. Consider implementing a DMARC policy to prevent email spoofing.</p>
+          </div>
+        </div>
       </div>
     </div>
   {/if}
@@ -714,17 +744,6 @@
     }
   }
 
-  // Animation and utility classes
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .text-green-500 {
-    color: var(--color-success);
-  }
+  // Page-specific styles (shared styles moved to diagnostics-pages.scss)
 </style>

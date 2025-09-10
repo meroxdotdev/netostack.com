@@ -271,7 +271,13 @@ async function performNativeDNSLookup(name: string, type: keyof typeof DNS_TYPES
       throw new Error(`Domain not found: ${name}`);
     }
     if (err.code === 'ENODATA') {
-      throw new Error(`No ${type} records found for ${name}`);
+      // Return structured response for no records found (will be handled as 404)
+      return { 
+        noRecords: true, 
+        message: `No ${type} records found for ${name}`,
+        name,
+        type
+      };
     }
     
     throw new Error(`DNS lookup failed: ${err.message}`);
@@ -342,7 +348,11 @@ async function checkDMARC(domain: string): Promise<any> {
     const dmarcRecord = result.Answer?.find((record: any) => record.data.startsWith('v=DMARC1'));
     
     if (!dmarcRecord) {
-      return { error: 'No DMARC record found' };
+      return { 
+        hasRecord: false,
+        message: 'No DMARC record found',
+        domain: dmarcDomain
+      };
     }
     
     const policy = dmarcRecord.data;
@@ -366,9 +376,17 @@ async function checkDMARC(domain: string): Promise<any> {
     if (!parsed.reporting.aggregate) issues.push('No aggregate reporting address specified');
     if (parsed.percentage !== '100') issues.push(`Only ${parsed.percentage}% of messages are subject to DMARC policy`);
     
-    return { record: policy, parsed, issues };
+    return { 
+      hasRecord: true,
+      record: policy, 
+      parsed, 
+      issues 
+    };
   } catch (err: any) {
-    return { error: err.message };
+    return { 
+      error: `Error determining DMARC records: ${err.message}`,
+      domain: `_dmarc.${domain}`
+    };
   }
 }
 
@@ -437,6 +455,12 @@ export const POST: RequestHandler = async ({ request }) => {
       case 'lookup': {
         const { name, type = 'A', resolverOpts } = body as LookupReq;
         const result = await performDNSLookup(name, type, resolverOpts);
+        
+        // Handle "no records found" as 404
+        if (result.noRecords) {
+          return json(result, { status: 404 });
+        }
+        
         return json(result);
       }
       
@@ -444,6 +468,12 @@ export const POST: RequestHandler = async ({ request }) => {
         const { ip, resolverOpts } = body as ReverseLookupReq;
         const reverseName = createReverseZone(ip);
         const result = await performDNSLookup(reverseName, 'PTR', resolverOpts);
+        
+        // Handle "no records found" as 404
+        if (result.noRecords) {
+          return json({ ...result, reverseName }, { status: 404 });
+        }
+        
         return json({ ...result, reverseName });
       }
       

@@ -1,19 +1,22 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  // import '../../../styles/diagnostics-pages.scss';
+  import '../../../../styles/diagnostics-pages.scss';
   
   let domain = $state('google.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
+  let selectedExampleIndex = $state<number | null>(null);
   
   const examples = [
     { domain: 'google.com', description: 'Google SPF with multiple includes' },
     { domain: 'github.com', description: 'GitHub SPF record structure' },
     { domain: 'mailchimp.com', description: 'MailChimp complex SPF policy' },
-    { domain: 'salesforce.com', description: 'Salesforce enterprise SPF' }
+    { domain: 'salesforce.com', description: 'Salesforce enterprise SPF' },
+    { domain: 'microsoft.com', description: 'Microsoft Office 365 SPF' },
+    { domain: 'atlassian.com', description: 'Atlassian SPF configuration' }
   ];
   
   async function evaluateSPF() {
@@ -43,9 +46,14 @@
     }
   }
   
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     domain = example.domain;
+    selectedExampleIndex = index;
     evaluateSPF();
+  }
+  
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
   }
   
   function getMechanismType(mechanism: string): { type: string, color: string, icon: string } {
@@ -158,7 +166,12 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button class="example-card" onclick={() => loadExample(example)}>
+          <button 
+            class="example-card" 
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+            use:tooltip={`Evaluate SPF record for ${example.domain} (${example.description})`}
+          >
             <h5>{example.domain}</h5>
             <p>{example.description}</p>
           </button>
@@ -181,7 +194,7 @@
             type="text" 
             bind:value={domain} 
             placeholder="example.com"
-            onchange={() => { if (domain) evaluateSPF(); }}
+            onchange={() => { clearExampleSelection(); if (domain) evaluateSPF(); }}
           />
         </label>
       </div>
@@ -420,6 +433,7 @@
   }
 
 
+
   // SPF-specific mechanism styles
   .mechanisms-section {
     margin-bottom: var(--spacing-lg);
@@ -595,17 +609,5 @@
     }
   }
 
-  // Animation and utility classes
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .text-green-500 {
-    color: var(--color-success);
-  }
+  // Shared utilities moved to diagnostics-pages.scss
 </style>

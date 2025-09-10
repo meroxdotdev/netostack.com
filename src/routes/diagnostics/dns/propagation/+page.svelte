@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  // import '../../../styles/diagnostics-pages.scss';
+  import '../../../../styles/diagnostics-pages.scss';
   
   let domainName = $state('example.com');
   let recordType = $state('A');
@@ -10,6 +10,7 @@
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let lastQuery = $state<{domain: string, type: string} | null>(null);
+  let selectedExampleIndex = $state<number | null>(null);
   
   const recordTypes = [
     { value: 'A', label: 'A', description: 'IPv4 address records' },
@@ -64,10 +65,15 @@
     }
   }
   
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     domainName = example.domain;
     recordType = example.type;
+    selectedExampleIndex = index;
     checkPropagation();
+  }
+  
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
   }
   
   function getStatusColor(result: any): string {
@@ -138,7 +144,12 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button class="example-card" onclick={() => loadExample(example)}>
+          <button 
+            class="example-card" 
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+            use:tooltip={`Check ${example.type} record propagation for ${example.domain}`}
+          >
             <h5>{example.domain} ({example.type})</h5>
             <p>{example.description}</p>
           </button>
@@ -153,7 +164,7 @@
       <h3>Propagation Check Configuration</h3>
     </div>
     <div class="card-content">
-      <div class="form-grid">
+      <div class="form-row two-columns">
         <div class="form-group">
           <label for="domain" use:tooltip={"Enter the domain name to check propagation for"}>
             Domain Name
@@ -162,7 +173,7 @@
               type="text" 
               bind:value={domainName} 
               placeholder="example.com"
-              onchange={() => { if (domainName) checkPropagation(); }}
+              onchange={() => { clearExampleSelection(); if (domainName) checkPropagation(); }}
             />
           </label>
         </div>
@@ -170,7 +181,7 @@
         <div class="form-group">
           <label for="type" use:tooltip={"Select the DNS record type to check"}>
             Record Type
-            <select id="type" bind:value={recordType} onchange={() => { if (domainName) checkPropagation(); }}>
+            <select id="type" bind:value={recordType} onchange={() => { clearExampleSelection(); if (domainName) checkPropagation(); }}>
               {#each recordTypes as type}
                 <option value={type.value} title={type.description}>{type.label}</option>
               {/each}
@@ -196,21 +207,27 @@
   <!-- Results -->
   {#if results}
     <div class="card results-card">
-      <div class="card-header">
+      <div class="card-header row">
         <div>
           <h3>Propagation Results</h3>
           <div class="consistency-status">
             {#if areResultsConsistent()}
-              <Icon name="check-circle" size="xs" class="text-green-500" />
-              <span class="status-text success">Fully Propagated</span>
+              <div class="status-success">
+                <Icon name="check-circle" size="xs" />
+                <span class="status-text">Fully Propagated</span>
+              </div>
             {:else}
-              <Icon name="alert-circle" size="xs" class="text-orange-500" />
-              <span class="status-text warning">Inconsistent Results</span>
+              <div class="status-warning">
+                <Icon name="alert-circle" size="xs" />
+                <span class="status-text">Inconsistent Results</span>
+              </div>
             {/if}
           </div>
         </div>
         <button class="copy-btn" onclick={copyAllResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <div class={copiedState ? "status-success" : ""}>
+            <Icon name={copiedState ? "check" : "copy"} size="xs" />
+          </div>
           {copiedState ? "Copied!" : "Copy All Results"}
         </button>
       </div>
@@ -221,7 +238,7 @@
             {@const status = getStatusColor(result)}
             {@const icon = getStatusIcon(result)}
             
-            <div class="resolver-card {status}">
+            <div class="resolver-card card {status}">
               <div class="resolver-header">
                 <div class="resolver-info">
                   <Icon name={icon} size="sm" />
@@ -309,15 +326,21 @@
           <h4>Interpreting Results</h4>
           <div class="status-legend">
             <div class="legend-item">
-              <Icon name="check-circle" size="xs" class="text-green-500" />
+              <div class="status-success">
+                <Icon name="check-circle" size="xs" />
+              </div>
               <span><strong>Fully Propagated:</strong> All resolvers return identical results</span>
             </div>
             <div class="legend-item">
-              <Icon name="alert-circle" size="xs" class="text-orange-500" />
+              <div class="status-warning">
+                <Icon name="alert-circle" size="xs" />
+              </div>
               <span><strong>Inconsistent:</strong> Different resolvers return different results</span>
             </div>
             <div class="legend-item">
-              <Icon name="x-circle" size="xs" class="text-red-500" />
+              <div class="status-error">
+                <Icon name="x-circle" size="xs" />
+              </div>
               <span><strong>Error:</strong> Resolver failed to respond or returned an error</span>
             </div>
           </div>
@@ -341,6 +364,19 @@
 
 <style lang="scss">
   // Page-specific styles not covered by shared diagnostics-pages.scss
+
+
+.resolvers-grid {
+  gap: var(--spacing-md);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  .resolver-card {
+    width: 100%;
+    padding: var(--spacing-sm);
+  }
+}
+
+
 
   .form-group {
     label {
@@ -386,6 +422,35 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
+  }
+
+  // Status color classes
+  .status-success {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--color-success);
+  }
+
+  .status-warning {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--color-warning);
+  }
+
+  .status-error {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--color-error);
+  }
+
+  .status-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--color-primary);
   }
 
   .resolver-header {
@@ -479,24 +544,5 @@
     font-family: var(--font-mono);
   }
 
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .text-green-500 {
-    color: var(--color-success);
-  }
-
-  .text-orange-500 {
-    color: var(--color-warning);
-  }
-
-  .text-red-500 {
-    color: var(--color-error);
-  }
 </style>

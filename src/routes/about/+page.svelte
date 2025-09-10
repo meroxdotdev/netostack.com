@@ -22,6 +22,9 @@
       Networking Toolbox is a collection of free, open-source networking utilities designed to simplify common network-related tasks for system administrators and network engineers.
       <i>Because copy-pasting IPs into random websites is soooo 2010</i>
     </p>
+    <p>
+      This page contains all the relevant information about this project, how to use it, deploy it, edit it, contribute to it, and more.
+    </p>
     <!-- Links #1: GitHub -->
     <!-- Links #1: Live Demo, DockerHub, CodeBerg Mirror, Sponsor, More Apps -->
      <h3>On this page</h3>
@@ -140,10 +143,15 @@
    <!-- Section 5: Actual About -->
    <section id="about">
     <h2>About Networking Toolbox</h2>
-    <h3>Motive</h3>
+    <h3>What</h3>
     <p>
-      I built this, because these are basic networking tasks that I find myself doing frequently, yet nothing existing on the web quite fit my use case.
-      
+      Networking Toolbox is an all-in-one suite of 100+ networking utilities,
+      designed to make common network-related tasks easier and more efficient.
+    </p>
+    <h3>Why</h3>
+    <p>
+      My motive for building this, is that these are basic networking tasks that
+      I find myself doing frequently, yet nothing existing on the web quite fit my use case.
       <br><br>
       Some websites came close, but I dislike ads, paywalls, tracking, and clunky UIs. And most importantly, I wanted a single place with all the tools I needed.
       And often when I needed these utilities, it was because I was working on a server without internet access, so I needed something with offline functionality.
@@ -151,6 +159,21 @@
       <br>
       Then, I wanted to help make life <i>slightly</i> easier for sysadmins, so I've polished, tested, documented and open sourced this project.
       It can now be used by anyone, anywhere, anytime. Totally free either at <a href="#-">networking-toolbox.net</a> or self-hosted.
+    </p>
+    <h3>Where</h3>
+    <p>
+      I am running a free, public instance at <a href="https://networking-toolbox.net" target="_blank" rel="noopener noreferrer">networking-toolbox.net</a>,
+      which you're free to use (for commercial and personal use), however you like. There's no tracking, no ads, no paywall, no bs.
+      <br><br>
+      You can also self-host it on your own server, using Docker or any static hosting provider
+    </p>
+    <h3>How</h3>
+    <p>
+      This project is built with <a href="https://svelte.dev" target="_blank" rel="noopener noreferrer">SvelteKit</a> and
+      <a href="https://www.typescriptlang.org" target="_blank" rel="noopener noreferrer">TypeScript</a>.
+      It's a static web app, that can be deployed anywhere, including serverless platforms like Vercel or Netlify.
+      It can also be self-hosted using Docker or any static hosting provider.
+  
     </p>
    </section>
 
@@ -173,6 +196,12 @@
       </div>
       <img class="profile-photo" src="{author.avatar}" alt="{author.name}" width="128" />
     </div>
+    <p>
+      Pretty much everything I build is free to use, open source, and without ads, tracking or paywalls.
+      But running these projects does cost money. And maintaining them takes time.
+      So, if you've found this app useful, please consider <a href="{author.sponsor}" target="_blank" rel="noopener noreferrer">sponsoring me</a>.
+      My sponsors mean the world to me, and it helps cover my hosting costs.
+    </p>
     <!-- About, more apps, sponsor -->
    </section>
 
