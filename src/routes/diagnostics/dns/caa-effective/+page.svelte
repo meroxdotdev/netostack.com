@@ -243,7 +243,7 @@
   <!-- Results -->
   {#if results}
     <div class="card results-card">
-      <div class="card-header">
+      <div class="card-header row">
         <h3>CAA Policy Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
           <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />

@@ -217,7 +217,7 @@
   {#if results && !results.error}
     {@const status = getLookupStatus()}
     <div class="card results-card">
-      <div class="card-header">
+      <div class="card-header row">
         <h3>SPF Evaluation Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
           <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
@@ -417,9 +417,13 @@
 </div>
 
 <style lang="scss">
-  // Page-specific styles - shared styles removed
+  
+  .record-display code {
+    background: var(--bg-primary);
+    padding: var(--spacing-sm);
+    display: block;
+  }
 
-  // Form group layout override for SPF evaluator
   .form-group {
     label {
       flex-direction: column;

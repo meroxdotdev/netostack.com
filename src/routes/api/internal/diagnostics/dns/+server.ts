@@ -345,7 +345,10 @@ async function checkDMARC(domain: string): Promise<any> {
   try {
     const dmarcDomain = `_dmarc.${domain}`;
     const result = await performDNSLookup(dmarcDomain, 'TXT');
-    const dmarcRecord = result.Answer?.find((record: any) => record.data.startsWith('v=DMARC1'));
+    const dmarcRecord = result.Answer?.find((record: any) => {
+      const cleanData = record.data.replace(/^"(.*)"$/, '$1'); // Remove surrounding quotes
+      return cleanData.startsWith('v=DMARC1');
+    });
     
     if (!dmarcRecord) {
       return { 
@@ -355,7 +358,7 @@ async function checkDMARC(domain: string): Promise<any> {
       };
     }
     
-    const policy = dmarcRecord.data;
+    const policy = dmarcRecord.data.replace(/^"(.*)"$/, '$1'); // Clean the policy data
     const parsed = {
       policy: policy.match(/p=([^;]+)/)?.[1],
       subdomainPolicy: policy.match(/sp=([^;]+)/)?.[1],

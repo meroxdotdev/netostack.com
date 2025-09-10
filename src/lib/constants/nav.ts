@@ -665,6 +665,51 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           keywords: ['http', 'performance', 'timing', 'dns', 'tcp', 'tls', 'ttfb', 'metrics', 'analyzer']
         }
       ]
+    },
+    {
+      title: 'TLS Diagnostics',
+      items: [
+        {
+          href: '/diagnostics/tls/certificate',
+          label: 'TLS Certificate Analyzer',
+          description: 'Analyze TLS certificates, view certificate chains, check expiration dates, and examine Subject Alternative Names',
+          icon: 'tls-cert',
+          keywords: ['tls', 'certificate', 'analyzer', 'chain', 'expiry', 'san', 'ssl', 'x509', 'fingerprint']
+        },
+        {
+          href: '/diagnostics/tls/versions',
+          label: 'TLS Versions Probe',
+          description: 'Test which TLS protocol versions a server supports and assess overall security posture',
+          icon: 'tls-version',
+          keywords: ['tls', 'versions', 'probe', 'security', 'protocol', 'support', 'deprecated', 'assessment']
+        },
+        {
+          href: '/diagnostics/tls/alpn',
+          label: 'TLS ALPN Negotiation',
+          description: 'Test Application-Layer Protocol Negotiation to see which protocol a server selects (HTTP/2, HTTP/3)',
+          icon: 'tls-alpn',
+          keywords: ['tls', 'alpn', 'negotiation', 'http2', 'http3', 'protocol', 'handshake', 'application']
+        }
+      ]
+    },
+    {
+      title: 'Network Diagnostics',
+      items: [
+        {
+          href: '/diagnostics/network/tcp-port-check',
+          label: 'TCP Port Checker',
+          description: 'Test TCP connectivity to host:port combinations and measure connection latency',
+          icon: 'network-port',
+          keywords: ['tcp', 'port', 'check', 'connectivity', 'latency', 'open', 'closed', 'firewall', 'scan']
+        },
+        {
+          href: '/diagnostics/network/http-ping',
+          label: 'HTTP Ping',
+          description: 'Measure HTTP/HTTPS response latency with statistical analysis (median, p95) without raw ICMP',
+          icon: 'network-ping',
+          keywords: ['http', 'ping', 'latency', 'response', 'time', 'statistics', 'median', 'p95', 'web', 'api']
+        }
+      ]
     }
   ],
   '/reference': [

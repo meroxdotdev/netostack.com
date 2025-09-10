@@ -228,7 +228,7 @@
       <div class="action-section">
         <button class="check-btn lookup-btn" onclick={checkDMARC} disabled={loading || !domain.trim()}>
           {#if loading}
-            <Icon name="loader-2" size="sm" class="animate-spin" />
+            <Icon name="loader-2" size="sm" animate="spin" />
             Checking DMARC...
           {:else}
             <Icon name="shield-check" size="sm" />
@@ -238,6 +238,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- Results -->
   {#if results && results.hasRecord}
@@ -250,9 +251,10 @@
         </button>
       </div>
       <div class="card-content">
-        {#if results && results.hasRecord}
+        <!-- Status Overview -->
+        {#if results.parsed}
           {@const issues = getIssues()}
-          <!-- Status Overview -->
+          {@const parsed = results.parsed}
           <div class="status-overview">
             <div class="status-item {issues.length === 0 ? 'success' : issues.some(i => i.severity === 'high') ? 'error' : 'warning'}">
               <Icon name={issues.length === 0 ? 'shield-check' : issues.some(i => i.severity === 'high') ? 'shield-x' : 'shield-alert'} size="md" />
@@ -276,22 +278,19 @@
               </div>
             </div>
           </div>
-        {/if}
 
-        <!-- Original Record -->
-        {#if results.record}
-          <div class="record-section">
-            <h4>DMARC Record</h4>
-            <div class="record-display">
-              <div class="record-location">_dmarc.{domain}</div>
-              <code>{results.record}</code>
+          <!-- Original Record -->
+          {#if results.record}
+            <div class="record-section">
+              <h4>DMARC Record</h4>
+              <div class="record-display">
+                <div class="record-location">_dmarc.{domain}</div>
+                <code>{results.record}</code>
+              </div>
             </div>
-          </div>
-        {/if}
+          {/if}
 
-        <!-- Parsed Policy -->
-        {#if results.parsed}
-          {@const parsed = results.parsed}
+          <!-- Parsed Policy -->
           <div class="policy-section">
             <h4>Policy Configuration</h4>
             <div class="policy-grid">
@@ -454,7 +453,7 @@
 
   <!-- No Record Found (but not an error) -->
   {#if results && results.hasRecord === false}
-    <div class="card warning-card">
+    <div class="card warning-card none-found">
       <div class="card-content">
         <div class="warning-content">
           <Icon name="info" size="md" />
@@ -540,8 +539,9 @@
 </div>
 
 <style lang="scss">
-  // Page-specific styles - shared styles removed
-  // Use shared .lookup-btn instead of .check-btn
+  .none-found {
+    margin: var(--spacing-md) 0 var(--spacing-lg);
+  }
 
   .action-section {
     display: flex;

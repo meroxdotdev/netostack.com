@@ -84,7 +84,7 @@
   
   function getStatusIcon(result: any): string {
     if (result.error) return 'x-circle';
-    if (!result.result?.Answer?.length) return 'alert-circle';
+    if (!result.result?.Answer?.length) return 'alert-triangle';
     return 'check-circle';
   }
   
@@ -193,7 +193,7 @@
       <div class="action-section">
         <button class="check-btn" onclick={checkPropagation} disabled={loading || !domainName.trim()}>
           {#if loading}
-            <Icon name="loader-2" size="sm" class="animate-spin" />
+            <Icon name="loader-2" size="sm" animate="spin" />
             Checking Propagation...
           {:else}
             <Icon name="globe" size="sm" />
@@ -454,7 +454,7 @@
   }
 
   .resolver-header {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     border-bottom: 1px solid var(--border-color);
   }
 
@@ -478,7 +478,17 @@
   }
 
   .resolver-content {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    .no-records {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      width: 100%;
+      justify-content: center;
+      margin-bottom: var(--spacing-sm);
+      font-size: var(--font-size-md);
+      color: var(--color-info)
+    }
   }
 
   .records {

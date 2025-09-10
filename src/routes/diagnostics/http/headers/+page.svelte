@@ -252,7 +252,7 @@
   <!-- Results -->
   {#if results}
     <div class="card results-card">
-      <div class="card-header">
+      <div class="card-header row">
         <h3>HTTP Response Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
           <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
@@ -292,7 +292,7 @@
         </div>
 
         <!-- Response Headers -->
-        <div class="record-section">
+        <div class="record-section card">
           <h4>Response Headers</h4>
           <div class="records-list">
             {#each Object.entries(results.headers) as [name, value]}
@@ -306,7 +306,7 @@
         </div>
 
         {#if results.timings}
-          <div class="record-section">
+          <div class="record-section card">
             <h4>Performance Timing</h4>
             <div class="records-list">
               <div class="record-item">
