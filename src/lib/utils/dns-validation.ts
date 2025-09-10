@@ -1,5 +1,10 @@
 // DNS validation and utility functions
 
+export interface SimpleValidationResult {
+  isValid: boolean;
+  error?: string;
+}
+
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
@@ -468,4 +473,146 @@ function estimateRecordDataSize(record: DNSRecord): number {
     case 'caa': return 2 + record.value.length;
     default: return record.value.length + 10; // Estimate
   }
+}
+
+// Simple validation functions for diagnostic tools
+export function isValidDomainName(domain: string): boolean {
+  if (!domain || domain.trim().length === 0) return false;
+  
+  const trimmed = domain.trim();
+  
+  // Check length limits (RFC 1035)
+  if (trimmed.length > 253) return false;
+  
+  // Allow underscores for DNS records like _dmarc, _spf
+  const domainRegex = /^(?:[a-zA-Z0-9_](?:[a-zA-Z0-9_-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9_](?:[a-zA-Z0-9_-]{0,61}[a-zA-Z0-9])?\.?$/;
+  
+  if (!domainRegex.test(trimmed)) return false;
+  
+  // Check individual labels (max 63 bytes each)
+  const labels = trimmed.split('.');
+  if (labels.some(label => label.length > 63)) return false;
+  
+  return true;
+}
+
+export function isValidIPAddress(ip: string): boolean {
+  if (!ip || ip.trim().length === 0) return false;
+  
+  const trimmed = ip.trim();
+  
+  // IPv4 validation
+  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  if (ipv4Regex.test(trimmed)) return true;
+  
+  // IPv6 validation (comprehensive)
+  const ipv6Full = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+  const ipv6Compressed = /^(?:[0-9a-fA-F]{1,4}:)*::(?:[0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:)*::[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:)*::$/;
+  const ipv6Loopback = /^::1$/;
+  const ipv6Any = /^::$/;
+  
+  return ipv6Full.test(trimmed) || ipv6Compressed.test(trimmed) || ipv6Loopback.test(trimmed) || ipv6Any.test(trimmed);
+}
+
+export function validateDNSLookupInput(domain: string, useCustomResolver: boolean = false, customResolver: string = ''): SimpleValidationResult {
+  const trimmedDomain = domain.trim();
+  
+  if (!trimmedDomain) {
+    return { isValid: false, error: 'Domain name is required' };
+  }
+  
+  if (!isValidDomainName(trimmedDomain)) {
+    return { 
+      isValid: false, 
+      error: 'Invalid domain name format. Use valid domain names like "example.com"' 
+    };
+  }
+  
+  if (useCustomResolver) {
+    const trimmedResolver = customResolver.trim();
+    
+    if (!trimmedResolver) {
+      return { 
+        isValid: false, 
+        error: 'Custom DNS resolver IP address is required when custom resolver is selected' 
+      };
+    }
+    
+    if (!isValidIPAddress(trimmedResolver)) {
+      return { 
+        isValid: false, 
+        error: 'Invalid DNS resolver IP address. Use valid IPv4 (8.8.8.8) or IPv6 addresses' 
+      };
+    }
+  }
+  
+  return { isValid: true };
+}
+
+export function validateReverseLookupInput(ipAddress: string, useCustomResolver: boolean = false, customResolver: string = ''): SimpleValidationResult {
+  const trimmedIP = ipAddress.trim();
+  
+  if (!trimmedIP) {
+    return { isValid: false, error: 'IP address is required' };
+  }
+  
+  if (!isValidIPAddress(trimmedIP)) {
+    return { 
+      isValid: false, 
+      error: 'Invalid IP address format. Use valid IPv4 (8.8.8.8) or IPv6 addresses' 
+    };
+  }
+  
+  if (useCustomResolver) {
+    const trimmedResolver = customResolver.trim();
+    
+    if (!trimmedResolver) {
+      return { 
+        isValid: false, 
+        error: 'Custom DNS resolver IP address is required when custom resolver is selected' 
+      };
+    }
+    
+    if (!isValidIPAddress(trimmedResolver)) {
+      return { 
+        isValid: false, 
+        error: 'Invalid DNS resolver IP address. Use valid IPv4 (8.8.8.8) or IPv6 addresses' 
+      };
+    }
+  }
+  
+  return { isValid: true };
+}
+
+export function formatDNSError(error: any): string {
+  if (typeof error === 'string') return error;
+  
+  if (error?.name === 'TypeError' && error.message.includes('fetch')) {
+    return 'Network error. Please check your connection and try again.';
+  }
+  
+  if (error?.message) {
+    // Clean up common DNS error messages
+    let message = error.message;
+    
+    if (message.includes('ENOTFOUND')) {
+      return 'Domain not found. Please check the domain name and try again.';
+    }
+    
+    if (message.includes('ENODATA')) {
+      return 'No records found for this query. The domain may not have the requested record type.';
+    }
+    
+    if (message.includes('ETIMEOUT') || message.includes('timeout')) {
+      return 'DNS lookup timed out. Please try again or use a different DNS resolver.';
+    }
+    
+    if (message.includes('ECONNREFUSED')) {
+      return 'DNS server connection refused. Please try a different DNS resolver.';
+    }
+    
+    return message;
+  }
+  
+  return 'An unexpected error occurred during DNS lookup.';
 }

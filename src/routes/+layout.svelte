@@ -3,6 +3,7 @@
 	import '../styles/variables.scss';
 	import '../styles/components.scss';
 	import '../styles/ref-pages.scss';
+	import '../styles/diagnostics-pages.scss';
 	import favicon from '$lib/assets/favicon.svg';
 
   

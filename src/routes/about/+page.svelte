@@ -19,39 +19,40 @@
   <div class="hero">
     <h2>About {site.title}</h2>
     <p class="lead">
-      A comprehensive suite of networking tools designed for professionals, students, 
-      and anyone working with IP addresses and network configurations.
+      Networking Toolbox is a collection of free, open-source networking utilities designed to simplify common network-related tasks for system administrators and network engineers.
+      <i>Because copy-pasting IPs into random websites is soooo 2010</i>
     </p>
     <!-- Links #1: GitHub -->
     <!-- Links #1: Live Demo, DockerHub, CodeBerg Mirror, Sponsor, More Apps -->
+     <h3>On this page</h3>
+     <ul>
+        <li><a href="#api">API</a></li>
+        <li><a href="#self-hosting">Self-Hosting</a></li>
+        <li><a href="#building">Developing</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#author">Author</a></li>
+        <li><a href="#license">License</a></li>
+        <li><a href="#more-apps">More Apps</a></li>
+     </ul>
+
+     <h3>External links</h3>
+     <ul>
+      <li><a href="{site.repo}">Source on GitHub</a></li>
+      <li><a href="{site.repo}">CodeBerg mirror</a></li>
+      <li><a href="{site.repo}">DockerHub</a></li>
+      <li><a href="{site.repo}">More apps...</a></li>
+     </ul>
   </div>
   
 
   <!-- Section 1: Features -->
-  <section class="features-section">
+  <section id="features" class="features-section">
     <h2>Features</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <h4>Subnet Calculator</h4>
-        <p>Calculate subnet information, network addresses, broadcast addresses, and host ranges with visual network analysis.</p>
-      </div>
-      <div class="feature-card">
-        <h4>CIDR Converter</h4>
-        <p>Bidirectional conversion between CIDR notation and subnet mask formats with instant results.</p>
-      </div>
-      <div class="feature-card">
-        <h4>IP Address Converter</h4>
-        <p>Convert IP addresses between decimal, binary, hexadecimal, and octal number systems.</p>
-      </div>
-      <div class="feature-card">
-        <h4>Network Reference</h4>
-        <p>Comprehensive reference for network classes, reserved IP ranges, and common subnet configurations.</p>
-      </div>
-    </div>
+
   </section>
 
   <!-- Section 2: API -->
-   <section>
+   <section id="api">
     <h2>API</h2>
     <p>
       Yes, we have an API! It's free to use, doesn't require an API key nor CORS.
@@ -59,7 +60,7 @@
    </section>
 
   <!-- Section 3: Self-Hosting -->
-   <section>
+   <section id="self-hosting">
     <h2>Self-Hosting</h2>
     <p>
       {site.title} can be easily deployed to your own server. 
@@ -75,7 +76,7 @@
    </section>
 
   <!-- Section 4: Building -->
-   <section>
+   <section id="building">
     <h2>Building from Source</h2>
     <h3>Prerequisites</h3>
     <p>
@@ -137,7 +138,7 @@
 
    
    <!-- Section 5: Actual About -->
-   <section>
+   <section id="about">
     <h2>About Networking Toolbox</h2>
     <h3>Motive</h3>
     <p>
@@ -154,7 +155,7 @@
    </section>
 
   <!-- Section 6: Author -->
-   <section>
+   <section id="author">
     <h2>Author</h2>
     <div class="author-section">
       <div class="author-bio">
@@ -176,12 +177,12 @@
    </section>
 
    <!-- Section 7: License -->
-   <section>
+   <section id="license">
     <h2>License</h2>
    </section>
 
    <!-- Section 8: More Apps -->
-   <section>
+   <section id="more-apps">
     <h2>More Apps</h2>
     <p>
       If you've found this app useful, you might also like some of my other projects:
@@ -200,44 +201,7 @@
     </ul>
   </section>
 
-  <section class="author-section">
-    <h3>About the Author</h3>
-    <p>
-      {site.title} is developed and maintained by <a href="{author.githubUrl}" target="_blank" rel="noopener noreferrer">{author.name}</a>, 
-      a software engineer passionate about networking, cybersecurity, and open-source development.
-    </p>
-    <div class="links-grid">
-      <a href="{site.repo}" target="_blank" rel="noopener noreferrer" class="link-card">
-        <svg fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-        </svg>
-        <div>
-          <h4>GitHub Repository</h4>
-          <p>View source code and contribute</p>
-        </div>
-      </a>
-      <a href="{author.portfolio}" target="_blank" rel="noopener noreferrer" class="link-card">
-        <svg fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-        </svg>
-        <div>
-          <h4>Author's Website</h4>
-          <p>Learn more about the developer</p>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <section class="license-section">
-    <h3>Open Source</h3>
-    <p>
-      {site.title} is open-source software licensed under the {license.name} License. 
-      Feel free to use, modify, and distribute according to the license terms.
-    </p>
-    <p class="copyright">
-      © {license.date} {author.name}. All rights reserved.
-    </p>
-  </section>
+  
 </div>
 
 
@@ -304,17 +268,15 @@ ul {
   }
 }
 
-.hero-section {
-  text-align: center;
-  padding: var(--spacing-xl) 0;
-  
+.hero {
+  margin-bottom: var(--spacing-xl);  
   h2 {
     font-size: var(--font-size-2xl);
     margin-bottom: var(--spacing-lg);
   }
   
   .lead {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-md);
     color: var(--text-secondary);
   }
 }

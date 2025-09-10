@@ -21,6 +21,7 @@ export const TOP_NAV: NavItem[] = [
   { href: '/cidr', label: 'CIDR Convert' },
   { href: '/ip-address-convertor', label: 'IP Tools' },
   { href: '/dns', label: 'DNS Tools' },
+  { href: '/diagnostics', label: 'Diagnostics' },
   { href: '/reference', label: 'Reference' }
 ];
 
@@ -566,6 +567,62 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           description: 'Suggest RRSIG validity windows (inception/expiration) based on TTLs and desired overlap, with renewal lead-time guidance',
           icon: 'dns-rrsig',
           keywords: ['dnssec', 'rrsig', 'planner', 'validity', 'windows', 'inception', 'expiration', 'ttl', 'overlap', 'renewal']
+        }
+      ]
+    }
+  ],
+  '/diagnostics': [
+    {
+      title: 'DNS Diagnostics',
+      items: [
+        {
+          href: '/diagnostics/dns/lookup',
+          label: 'DNS Lookup',
+          description: 'Resolve DNS records (A, AAAA, CNAME, MX, TXT, NS, SOA, CAA) using various public resolvers or custom DNS servers',
+          icon: 'dns-lookup',
+          keywords: ['dns', 'lookup', 'resolver', 'a', 'aaaa', 'cname', 'mx', 'txt', 'ns', 'soa', 'caa', 'query']
+        },
+        {
+          href: '/diagnostics/dns/reverse-lookup',
+          label: 'Reverse DNS Lookup',
+          description: 'Perform reverse DNS lookups (PTR records) for IPv4 and IPv6 addresses with automatic zone formatting',
+          icon: 'dns-reverse',
+          keywords: ['dns', 'reverse', 'ptr', 'lookup', 'ipv4', 'ipv6', 'in-addr.arpa', 'ip6.arpa', 'hostname']
+        },
+        {
+          href: '/diagnostics/dns/propagation',
+          label: 'DNS Propagation Checker',
+          description: 'Check DNS record propagation across multiple public resolvers (Cloudflare, Google, Quad9, OpenDNS)',
+          icon: 'dns-propagation',
+          keywords: ['dns', 'propagation', 'check', 'cloudflare', 'google', 'quad9', 'opendns', 'consistency', 'global']
+        },
+        {
+          href: '/diagnostics/dns/spf-evaluator',
+          label: 'SPF Record Evaluator',
+          description: 'Analyze SPF records with recursive expansion of includes/redirects and DNS lookup limit tracking',
+          icon: 'dns-spf-eval',
+          keywords: ['spf', 'evaluator', 'recursive', 'includes', 'redirects', 'dns', 'lookups', 'sender', 'policy']
+        },
+        {
+          href: '/diagnostics/dns/dmarc-check',
+          label: 'DMARC Policy Checker',
+          description: 'Analyze DMARC policies, check alignment settings, and identify configuration issues',
+          icon: 'dns-dmarc-check',
+          keywords: ['dmarc', 'policy', 'check', 'alignment', 'quarantine', 'reject', 'rua', 'ruf', 'analysis']
+        },
+        {
+          href: '/diagnostics/dns/caa-effective',
+          label: 'CAA Effective Policy',
+          description: 'Walk domain label chain to find effective CAA policies for certificate authority authorization',
+          icon: 'dns-caa-check',
+          keywords: ['caa', 'effective', 'policy', 'certificate', 'authority', 'authorization', 'chain', 'domain', 'ssl']
+        },
+        {
+          href: '/diagnostics/dns/ns-soa-check',
+          label: 'NS/SOA Consistency Check',
+          description: 'Verify nameserver resolution and analyze SOA record parameters for DNS configuration health',
+          icon: 'dns-ns-soa',
+          keywords: ['ns', 'soa', 'nameserver', 'consistency', 'check', 'resolution', 'parameters', 'health', 'serial']
         }
       ]
     }
