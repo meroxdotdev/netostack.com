@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import '../styles/base.scss';
 	import '../styles/variables.scss';
 	import '../styles/components.scss';
@@ -39,7 +40,7 @@
     }
   }
 
-  $effect(() => {
+  onMount(() => {
     initializeTheme();
   });
 </script>

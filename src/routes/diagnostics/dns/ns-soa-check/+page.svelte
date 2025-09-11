@@ -211,7 +211,7 @@
   <!-- Results -->
   {#if results && !results.error}
     <div class="card results-card">
-      <div class="card-header">
+      <div class="card-header row">
         <h3>NS/SOA Analysis Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
           <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
@@ -544,7 +544,7 @@
   }
 
   .nameservers-section, .soa-section, .recommendations-section {
-    margin-bottom: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
 
     h4, h5 {
       color: var(--text-primary);
@@ -565,7 +565,8 @@
     padding: var(--spacing-md);
 
     &.success {
-      border-color: var(--color-success);
+      
+      border-color: var(--border-primary);
     }
 
     &.error {
@@ -615,10 +616,10 @@
 
   // SOA display uses shared record-display styles  
   .soa-display {
-    // @extend .record-display;
-    
     code {
       display: block;
+      padding: var(--spacing-sm);
+      background: var(--bg-secondary);
     }
   }
 
@@ -664,34 +665,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
-  }
-
-  .recommendation-item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-md);
-    border-radius: var(--radius-md);
-    border-left: 4px solid;
-    font-size: var(--font-size-sm);
-
-    &.success {
-      background: var(--bg-success);
-      border-color: var(--color-success);
-      color: var(--text-success);
-    }
-
-    &.warning {
-      background: var(--bg-warning);
-      border-color: var(--color-warning);
-      color: var(--text-warning);
-    }
-
-    &.error {
-      background: var(--bg-error);
-      border-color: var(--color-error);
-      color: var(--text-error);
-    }
   }
 
   // Educational content specific to NS/SOA

@@ -4,6 +4,7 @@
   import { site } from '$lib/constants/site';
   import favicon from '$lib/assets/favicon.svg';
   import Icon from '$lib/components/global/Icon.svelte';
+  import GlobalSearch from '$lib/components/global/GlobalSearch.svelte';
   import BurgerMenu from '$lib/components/furniture/BurgerMenu.svelte';
 
   // Props from +layout for theme state & toggler
@@ -45,6 +46,8 @@
         </nav>
 
         <div class="header-buttons">
+          <GlobalSearch />
+          
           <button 
             class="theme-toggle"
             class:dark={darkMode}

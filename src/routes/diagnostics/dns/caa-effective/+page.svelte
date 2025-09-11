@@ -305,8 +305,21 @@
           {/if}
         </div>
 
+        <!-- Single Level Info -->
+        {#if results.chain?.length === 1 && results.effective}
+          <div class="chain-section">
+            <div class="single-level-info">
+              <Icon name="info" size="sm" />
+              <div>
+                <h5>Top-level CAA Policy</h5>
+                <p>CAA records found directly on <code>{results.effective.domain}</code> - no domain tree traversal required.</p>
+              </div>
+            </div>
+          </div>
+        {/if}
+
         <!-- Domain Chain -->
-        {#if results.chain?.length > 0}
+        {#if results.chain?.length > 1}
           <div class="chain-section">
             <h4>CAA Lookup Chain</h4>
             <p class="chain-description">
@@ -587,6 +600,35 @@
     .implication {
       font-weight: 500;
       color: var(--color-warning) !important;
+    }
+  }
+
+  .single-level-info {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    
+    h5 {
+      margin: 0 0 var(--spacing-xs) 0;
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+    }
+    
+    p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: var(--font-size-xs);
+      
+      code {
+        background: var(--bg-primary);
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: var(--font-mono);
+      }
     }
   }
 

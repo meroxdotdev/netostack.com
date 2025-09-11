@@ -9,6 +9,8 @@
   export let isOpen = false;
 
   let menuElement: HTMLElement;
+  let menuContentElement: HTMLElement;
+  let focusableElements: HTMLElement[] = [];
 
   // Close menu when clicking outside
   function handleClickOutside(event: MouseEvent) {
@@ -17,11 +19,60 @@
     }
   }
 
-  // Close menu on escape key
+  // Close menu on escape key and handle tab trapping
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape' && isOpen) {
       isOpen = false;
+      return;
     }
+    
+    // Tab trapping when menu is open
+    if (event.key === 'Tab' && isOpen) {
+      trapFocus(event);
+    }
+  }
+
+  // Focus trapping for accessibility
+  function trapFocus(event: KeyboardEvent) {
+    if (!menuContentElement) return;
+    
+    const focusableSelector = 'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])';
+    focusableElements = Array.from(menuContentElement.querySelectorAll(focusableSelector));
+    
+    if (focusableElements.length === 0) return;
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    if (event.shiftKey) {
+      // Shift + Tab
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      // Tab
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  }
+
+  // Update focusable elements tabindex based on menu state
+  function updateTabIndexes() {
+    if (!menuContentElement) return;
+    
+    const focusableSelector = 'a[href], button, input, textarea, select';
+    const elements = menuContentElement.querySelectorAll(focusableSelector);
+    
+    elements.forEach((element) => {
+      if (isOpen) {
+        element.removeAttribute('tabindex');
+      } else {
+        element.setAttribute('tabindex', '-1');
+      }
+    });
   }
 
   // Toggle menu
@@ -70,12 +121,23 @@
     };
   });
 
-  // Prevent body scroll when menu is open
+  // Handle menu state changes - body scroll and focus management
   $: if (typeof document !== 'undefined') {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      updateTabIndexes();
+      // Focus the first focusable element when menu opens
+      setTimeout(() => {
+        if (menuContentElement) {
+          const firstFocusable = menuContentElement.querySelector('a[href], button') as HTMLElement;
+          if (firstFocusable) {
+            firstFocusable.focus();
+          }
+        }
+      }, 100); // Small delay to allow animation to start
     } else {
       document.body.style.overflow = '';
+      updateTabIndexes();
     }
   }
 </script>
@@ -106,6 +168,7 @@
     class:open={isOpen}
     id="mobile-menu"
     aria-label="Mobile navigation"
+    bind:this={menuContentElement}
   >
     <div class="menu-header">
       <a href="/" class="home-link" on:click={handleLinkClick} aria-label="Home">
@@ -275,24 +338,39 @@
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   z-index: 998;
-  animation: fadeIn var(--transition-fast) ease-out;
+  opacity: 0;
+  animation: fadeIn var(--transition-medium) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .menu-content {
   position: fixed;
   top: 0;
   right: -100%;
-  width: min(90vw, 400px);
+  width: 100vw;
   height: 100vh;
   background-color: var(--bg-primary);
   border-left: 1px solid var(--border-primary);
   box-shadow: var(--shadow-xl);
   z-index: 999;
   overflow-y: auto;
-  transition: right var(--transition-medium) ease-out;
+  transition: right var(--transition-medium) cubic-bezier(0.4, 0, 0.2, 1);
+  
+  @media (min-width: 480px) {
+    width: min(90vw, 400px);
+  }
   
   &.open {
     right: 0;
+    
+    .menu-item {
+      animation: slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    .menu-section:nth-child(1) .menu-item { animation-delay: 0.1s; }
+    .menu-section:nth-child(2) .menu-item { animation-delay: 0.15s; }
+    .menu-section:nth-child(3) .menu-item { animation-delay: 0.2s; }
+    .menu-section:nth-child(4) .menu-item { animation-delay: 0.25s; }
+    .menu-section:nth-child(5) .menu-item { animation-delay: 0.3s; }
   }
 }
 
@@ -413,6 +491,8 @@
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
   margin-bottom: var(--spacing-xs);
+  opacity: 0;
+  transform: translateX(20px);
   
   &:hover {
     background-color: var(--surface-hover);
@@ -454,6 +534,17 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 

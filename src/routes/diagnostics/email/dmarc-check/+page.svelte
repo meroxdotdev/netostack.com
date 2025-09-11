@@ -3,7 +3,7 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
   
-  let domain = $state('google.com');
+  let domain = $state('gmail.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
@@ -11,12 +11,12 @@
   let selectedExampleIndex = $state<number | null>(null);
   
   const examples = [
-    { domain: 'google.com', description: 'Google DMARC policy' },
+    { domain: 'gmail.com', description: 'Google Gmail DMARC policy' },
+    { domain: 'outlook.com', description: 'Microsoft Outlook DMARC setup' },
     { domain: 'github.com', description: 'GitHub enterprise DMARC' },
-    { domain: 'microsoft.com', description: 'Microsoft DMARC configuration' },
     { domain: 'paypal.com', description: 'PayPal strict DMARC policy' },
     { domain: 'amazon.com', description: 'Amazon DMARC implementation' },
-    { domain: 'salesforce.com', description: 'Salesforce DMARC setup' }
+    { domain: 'salesforce.com', description: 'Salesforce DMARC configuration' }
   ];
   
   async function checkDMARC() {
@@ -25,7 +25,7 @@
     results = null;
     
     try {
-      const response = await fetch('/api/internal/diagnostics/dns', {
+      const response = await fetch('/api/internal/diagnostics/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -65,77 +65,21 @@
     }
   }
   
+  function getPolicyIcon(policy: string): string {
+    switch (policy) {
+      case 'reject': return 'shield-check';
+      case 'quarantine': return 'shield-alert';
+      case 'none': return 'shield-x';
+      default: return 'shield';
+    }
+  }
+  
   function getAlignmentColor(alignment: string): string {
     switch (alignment) {
-      case 's': return 'success'; // strict
-      case 'r': return 'warning'; // relaxed
+      case 's': return 'success';
+      case 'r': return 'warning';
       default: return 'secondary';
     }
-  }
-  
-  function getSeverityColor(severity: 'high' | 'medium' | 'low'): string {
-    switch (severity) {
-      case 'high': return 'error';
-      case 'medium': return 'warning';
-      case 'low': return 'success';
-      default: return 'secondary';
-    }
-  }
-  
-  function getIssues(): Array<{message: string, severity: 'high' | 'medium' | 'low'}> {
-    if (!results?.parsed) return [];
-    
-    const issues: Array<{message: string, severity: 'high' | 'medium' | 'low'}> = [];
-    const parsed = results.parsed;
-    
-    // Policy issues
-    if (parsed.policy === 'none') {
-      issues.push({
-        message: 'Policy is set to "none" - no action taken on DMARC failures',
-        severity: 'high'
-      });
-    }
-    
-    // Alignment issues
-    if (parsed.alignment.dkim === 'r' && parsed.alignment.spf === 'r') {
-      issues.push({
-        message: 'Both DKIM and SPF alignment are relaxed - consider strict alignment',
-        severity: 'medium'
-      });
-    }
-    
-    // Reporting issues
-    if (!parsed.reporting.aggregate) {
-      issues.push({
-        message: 'No aggregate reporting address (rua) specified',
-        severity: 'medium'
-      });
-    }
-    
-    if (!parsed.reporting.forensic) {
-      issues.push({
-        message: 'No forensic reporting address (ruf) specified',
-        severity: 'low'
-      });
-    }
-    
-    // Percentage issues
-    const percentage = parseInt(parsed.percentage);
-    if (percentage < 100) {
-      issues.push({
-        message: `Only ${percentage}% of messages are subject to DMARC policy`,
-        severity: percentage < 50 ? 'high' : 'medium'
-      });
-    }
-    
-    // Add original issues from API
-    if (results.issues) {
-      results.issues.forEach((issue: string) => {
-        issues.push({ message: issue, severity: 'medium' });
-      });
-    }
-    
-    return issues;
   }
   
   async function copyResults() {
@@ -148,9 +92,22 @@
       text += `DMARC Record:\n${results.record}\n\n`;
     }
     
+    if (results.deliverabilityHints) {
+      text += `Email Deliverability Impact:\n`;
+      text += `${results.deliverabilityHints.policyImpact}\n\n`;
+      
+      if (results.deliverabilityHints.recommendations.length > 0) {
+        text += `Recommendations:\n`;
+        results.deliverabilityHints.recommendations.forEach((rec: string) => {
+          text += `  • ${rec}\n`;
+        });
+        text += `\n`;
+      }
+    }
+    
     if (results.parsed) {
       const p = results.parsed;
-      text += `Parsed Policy:\n`;
+      text += `Policy Configuration:\n`;
       text += `  Main Policy: ${p.policy}\n`;
       if (p.subdomainPolicy) text += `  Subdomain Policy: ${p.subdomainPolicy}\n`;
       text += `  DKIM Alignment: ${p.alignment.dkim} (${p.alignment.dkim === 's' ? 'strict' : 'relaxed'})\n`;
@@ -158,17 +115,6 @@
       text += `  Percentage: ${p.percentage}%\n`;
       if (p.reporting.aggregate) text += `  Aggregate Reports: ${p.reporting.aggregate}\n`;
       if (p.reporting.forensic) text += `  Forensic Reports: ${p.reporting.forensic}\n`;
-      text += `  Failure Options: ${p.reporting.failureOptions}\n\n`;
-    }
-    
-    const issues = getIssues();
-    if (issues.length > 0) {
-      text += `Issues Found:\n`;
-      issues.forEach(issue => {
-        text += `  [${issue.severity.toUpperCase()}] ${issue.message}\n`;
-      });
-    } else {
-      text += `No issues found - DMARC configuration looks good!\n`;
     }
     
     await navigator.clipboard.writeText(text);
@@ -179,8 +125,8 @@
 
 <div class="card">
   <header class="card-header">
-    <h1>DMARC Policy Checker</h1>
-    <p>Analyze DMARC (Domain-based Message Authentication, Reporting & Conformance) policies. Check policy configuration, alignment settings, and identify potential security issues.</p>
+    <h1>Email DMARC Policy Checker</h1>
+    <p>Check DMARC (Domain-based Message Authentication, Reporting & Conformance) policies with focus on email deliverability impact. Understand how DMARC affects your email delivery and reputation.</p>
   </header>
 
   <!-- Examples -->
@@ -196,7 +142,7 @@
             class="example-card" 
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
-            use:tooltip={`Check DMARC policy for ${example.domain} (${example.description})`}
+            use:tooltip={`Check DMARC policy for ${example.domain}`}
           >
             <h5>{example.domain}</h5>
             <p>{example.description}</p>
@@ -239,7 +185,6 @@
     </div>
   </div>
 
-
   <!-- Results -->
   {#if results && results.hasRecord}
     <div class="card results-card">
@@ -251,63 +196,63 @@
         </button>
       </div>
       <div class="card-content">
-        <!-- Status Overview -->
-        {#if results.parsed}
-          {@const issues = getIssues()}
-          {@const parsed = results.parsed}
-          <div class="status-overview">
-            <div class="status-item {issues.length === 0 ? 'success' : issues.some(i => i.severity === 'high') ? 'error' : 'warning'}">
-              <Icon name={issues.length === 0 ? 'shield-check' : issues.some(i => i.severity === 'high') ? 'shield-x' : 'shield-alert'} size="md" />
+        {#if results.parsed && results.deliverabilityHints}
+          <!-- Email Deliverability Impact -->
+          <div class="deliverability-section">
+            <div class="deliverability-overview {getPolicyColor(results.parsed.policy)}">
+              <Icon name={getPolicyIcon(results.parsed.policy)} size="md" />
               <div>
-                <h4>
-                  {#if issues.length === 0}
-                    DMARC Configuration Secure
-                  {:else if issues.some(i => i.severity === 'high')}
-                    DMARC Issues Found
-                  {:else}
-                    DMARC Needs Improvement
-                  {/if}
-                </h4>
-                <p>
-                  {#if issues.length === 0}
-                    No critical issues detected
-                  {:else}
-                    {issues.length} issue{issues.length > 1 ? 's' : ''} identified
-                  {/if}
-                </p>
+                <h4>Email Deliverability Impact</h4>
+                <p class="policy-impact">{results.deliverabilityHints.policyImpact}</p>
+                {#if results.deliverabilityHints.alignmentComplexity?.strict}
+                  <p class="alignment-warning">{results.deliverabilityHints.alignmentComplexity.strict}</p>
+                {/if}
               </div>
+            </div>
+            
+            <!-- Recommendations -->
+            {#if results.deliverabilityHints.recommendations.length > 0}
+              <div class="recommendations-section">
+                <h5>Deliverability Recommendations</h5>
+                <div class="recommendation-list">
+                  {#each results.deliverabilityHints.recommendations as recommendation}
+                    <div class="recommendation-item">
+                      <Icon name="lightbulb" size="xs" />
+                      <span>{recommendation}</span>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            {/if}
+          </div>
+
+          <!-- DMARC Record -->
+          <div class="record-section">
+            <h4>DMARC Record</h4>
+            <div class="record-display">
+              <div class="record-location">_dmarc.{domain}</div>
+              <code>{results.record}</code>
             </div>
           </div>
 
-          <!-- Original Record -->
-          {#if results.record}
-            <div class="record-section">
-              <h4>DMARC Record</h4>
-              <div class="record-display">
-                <div class="record-location">_dmarc.{domain}</div>
-                <code>{results.record}</code>
-              </div>
-            </div>
-          {/if}
-
-          <!-- Parsed Policy -->
+          <!-- Policy Configuration -->
           <div class="policy-section">
             <h4>Policy Configuration</h4>
             <div class="policy-grid">
               <!-- Main Policy -->
-              <div class="policy-item">
+              <div class="policy-item {getPolicyColor(results.parsed.policy)}">
                 <div class="policy-header">
                   <Icon name="shield" size="sm" />
                   <span>Main Policy</span>
                 </div>
-                <div class="policy-value {getPolicyColor(parsed.policy)}">
-                  <span class="policy-text">{parsed.policy}</span>
+                <div class="policy-value">
+                  <span class="policy-text">{results.parsed.policy}</span>
                   <span class="policy-description">
-                    {#if parsed.policy === 'reject'}
+                    {#if results.parsed.policy === 'reject'}
                       Reject non-compliant messages
-                    {:else if parsed.policy === 'quarantine'}
+                    {:else if results.parsed.policy === 'quarantine'}
                       Quarantine suspicious messages
-                    {:else if parsed.policy === 'none'}
+                    {:else if results.parsed.policy === 'none'}
                       Monitor only, no action
                     {:else}
                       Unknown policy
@@ -317,74 +262,74 @@
               </div>
 
               <!-- Subdomain Policy -->
-              {#if parsed.subdomainPolicy}
-                <div class="policy-item">
+              {#if results.parsed.subdomainPolicy}
+                <div class="policy-item {getPolicyColor(results.parsed.subdomainPolicy)}">
                   <div class="policy-header">
                     <Icon name="git-branch" size="sm" />
                     <span>Subdomain Policy</span>
                   </div>
-                  <div class="policy-value {getPolicyColor(parsed.subdomainPolicy)}">
-                    <span class="policy-text">{parsed.subdomainPolicy}</span>
+                  <div class="policy-value">
+                    <span class="policy-text">{results.parsed.subdomainPolicy}</span>
                   </div>
                 </div>
               {/if}
 
-              <!-- Percentage -->
-              <div class="policy-item">
+              <!-- Coverage Percentage -->
+              <div class="policy-item {parseInt(results.parsed.percentage) === 100 ? 'success' : 'warning'}">
                 <div class="policy-header">
                   <Icon name="percent" size="sm" />
                   <span>Coverage</span>
                 </div>
-                <div class="policy-value {parseInt(parsed.percentage) === 100 ? 'success' : 'warning'}">
-                  <span class="policy-text">{parsed.percentage}%</span>
+                <div class="policy-value">
+                  <span class="policy-text">{results.parsed.percentage}%</span>
                   <span class="policy-description">of messages affected</span>
                 </div>
               </div>
 
               <!-- DKIM Alignment -->
-              <div class="policy-item">
+              <div class="policy-item {getAlignmentColor(results.parsed.alignment.dkim)}">
                 <div class="policy-header">
                   <Icon name="key" size="sm" />
                   <span>DKIM Alignment</span>
                 </div>
-                <div class="policy-value {getAlignmentColor(parsed.alignment.dkim)}">
-                  <span class="policy-text">{parsed.alignment.dkim === 's' ? 'Strict' : 'Relaxed'}</span>
+                <div class="policy-value">
+                  <span class="policy-text">{results.parsed.alignment.dkim === 's' ? 'Strict' : 'Relaxed'}</span>
                   <span class="policy-description">
-                    {parsed.alignment.dkim === 's' ? 'Exact domain match' : 'Organizational domain match'}
+                    {results.parsed.alignment.dkim === 's' ? 'Exact domain match required' : 'Organizational domain match allowed'}
                   </span>
                 </div>
               </div>
 
               <!-- SPF Alignment -->
-              <div class="policy-item">
+              <div class="policy-item {getAlignmentColor(results.parsed.alignment.spf)}">
                 <div class="policy-header">
                   <Icon name="mail" size="sm" />
                   <span>SPF Alignment</span>
                 </div>
-                <div class="policy-value {getAlignmentColor(parsed.alignment.spf)}">
-                  <span class="policy-text">{parsed.alignment.spf === 's' ? 'Strict' : 'Relaxed'}</span>
+                <div class="policy-value">
+                  <span class="policy-text">{results.parsed.alignment.spf === 's' ? 'Strict' : 'Relaxed'}</span>
                   <span class="policy-description">
-                    {parsed.alignment.spf === 's' ? 'Exact domain match' : 'Organizational domain match'}
+                    {results.parsed.alignment.spf === 's' ? 'Exact domain match required' : 'Organizational domain match allowed'}
                   </span>
                 </div>
               </div>
 
               <!-- Failure Options -->
-              <div class="policy-item">
+              <div class="policy-item secondary">
                 <div class="policy-header">
                   <Icon name="settings" size="sm" />
                   <span>Failure Options</span>
                 </div>
-                <div class="policy-value secondary">
-                  <span class="policy-text">{parsed.reporting.failureOptions}</span>
+                <div class="policy-value">
+                  <span class="policy-text">{results.parsed.reporting.failureOptions}</span>
                   <span class="policy-description">
-                    {#if parsed.reporting.failureOptions === '0'}
+                    {#if results.parsed.reporting.failureOptions === '0'}
                       DKIM and SPF failure
-                    {:else if parsed.reporting.failureOptions === '1'}
+                    {:else if results.parsed.reporting.failureOptions === '1'}
                       Any alignment failure
-                    {:else if parsed.reporting.failureOptions === 'd'}
+                    {:else if results.parsed.reporting.failureOptions === 'd'}
                       DKIM failure only
-                    {:else if parsed.reporting.failureOptions === 's'}
+                    {:else if results.parsed.reporting.failureOptions === 's'}
                       SPF failure only
                     {:else}
                       Custom configuration
@@ -397,7 +342,7 @@
 
           <!-- Reporting Configuration -->
           <div class="reporting-section">
-            <h4>Reporting Configuration</h4>
+            <h4>Email Reporting Configuration</h4>
             <div class="reporting-grid">
               <div class="reporting-item">
                 <div class="reporting-header">
@@ -405,10 +350,12 @@
                   <span>Aggregate Reports (RUA)</span>
                 </div>
                 <div class="reporting-value">
-                  {#if parsed.reporting.aggregate}
-                    <span class="email-address">{parsed.reporting.aggregate}</span>
+                  {#if results.parsed.reporting.aggregate}
+                    <span class="email-address">{results.parsed.reporting.aggregate}</span>
+                    <span class="reporting-description">Daily summaries of DMARC activity</span>
                   {:else}
                     <span class="not-configured">Not configured</span>
+                    <span class="reporting-description">Missing aggregate reporting - consider adding rua=</span>
                   {/if}
                 </div>
               </div>
@@ -419,62 +366,54 @@
                   <span>Forensic Reports (RUF)</span>
                 </div>
                 <div class="reporting-value">
-                  {#if parsed.reporting.forensic}
-                    <span class="email-address">{parsed.reporting.forensic}</span>
+                  {#if results.parsed.reporting.forensic}
+                    <span class="email-address">{results.parsed.reporting.forensic}</span>
+                    <span class="reporting-description">Real-time failure reports with message samples</span>
                   {:else}
                     <span class="not-configured">Not configured</span>
+                    <span class="reporting-description">Optional - provides detailed failure analysis</span>
                   {/if}
                 </div>
               </div>
             </div>
           </div>
-          
-          <!-- Issues -->
-          {#if issues.length > 0}
-            <div class="issues-section">
-              <h4>Issues & Recommendations</h4>
-              <div class="issues-list">
-                {#each issues as issue}
-                  <div class="issue-item {getSeverityColor(issue.severity)}">
-                    <Icon name={issue.severity === 'high' ? 'alert-triangle' : issue.severity === 'medium' ? 'alert-circle' : 'info'} size="sm" />
-                    <div class="issue-content">
-                      <span class="issue-severity">{issue.severity.toUpperCase()}</span>
-                      <span class="issue-message">{issue.message}</span>
-                    </div>
-                  </div>
-                {/each}
-              </div>
-            </div>
-          {/if}
         {/if}
       </div>
     </div>
   {/if}
 
-  <!-- No Record Found (but not an error) -->
+  <!-- No Record Found -->
   {#if results && results.hasRecord === false}
     <div class="card warning-card none-found">
       <div class="card-content">
         <div class="warning-content">
-          <Icon name="info" size="md" />
+          <Icon name="shield-x" size="md" />
           <div>
             <strong>No DMARC Record Found</strong>
-            <p>Domain <code>{domain}</code> does not have a DMARC policy configured at <code>{results.domain}</code>.</p>
-            <p class="help-text">This means the domain is not protected by DMARC. Consider implementing a DMARC policy to prevent email spoofing.</p>
+            <p>Domain <code>{domain}</code> does not have a DMARC policy configured at <code>_dmarc.{domain}</code>.</p>
+            <div class="deliverability-impact">
+              <h5>Email Deliverability Impact:</h5>
+              <ul>
+                <li>No protection against email spoofing</li>
+                <li>May affect email reputation with major providers</li>
+                <li>Missing visibility into email authentication failures</li>
+                <li>Consider implementing DMARC starting with p=none for monitoring</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
   {/if}
 
-  {#if error || (results?.error)}
+  {#if error}
     <div class="card error-card">
       <div class="card-content">
         <div class="error-content">
           <Icon name="alert-triangle" size="md" />
           <div>
             <strong>DMARC Check Failed</strong>
-            <p>{error || results.error}</p>
+            <p>{error}</p>
           </div>
         </div>
       </div>
@@ -484,53 +423,55 @@
   <!-- Educational Content -->
   <div class="card info-card">
     <div class="card-header">
-      <h3>Understanding DMARC</h3>
+      <h3>Understanding DMARC for Email Delivery</h3>
     </div>
     <div class="card-content">
       <div class="info-grid">
         <div class="info-section">
-          <h4>DMARC Policies</h4>
+          <h4>DMARC Policies & Email Impact</h4>
           <div class="policy-explanations">
             <div class="explanation-item">
-              <strong>none:</strong> Monitor mode - collect data but take no action on failures
+              <strong>none:</strong> Monitor mode - no delivery impact, collect data only
             </div>
             <div class="explanation-item">
-              <strong>quarantine:</strong> Mark suspicious messages, often sent to spam folder
+              <strong>quarantine:</strong> Failed messages may go to spam/junk folder
             </div>
             <div class="explanation-item">
-              <strong>reject:</strong> Reject non-compliant messages outright (strongest security)
+              <strong>reject:</strong> Failed messages rejected outright - strongest protection
             </div>
           </div>
         </div>
         
         <div class="info-section">
-          <h4>Alignment Modes</h4>
-          <div class="alignment-explanations">
-            <div class="explanation-item">
-              <strong>Relaxed (r):</strong> Allows organizational domain matching (default)
-            </div>
-            <div class="explanation-item">
-              <strong>Strict (s):</strong> Requires exact domain matching (more secure)
-            </div>
-          </div>
-        </div>
-        
-        <div class="info-section">
-          <h4>Reporting Types</h4>
+          <h4>Email Delivery Best Practices</h4>
           <ul>
-            <li><strong>Aggregate (RUA):</strong> Daily summary reports of DMARC activity</li>
-            <li><strong>Forensic (RUF):</strong> Real-time failure reports with message samples</li>
+            <li>Start with p=none to monitor before enforcement</li>
+            <li>Gradually increase to p=quarantine then p=reject</li>
+            <li>Set up aggregate reporting to monitor delivery</li>
+            <li>Test alignment requirements carefully</li>
+            <li>Consider subdomain policy for comprehensive coverage</li>
           </ul>
         </div>
         
         <div class="info-section">
-          <h4>Best Practices</h4>
+          <h4>Alignment Modes & Delivery</h4>
+          <div class="alignment-explanations">
+            <div class="explanation-item">
+              <strong>Relaxed (r):</strong> Allows organizational domain matching (safer for delivery)
+            </div>
+            <div class="explanation-item">
+              <strong>Strict (s):</strong> Requires exact domain matching (higher security, delivery risk)
+            </div>
+          </div>
+        </div>
+        
+        <div class="info-section">
+          <h4>Common Delivery Issues</h4>
           <ul>
-            <li>Start with <code>p=none</code> to monitor before enforcement</li>
-            <li>Gradually increase to <code>p=quarantine</code> then <code>p=reject</code></li>
-            <li>Set up aggregate reporting to monitor DMARC activity</li>
-            <li>Use strict alignment for enhanced security when possible</li>
-            <li>Consider subdomain policy for comprehensive coverage</li>
+            <li>Strict alignment with third-party senders</li>
+            <li>Forwarded emails failing DMARC checks</li>
+            <li>Mailing lists modifying message headers</li>
+            <li>Percentage rollout causing inconsistent delivery</li>
           </ul>
         </div>
       </div>
@@ -539,68 +480,122 @@
 </div>
 
 <style lang="scss">
-  .record-display {
-    display: flex;
-    // flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-md);
-    background: var(--bg-secondary);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-sm);
-    @media (max-width: 600px) {
-      flex-wrap: wrap;
-    }
-    code {
-      display: block;
-      word-break: break-all;
-    }
-  }
-
-  .none-found {
-    margin: var(--spacing-md) 0 var(--spacing-lg);
-  }
-
   .action-section {
     display: flex;
     justify-content: center;
     margin-top: var(--spacing-xl);
   }
 
-  // Custom status item styling for DMARC (extends shared styles)
-  .status-item {
-    border: 2px solid;
+  .deliverability-section {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .deliverability-overview {
+    display: flex;
+    align-items: flex-start;
     gap: var(--spacing-md);
-    
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    border: 2px solid;
+    margin-bottom: var(--spacing-md);
+
     &.success {
+      background: color-mix(in srgb, var(--color-success), transparent 95%);
       border-color: var(--color-success);
     }
 
     &.warning {
+      background: color-mix(in srgb, var(--color-warning), transparent 95%);
       border-color: var(--color-warning);
     }
 
     &.error {
+      background: color-mix(in srgb, var(--color-error), transparent 95%);
       border-color: var(--color-error);
     }
 
     h4 {
-      margin: 0;
-      font-size: var(--font-size-md);
+      margin: 0 0 var(--spacing-xs) 0;
+      color: var(--text-primary);
     }
 
-    p {
-      margin: 0;
+    .policy-impact {
+      margin: 0 0 var(--spacing-xs) 0;
+      color: var(--text-secondary);
       font-size: var(--font-size-sm);
-      opacity: 0.8;
+      font-weight: 500;
+    }
+
+    .alignment-warning {
+      margin: 0;
+      color: var(--color-warning);
+      font-size: var(--font-size-xs);
+      font-style: italic;
     }
   }
 
-  .policy-section, .reporting-section, .issues-section {
+  .recommendations-section {
+    h5 {
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-sm) 0;
+      font-size: var(--font-size-sm);
+    }
+  }
+
+  .recommendation-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .recommendation-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--color-primary);
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+
+    :global(svg) {
+      color: var(--color-primary);
+      margin-top: 1px;
+    }
+  }
+
+  .record-section, .policy-section, .reporting-section {
     margin-bottom: var(--spacing-lg);
 
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
+    }
+  }
+
+  .record-display {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    
+    @media (max-width: 600px) {
+      flex-wrap: wrap;
+    }
+    
+    .record-location {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    
+    code {
+      flex: 1;
+      word-break: break-all;
+      font-family: var(--font-mono);
     }
   }
 
@@ -615,6 +610,23 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     padding: var(--spacing-md);
+    border-left: 4px solid;
+
+    &.success {
+      border-left-color: var(--color-success);
+    }
+
+    &.warning {
+      border-left-color: var(--color-warning);
+    }
+
+    &.error {
+      border-left-color: var(--color-error);
+    }
+
+    &.secondary {
+      border-left-color: var(--text-secondary);
+    }
   }
 
   .policy-header {
@@ -636,33 +648,18 @@
       font-size: var(--font-size-md);
       font-weight: 600;
       text-transform: uppercase;
+      color: var(--text-primary);
     }
 
     .policy-description {
       font-size: var(--font-size-xs);
-      opacity: 0.8;
-    }
-
-    &.success .policy-text {
-      color: var(--color-success);
-    }
-
-    &.warning .policy-text {
-      color: var(--color-warning);
-    }
-
-    &.error .policy-text {
-      color: var(--color-error);
-    }
-
-    &.secondary .policy-text {
       color: var(--text-secondary);
     }
   }
 
   .reporting-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--spacing-md);
   }
 
@@ -671,6 +668,7 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     padding: var(--spacing-md);
+
     .reporting-header {
       display: flex;
       align-items: center;
@@ -682,12 +680,15 @@
     }
 
     .reporting-value {
-      display: block;
-      word-break: break-all;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+
       .email-address {
         font-family: var(--font-mono);
         color: var(--text-primary);
         font-size: var(--font-size-sm);
+        word-break: break-all;
       }
 
       .not-configured {
@@ -695,50 +696,74 @@
         font-style: italic;
         font-size: var(--font-size-sm);
       }
+
+      .reporting-description {
+        font-size: var(--font-size-xs);
+        color: var(--text-secondary);
+      }
     }
   }
 
-  .issues-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
+  .none-found {
+    margin: var(--spacing-md) 0 var(--spacing-lg);
+
+    .warning-content {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+
+      strong {
+        color: var(--text-primary);
+        display: block;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      p {
+        margin: 0 0 var(--spacing-md) 0;
+        color: var(--text-secondary);
+
+        code {
+          background: var(--bg-secondary);
+          padding: 2px 4px;
+          border-radius: 3px;
+          font-family: var(--font-mono);
+        }
+      }
+
+      .deliverability-impact {
+        h5 {
+          color: var(--text-primary);
+          margin: 0 0 var(--spacing-xs) 0;
+          font-size: var(--font-size-sm);
+        }
+
+        ul {
+          margin: 0;
+          padding-left: var(--spacing-md);
+          color: var(--text-secondary);
+          font-size: var(--font-size-xs);
+
+          li {
+            margin-bottom: var(--spacing-xs);
+          }
+        }
+      }
+    }
   }
-
-
-  .issue-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  .issue-severity {
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    opacity: 0.8;
-  }
-
-  .issue-message {
-    font-size: var(--font-size-sm);
-    line-height: 1.4;
-  }
-
 
   .policy-explanations, .alignment-explanations {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
-  }
 
-  .explanation-item {
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-    
-    strong {
-      color: var(--text-primary);
-      font-family: var(--font-mono);
+    .explanation-item {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      
+      strong {
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+      }
     }
   }
-
-
-  // Page-specific styles (shared styles moved to diagnostics-pages.scss)
 </style>

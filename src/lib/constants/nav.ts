@@ -623,6 +623,20 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           description: 'Verify nameserver resolution and analyze SOA record parameters for DNS configuration health',
           icon: 'dns-ns-soa',
           keywords: ['ns', 'soa', 'nameserver', 'consistency', 'check', 'resolution', 'parameters', 'health', 'serial']
+        },
+        {
+          href: '/diagnostics/dns/dnssec-adflag',
+          label: 'DNSSEC AD Flag Checker',
+          description: 'Query DNS records via DoH and report if the AD (Authenticated Data) bit is set for DNSSEC validation',
+          icon: 'dns-adflag',
+          keywords: ['dnssec', 'ad', 'flag', 'authenticated', 'data', 'doh', 'validation', 'security', 'dns']
+        },
+        {
+          href: '/diagnostics/dns/soa-serial',
+          label: 'SOA Serial Analyzer',
+          description: 'Analyze Start of Authority records to interpret serial number formats and examine DNS zone timing parameters',
+          icon: 'dns-soa',
+          keywords: ['soa', 'serial', 'analyzer', 'zone', 'timing', 'parameters', 'yyyymmddnn', 'unix', 'timestamp', 'dns']
         }
       ]
     },
@@ -708,6 +722,58 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           description: 'Measure HTTP/HTTPS response latency with statistical analysis (median, p95) without raw ICMP',
           icon: 'network-ping',
           keywords: ['http', 'ping', 'latency', 'response', 'time', 'statistics', 'median', 'p95', 'web', 'api']
+        }
+      ]
+    },
+    {
+      title: 'Email Diagnostics',
+      items: [
+        {
+          href: '/diagnostics/email/mx-health',
+          label: 'MX Health Checker',
+          description: 'Check mail server (MX) health including DNS resolution and SMTP port connectivity testing',
+          icon: 'email-mx',
+          keywords: ['mx', 'health', 'check', 'mail', 'server', 'smtp', 'port', 'connectivity', 'dns', 'email']
+        },
+        {
+          href: '/diagnostics/email/spf-check',
+          label: 'SPF Policy Checker',
+          description: 'Analyze SPF records with email deliverability focus and authentication policy evaluation',
+          icon: 'email-spf',
+          keywords: ['spf', 'policy', 'check', 'email', 'deliverability', 'authentication', 'sender', 'authorization']
+        },
+        {
+          href: '/diagnostics/email/dmarc-check',
+          label: 'DMARC Policy Checker',
+          description: 'Check DMARC policies with email deliverability impact analysis and configuration recommendations',
+          icon: 'email-dmarc',
+          keywords: ['dmarc', 'policy', 'check', 'email', 'deliverability', 'authentication', 'reporting', 'alignment']
+        }
+      ]
+    },
+    {
+      title: 'RDAP Diagnostics',
+      items: [
+        {
+          href: '/diagnostics/rdap/domain',
+          label: 'Domain RDAP Lookup',
+          description: 'Query domain registration data using RDAP through IANA bootstrap registry with structured JSON responses',
+          icon: 'dns-lookup',
+          keywords: ['rdap', 'domain', 'registration', 'whois', 'iana', 'bootstrap', 'registry', 'json', 'lookup']
+        },
+        {
+          href: '/diagnostics/rdap/ip',
+          label: 'IP Address RDAP Lookup',
+          description: 'Look up IP address allocation and registration data using RDAP through Regional Internet Registries',
+          icon: 'rdap-ip',
+          keywords: ['rdap', 'ip', 'allocation', 'registration', 'rir', 'arin', 'ripe', 'apnic', 'lacnic', 'afrinic']
+        },
+        {
+          href: '/diagnostics/rdap/asn',
+          label: 'ASN RDAP Lookup',
+          description: 'Query Autonomous System Number allocation and registration data using RDAP through RIR services',
+          icon: 'rdap-asn',
+          keywords: ['rdap', 'asn', 'autonomous', 'system', 'number', 'allocation', 'registry', 'bgp', 'routing']
         }
       ]
     }

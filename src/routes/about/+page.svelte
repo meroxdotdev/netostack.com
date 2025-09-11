@@ -1,6 +1,8 @@
 <script lang="ts">
   import '../../styles/pages.scss';
   import { site, author, license, pages } from '$lib/constants/site';
+  import ToolsCarousel from '$lib/components/global/ToolsCarousel.svelte';
+  import { SUB_NAV } from '$lib/constants/nav';
   
 
 </script>
@@ -15,6 +17,7 @@
 </svelte:head>
 
 <div class="card about-content">
+  
   <!-- Section 0: Hero -->
   <div class="hero">
     <h2>About {site.title}</h2>
@@ -173,8 +176,14 @@
       <a href="https://www.typescriptlang.org" target="_blank" rel="noopener noreferrer">TypeScript</a>.
       It's a static web app, that can be deployed anywhere, including serverless platforms like Vercel or Netlify.
       It can also be self-hosted using Docker or any static hosting provider.
-  
     </p>
+    <ToolsCarousel
+      sections={SUB_NAV}
+      speedBase={36}
+      gap="var(--spacing-sm)"
+      pauseOnHover
+      reverseAlternate
+    />
    </section>
 
   <!-- Section 6: Author -->

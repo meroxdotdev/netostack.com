@@ -9,7 +9,9 @@ type Action =
   | "spf-evaluator"
   | "dmarc-check"
   | "caa-effective"
-  | "ns-soa-check";
+  | "ns-soa-check"
+  | "dnssec-adflag"
+  | "soa-serial";
 
 interface BaseReq { action: Action; }
 
@@ -92,7 +94,20 @@ interface NSSOACheckReq extends BaseReq {
   domain: string;
 }
 
-type RequestBody = LookupReq | ReverseLookupReq | PropagationReq | SPFEvaluatorReq | DMARCCheckReq | CAAEffectiveReq | NSSOACheckReq;
+interface DNSSECADFlagReq extends BaseReq {
+  action: "dnssec-adflag";
+  name: string;
+  type?: keyof typeof DNS_TYPES;
+  resolverOpts?: ResolverOpts;
+}
+
+interface SOASerialReq extends BaseReq {
+  action: "soa-serial";
+  domain: string;
+  resolverOpts?: ResolverOpts;
+}
+
+type RequestBody = LookupReq | ReverseLookupReq | PropagationReq | SPFEvaluatorReq | DMARCCheckReq | CAAEffectiveReq | NSSOACheckReq | DNSSECADFlagReq | SOASerialReq;
 
 async function doHQuery(endpoint: string, name: string, type: number, timeout: number = 3500): Promise<any> {
   const controller = new AbortController();
@@ -450,6 +465,209 @@ async function checkNSandSOA(domain: string): Promise<any> {
   }
 }
 
+async function checkDNSSECADFlag(name: string, type: keyof typeof DNS_TYPES, opts: ResolverOpts = {}): Promise<any> {
+  const { doh = 'cloudflare', timeoutMs = 3500 } = opts;
+  
+  try {
+    // Use DoH to get DNSSEC information - we need DoH for AD flag access
+    const endpoint = DOH_ENDPOINTS[doh];
+    const result = await doHQuery(endpoint, name, DNS_TYPES[type], timeoutMs);
+    
+    const adFlag = result.AD || false;
+    const cdFlag = result.CD || false;
+    const statusFlags = result.Status || 0; // RCODE
+    
+    return {
+      name,
+      type,
+      resolver: doh,
+      authenticated: adFlag,
+      checkingDisabled: cdFlag,
+      rcode: statusFlags,
+      rcodeText: getRCodeText(statusFlags),
+      explanation: getDNSSECExplanation(adFlag, statusFlags),
+      records: result.Answer || [],
+      authority: result.Authority || [],
+      additional: result.Additional || [],
+      raw: result
+    };
+  } catch (err: any) {
+    return { 
+      error: err.message,
+      name,
+      type,
+      resolver: doh
+    };
+  }
+}
+
+async function analyzeSOASerial(domain: string, opts: ResolverOpts = {}): Promise<any> {
+  try {
+    const result = await performDNSLookup(domain, 'SOA', opts);
+    
+    if (result.noRecords || !result.Answer?.[0]) {
+      return { 
+        error: 'No SOA record found',
+        domain
+      };
+    }
+    
+    const soaData = result.Answer[0].data;
+    const ttl = result.Answer[0].TTL;
+    
+    // Parse SOA record: mname rname serial refresh retry expire minimum
+    const parts = soaData.split(' ');
+    if (parts.length < 7) {
+      return { error: 'Invalid SOA record format', raw: soaData };
+    }
+    
+    const [mname, rname, serialStr, refreshStr, retryStr, expireStr, minimumStr] = parts;
+    const serial = parseInt(serialStr);
+    const refresh = parseInt(refreshStr);
+    const retry = parseInt(retryStr);
+    const expire = parseInt(expireStr);
+    const minimum = parseInt(minimumStr);
+    
+    // Analyze serial format
+    const serialAnalysis = analyzeSerialNumber(serial);
+    
+    return {
+      domain,
+      soa: {
+        primaryNameserver: mname,
+        responsibleEmail: rname.replace('.', '@', 1),
+        serial,
+        refresh,
+        retry,
+        expire,
+        minimum,
+        ttl
+      },
+      serialAnalysis,
+      timings: {
+        refresh: formatDuration(refresh),
+        retry: formatDuration(retry),
+        expire: formatDuration(expire),
+        minimum: formatDuration(minimum),
+        ttl: formatDuration(ttl)
+      },
+      recommendations: getSOARecommendations(refresh, retry, expire, minimum, ttl),
+      raw: result
+    };
+  } catch (err: any) {
+    return { 
+      error: err.message,
+      domain
+    };
+  }
+}
+
+function getRCodeText(rcode: number): string {
+  const codes: Record<number, string> = {
+    0: 'NOERROR - No error',
+    1: 'FORMERR - Format error',
+    2: 'SERVFAIL - Server failure', 
+    3: 'NXDOMAIN - Non-existent domain',
+    4: 'NOTIMP - Not implemented',
+    5: 'REFUSED - Query refused',
+    6: 'YXDOMAIN - Name exists when it should not',
+    7: 'YXRRSET - RR set exists when it should not',
+    8: 'NXRRSET - RR set that should exist does not',
+    9: 'NOTAUTH - Server not authoritative'
+  };
+  return codes[rcode] || `Unknown RCODE: ${rcode}`;
+}
+
+function getDNSSECExplanation(adFlag: boolean, rcode: number): string {
+  if (rcode !== 0) {
+    return 'Query failed - DNSSEC status cannot be determined';
+  }
+  
+  if (adFlag) {
+    return 'Authenticated Data (AD) bit is SET - Response is cryptographically verified by DNSSEC';
+  } else {
+    return 'Authenticated Data (AD) bit is NOT SET - Response is not DNSSEC validated (unsigned, validation failed, or resolver does not validate)';
+  }
+}
+
+function analyzeSerialNumber(serial: number): any {
+  const serialStr = serial.toString();
+  
+  // Check if it looks like YYYYMMDDNN format
+  if (serialStr.length === 10) {
+    const year = parseInt(serialStr.substring(0, 4));
+    const month = parseInt(serialStr.substring(4, 6));
+    const day = parseInt(serialStr.substring(6, 8));
+    const sequence = parseInt(serialStr.substring(8, 10));
+    
+    // Validate date components
+    const currentYear = new Date().getFullYear();
+    if (year >= 1990 && year <= currentYear + 5 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      const date = new Date(year, month - 1, day);
+      return {
+        format: 'YYYYMMDDNN',
+        likely: true,
+        date: date.toISOString().split('T')[0],
+        sequence,
+        interpretation: `Date-based serial: ${date.toDateString()}, sequence ${sequence.toString().padStart(2, '0')}`
+      };
+    }
+  }
+  
+  // Check if it looks like Unix timestamp
+  if (serial >= 315532800 && serial <= Date.now() / 1000 + 86400 * 365) { // 1980 to next year
+    const date = new Date(serial * 1000);
+    return {
+      format: 'Unix timestamp',
+      likely: true,
+      date: date.toISOString().split('T')[0],
+      interpretation: `Unix timestamp: ${date.toISOString()}`
+    };
+  }
+  
+  return {
+    format: 'Sequential/other',
+    likely: false,
+    interpretation: `Sequential or custom format: ${serial}`
+  };
+}
+
+function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+  return `${Math.floor(seconds / 86400)}d ${Math.floor((seconds % 86400) / 3600)}h`;
+}
+
+function getSOARecommendations(refresh: number, retry: number, expire: number, minimum: number, ttl: number): any[] {
+  const recommendations = [];
+  
+  if (refresh < 3600) {
+    recommendations.push({ type: 'warning', field: 'refresh', message: 'Refresh interval is very low (< 1 hour), may cause excessive load on primary' });
+  }
+  if (refresh > 86400) {
+    recommendations.push({ type: 'info', field: 'refresh', message: 'Refresh interval is high (> 24 hours), slaves may be slow to detect changes' });
+  }
+  
+  if (retry >= refresh) {
+    recommendations.push({ type: 'error', field: 'retry', message: 'Retry interval should be less than refresh interval' });
+  }
+  
+  if (expire < refresh * 2) {
+    recommendations.push({ type: 'warning', field: 'expire', message: 'Expire time should be at least 2x the refresh interval' });
+  }
+  
+  if (minimum > 86400) {
+    recommendations.push({ type: 'warning', field: 'minimum', message: 'Minimum TTL is high (> 24 hours), may slow error recovery' });
+  }
+  
+  if (ttl < 300) {
+    recommendations.push({ type: 'info', field: 'ttl', message: 'SOA TTL is low (< 5 minutes), good for rapid DNS changes' });
+  }
+  
+  return recommendations;
+}
+
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const body: RequestBody = await request.json();
@@ -518,6 +736,18 @@ export const POST: RequestHandler = async ({ request }) => {
       case 'ns-soa-check': {
         const { domain } = body as NSSOACheckReq;
         const result = await checkNSandSOA(domain);
+        return json(result);
+      }
+      
+      case 'dnssec-adflag': {
+        const { name, type = 'A', resolverOpts } = body as DNSSECADFlagReq;
+        const result = await checkDNSSECADFlag(name, type, resolverOpts);
+        return json(result);
+      }
+      
+      case 'soa-serial': {
+        const { domain, resolverOpts } = body as SOASerialReq;
+        const result = await analyzeSOASerial(domain, resolverOpts);
         return json(result);
       }
       
