@@ -1,4 +1,6 @@
 <script lang="ts">
+  export const prerender = true;
+  
   import '../../styles/pages.scss';
   import { site, author, license, pages } from '$lib/constants/site';
   import ToolsCarousel from '$lib/components/global/ToolsCarousel.svelte';
@@ -290,6 +292,9 @@
    <!-- Section 7: License -->
    <section id="attributions">
     <h2>Attributions</h2>
+    <h3>Sponsors</h3>
+    <h3>Contributors</h3>
+    <h3>Stargazers</h3>
    </section>
 
    <!-- Section 7: License -->
