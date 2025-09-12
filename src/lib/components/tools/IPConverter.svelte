@@ -4,6 +4,7 @@
   import IPInput from './IPInput.svelte';
   import Tooltip from '$lib/components/global/Tooltip.svelte';
   import SvgIcon from '$lib/components/global/SvgIcon.svelte';
+    import Icon from '../global/Icon.svelte';
 
   let ipAddress = $state('192.168.1.1');
   let formats = $state({
@@ -379,7 +380,7 @@
   <!-- Number Formats Explanation -->
   <div class="card">
     <h3>
-      <SvgIcon icon="info" size="md" />
+      <Icon icon="info" size="md" />
       Number Format Explanations
     </h3>
     <div class="explainer-content">
@@ -428,7 +429,7 @@
 <!-- IP Classes Explanation -->
 <div class="card">
   <h3>
-    <SvgIcon icon="info" size="md" />
+    <Icon name="info" size="md" />
     IP Address Classes
   </h3>
   <div class="explainer-content">
@@ -476,7 +477,7 @@
   <!-- Usage Guide -->
   <div class="card">
     <h3>
-      <SvgIcon icon="lightbulb" size="md" />
+      <Icon name="lightbulb" size="md" />
       When to Use Each Format
     </h3>
     <div class="explainer-content">
@@ -626,6 +627,10 @@
     flex-direction: column;
     gap: 2rem;
     margin-top: 2rem;
+    width: 100%;
+    .card {
+      width: 100%;
+    }
   }
 
   /* Format explanation styles */

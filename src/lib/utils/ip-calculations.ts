@@ -22,6 +22,9 @@ export function parseIP(ip: string): IPAddress {
  * Converts CIDR prefix to subnet mask
  */
 export function cidrToMask(cidr: number): IPAddress {
+  if (cidr === 0) {
+    return parseIP('0.0.0.0');
+  }
   const mask = (0xffffffff << (32 - cidr)) >>> 0;
   const octets = [
     (mask >>> 24) & 0xff,
@@ -106,7 +109,7 @@ export function getWildcardMask(cidr: number): IPAddress {
 /**
  * Converts IP address to 32-bit number
  */
-function ipToNumber(ip: string): number {
+export function ipToNumber(ip: string): number {
   const octets = ip.split('.').map(Number);
   return (octets[0] << 24 | octets[1] << 16 | octets[2] << 8 | octets[3]) >>> 0;
 }
@@ -114,7 +117,7 @@ function ipToNumber(ip: string): number {
 /**
  * Converts 32-bit number to IP address
  */
-function numberToIP(num: number): IPAddress {
+export function numberToIP(num: number): IPAddress {
   const octets = [
     (num >>> 24) & 0xff,
     (num >>> 16) & 0xff,
@@ -123,6 +126,68 @@ function numberToIP(num: number): IPAddress {
   ];
   
   return parseIP(octets.join('.'));
+}
+
+/**
+ * Gets host range for a subnet
+ */
+export function getHostRange(ip: string, cidr: number): { first: IPAddress; last: IPAddress } {
+  const network = getNetworkAddress(ip, cidr);
+  const broadcast = getBroadcastAddress(ip, cidr);
+  
+  // Handle special cases for /31 and /32
+  if (cidr === 32) {
+    // Host route - first and last are the same
+    return { first: network, last: network };
+  } else if (cidr === 31) {
+    // Point-to-point - use network and broadcast as hosts
+    return { first: network, last: broadcast };
+  } else {
+    // Normal subnet - exclude network and broadcast
+    const firstHostNum = ipToNumber(network.octets.join('.')) + 1;
+    const lastHostNum = ipToNumber(broadcast.octets.join('.')) - 1;
+    return {
+      first: numberToIP(firstHostNum),
+      last: numberToIP(lastHostNum)
+    };
+  }
+}
+
+/**
+ * Calculates complete subnet information (alias for calculateSubnet)
+ */
+export function calculateSubnetInfo(ip: string, cidr: number): SubnetInfo & { 
+  ip: IPAddress;
+  firstHost: IPAddress;
+  lastHost: IPAddress;
+  totalAddresses: number;
+} {
+  const subnet = calculateSubnet(ip, cidr);
+  const hostRange = getHostRange(ip, cidr);
+  const totalAddresses = Math.pow(2, 32 - cidr);
+  
+  // Calculate proper host count for different CIDR sizes
+  let hostCount: number;
+  if (cidr === 32) {
+    hostCount = 1; // Single host
+  } else if (cidr === 31) {
+    hostCount = 2; // Point-to-point
+  } else if (cidr === 0) {
+    hostCount = 4294967294; // Entire Internet minus network/broadcast
+  } else {
+    hostCount = totalAddresses - 2; // Exclude network and broadcast
+  }
+  
+  return {
+    ...subnet,
+    ip: parseIP(ip),
+    network: subnet.network,
+    broadcast: subnet.broadcast,
+    firstHost: hostRange.first,
+    lastHost: hostRange.last,
+    hostCount,
+    totalAddresses
+  };
 }
 
 /**

@@ -4,6 +4,50 @@
   import ToolsCarousel from '$lib/components/global/ToolsCarousel.svelte';
   import { SUB_NAV } from '$lib/constants/nav';
   
+  const moreApps = [
+    {
+      name: 'domain-locker',
+      title: 'Domain Locker',
+      icon: 'https://storage.googleapis.com/as93-screenshots/project-logos/domain-locker.png',
+      description: 'Domain name portfolio app for monitoring your domains',
+      color: '#9571ff',
+    },
+    {
+      name: 'web-check',
+      title: 'Web Check',
+      description: 'The ultimate all-in-one OSINT tool for analyzing any website',
+      icon: 'https://raw.githubusercontent.com/Lissy93/web-check/master/public/android-chrome-192x192.png',
+      color: '#9fef00',
+    },
+    {
+      name: 'permissionator',
+      title: 'Permissionator',
+      description: 'A Linux chmod calculator, for generating safe file permissions',
+      icon: 'https://github.com/Lissy93/permissionator/blob/main/public/logo.png?raw=true',
+      color: '#05df72',
+    },
+    {
+      name: 'personal-security-checklist',
+      title: 'Digital Defense',
+      description: 'The ultimate security checklist, for protecting your data online',
+      icon: 'https://storage.googleapis.com/as93-screenshots/project-logos/digital-defense.png',
+      color: '#a78bfa',
+    },
+    {
+      name: 'awesome-privacy',
+      title: 'Awesome Privacy',
+      icon: 'https://storage.googleapis.com/as93-screenshots/project-logos/awesome-privacy.png',
+      description: 'A curated list of services which respects your privacy',
+      color: '#fc60a8',
+    },
+    {
+      name: 'dashy',
+      title: 'Dashy',
+      description: 'A self-hostable personal server dashboard',
+      icon: 'https://i.ibb.co/yhbt6CY/dashy.png',
+      color: '#00efe3',
+    },
+  ];
 
 </script>
 
@@ -23,38 +67,40 @@
     <h2>About {site.title}</h2>
     <p class="lead">
       Networking Toolbox is a collection of free, open-source networking utilities designed to simplify common network-related tasks for system administrators and network engineers.
-      <i>Because copy-pasting IPs into random websites is soooo 2010</i>
     </p>
-    <p>
-      This page contains all the relevant information about this project, how to use it, deploy it, edit it, contribute to it, and more.
-    </p>
-    <!-- Links #1: GitHub -->
-    <!-- Links #1: Live Demo, DockerHub, CodeBerg Mirror, Sponsor, More Apps -->
-     <h3>On this page</h3>
-     <ul>
-        <li><a href="#api">API</a></li>
-        <li><a href="#self-hosting">Self-Hosting</a></li>
-        <li><a href="#building">Developing</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#author">Author</a></li>
-        <li><a href="#license">License</a></li>
-        <li><a href="#more-apps">More Apps</a></li>
-     </ul>
-
-     <h3>External links</h3>
-     <ul>
-      <li><a href="{site.repo}">Source on GitHub</a></li>
-      <li><a href="{site.repo}">CodeBerg mirror</a></li>
-      <li><a href="{site.repo}">DockerHub</a></li>
-      <li><a href="{site.repo}">More apps...</a></li>
-     </ul>
   </div>
-  
-
-  <!-- Section 1: Features -->
-  <section id="features" class="features-section">
-    <h2>Features</h2>
-
+  <section>
+    <ToolsCarousel
+      sections={SUB_NAV}
+      speedBase={36}
+      gap="var(--spacing-sm)"
+      pauseOnHover
+      reverseAlternate
+    />
+  </section>
+  <!-- Links #1: GitHub -->
+  <!-- Links #1: Live Demo, DockerHub, CodeBerg Mirror, Sponsor, More Apps -->
+  <section class="contents">
+    <div>
+      <h3>On this page</h3>
+      <ul>
+          <li><a href="#api">API</a></li>
+          <li><a href="#self-hosting">Self-Hosting</a></li>
+          <li><a href="#building">Developing</a></li>
+          <li><a href="#author">Author</a></li>
+          <li><a href="#more-apps">Attributions</a></li>
+          <li><a href="#license">License</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>External links</h3>
+      <ul>
+        <li><a href="{site.repo}">Source on GitHub</a></li>
+        <li><a href="{site.repo}">CodeBerg mirror</a></li>
+        <li><a href="{site.repo}">DockerHub</a></li>
+        <li><a href="{site.repo}">More apps...</a></li>
+      </ul>
+    </div>
   </section>
 
   <!-- Section 2: API -->
@@ -88,19 +134,20 @@
     <p>
       Make sure you have <a href="https://nodejs.org/en/download/" target="_blank" rel="noopener noreferrer">Node.js</a> (v22 or higher) and <a href="https://git-scm.com/downloads" target="_blank" rel="noopener noreferrer">Git</a> installed on your machine.
     </p>
-    <h3>Getting the Code</h3>
+    <h3>Setup</h3>
     <div class="code">
       <code>git clone git@github.com:Lissy93/networking-toolbox.git</code>
       <code>cd networking-toolbox</code>
       <code>npm install</code>
+      <code>npm start</code>
     </div>
 
-    <h3>Development</h3>
+    <h3>Dev</h3>
     <div class="code">
       <code>npm run dev</code>
     </div>
 
-    <h3>Checking</h3>
+    <h3>Check 'n Test</h3>
     <div class="code">
       <code>npm run test</code>
       <code>npm run tsc</code>
@@ -144,7 +191,7 @@
 
    
    <!-- Section 5: Actual About -->
-   <section id="about">
+   <!-- <section id="about">
     <h2>About Networking Toolbox</h2>
     <h3>What</h3>
     <p>
@@ -177,18 +224,13 @@
       It's a static web app, that can be deployed anywhere, including serverless platforms like Vercel or Netlify.
       It can also be self-hosted using Docker or any static hosting provider.
     </p>
-    <ToolsCarousel
-      sections={SUB_NAV}
-      speedBase={36}
-      gap="var(--spacing-sm)"
-      pauseOnHover
-      reverseAlternate
-    />
-   </section>
+
+   </section> -->
 
   <!-- Section 6: Author -->
    <section id="author">
     <h2>Author</h2>
+    <h3>About Me</h3>
     <div class="author-section">
       <div class="author-bio">
         <p>
@@ -205,13 +247,49 @@
       </div>
       <img class="profile-photo" src="{author.avatar}" alt="{author.name}" width="128" />
     </div>
+    <div class="link-button blue">
+      <a href="https://aliciasykes.com" target="_blank">Website</a>
+    </div>
+    
+    <h3>Sponsorship</h3>
     <p>
-      Pretty much everything I build is free to use, open source, and without ads, tracking or paywalls.
+      I have developed, open sourced and maintain 100+ applications and libraries, used by over 1 million people every year.
+      And pretty much everything I build is free to use, open source, and without ads, tracking or paywalls. Because I believe software should be free and accessible to everyone.
+      <br><br>
       But running these projects does cost money. And maintaining them takes time.
       So, if you've found this app useful, please consider <a href="{author.sponsor}" target="_blank" rel="noopener noreferrer">sponsoring me</a>.
-      My sponsors mean the world to me, and it helps cover my hosting costs.
+      My sponsors mean the world to me, and it's because of their generosity that this app can remain free for everyone.
     </p>
+    <div class="link-button pink">
+      <a href="https://github.com/sponsors/lissy93" target="_blank">Sponsor</a>
+    </div>
+
+    <h3>More Apps</h3>
+    <p>
+      If you've found this app useful, you might also like some of my other projects:
+    </p>
+    <div class="more-app-list">
+      <div class="links-grid">
+        {#each moreApps as app}
+          <a class="link-card" style="--app-color: {app.color}" href="https://github.com/lissy93/{app.name}" target="_blank" rel="noopener noreferrer">
+            <h4>{app.title}</h4>
+            <div class="right">
+              <img src="{app.icon}" alt="{app.title}" width="40" height="40" />
+              <p>{app.description}</p>
+            </div>
+          </a>
+        {/each}
+      </div>
+    </div>
+    <div class="link-button purple">
+      <a href="https://lissy93.github.io" target="_blank">More Apps</a>
+    </div>
     <!-- About, more apps, sponsor -->
+   </section>
+
+   <!-- Section 7: License -->
+   <section id="attributions">
+    <h2>Attributions</h2>
    </section>
 
    <!-- Section 7: License -->
@@ -219,32 +297,18 @@
     <h2>License</h2>
    </section>
 
-   <!-- Section 8: More Apps -->
-   <section id="more-apps">
-    <h2>More Apps</h2>
-    <p>
-      If you've found this app useful, you might also like some of my other projects:
-    </p>
-   </section>
-
-  <section class="tech-section">
-    <h3>Technology Stack</h3>
-    <p>Built with modern web technologies for optimal performance and user experience:</p>
-    <ul class="tech-list">
-      <li><strong>SvelteKit:</strong>Modern web framework with server-side rendering</li>
-      <li><strong>TypeScript:</strong> Type-safe JavaScript for better code quality</li>
-      <li><strong>SCSS:</strong> Advanced CSS with nesting and variables</li>
-      <li><strong>Responsive Design:</strong> Works seamlessly across all devices</li>
-      <li><strong>Progressive Web App:</strong> Fast loading and offline capabilities</li>
-    </ul>
-  </section>
 
   
 </div>
 
 
 <style lang="scss">
-/* About page specific styles */
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-primary);
+  margin: var(--spacing-lg) 0;
+}
 
 h3 {
   margin-bottom: var(--spacing-sm);
@@ -417,13 +481,82 @@ ul {
   display: flex;
   flex-direction: row;
   gap: var(--spacing-md);
+  p:first-child {
+    margin-top: 0;
+  }
   
   .profile-photo {
     border-radius: var(--radius-sm);
-    width: 128px;
+    width: 96px;
+    height: fit-content;
     border: 2px solid var(--color-primary);
     box-shadow: 0px 0px 5px var(--color-primary-hover);
   }
+}
+
+.more-app-list {
+  .links-grid {
+    grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+    .link-card {
+      border-width: 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md);
+      h4 {
+        font-size: var(--font-size-lg);
+        margin: 0;
+      }
+      .right {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--spacing-md);
+      }
+      &:hover {
+        border-color: var(--app-color, var(--color-primary));
+        h4 {
+          color: var(--app-color, var(--color-primary));
+        }
+      }
+    }
+  }
+}
+
+.contents {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2xl);
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.link-button {
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  margin-top: var(--spacing-md);
+  a {
+    color: var(--bg-secondary);
+    background: var(--color-primary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    text-decoration: none;
+    transition: filter 0.3s, transform 0.3s, box-shadow 0.3s;
+    min-width: 7.5rem;
+  text-align: center;
+    &:hover {
+      filter: brightness(1.1);
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 4px 4px 0px #ffffff3d;
+    }
+  }
+  &.purple a { background: var(--color-purple); }
+  &.pink a { background: var(--color-pink); }
+  &.blue a { background: var(--color-info); }
 }
 
 </style>

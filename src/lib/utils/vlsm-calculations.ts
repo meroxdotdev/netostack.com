@@ -89,7 +89,15 @@ function subnetMaskToBinary(mask: string): string {
  * Calculate the minimum number of host bits needed for a given number of hosts
  */
 function calculateRequiredHostBits(hostsNeeded: number): number {
-  // Need 2 extra addresses (network and broadcast)
+  // Special case: 1 host = /32 (host route)
+  if (hostsNeeded === 1) {
+    return 0; // 0 host bits = /32
+  }
+  // Special case: 2 hosts = /30 (point-to-point)
+  if (hostsNeeded === 2) {
+    return 2; // 2 host bits = /30
+  }
+  // Normal case: Need 2 extra addresses (network and broadcast)
   const totalAddresses = hostsNeeded + 2;
   return Math.ceil(Math.log2(totalAddresses));
 }
@@ -98,6 +106,12 @@ function calculateRequiredHostBits(hostsNeeded: number): number {
  * Calculate the number of hosts that can be accommodated with given host bits
  */
 function calculateHostsFromBits(hostBits: number): number {
+  if (hostBits === 0) {
+    return 1; // /32 = 1 host
+  }
+  if (hostBits === 2) {
+    return 2; // /30 = 2 hosts (point-to-point)
+  }
   return Math.pow(2, hostBits) - 2; // Subtract network and broadcast addresses
 }
 
@@ -118,7 +132,7 @@ function isValidIP(ip: string): boolean {
  * Validate CIDR notation
  */
 function isValidCIDR(cidr: number): boolean {
-  return cidr >= 1 && cidr <= 30; // /31 and /32 don't allow host addresses
+  return cidr >= 0 && cidr <= 32; // Allow all valid CIDR ranges
 }
 
 /**
@@ -132,13 +146,13 @@ function sortSubnetRequirements(requirements: SubnetRequirement[]): SubnetRequir
  * Check if there's enough address space in the network
  */
 function validateAddressSpace(networkIP: string, cidr: number, requirements: SubnetRequirement[]): boolean {
-  const totalAvailableHosts = calculateHostsFromBits(32 - cidr);
-  const totalRequiredHosts = requirements.reduce((sum, req) => {
+  const totalAvailableAddresses = Math.pow(2, 32 - cidr);
+  const totalRequiredAddresses = requirements.reduce((sum, req) => {
     const hostBits = calculateRequiredHostBits(req.hostsNeeded);
     return sum + Math.pow(2, hostBits);
   }, 0);
   
-  return totalRequiredHosts <= totalAvailableHosts;
+  return totalRequiredAddresses <= totalAvailableAddresses;
 }
 
 /**
@@ -169,7 +183,7 @@ export function calculateVLSM(
       return {
         success: false,
         subnets: [],
-        error: 'CIDR must be between /1 and /30',
+        error: 'CIDR must be between /0 and /32',
         originalNetwork: networkIP,
         originalCIDR: cidr,
         totalHostsRequested: 0,
@@ -179,18 +193,37 @@ export function calculateVLSM(
       };
     }
 
+    // Handle empty requirements - should succeed
     if (requirements.length === 0) {
+      const totalNetworkSize = Math.pow(2, 32 - cidr);
       return {
-        success: false,
+        success: true,
         subnets: [],
-        error: 'No subnet requirements specified',
         originalNetwork: networkIP,
         originalCIDR: cidr,
         totalHostsRequested: 0,
         totalHostsProvided: 0,
         totalWastedHosts: 0,
-        remainingAddresses: 0
+        remainingAddresses: totalNetworkSize
       };
+    }
+
+    // Validate individual requirements
+    for (const req of requirements) {
+      const validation = validateSubnetRequirement(req);
+      if (!validation.valid) {
+        return {
+          success: false,
+          subnets: [],
+          error: validation.error || 'Invalid subnet requirement',
+          originalNetwork: networkIP,
+          originalCIDR: cidr,
+          totalHostsRequested: 0,
+          totalHostsProvided: 0,
+          totalWastedHosts: 0,
+          remainingAddresses: 0
+        };
+      }
     }
 
     // Validate unique subnet names
@@ -215,7 +248,7 @@ export function calculateVLSM(
       return {
         success: false,
         subnets: [],
-        error: 'Not enough address space in the network for all requirements',
+        error: 'insufficient address space in the network for all requirements',
         originalNetwork: networkIP,
         originalCIDR: cidr,
         totalHostsRequested: requirements.reduce((sum, req) => sum + req.hostsNeeded, 0),
@@ -334,8 +367,8 @@ export function validateSubnetRequirement(requirement: SubnetRequirement): { val
     return { valid: false, error: 'Subnet name is required' };
   }
 
-  if (requirement.hostsNeeded < 1) {
-    return { valid: false, error: 'Number of hosts must be at least 1' };
+  if (requirement.hostsNeeded <= 0) {
+    return { valid: false, error: 'hosts needed must be greater than 0' };
   }
 
   if (requirement.hostsNeeded > 16777214) { // Max hosts in a /8 network

@@ -19,7 +19,10 @@ export function convertIPFormats(ip: string): ConversionFormats {
     .join('.');
   
   const octal = octets
-    .map(octet => '0' + octet.toString(8))
+    .map(octet => {
+      const oct = octet.toString(8);
+      return oct === '0' ? '00' : '0' + oct;
+    })
     .join('.');
 
   return { binary, decimal, hex, octal };
@@ -50,6 +53,11 @@ export function binaryToIP(binary: string): string {
     throw new Error('Binary string must be 32 bits');
   }
   
+  // Validate binary characters
+  if (!/^[01]+$/.test(cleanBinary)) {
+    throw new Error('Invalid binary character');
+  }
+  
   const octets = [];
   for (let i = 0; i < 32; i += 8) {
     const octetBinary = cleanBinary.slice(i, i + 8);
@@ -70,6 +78,11 @@ export function hexToIP(hex: string): string {
     throw new Error('Hex string must be 8 characters');
   }
   
+  // Validate hex characters
+  if (!/^[0-9A-Fa-f]+$/.test(cleanHex)) {
+    throw new Error('Invalid hex character');
+  }
+  
   const octets = [];
   for (let i = 0; i < 8; i += 2) {
     const octetHex = cleanHex.slice(i, i + 2);
@@ -77,6 +90,53 @@ export function hexToIP(hex: string): string {
   }
   
   return octets.join('.');
+}
+
+/**
+ * Converts octal string to IP address
+ */
+export function octalToIP(octal: string): string {
+  // Remove dots if present
+  let cleanOctal: string;
+  
+  if (octal.includes('.')) {
+    // Handle dotted format like "0300.0250.001.001"
+    const octalParts = octal.split('.');
+    if (octalParts.length !== 4) {
+      throw new Error('Octal string must have 4 parts when using dots');
+    }
+    
+    const octets = octalParts.map(part => {
+      // Validate octal characters
+      if (!/^0?[0-7]+$/.test(part)) {
+        throw new Error('Invalid octal character');
+      }
+      return parseInt(part, 8);
+    });
+    
+    return octets.join('.');
+  } else {
+    // Handle continuous format like "030025001001"
+    cleanOctal = octal;
+    
+    if (cleanOctal.length !== 12) {
+      throw new Error('Octal string must be 12 characters');
+    }
+    
+    // Validate octal characters
+    if (!/^[0-7]+$/.test(cleanOctal)) {
+      throw new Error('Invalid octal character');
+    }
+    
+    const octets = [];
+    for (let i = 0; i < 12; i += 3) {
+      const octetOctal = cleanOctal.slice(i, i + 3);
+      // Parse as octal - this is key!
+      octets.push(parseInt(octetOctal, 8));
+    }
+    
+    return octets.join('.');
+  }
 }
 
 /**

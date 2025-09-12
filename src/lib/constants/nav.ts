@@ -18,11 +18,11 @@ export const STANDALONE_PAGES: NavItem[] = [];
 
 export const TOP_NAV: NavItem[] = [
   { href: '/subnetting', label: 'Subnetting' },
-  { href: '/cidr', label: 'CIDR Convert' },
+  { href: '/cidr', label: 'CIDR' },
   { href: '/ip-address-convertor', label: 'IP Tools' },
   { href: '/dns', label: 'DNS Tools' },
-  { href: '/diagnostics', label: 'Diagnostics' },
-  { href: '/reference', label: 'Reference' }
+  { href: '/diagnostics', label: 'Lookups' },
+  { href: '/reference', label: 'Ref' }
 ];
 
 // Sections that have sub-pages (drives the conditional SubHeader)

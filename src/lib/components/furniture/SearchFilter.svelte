@@ -125,32 +125,7 @@
     }
   }
 
-  // Focus search input with keyboard shortcut
-  function handleKeydown(event: KeyboardEvent) {
-    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-      event.preventDefault();
-      openSearch();
-    }
-    if (event.key === 'Escape' && isSearchOpen) {
-      clearSearch();
-    }
-  }
-
-  // Handle search suggestions from NoResults component
-  function handleSearchSuggestion(event: CustomEvent<string>) {
-    searchQuery = event.detail;
-    filteredTools = performSearch(searchQuery);
-    isSearchOpen = true;
-    setTimeout(() => {
-      if (searchInput) {
-        searchInput.value = searchQuery;
-        searchInput.focus();
-      }
-    }, 0);
-  }
 </script>
-
-<svelte:window onkeydown={handleKeydown} />
 
 <div class="search-container">
   <!-- Always reserve space for search input to prevent jumping -->
@@ -162,7 +137,7 @@
         onclick={openSearch}
         aria-label="Open search"
       >
-        <span class="search-text">Search</span>
+        <span class="search-text">Filter</span>
         <span class="search-shortcut">⌘K</span>
       </button>
     {:else}

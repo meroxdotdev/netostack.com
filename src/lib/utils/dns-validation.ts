@@ -119,22 +119,19 @@ export function validateCNAMERecord(value: string): ValidationResult {
   
   if (normalized === '.') {
     errors.push('CNAME cannot point to root');
+    return { valid: false, errors, warnings };
+  }
+  
+  // Use the proper domain validation
+  const cleanedValue = value.replace(/\.$/, ''); // Remove trailing dot for validation
+  if (!isValidDomainName(cleanedValue)) {
+    errors.push('Invalid domain name format');
+    return { valid: false, errors, warnings };
   }
   
   if (!normalized.endsWith('.')) {
     warnings.push('Domain should end with dot (.) to be fully qualified');
   }
-  
-  if (normalized.length > 255) {
-    errors.push('Domain name too long (max 255 characters)');
-  }
-  
-  const labels = normalized.split('.');
-  labels.forEach(label => {
-    if (label.length > 63) {
-      errors.push(`Label "${label}" too long (max 63 characters)`);
-    }
-  });
   
   return {
     valid: errors.length === 0,
@@ -269,6 +266,30 @@ export function validateCAARecord(flags: number, tag: string, value: string): Va
 }
 
 // TTL Functions
+// Simple humanize function that returns just the string (for backwards compatibility)
+export function humanizeTTLSimple(seconds: number): string {
+  if (seconds < 60) {
+    return `${seconds} second${seconds !== 1 ? 's' : ''}`;
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    if (remainingSeconds === 0) {
+      return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    } else {
+      return `${minutes} minute${minutes !== 1 ? 's' : ''} ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`;
+    }
+  } else if (seconds < 86400) {
+    const hours = Math.floor(seconds / 3600);
+    return `${hours} hour${hours !== 1 ? 's' : ''}`;
+  } else if (seconds < 604800) {
+    const days = Math.floor(seconds / 86400);
+    return `${days} day${days !== 1 ? 's' : ''}`;
+  } else {
+    const weeks = Math.floor(seconds / 604800);
+    return `${weeks} week${weeks !== 1 ? 's' : ''}`;
+  }
+}
+
 export function humanizeTTL(seconds: number): TTLInfo {
   const recommendations: string[] = [];
   let category: TTLInfo['category'];
@@ -277,7 +298,7 @@ export function humanizeTTL(seconds: number): TTLInfo {
   if (seconds < 300) {
     category = 'very-short';
     human = `${seconds} seconds`;
-    recommendations.push('Very short TTL - high DNS load, fast updates');
+    recommendations.push('Consider increasing');
   } else if (seconds < 3600) {
     category = 'short';
     const minutes = Math.floor(seconds / 60);
@@ -315,7 +336,8 @@ export function calculateCacheExpiry(ttlSeconds: number, recordCreated?: Date): 
 }
 
 // EDNS Size Estimation
-export function estimateEDNSSize(records: DNSRecord[]): EDNSEstimate {
+// Original function for internal use
+function estimateEDNSSizeFromRecords(records: DNSRecord[]): EDNSEstimate {
   const baseSize = 12; // DNS header
   let recordsSize = 0;
   
@@ -347,7 +369,7 @@ export function estimateEDNSSize(records: DNSRecord[]): EDNSEstimate {
   
   if (totalSize > 4096) {
     fragmentationRisk = 'high';
-    recommendations.push('High fragmentation risk - consider reducing record count');
+    recommendations.push('Consider using TCP');
   }
   
   return {
@@ -358,6 +380,19 @@ export function estimateEDNSSize(records: DNSRecord[]): EDNSEstimate {
     fragmentationRisk,
     recommendations
   };
+}
+
+// Public function that matches test expectations
+export function estimateEDNSSize(name: string, type: string, records: any[]): EDNSEstimate {
+  // Convert parameters to DNSRecord format
+  const dnsRecords: DNSRecord[] = records.map(record => ({
+    name: record.name || name,
+    type: record.type || type,
+    value: record.value || '',
+    ttl: record.ttl || 300
+  }));
+  
+  return estimateEDNSSizeFromRecords(dnsRecords);
 }
 
 // Label Normalization
@@ -436,6 +471,9 @@ function normalizeIPv6(ip: string): string {
   const parts = ip.split(':');
   const expanded: string[] = [];
   
+  // Validate hex characters
+  const hexRegex = /^[0-9a-fA-F]*$/;
+  
   for (let i = 0; i < parts.length; i++) {
     if (parts[i] === '') {
       const zerosNeeded = 8 - (parts.length - 1);
@@ -443,14 +481,24 @@ function normalizeIPv6(ip: string): string {
         expanded.push('0000');
       }
     } else {
+      // Validate that the part contains only valid hex characters
+      if (!hexRegex.test(parts[i]) || parts[i].length > 4) {
+        throw new Error('Invalid IPv6 address format');
+      }
       expanded.push(parts[i].padStart(4, '0'));
     }
+  }
+  
+  // Basic length validation
+  if (expanded.length !== 8) {
+    throw new Error('Invalid IPv6 address format');
   }
   
   return expanded.join(':').toLowerCase();
 }
 
 function normalizeDomainName(domain: string): string {
+  if (!domain) return '';
   return domain.toLowerCase().trim();
 }
 
@@ -484,14 +532,25 @@ export function isValidDomainName(domain: string): boolean {
   // Check length limits (RFC 1035)
   if (trimmed.length > 253) return false;
   
-  // Allow underscores for DNS records like _dmarc, _spf
-  const domainRegex = /^(?:[a-zA-Z0-9_](?:[a-zA-Z0-9_-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9_](?:[a-zA-Z0-9_-]{0,61}[a-zA-Z0-9])?\.?$/;
+  // Reject leading/trailing dots or spaces
+  if (trimmed.startsWith('.') || trimmed.endsWith('.') || trimmed.includes(' ')) return false;
   
-  if (!domainRegex.test(trimmed)) return false;
+  // Reject double dots
+  if (trimmed.includes('..')) return false;
+  
+  // Must have at least one dot (require TLD)
+  if (!trimmed.includes('.')) return false;
   
   // Check individual labels (max 63 bytes each)
   const labels = trimmed.split('.');
-  if (labels.some(label => label.length > 63)) return false;
+  if (labels.some(label => label.length === 0 || label.length > 63)) return false;
+  
+  // Check each label doesn't start/end with hyphen
+  if (labels.some(label => label.startsWith('-') || label.endsWith('-'))) return false;
+  
+  // Basic character validation (allow underscores for DNS records like _dmarc)
+  const validChars = /^[a-zA-Z0-9_-]+$/;
+  if (labels.some(label => !validChars.test(label))) return false;
   
   return true;
 }
@@ -615,4 +674,160 @@ export function formatDNSError(error: any): string {
   }
   
   return 'An unexpected error occurred during DNS lookup.';
+}
+// Additional functions expected by tests
+
+export function validateDomainName(domain: string): { valid: boolean; errors: string[] } {
+  const valid = isValidDomainName(domain);
+  return {
+    valid,
+    errors: valid ? [] : ['Invalid domain name']
+  };
+}
+
+export function validateEmail(email: string): { valid: boolean; errors: string[]; normalized?: string } {
+  // Basic email validation for DNS use
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { valid: false, errors: ['Invalid email format'] };
+  }
+  
+  const [localPart, domain] = email.split('@');
+  const domainValidation = validateDomainName(domain);
+  
+  if (!domainValidation.valid) {
+    return { valid: false, errors: ['Invalid domain in email'] };
+  }
+  
+  // Convert to DNS format - escape special characters and replace @ with .
+  const normalized = localPart.replace(/([.+])/g, '\\$1') + '.' + domain;
+  
+  return { valid: true, errors: [], normalized };
+}
+
+export function validateTTL(ttl: number): { valid: boolean; error?: string } {
+  if (ttl <= 0) {
+    return { valid: false, error: 'TTL must be greater than 0' };
+  }
+  if (ttl > 2147483647) {
+    return { valid: false, error: 'TTL too large' };
+  }
+  return { valid: true };
+}
+
+export function calculateTTLExpiry(ttl: number): TTLInfo {
+  return humanizeTTL(ttl);
+}
+
+export function validateDNSRecord(name: string, type: string, value: string): { valid: boolean; errors: string[]; warnings?: string[] } {
+  const warnings: string[] = [];
+  
+  if (!type) {
+    return { valid: false, errors: ['DNS record type is required'] };
+  }
+  
+  switch (type.toUpperCase()) {
+    case 'A':
+      const aResult = validateARecord(value);
+      return { valid: aResult.valid, errors: aResult.valid ? [] : ['Invalid IPv4 address'] };
+      
+    case 'AAAA':
+      const aaaaResult = validateAAAARecord(value);
+      return { valid: aaaaResult.valid, errors: aaaaResult.valid ? [] : ['Invalid IPv6 address'] };
+      
+    case 'CNAME':
+      if (name.split('.').length === 2) { // apex domain
+        warnings.push('CNAME at zone apex');
+      }
+      const cnameResult = validateCNAMERecord(value);
+      return { valid: cnameResult.valid, errors: cnameResult.valid ? [] : ['Invalid CNAME record'], warnings };
+      
+    case 'MX':
+      const parts = value.split(' ');
+      if (parts.length !== 2 || isNaN(Number(parts[0]))) {
+        return { valid: false, errors: ['Invalid MX priority'] };
+      }
+      const priority = Number(parts[0]);
+      const domain = parts[1];
+      const mxResult = validateMXRecord(domain, priority);
+      return { valid: mxResult.valid, errors: mxResult.errors, warnings: mxResult.warnings };
+      
+    case 'TXT':
+      if (value.length > 255) {
+        return { valid: false, errors: ['TXT record string too long'] };
+      }
+      const txtResult = validateTXTRecord(value);
+      return { valid: txtResult.valid, errors: txtResult.valid ? [] : ['Invalid TXT record'] };
+      
+    case 'SRV':
+      const srvParts = value.split(' ');
+      if (srvParts.length !== 4) {
+        return { valid: false, errors: ['SRV record must have 4 parts: priority weight port target'] };
+      }
+      
+      const srvPriority = Number(srvParts[0]);
+      const srvWeight = Number(srvParts[1]);
+      const srvPort = Number(srvParts[2]);
+      const srvTarget = srvParts[3];
+      
+      if (isNaN(srvPriority) || isNaN(srvWeight) || isNaN(srvPort)) {
+        return { valid: false, errors: ['Invalid SRV record format'] };
+      }
+      
+      if (srvPort < 0 || srvPort > 65535) {
+        return { valid: false, errors: ['Invalid port number'] };
+      }
+      
+      // For SRV validation, we need to extract service and protocol from the name
+      const nameParts = name.split('.');
+      const service = nameParts[0] || '_service';
+      const protocol = nameParts[1] || '_tcp';
+      
+      const srvResult = validateSRVRecord(service, protocol, srvPriority, srvWeight, srvPort, srvTarget);
+      return { valid: srvResult.valid, errors: srvResult.errors, warnings: srvResult.warnings };
+      
+    default:
+      return { valid: true, errors: [] }; // Unknown types pass through
+  }
+}
+
+export function normalizeDomainLabel(label: string): {
+  normalized: string;
+  warnings: string[];
+  errors: string[];
+  hasHomoglyphs?: boolean;
+  scripts?: string[];
+  isIDN?: boolean;
+} {
+  const warnings: string[] = [];
+  const errors: string[] = [];
+  const normalized = label.toLowerCase();
+  
+  // Basic homoglyph detection (simplified)
+  const hasHomoglyphs = /[а-я]/.test(label) && /[a-z]/.test(label); // Mixed Cyrillic and Latin
+  if (hasHomoglyphs) {
+    warnings.push('Contains potential homoglyphs');
+  }
+  
+  // Script detection (simplified)
+  const scripts: string[] = [];
+  if (/[a-zA-Z]/.test(label)) scripts.push('Latin');
+  if (/[а-яА-Я]/.test(label)) scripts.push('Cyrillic');
+  if (/[\u4e00-\u9fff]/.test(label)) scripts.push('Han');
+  if (/[\u0600-\u06ff]/.test(label)) scripts.push('Arabic');
+  
+  if (scripts.length > 1) {
+    warnings.push('Mixed scripts detected');
+  }
+  
+  const isIDN = scripts.some(script => script !== 'Latin');
+  
+  return {
+    normalized,
+    warnings,
+    errors,
+    hasHomoglyphs,
+    scripts,
+    isIDN
+  };
 }
