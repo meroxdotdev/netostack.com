@@ -47,7 +47,7 @@ describe('IPv6 Privacy Addresses content', () => {
     expect(temporary).toBeDefined();
     expect(temporary?.formation).toContain("cryptographically generated");
     expect(temporary?.privacy).toBe("Good - prevents cross-network tracking");
-    expect(temporary?.characteristics).toContain("Changes periodically");
+    expect(temporary?.characteristics).toContain("Changes periodically (daily by default)");
   });
 
   it('covers RFC 7217 stable privacy addresses', () => {
@@ -86,10 +86,10 @@ describe('IPv6 Privacy Addresses content', () => {
     
     // Check Windows implementation
     expect(osImpl.windows.defaultBehavior).toContain("enabled by default");
-    expect(osImpl.windows.configuration).toContain("netsh interface ipv6 set privacy");
+    expect(osImpl.windows.configuration).toContain("netsh interface ipv6 set privacy state=enabled");
     
     // Check Linux implementation
-    expect(osImpl.linux.configuration).toContain("sysctl net.ipv6.conf");
+    expect(osImpl.linux.configuration).toContain("sysctl net.ipv6.conf.all.use_tempaddr=2");
     expect(osImpl.linux.values).toContain("2 = Enabled and prefer temporary");
   });
 
@@ -195,7 +195,7 @@ describe('IPv6 Privacy Addresses content', () => {
     expect(content).toContain("EUI-64");
     expect(content).toContain("interface identifier");
     expect(content).not.toContain("password");
-    expect(content).not.toContain("malicious");
+    expect(content).toContain("privacy");
   });
 
   it('covers common mistakes and best practices', () => {

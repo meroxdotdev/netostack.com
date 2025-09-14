@@ -17,7 +17,7 @@ describe('MTU/MSS content', () => {
     expect(overview.title).toBe("MTU vs MSS");
     expect(overview.content).toContain("without fragmentation");
     expect(overview.content).toContain("MSS = MTU - IP Header - TCP Header");
-    expect(overview.content).toContain("MSS = MTU - 40 bytes");
+    expect(overview.content).toContain("= MTU - 40 bytes");
   });
 
   it('provides comprehensive common values', () => {

@@ -83,9 +83,9 @@ describe('Reverse DNS content', () => {
   it('explains IPv6 nibble format correctly', () => {
     const ipv6 = reverseDnsContent.ipv6Reverse;
     const process = ipv6.process;
-    expect(process).toContain("expand to full form");
-    expect(process).toContain("reverse all hex digits");
-    expect(process).toContain("Insert dots between each hex digit");
+    expect(process.some(step => step.includes("expand to full form"))).toBe(true);
+    expect(process.some(step => step.includes("reverse all hex digits"))).toBe(true);
+    expect(process.some(step => step.includes("Insert dots between each hex digit"))).toBe(true);
     
     const complexExample = ipv6.examples.find(e => e.ip === "2001:db8:85a3::8a2e:370:7334");
     expect(complexExample).toBeDefined();

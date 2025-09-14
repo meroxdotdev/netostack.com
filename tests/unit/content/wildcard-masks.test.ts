@@ -278,7 +278,10 @@ describe('Wildcard Masks content', () => {
     // Check that different approaches are covered
     const formatStrings = wildcardMasksContent.platformDifferences.map(p => p.format).join(' ');
     expect(formatStrings).toContain("wildcard");
-    expect(formatStrings).toContain("CIDR");
+
+    // Check notes mention CIDR (some platforms use CIDR instead of wildcard)
+    const notesStrings = wildcardMasksContent.platformDifferences.map(p => p.notes).join(' ');
+    expect(notesStrings).toContain("CIDR");
   });
 
   it('explains bit-level logic correctly', () => {

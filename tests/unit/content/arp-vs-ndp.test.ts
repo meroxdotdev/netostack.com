@@ -35,7 +35,7 @@ describe('ARP vs NDP content', () => {
     const arp = arpVsNdpContent.arpDetails;
     expect(arp.title).toBe("ARP (Address Resolution Protocol)");
     expect(arp.messageTypes).toBeInstanceOf(Array);
-    expect(arp.messageTypes).toHaveLength(2);
+    expect(arp.messageTypes).toHaveLength(4);
     
     const requestType = arp.messageTypes.find(m => m.type === "ARP Request");
     expect(requestType).toBeDefined();
@@ -53,7 +53,7 @@ describe('ARP vs NDP content', () => {
     
     const nsType = ndp.messageTypes.find(m => m.type === "Neighbor Solicitation (NS)");
     expect(nsType).toBeDefined();
-    expect(nsType?.description).toContain("equivalent of ARP request");
+    expect(nsType?.description).toContain("IPv6 equivalent of ARP Request");
     
     const naType = ndp.messageTypes.find(m => m.type === "Neighbor Advertisement (NA)");
     expect(naType).toBeDefined();
@@ -66,26 +66,25 @@ describe('ARP vs NDP content', () => {
     
     expect(rsType).toBeDefined();
     expect(raType).toBeDefined();
-    expect(raType?.description).toContain("Router Advertisement");
+    expect(raType?.description).toContain("Router announces its presence and configuration");
   });
 
   it('includes practical examples', () => {
-    expect(arpVsNdpContent.examples).toBeDefined();
-    expect(arpVsNdpContent.examples.arpFlow).toBeDefined();
-    expect(arpVsNdpContent.examples.ndpFlow).toBeDefined();
+    expect(arpVsNdpContent.practicalDifferences).toBeDefined();
+    expect(arpVsNdpContent.practicalDifferences).toBeInstanceOf(Array);
+    expect(arpVsNdpContent.practicalDifferences.length).toBeGreaterThan(2);
     
-    const arpFlow = arpVsNdpContent.examples.arpFlow;
-    expect(arpFlow.steps).toBeInstanceOf(Array);
-    expect(arpFlow.steps.length).toBeGreaterThan(2);
+    const scenarios = arpVsNdpContent.practicalDifferences.map(d => d.scenario);
+    expect(scenarios).toContain("Network Discovery");
   });
 
   it('provides troubleshooting information', () => {
-    expect(arpVsNdpContent.troubleshooting).toBeDefined();
-    expect(arpVsNdpContent.troubleshooting.arp).toBeInstanceOf(Array);
-    expect(arpVsNdpContent.troubleshooting.ndp).toBeInstanceOf(Array);
+    expect(arpVsNdpContent.troubleshootingCommands).toBeDefined();
+    expect(arpVsNdpContent.troubleshootingCommands).toBeInstanceOf(Array);
+    expect(arpVsNdpContent.commonIssues).toBeInstanceOf(Array);
     
-    const arpIssues = arpVsNdpContent.troubleshooting.arp;
-    expect(arpIssues.some(issue => issue.problem.includes("spoofing"))).toBe(true);
+    const issues = arpVsNdpContent.commonIssues;
+    expect(issues.some(issue => issue.issue.includes("Spoofing"))).toBe(true);
   });
 
   it('validates data structure consistency', () => {

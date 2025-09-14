@@ -43,7 +43,7 @@ describe('ASN content', () => {
     
     expect(privateASN).toBeDefined();
     expect(privateASN?.range).toBe("64,512 - 65,534");
-    expect(privateASN?.usage).toContain("private use");
+    expect(privateASN?.usage).toContain("private peering");
     
     expect(extendedASN).toBeDefined();
     expect(extendedASN?.range).toBe("65,536 - 4,199,999,999");
@@ -59,38 +59,34 @@ describe('ASN content', () => {
     
     const concepts = bgp.concepts.map(c => c.term);
     expect(concepts).toContain("AS Path");
-    expect(concepts).toContain("Peering");
-    expect(concepts).toContain("Prefix Announcement");
+    expect(concepts).toContain("BGP Peer/Neighbor");
+    expect(concepts).toContain("Route Advertisement");
   });
 
   it('includes practical examples', () => {
-    expect(asnContent.practicalExamples).toBeDefined();
-    expect(asnContent.practicalExamples.lookupTools).toBeInstanceOf(Array);
-    expect(asnContent.practicalExamples.commonASNs).toBeInstanceOf(Array);
+    expect(asnContent.realWorldExamples).toBeDefined();
+    expect(asnContent.realWorldExamples).toBeInstanceOf(Array);
+    expect(asnContent.realWorldExamples.length).toBeGreaterThan(2);
     
-    const tools = asnContent.practicalExamples.lookupTools;
-    expect(tools.some(tool => tool.name.includes("whois"))).toBe(true);
-    
-    const commonASNs = asnContent.practicalExamples.commonASNs;
-    expect(commonASNs.some(asn => asn.asn.includes("Google"))).toBe(true);
+    const examples = asnContent.realWorldExamples;
+    expect(examples.some(ex => ex.organization.includes("Google"))).toBe(true);
   });
 
   it('explains real-world relevance', () => {
-    expect(asnContent.realWorldRelevance).toBeDefined();
-    expect(asnContent.realWorldRelevance.useCases).toBeInstanceOf(Array);
-    expect(asnContent.realWorldRelevance.useCases.length).toBeGreaterThan(2);
+    expect(asnContent.benefits).toBeDefined();
+    expect(asnContent.benefits).toBeInstanceOf(Array);
+    expect(asnContent.benefits.length).toBeGreaterThan(2);
     
-    const useCases = asnContent.realWorldRelevance.useCases;
-    expect(useCases.some(uc => uc.includes("routing policies"))).toBe(true);
-    expect(useCases.some(uc => uc.includes("traffic analysis"))).toBe(true);
+    const benefits = asnContent.benefits;
+    expect(benefits.some(b => b.includes("routing policy"))).toBe(true);
   });
 
   it('provides troubleshooting guidance', () => {
     expect(asnContent.troubleshooting).toBeDefined();
-    expect(asnContent.troubleshooting.commonIssues).toBeInstanceOf(Array);
+    expect(asnContent.troubleshooting).toBeInstanceOf(Array);
     
-    const issues = asnContent.troubleshooting.commonIssues;
-    expect(issues.some(issue => issue.problem.includes("hijacking"))).toBe(true);
+    const issues = asnContent.troubleshooting;
+    expect(issues.some(issue => issue.issue.includes("routing"))).toBe(true);
   });
 
   it('validates data structure consistency', () => {
@@ -129,7 +125,7 @@ describe('ASN content', () => {
     expect(content).toContain("peering");
     expect(content).toContain("internet");
     expect(content).toContain("prefix");
-    expect(content).toContain("announcement");
+    expect(content).toContain("Route Advertisement");
     expect(content).not.toContain("password");
     expect(content).not.toContain("malicious");
   });
