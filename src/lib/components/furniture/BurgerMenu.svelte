@@ -346,7 +346,7 @@
   position: fixed;
   top: 0;
   right: -100%;
-  width: 100vw;
+  width: min(90vw, 400px);
   height: 100vh;
   background-color: var(--bg-primary);
   border-left: 1px solid var(--border-primary);
@@ -355,17 +355,15 @@
   overflow-y: auto;
   transition: right var(--transition-medium) cubic-bezier(0.4, 0, 0.2, 1);
   
-  @media (min-width: 480px) {
-    width: min(90vw, 400px);
+  @media (max-width: 480px) {
+    &.open { width: 100%;}
   }
   
   &.open {
     right: 0;
-    
     .menu-item {
       animation: slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
-    
     .menu-section:nth-child(1) .menu-item { animation-delay: 0.1s; }
     .menu-section:nth-child(2) .menu-item { animation-delay: 0.15s; }
     .menu-section:nth-child(3) .menu-item { animation-delay: 0.2s; }

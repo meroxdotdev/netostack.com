@@ -13,6 +13,10 @@ export type NavGroup = {
   items: NavItem[];
 };
 
+export const aboutPages: NavItem[] = [
+  { href: '/about', label: 'About', description: `About and its mission` },
+];
+
 // Individual standalone pages
 export const STANDALONE_PAGES: NavItem[] = [];
 

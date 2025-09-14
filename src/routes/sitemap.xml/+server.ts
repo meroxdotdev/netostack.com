@@ -1,17 +1,11 @@
-import { ALL_PAGES, TOP_NAV, footerLinks } from '$lib/constants/nav.ts';
-import { site } from '$lib/constants/site.ts';
+import { ALL_PAGES, TOP_NAV, footerLinks } from '$lib/constants/nav';
+import { site } from '$lib/constants/site';
 
 /**
  * Dynamic sitemap.xml endpoint
  * 
- * Generates a sitemap from the navigation structure in nav.ts, ensuring all
- * pages are discoverable by search engines. Includes:
- * 
- * - All pages from the navigation structure (123+ URLs)
- * - Appropriate priority based on page hierarchy (1.0 for homepage, 0.9 for top nav, etc.)
- * - Change frequency based on content type (monthly for reference, weekly for tools)
- * - Current timestamp for lastmod
- * - Proper caching headers
+ * Generates a sitemap from the page structure in nav.ts, for search engines
+ * With a priority, change frequency, lastmod date and caching headers
  */
 export async function GET() {
 	// Collect all unique URLs
@@ -72,9 +66,9 @@ ${sortedUrls.map(url => {
 	} else if (url === '/about') {
 		changefreq = 'monthly';
 	} else if (url.startsWith('/reference/')) {
-		changefreq = 'monthly';  // Reference pages change less frequently
+		changefreq = 'weekly';
 	} else {
-		changefreq = 'weekly';   // Tool pages may get updates
+		changefreq = 'monthly';
 	}
 	
 	return `	<url>
