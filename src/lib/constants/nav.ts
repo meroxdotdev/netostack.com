@@ -355,7 +355,7 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'A/AAAA Bulk Generator',
           description: 'Bulk create A and AAAA record sets from IP lists with TTL and RRset controls',
           icon: 'dns-a-records',
-          keywords: ['dns', 'a', 'aaaa', 'records', 'bulk', 'generator', 'ttl', 'rrset']
+          keywords: ['dns', 'A record', 'AAAA', 'records', 'bulk', 'generator', 'ttl', 'rrset']
         },
         {
           href: '/dns/generators/cname-builder',
@@ -472,7 +472,7 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'DNS Record Validator',
           description: 'Validate individual DNS resource record syntax (A/AAAA/CNAME/MX/TXT/SRV/CAA) with error detection',
           icon: 'dns-record-validator',
-          keywords: ['dns', 'record', 'validator', 'syntax', 'a', 'aaaa', 'cname', 'mx', 'txt', 'srv', 'caa', 'validation']
+          keywords: ['dns', 'record', 'validator', 'syntax', 'A record', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV', 'CAA', 'validation']
         },
         {
           href: '/dns/ttl-calculator',
@@ -580,7 +580,7 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'DNS Lookup',
           description: 'Resolve DNS records (A, AAAA, CNAME, MX, TXT, NS, SOA, CAA) using various public resolvers or custom DNS servers',
           icon: 'dns-lookup',
-          keywords: ['dns', 'lookup', 'resolver', 'a', 'aaaa', 'cname', 'mx', 'txt', 'ns', 'soa', 'caa', 'query']
+          keywords: ['dns', 'lookup', 'resolver', 'A record', 'AAAA', 'CNAME', 'MX', 'TXT', 'NS', 'SOA', 'CAA', 'query']
         },
         {
           href: '/diagnostics/dns/reverse-lookup',

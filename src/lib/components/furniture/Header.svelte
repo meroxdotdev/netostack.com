@@ -1,16 +1,14 @@
 <script lang="ts">
-  import { page } from '$app/stores';
-  import { TOP_NAV, isActive } from '$lib/constants/nav';
   import { site } from '$lib/constants/site';
   import favicon from '$lib/assets/favicon.svg';
   import Icon from '$lib/components/global/Icon.svelte';
   import GlobalSearch from '$lib/components/global/GlobalSearch.svelte';
   import BurgerMenu from '$lib/components/furniture/BurgerMenu.svelte';
+  import TopNav from '$lib/components/furniture/TopNav.svelte';
 
   // Props from +layout for theme state & toggler
   export let darkMode: boolean;
   export let toggleTheme: () => void;
-  $: currentPath = $page.url.pathname;
 </script>
 
 <svelte:head>
@@ -33,17 +31,7 @@
       </div>
 
       <div class="header-actions">
-        <nav class="nav-links" aria-label="Primary">
-          {#each TOP_NAV as item}
-            <a
-              href={item.href}
-              class="nav-link {isActive(currentPath, item.href) ? 'active' : ''}"
-              aria-current={isActive(currentPath, item.href) ? 'page' : undefined}
-            >
-              {item.label}
-            </a>
-          {/each}
-        </nav>
+        <TopNav />
 
         <div class="header-buttons">
           <GlobalSearch />
@@ -74,3 +62,67 @@
     </div>
   </div>
 </header>
+
+<style lang="scss">
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+
+  .header-buttons {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .theme-toggle {
+    position: relative;
+    width: 3rem;
+    height: 1.5rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--surface-hover);
+    }
+
+    &.dark {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+  }
+
+  .toggle-slider {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: var(--bg-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    box-shadow: var(--shadow-sm);
+
+    svg {
+      width: 0.75rem;
+      height: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .dark & {
+      transform: translateX(1.5rem);
+      background: var(--bg-primary);
+
+      svg {
+        color: var(--color-primary);
+      }
+    }
+  }
+</style>
