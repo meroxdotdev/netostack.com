@@ -4,7 +4,7 @@
 
   const zoneTools = (SUB_NAV['/dns']?.find(group =>
     typeof group === 'object' && 'title' in group && group.title === 'Zone File Tools'
-  ) as any)?.items || [];
+  ))?.items || [];
 </script>
 
 <svelte:head>
