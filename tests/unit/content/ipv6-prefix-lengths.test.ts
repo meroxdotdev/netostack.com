@@ -133,9 +133,9 @@ describe('IPv6 Prefix Lengths content', () => {
       const section = ipv6PrefixLengthsContent.usageGuidelines[category as keyof typeof ipv6PrefixLengthsContent.usageGuidelines];
       expect(section).toHaveProperty('title');
       expect(section).toHaveProperty('allocations');
-      expect(section.allocations).toBeInstanceOf(Array);
-      
-      section.allocations.forEach((alloc: any) => {
+      expect((section as any).allocations).toBeInstanceOf(Array);
+
+      (section as any).allocations.forEach((alloc: any) => {
         expect(alloc).toHaveProperty('size');
         expect(alloc).toHaveProperty('description');
       });

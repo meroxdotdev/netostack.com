@@ -2,9 +2,9 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import { SUB_NAV } from '$lib/constants/nav.js';
 
-  const zoneTools = SUB_NAV['/dns']?.find(group => 
+  const zoneTools = (SUB_NAV['/dns']?.find(group =>
     typeof group === 'object' && 'title' in group && group.title === 'Zone File Tools'
-  )?.items || [];
+  ) as any)?.items || [];
 </script>
 
 <svelte:head>
@@ -24,7 +24,7 @@
     {#each zoneTools as tool}
       <a href={tool.href} class="tool-card">
         <div class="tool-icon">
-          <Icon name="file-text" size="xl" />
+          <Icon name="file-text" size="lg" />
         </div>
         <div class="tool-info">
           <h3>{tool.label}</h3>

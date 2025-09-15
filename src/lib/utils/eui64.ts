@@ -76,7 +76,7 @@ function macToEUI64(mac: string): string {
   
   // Insert FFFE in the middle and flip the U/L bit
   const ouiBytes = oui.match(/.{2}/g) || [];
-  const firstByte = parseInt(ouiBytes[0], 16);
+  const firstByte = parseInt(ouiBytes[0] || '00', 16);
   
   // Flip the Universal/Local bit (bit 1, which is 0x02)
   const modifiedFirstByte = (firstByte ^ 0x02).toString(16).padStart(2, '0').toUpperCase();

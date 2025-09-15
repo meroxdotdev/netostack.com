@@ -7,7 +7,7 @@ vi.mock('@sveltejs/kit', () => ({
 }));
 
 // Mock fetch for RDAP requests
-global.fetch = vi.fn();
+(globalThis as any).fetch = vi.fn();
 
 import { POST } from '../../../../../../../src/routes/api/internal/diagnostics/rdap/+server';
 import { json, error } from '@sveltejs/kit';
@@ -15,7 +15,7 @@ import { json, error } from '@sveltejs/kit';
 // Get mocked functions
 const mockJson = vi.mocked(json);
 const mockError = vi.mocked(error);
-const mockFetch = vi.mocked(global.fetch);
+const mockFetch = vi.mocked((globalThis as any).fetch);
 
 describe('RDAP Diagnostics Server', () => {
   beforeEach(() => {
@@ -72,18 +72,18 @@ describe('RDAP Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           action: 'unknown-action'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Unknown action: unknown-action');
     });
 
     it('handles JSON parsing errors with 500 error', async () => {
       const mockRequest = {
         json: vi.fn().mockRejectedValue(new Error('Invalid JSON'))
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
       expect(mockError).toHaveBeenCalledWith(500, expect.stringContaining('RDAP lookup failed'));
     });
 
@@ -93,7 +93,7 @@ describe('RDAP Diagnostics Server', () => {
           action: 'domain-lookup',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock bootstrap response first, then RDAP response
       mockFetch
@@ -114,7 +114,7 @@ describe('RDAP Diagnostics Server', () => {
           })
         } as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -131,9 +131,9 @@ describe('RDAP Diagnostics Server', () => {
           action: 'domain-lookup',
           domain: 'invalid'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
       expect(mockError).toHaveBeenCalledWith(500, expect.stringContaining('Valid domain name required'));
     });
 
@@ -143,7 +143,7 @@ describe('RDAP Diagnostics Server', () => {
           action: 'ip-lookup',
           ip: '192.0.2.1'
         })
-      };
+      } as unknown as Request;
 
       // Mock bootstrap response first, then RDAP response
       mockFetch
@@ -164,7 +164,7 @@ describe('RDAP Diagnostics Server', () => {
           })
         } as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -181,7 +181,7 @@ describe('RDAP Diagnostics Server', () => {
           action: 'ip-lookup',
           ip: '2001:db8::1'
         })
-      };
+      } as unknown as Request;
 
       // Mock bootstrap response first, then RDAP response
       mockFetch
@@ -202,7 +202,7 @@ describe('RDAP Diagnostics Server', () => {
           })
         } as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -219,7 +219,7 @@ describe('RDAP Diagnostics Server', () => {
           action: 'asn-lookup',
           asn: '64496'
         })
-      };
+      } as unknown as Request;
 
       // Mock bootstrap response first, then RDAP response
       mockFetch
@@ -241,7 +241,7 @@ describe('RDAP Diagnostics Server', () => {
           })
         } as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -257,9 +257,9 @@ describe('RDAP Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           action: 'domain-lookup'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
     });
 
     it('handles missing IP parameter', async () => {
@@ -267,9 +267,9 @@ describe('RDAP Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           action: 'ip-lookup'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
     });
 
     it('handles missing ASN parameter', async () => {
@@ -277,9 +277,9 @@ describe('RDAP Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           action: 'asn-lookup'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
     });
 
     it('handles RDAP service unavailable', async () => {
@@ -288,12 +288,12 @@ describe('RDAP Diagnostics Server', () => {
           action: 'domain-lookup',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock bootstrap failure
       mockFetch.mockRejectedValue(new Error('Bootstrap service unavailable'));
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
     });
 
     it('handles RDAP query failure', async () => {
@@ -302,7 +302,7 @@ describe('RDAP Diagnostics Server', () => {
           action: 'domain-lookup',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock bootstrap success but RDAP query failure
       mockFetch
@@ -316,7 +316,7 @@ describe('RDAP Diagnostics Server', () => {
         } as any)
         .mockRejectedValueOnce(new Error('RDAP service error'));
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
     });
   });
 
@@ -327,7 +327,7 @@ describe('RDAP Diagnostics Server', () => {
           action: 'domain-lookup',
           domain: 'test.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock successful responses
       mockFetch
@@ -340,7 +340,7 @@ describe('RDAP Diagnostics Server', () => {
           json: () => Promise.resolve({ objectClassName: 'domain' })
         } as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -350,7 +350,7 @@ describe('RDAP Diagnostics Server', () => {
           action: 'ip-lookup',
           ip: '1.1.1.1'
         })
-      };
+      } as unknown as Request;
 
       // Mock successful responses
       mockFetch
@@ -363,7 +363,7 @@ describe('RDAP Diagnostics Server', () => {
           json: () => Promise.resolve({ objectClassName: 'ip network' })
         } as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -373,7 +373,7 @@ describe('RDAP Diagnostics Server', () => {
           action: 'asn-lookup',
           asn: '12345'
         })
-      };
+      } as unknown as Request;
 
       // Mock successful responses
       mockFetch
@@ -386,7 +386,7 @@ describe('RDAP Diagnostics Server', () => {
           json: () => Promise.resolve({ objectClassName: 'autnum' })
         } as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
   });
@@ -418,7 +418,7 @@ describe('RDAP Diagnostics Server', () => {
             json: () => Promise.resolve({ objectClassName: 'test' })
           } as any);
 
-        await POST({ request: mockRequest });
+        await POST({ request: mockRequest } as any);
         expect(mockJson).toHaveBeenCalled();
       });
     });

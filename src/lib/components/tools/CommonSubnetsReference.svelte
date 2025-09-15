@@ -64,7 +64,7 @@
 	<!-- Explainer Section -->
 	<div class="explainer-card">
 		<h3>
-			<SvgIcon icon="info" size="md" />
+			<SvgIcon icon="bulb" size="md" />
 			Subnet Planning Guidelines
 		</h3>
 		<div class="explainer-content">

@@ -123,9 +123,9 @@ describe('HTTP Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           url: 'https://example.com'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Missing required parameters: action and url');
     });
 
@@ -134,9 +134,9 @@ describe('HTTP Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           action: 'headers'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Missing required parameters: action and url');
     });
 
@@ -146,9 +146,9 @@ describe('HTTP Diagnostics Server', () => {
           action: 'headers',
           url: 'invalid-url'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, expect.stringContaining('Invalid URL'));
     });
 
@@ -158,18 +158,18 @@ describe('HTTP Diagnostics Server', () => {
           action: 'unknown-action',
           url: 'https://example.com'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Unknown action: unknown-action');
     });
 
     it('handles JSON parsing errors with 500 error', async () => {
       const mockRequest = {
         json: vi.fn().mockRejectedValue(new Error('Invalid JSON'))
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
       expect(mockError).toHaveBeenCalledWith(500, expect.any(String));
     });
 
@@ -179,9 +179,9 @@ describe('HTTP Diagnostics Server', () => {
           action: 'headers',
           url: 'https://example.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -199,9 +199,9 @@ describe('HTTP Diagnostics Server', () => {
           action: 'redirect-trace',
           url: 'https://example.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -219,7 +219,7 @@ describe('HTTP Diagnostics Server', () => {
           action: 'security',
           url: 'https://example.com'
         })
-      };
+      } as unknown as Request;
 
       // Add MSW handler with security headers
       server.use(
@@ -234,7 +234,7 @@ describe('HTTP Diagnostics Server', () => {
         })
       );
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -252,11 +252,11 @@ describe('HTTP Diagnostics Server', () => {
           action: 'cors-check',
           url: 'https://api.example.com'
         })
-      };
+      } as unknown as Request;
 
       // CORS headers already handled by MSW in beforeEach
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -282,9 +282,9 @@ describe('HTTP Diagnostics Server', () => {
             origin: 'https://mydomain.com'
           }
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -299,7 +299,7 @@ describe('HTTP Diagnostics Server', () => {
           action: 'cors-check',
           url: 'https://api.example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock fetch failure for CORS preflight
       server.use(
@@ -308,7 +308,7 @@ describe('HTTP Diagnostics Server', () => {
         })
       );
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -330,7 +330,7 @@ describe('HTTP Diagnostics Server', () => {
           action: 'perf',
           url: 'https://example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock response with performance-related headers
       server.use(
@@ -345,7 +345,7 @@ describe('HTTP Diagnostics Server', () => {
         })
       );
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -370,9 +370,9 @@ describe('HTTP Diagnostics Server', () => {
             'Authorization': 'Bearer token123'
           }
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -383,9 +383,9 @@ describe('HTTP Diagnostics Server', () => {
           url: 'https://example.com',
           method: 'POST'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -396,9 +396,9 @@ describe('HTTP Diagnostics Server', () => {
           url: 'https://example.com',
           timeout: 5000
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -409,9 +409,9 @@ describe('HTTP Diagnostics Server', () => {
           url: 'https://example.com',
           maxRedirects: 5
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
   });
@@ -423,7 +423,7 @@ describe('HTTP Diagnostics Server', () => {
           action: 'headers',
           url: 'https://timeout.example.com'
         })
-      };
+      } as unknown as Request;
 
       server.use(
         http.get('https://timeout.example.com', () => {
@@ -433,7 +433,7 @@ describe('HTTP Diagnostics Server', () => {
         })
       );
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('408');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('408');
       expect(mockError).toHaveBeenCalledWith(408, 'Request timeout');
     });
 
@@ -443,17 +443,17 @@ describe('HTTP Diagnostics Server', () => {
           action: 'headers',
           url: 'https://nonexistent.example.com'
         })
-      };
+      } as unknown as Request;
 
       server.use(
         http.get('https://nonexistent.example.com', () => {
           const dnsError = new Error('Host not found');
-          dnsError.code = 'ENOTFOUND';
+          (dnsError as any).code = 'ENOTFOUND';
           throw dnsError;
         })
       );
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Host not found');
     });
 
@@ -463,17 +463,17 @@ describe('HTTP Diagnostics Server', () => {
           action: 'headers',
           url: 'https://refused.example.com'
         })
-      };
+      } as unknown as Request;
 
       server.use(
         http.get('https://refused.example.com', () => {
           const connError = new Error('Connection refused');
-          connError.code = 'ECONNREFUSED';
+          (connError as any).code = 'ECONNREFUSED';
           throw connError;
         })
       );
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Connection refused');
     });
 
@@ -483,7 +483,7 @@ describe('HTTP Diagnostics Server', () => {
           action: 'headers',
           url: 'https://error.example.com'
         })
-      };
+      } as unknown as Request;
 
       server.use(
         http.get('https://error.example.com', () => {
@@ -491,7 +491,7 @@ describe('HTTP Diagnostics Server', () => {
         })
       );
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
       expect(mockError).toHaveBeenCalledWith(500, 'Generic error');
     });
   });
@@ -507,9 +507,9 @@ describe('HTTP Diagnostics Server', () => {
           maxRedirects: 5,
           timeout: 10000
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -519,9 +519,9 @@ describe('HTTP Diagnostics Server', () => {
           action: 'headers',
           url: 'https://test.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
   });
@@ -544,7 +544,7 @@ describe('HTTP Diagnostics Server', () => {
           })
         };
 
-        await POST({ request: mockRequest });
+        await POST({ request: mockRequest } as any);
         expect(mockJson).toHaveBeenCalled();
       });
     });
@@ -568,7 +568,7 @@ describe('HTTP Diagnostics Server', () => {
           })
         };
 
-        await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+        await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       });
     });
 
@@ -588,7 +588,7 @@ describe('HTTP Diagnostics Server', () => {
           })
         };
 
-        await POST({ request: mockRequest });
+        await POST({ request: mockRequest } as any);
         expect(mockJson).toHaveBeenCalled();
       });
     });

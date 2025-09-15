@@ -38,7 +38,7 @@ vi.mock('node:net', () => ({
 }));
 
 // Mock fetch for SPF/DMARC calls
-global.fetch = vi.fn();
+(globalThis as any).fetch = vi.fn();
 
 // Import MSW for internal API calls
 import { http, HttpResponse } from 'msw';
@@ -54,6 +54,8 @@ const mockJson = vi.mocked(json);
 const mockError = vi.mocked(error);
 const mockDns = vi.mocked(dns);
 const mockNetConnect = vi.mocked(netConnect);
+const mockResolveTxt = vi.mocked(dns.resolveTxt);
+const mockResolveMx = vi.mocked(dns.resolveMx);
 
 describe('Email Diagnostics Server', () => {
   beforeEach(() => {
@@ -105,7 +107,7 @@ describe('Email Diagnostics Server', () => {
           domain: 'example.com',
           checkPorts: false
         })
-      };
+      } as unknown as Request;
 
       mockDns.resolveMx.mockResolvedValue([
         { priority: 10, exchange: 'mail.example.com' }
@@ -113,7 +115,7 @@ describe('Email Diagnostics Server', () => {
       mockDns.resolve4.mockResolvedValue(['192.0.2.1']);
       mockDns.resolve6.mockResolvedValue(['2001:db8::1']);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -135,7 +137,7 @@ describe('Email Diagnostics Server', () => {
           domain: 'example.com',
           checkPorts: true
         })
-      };
+      } as unknown as Request;
 
       mockDns.resolveMx.mockResolvedValue([
         { priority: 10, exchange: 'mail.example.com' }
@@ -152,7 +154,7 @@ describe('Email Diagnostics Server', () => {
       };
       mockNetConnect.mockReturnValue(mockSocket as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalled();
       expect(mockNetConnect).toHaveBeenCalled();
@@ -164,13 +166,13 @@ describe('Email Diagnostics Server', () => {
           action: 'spf-check',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       mockDns.resolveTxt.mockResolvedValue([
         ['v=spf1 include:_spf.google.com ~all']
       ]);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -187,13 +189,13 @@ describe('Email Diagnostics Server', () => {
           action: 'dmarc-check',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       mockResolveTxt.mockResolvedValue([
         ['v=DMARC1; p=reject; rua=mailto:dmarc@example.com']
       ]);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -209,18 +211,18 @@ describe('Email Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           action: 'unknown-action'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Unknown action: unknown-action');
     });
 
     it('handles JSON parsing errors with 500 error', async () => {
       const mockRequest = {
         json: vi.fn().mockRejectedValue(new Error('Invalid JSON'))
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
       expect(mockError).toHaveBeenCalledWith(500, expect.stringContaining('Email diagnostics failed'));
     });
 
@@ -230,11 +232,11 @@ describe('Email Diagnostics Server', () => {
           action: 'mx-health',
           domain: 'nonexistent.example.com'
         })
-      };
+      } as unknown as Request;
 
       mockDns.resolveMx.mockRejectedValue(new Error('NXDOMAIN'));
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -250,13 +252,13 @@ describe('Email Diagnostics Server', () => {
           action: 'spf-check',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       mockDns.resolveTxt.mockResolvedValue([
         ['some-other-txt-record']
       ]);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -272,11 +274,11 @@ describe('Email Diagnostics Server', () => {
           action: 'dmarc-check',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       mockDns.resolveTxt.mockResolvedValue([]);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -292,7 +294,7 @@ describe('Email Diagnostics Server', () => {
           action: 'mx-health',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       mockResolveMx.mockResolvedValue([
         { priority: 10, exchange: 'mail1.example.com' },
@@ -307,7 +309,7 @@ describe('Email Diagnostics Server', () => {
         .mockRejectedValueOnce(new Error('No AAAA record'))
         .mockResolvedValueOnce(['2001:db8::1']);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -340,13 +342,13 @@ describe('Email Diagnostics Server', () => {
           action: 'spf-check',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       mockResolveTxt.mockResolvedValue([
         ['v=spf1 ip4:192.0.2.0/24 include:_spf.google.com include:servers.mcsv.net ~all']
       ]);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -367,13 +369,13 @@ describe('Email Diagnostics Server', () => {
           action: 'dmarc-check',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       mockResolveTxt.mockResolvedValue([
         ['v=DMARC1; p=quarantine; sp=reject; pct=100; rua=mailto:dmarc@example.com; ruf=mailto:forensic@example.com']
       ]);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -397,11 +399,11 @@ describe('Email Diagnostics Server', () => {
           action: 'mx-health',
           domain: 'test.com'
         })
-      };
+      } as unknown as Request;
 
       mockDns.resolveMx.mockResolvedValue([]);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -411,11 +413,11 @@ describe('Email Diagnostics Server', () => {
           action: 'spf-check',
           domain: 'test.com'
         })
-      };
+      } as unknown as Request;
 
       mockDns.resolveTxt.mockResolvedValue([]);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -425,11 +427,11 @@ describe('Email Diagnostics Server', () => {
           action: 'dmarc-check',
           domain: 'test.com'
         })
-      };
+      } as unknown as Request;
 
       mockDns.resolveTxt.mockResolvedValue([]);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
   });
@@ -457,7 +459,7 @@ describe('Email Diagnostics Server', () => {
           mockDns.resolveTxt.mockResolvedValue([]);
         }
 
-        await POST({ request: mockRequest });
+        await POST({ request: mockRequest } as any);
         expect(mockJson).toHaveBeenCalled();
       });
     });

@@ -52,7 +52,7 @@ const DNS_SERVERS = {
 };
 
 function getDNSServerForResolver(resolver: string): string {
-  return DNS_SERVERS[resolver] || DNS_SERVERS.cloudflare;
+  return (DNS_SERVERS as any)[resolver] || DNS_SERVERS.cloudflare;
 }
 
 interface LookupReq extends BaseReq {
@@ -144,7 +144,7 @@ async function performDNSLookup(name: string, type: keyof typeof DNS_TYPES, opts
       const result = await doHQuery(endpoint, name, DNS_TYPES[type], timeoutMs);
       return { ...result, warnings };
     } catch (error) {
-      console.warn(`DoH query failed for ${doh}, falling back to Cloudflare DoH:`, error.message);
+      console.warn(`DoH query failed for ${doh}, falling back to Cloudflare DoH:`, (error as Error).message);
       
       // If the failed resolver wasn't Cloudflare, try Cloudflare DoH as fallback
       if (doh !== 'cloudflare') {
@@ -154,7 +154,7 @@ async function performDNSLookup(name: string, type: keyof typeof DNS_TYPES, opts
           warnings.push(`${originalResolver} failed, fell back to Cloudflare DoH which succeeded.`);
           return { ...result, warnings };
         } catch (cloudflareError) {
-          console.warn('Cloudflare DoH also failed, falling back to native DNS:', cloudflareError.message);
+          console.warn('Cloudflare DoH also failed, falling back to native DNS:', (cloudflareError as Error).message);
         }
       }
       
@@ -334,7 +334,11 @@ async function parseSPFRecord(domain: string, visited = new Set<string>(), looku
     // Clean the SPF record data by removing quotes
     const cleanSpfData = spfRecord.data.replace(/^"(.*)"$/, '$1');
     const mechanisms = cleanSpfData.split(' ');
-    const expanded = { mechanisms: [], includes: [], redirects: [] };
+    const expanded = {
+      mechanisms: [] as string[],
+      includes: [] as Array<{domain: string, result: any}>,
+      redirects: [] as Array<{domain: string, result: any}>
+    };
     
     for (const mechanism of mechanisms) {
       if (mechanism.startsWith('include:')) {

@@ -6,7 +6,7 @@
 
 <div class="no-results-card">
   <div class="no-results-content">
-    <Icon name="search-x" size="xl" class="no-results-icon" />
+    <Icon name="search-x" size="lg" />
     <h3>No tools found</h3>
     <p>
       {#if searchQuery}

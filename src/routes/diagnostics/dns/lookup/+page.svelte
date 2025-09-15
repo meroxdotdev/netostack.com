@@ -243,7 +243,7 @@
       <div class="action-section">
         <button class="lookup-btn" onclick={performLookup} disabled={loading || !isInputValid}>
           {#if loading}
-            <Icon name="loader-2" size="sm" class="animate-spin" />
+            <Icon name="loader-2" size="sm" animate="spin" />
             Performing Lookup...
           {:else}
             <Icon name="search" size="sm" />

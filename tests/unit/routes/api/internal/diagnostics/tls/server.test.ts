@@ -14,12 +14,12 @@ vi.mock('node:tls', () => ({
 
 import { POST } from '../../../../../../../src/routes/api/internal/diagnostics/tls/+server';
 import { json, error } from '@sveltejs/kit';
-import { connect as tlsConnect } from 'node:tls';
+import * as tls from 'node:tls';
 
 // Get mocked functions
 const mockJson = vi.mocked(json);
 const mockError = vi.mocked(error);
-const mockTlsConnect = vi.mocked(tlsConnect);
+const mockTlsConnect = vi.mocked((tls as any).connect);
 
 describe('TLS Diagnostics Server', () => {
   beforeEach(() => {
@@ -35,7 +35,7 @@ describe('TLS Diagnostics Server', () => {
       on: vi.fn((event, callback) => {
         if (event === 'secureConnect') {
           // Immediately trigger secureConnect for fast tests
-          setImmediate(() => callback());
+          setTimeout(() => callback(), 0);
         } else if (event === 'error') {
           // Don't trigger error by default
         }
@@ -62,18 +62,18 @@ describe('TLS Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           action: 'unknown-action'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Unknown action: unknown-action');
     });
 
     it('handles JSON parsing errors with 500 error', async () => {
       const mockRequest = {
         json: vi.fn().mockRejectedValue(new Error('Invalid JSON'))
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
       expect(mockError).toHaveBeenCalledWith(500, expect.stringContaining('TLS operation failed'));
     });
 
@@ -83,14 +83,14 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock successful connection
       const mockSocket = {
         destroy: vi.fn(),
         on: vi.fn((event, callback) => {
           if (event === 'secureConnect') {
-            setImmediate(() => callback());
+            setTimeout(() => callback(), 0);
           }
         }),
         getPeerCertificate: vi.fn(() => ({
@@ -104,7 +104,7 @@ describe('TLS Diagnostics Server', () => {
       };
       mockTlsConnect.mockReturnValue(mockSocket as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -121,9 +121,9 @@ describe('TLS Diagnostics Server', () => {
           host: 'example.com',
           port: 8443
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -140,9 +140,9 @@ describe('TLS Diagnostics Server', () => {
           host: '192.168.1.1',
           servername: 'example.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalled();
     });
@@ -153,7 +153,7 @@ describe('TLS Diagnostics Server', () => {
           action: 'versions',
           host: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock multiple TLS version connections
       let connectionCount = 0;
@@ -162,7 +162,7 @@ describe('TLS Diagnostics Server', () => {
           destroy: vi.fn(),
           on: vi.fn((event, callback) => {
             if (event === 'secureConnect') {
-              setImmediate(() => callback());
+              setTimeout(() => callback(), 0);
             }
           }),
           getProtocol: vi.fn(() => {
@@ -173,7 +173,7 @@ describe('TLS Diagnostics Server', () => {
         return mockSocket as any;
       });
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -190,21 +190,21 @@ describe('TLS Diagnostics Server', () => {
           action: 'alpn',
           host: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock ALPN negotiation
       const mockSocket = {
         destroy: vi.fn(),
         on: vi.fn((event, callback) => {
           if (event === 'secureConnect') {
-            setImmediate(() => callback());
+            setTimeout(() => callback(), 0);
           }
         }),
         alpnProtocol: 'h2'
       };
       mockTlsConnect.mockReturnValue(mockSocket as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -222,9 +222,9 @@ describe('TLS Diagnostics Server', () => {
           host: 'example.com',
           protocols: ['h3', 'h2', 'http/1.1']
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -239,7 +239,7 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: 'nonexistent.example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock connection error
       const mockSocket = {
@@ -249,10 +249,10 @@ describe('TLS Diagnostics Server', () => {
             setTimeout(() => callback(new Error('Connection refused')), 10);
           }
         })
-      };
+      } as unknown as Request;
       mockTlsConnect.mockReturnValue(mockSocket as any);
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
     });
 
     it('handles certificate parsing errors', async () => {
@@ -261,23 +261,23 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: 'example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock connection with certificate error
       const mockSocket = {
         destroy: vi.fn(),
         on: vi.fn((event, callback) => {
           if (event === 'secureConnect') {
-            setImmediate(() => callback());
+            setTimeout(() => callback(), 0);
           }
         }),
         getPeerCertificate: vi.fn(() => {
           throw new Error('Certificate parsing failed');
         })
-      };
+      } as unknown as Request;
       mockTlsConnect.mockReturnValue(mockSocket as any);
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
     });
 
     it('handles IPv6 addresses correctly', async () => {
@@ -286,9 +286,9 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: '[2001:db8::1]'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -303,9 +303,9 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: 'example.com:8443'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalled();
     });
@@ -318,9 +318,9 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: 'test.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -330,9 +330,9 @@ describe('TLS Diagnostics Server', () => {
           action: 'versions',
           host: 'test.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -342,9 +342,9 @@ describe('TLS Diagnostics Server', () => {
           action: 'alpn',
           host: 'test.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -354,9 +354,9 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: 'test.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -382,7 +382,7 @@ describe('TLS Diagnostics Server', () => {
           })
         };
 
-        await POST({ request: mockRequest });
+        await POST({ request: mockRequest } as any);
         expect(mockJson).toHaveBeenCalled();
       });
     });
@@ -395,20 +395,20 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: 'slow.example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock timeout
       const mockSocket = {
         destroy: vi.fn(),
         on: vi.fn((event, callback) => {
           if (event === 'timeout') {
-            setImmediate(() => callback());
+            setTimeout(() => callback(), 0);
           }
         })
-      };
+      } as unknown as Request;
       mockTlsConnect.mockReturnValue(mockSocket as any);
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
     });
 
     it('handles self-signed certificate scenarios', async () => {
@@ -417,14 +417,14 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: 'selfsigned.example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock self-signed certificate
       const mockSocket = {
         destroy: vi.fn(),
         on: vi.fn((event, callback) => {
           if (event === 'secureConnect') {
-            setImmediate(() => callback());
+            setTimeout(() => callback(), 0);
           }
         }),
         getPeerCertificate: vi.fn(() => ({
@@ -439,7 +439,7 @@ describe('TLS Diagnostics Server', () => {
       };
       mockTlsConnect.mockReturnValue(mockSocket as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -449,14 +449,14 @@ describe('TLS Diagnostics Server', () => {
           action: 'certificate',
           host: 'expired.example.com'
         })
-      };
+      } as unknown as Request;
 
       // Mock expired certificate
       const mockSocket = {
         destroy: vi.fn(),
         on: vi.fn((event, callback) => {
           if (event === 'secureConnect') {
-            setImmediate(() => callback());
+            setTimeout(() => callback(), 0);
           }
         }),
         getPeerCertificate: vi.fn(() => ({
@@ -471,7 +471,7 @@ describe('TLS Diagnostics Server', () => {
       };
       mockTlsConnect.mockReturnValue(mockSocket as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
   });

@@ -240,7 +240,7 @@ fe80::/10`
                   type="button"
                   class="btn btn-icon"
                   class:copied={copiedStates['ipv4']}
-                  onclick={() => copyToClipboard(result.ipv4.join('\n'), 'ipv4')}
+                  onclick={() => copyToClipboard((result?.ipv4 || []).join('\n'), 'ipv4')}
                 >
                   <Icon name={copiedStates['ipv4'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -272,7 +272,7 @@ fe80::/10`
                   type="button"
                   class="btn btn-icon"
                   class:copied={copiedStates['ipv6']}
-                  onclick={() => copyToClipboard(result.ipv6.join('\n'), 'ipv6')}
+                  onclick={() => copyToClipboard((result?.ipv6 || []).join('\n'), 'ipv6')}
                 >
                   <Icon name={copiedStates['ipv6'] ? 'check' : 'copy'} size="sm" />
                 </button>

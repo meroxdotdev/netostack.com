@@ -13,7 +13,7 @@ vi.mock('node:net', () => ({
 }));
 
 // Mock fetch for http-ping
-global.fetch = vi.fn();
+(globalThis as any).fetch = vi.fn();
 
 import { POST } from '../../../../../../../src/routes/api/internal/diagnostics/network/+server';
 import { json, error } from '@sveltejs/kit';
@@ -23,7 +23,7 @@ import { Socket } from 'node:net';
 const mockJson = vi.mocked(json);
 const mockError = vi.mocked(error);
 const mockSocket = vi.mocked(Socket);
-const mockFetch = vi.mocked(global.fetch);
+const mockFetch = vi.mocked((globalThis as any).fetch);
 
 describe('Network Diagnostics Server', () => {
   beforeEach(() => {
@@ -62,18 +62,18 @@ describe('Network Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           action: 'unknown-action'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Unknown action: unknown-action');
     });
 
     it('handles JSON parsing errors with 500 error', async () => {
       const mockRequest = {
         json: vi.fn().mockRejectedValue(new Error('Invalid JSON'))
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
       expect(mockError).toHaveBeenCalledWith(500, expect.stringContaining('Network diagnostic failed'));
     });
 
@@ -84,7 +84,7 @@ describe('Network Diagnostics Server', () => {
           targets: ['example.com:80', 'google.com:443'],
           timeout: 3000
         })
-      };
+      } as unknown as Request;
 
       // Mock successful socket connection
       const mockSocketInstance = {
@@ -99,7 +99,7 @@ describe('Network Diagnostics Server', () => {
       };
       mockSocket.mockReturnValue(mockSocketInstance as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -118,9 +118,9 @@ describe('Network Diagnostics Server', () => {
           action: 'tcp-port-check',
           targets: []
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'No targets provided');
     });
 
@@ -130,9 +130,9 @@ describe('Network Diagnostics Server', () => {
           action: 'tcp-port-check',
           targets: Array(51).fill('example.com:80')
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Too many targets (max 50)');
     });
 
@@ -142,9 +142,9 @@ describe('Network Diagnostics Server', () => {
           action: 'tcp-port-check',
           targets: ['invalid-target-format']
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -168,9 +168,9 @@ describe('Network Diagnostics Server', () => {
           count: 3,
           method: 'HEAD'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -185,9 +185,9 @@ describe('Network Diagnostics Server', () => {
         json: vi.fn().mockResolvedValue({
           action: 'http-ping'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'URL is required');
     });
 
@@ -198,9 +198,9 @@ describe('Network Diagnostics Server', () => {
           url: 'https://example.com',
           count: 25
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Count must be between 1 and 20');
     });
 
@@ -210,9 +210,9 @@ describe('Network Diagnostics Server', () => {
           action: 'http-ping',
           url: 'invalid-url-format'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Invalid URL format');
     });
 
@@ -222,7 +222,7 @@ describe('Network Diagnostics Server', () => {
           action: 'tcp-port-check',
           targets: ['unreachable.example.com:80']
         })
-      };
+      } as unknown as Request;
 
       // Mock socket connection error
       const mockSocketInstance = {
@@ -237,7 +237,7 @@ describe('Network Diagnostics Server', () => {
       };
       mockSocket.mockReturnValue(mockSocketInstance as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -260,7 +260,7 @@ describe('Network Diagnostics Server', () => {
           targets: ['slow.example.com:80'],
           timeout: 100
         })
-      };
+      } as unknown as Request;
 
       // Mock socket timeout
       const mockSocketInstance = {
@@ -275,7 +275,7 @@ describe('Network Diagnostics Server', () => {
       };
       mockSocket.mockReturnValue(mockSocketInstance as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -297,7 +297,7 @@ describe('Network Diagnostics Server', () => {
           action: 'tcp-port-check',
           targets: ['host1.com:80', 'host2.com:443']
         })
-      };
+      } as unknown as Request;
 
       // Mock one successful and one failed connection
       let callCount = 0;
@@ -316,7 +316,7 @@ describe('Network Diagnostics Server', () => {
       };
       mockSocket.mockReturnValue(mockSocketInstance as any);
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -337,9 +337,9 @@ describe('Network Diagnostics Server', () => {
           action: 'tcp-port-check',
           targets: ['test.com:80']
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -349,9 +349,9 @@ describe('Network Diagnostics Server', () => {
           action: 'http-ping',
           url: 'https://test.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -361,9 +361,9 @@ describe('Network Diagnostics Server', () => {
           action: 'http-ping',
           url: 'https://example.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
   });
@@ -383,7 +383,7 @@ describe('Network Diagnostics Server', () => {
           })
         };
 
-        await POST({ request: mockRequest });
+        await POST({ request: mockRequest } as any);
         expect(mockJson).toHaveBeenCalled();
       });
     });
@@ -396,9 +396,9 @@ describe('Network Diagnostics Server', () => {
           action: 'tcp-port-check',
           targets: ['[2001:db8::1]:80']
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -408,9 +408,9 @@ describe('Network Diagnostics Server', () => {
           action: 'tcp-port-check',
           targets: ['  example.com:80  ', ' google.com:443 ']
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -421,9 +421,9 @@ describe('Network Diagnostics Server', () => {
           url: 'https://example.com',
           method: 'GET'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
   });

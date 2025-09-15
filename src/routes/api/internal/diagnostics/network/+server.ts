@@ -76,7 +76,7 @@ async function checkTcpPort(host: string, port: number, timeout: number = 5000):
       });
     });
     
-    socket.on('error', (err) => {
+    socket.on('error', (err: any) => {
       clearTimeout(timeoutHandle);
       cleanup();
       resolve({

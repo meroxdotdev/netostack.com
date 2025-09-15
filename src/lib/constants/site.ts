@@ -1,4 +1,5 @@
 export const site = {
+  name: 'Networking Toolbox',
   title: 'Networking Toolbox',
   description: 'A free set of online tools to help with IP addressing and subnetting.',
   longDescription: 'Comprehensive IP address calculator with subnet calculations, CIDR conversion, IP format conversion, and network reference tools.',

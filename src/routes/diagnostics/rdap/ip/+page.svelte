@@ -153,7 +153,7 @@
       <div class="action-section">
         <button class="lookup-btn" onclick={lookupIP} disabled={loading || !ip.trim()}>
           {#if loading}
-            <Icon name="loader-2" size="sm" class="animate-spin" />
+            <Icon name="loader-2" size="sm" animate="spin" />
             Performing RDAP Lookup...
           {:else}
             <Icon name="search" size="sm" />

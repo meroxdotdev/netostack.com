@@ -309,7 +309,7 @@
                   type="button"
                   class="copy-btn"
                   class:success={buttonStates['copy-public']}
-                  onclick={() => copyToClipboard(generatedKey.publicKey, 'copy-public')}
+                  onclick={() => copyToClipboard(generatedKey?.publicKey || '', 'copy-public')}
                   use:tooltip={"Copy public key to clipboard"}
                 >
                   <Icon name={buttonStates['copy-public'] ? "check" : "copy"} size="sm" />

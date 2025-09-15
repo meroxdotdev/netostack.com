@@ -466,7 +466,7 @@
               {#if result.unchanged.length > 0}
                 <button
                   class="copy-category {copiedStates['category-unchanged'] ? 'copied' : ''}"
-                  onclick={() => copyCategory(result.unchanged, 'unchanged')}
+                  onclick={() => copyCategory(result?.unchanged || [], 'unchanged')}
                 >
                   <Icon name={copiedStates['category-unchanged'] ? 'check-circle' : 'copy'} size="xs" />
                 </button>

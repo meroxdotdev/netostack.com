@@ -162,7 +162,7 @@
             >
               <div class="result-content">
                 <div class="result-title">
-                  <Icon name={result.icon} size="xs" />
+                  <Icon name={result.icon || 'search'} size="xs" />
                   {result.label}
                 </div>
                 {#if result.description}

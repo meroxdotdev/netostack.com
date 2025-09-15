@@ -17,7 +17,7 @@
     return navItems;
   }
 
-  const dnsGenerators = extractNavItems(SUB_NAV['/dns']?.find(section => 'title' in section && section.title === 'Record Generators')?.items || []);
+  const dnsGenerators = extractNavItems((SUB_NAV['/dns']?.find(section => 'title' in section && section.title === 'Record Generators') as any)?.items || []);
 </script>
 
 <svelte:head>

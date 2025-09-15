@@ -273,7 +273,7 @@
       <div class="action-section">
         <button class="lookup-btn" onclick={probeALPN} disabled={loading || !isInputValid}>
           {#if loading}
-            <Icon name="loader-2" size="sm" class="animate-spin" />
+            <Icon name="loader-2" size="sm" animate="spin" />
             Testing ALPN...
           {:else}
             <Icon name="shuffle" size="sm" />

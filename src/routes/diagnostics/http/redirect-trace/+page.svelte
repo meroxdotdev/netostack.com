@@ -217,7 +217,7 @@
       <div class="action-section">
         <button class="lookup-btn" onclick={traceRedirects} disabled={loading || !isInputValid}>
           {#if loading}
-            <Icon name="loader-2" size="sm" class="animate-spin" />
+            <Icon name="loader-2" size="sm" animate="spin" />
             Tracing Redirects...
           {:else}
             <Icon name="link" size="sm" />

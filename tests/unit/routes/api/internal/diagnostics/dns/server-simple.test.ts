@@ -40,7 +40,7 @@ vi.mock('node:dns', () => {
 });
 
 // Mock fetch
-global.fetch = vi.fn();
+(globalThis as any).fetch = vi.fn();
 
 import { POST } from '../../../../../../../src/routes/api/internal/diagnostics/dns/+server';
 import { json, error } from '@sveltejs/kit';
@@ -49,7 +49,7 @@ import { promises as dns } from 'node:dns';
 // Get mocked functions
 const mockJson = vi.mocked(json);
 const mockError = vi.mocked(error);
-const mockFetch = vi.mocked(global.fetch);
+const mockFetch = vi.mocked((globalThis as any).fetch);
 const mockDns = vi.mocked(dns);
 
 describe('DNS Diagnostics Server - Basic Tests', () => {
@@ -94,18 +94,18 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
         json: vi.fn().mockResolvedValue({
           action: 'unknown-action'
         })
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('400');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('400');
       expect(mockError).toHaveBeenCalledWith(400, 'Unknown action: unknown-action');
     });
 
     it('handles JSON parsing errors with 500 error', async () => {
       const mockRequest = {
         json: vi.fn().mockRejectedValue(new Error('Invalid JSON'))
-      };
+      } as unknown as Request;
 
-      await expect(POST({ request: mockRequest })).rejects.toThrow('500');
+      await expect(POST({ request: mockRequest } as any)).rejects.toThrow('500');
       expect(mockError).toHaveBeenCalledWith(500, expect.stringContaining('DNS operation failed'));
     });
 
@@ -115,9 +115,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           action: 'spf-evaluator',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -127,9 +127,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           action: 'dmarc-check',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -139,9 +139,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           action: 'caa-effective',
           name: 'example.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -151,9 +151,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           action: 'ns-soa-check',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -164,9 +164,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           name: 'example.com',
           type: 'A'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -176,9 +176,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           action: 'soa-serial',
           domain: 'example.com'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -189,9 +189,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           name: 'example.com',
           type: 'A'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
 
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -215,9 +215,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
             preferDoH: true
           }
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -227,9 +227,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           action: 'reverse-lookup',
           ip: '8.8.8.8'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -239,9 +239,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           action: 'reverse-lookup',
           ip: '2001:db8::1'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
   });
@@ -254,9 +254,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           name: 'test.com',
           type: 'AAAA'
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
 
@@ -271,9 +271,9 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
             timeoutMs: 5000
           }
         })
-      };
+      } as unknown as Request;
 
-      await POST({ request: mockRequest });
+      await POST({ request: mockRequest } as any);
       expect(mockJson).toHaveBeenCalled();
     });
   });
@@ -300,7 +300,7 @@ describe('DNS Diagnostics Server - Basic Tests', () => {
           })
         };
 
-        await POST({ request: mockRequest });
+        await POST({ request: mockRequest } as any);
         expect(mockJson).toHaveBeenCalled();
       });
     });

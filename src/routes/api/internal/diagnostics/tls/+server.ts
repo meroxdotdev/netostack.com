@@ -82,7 +82,7 @@ async function getCertificateInfo(host: string, port: number, servername?: strin
       reject(new Error('Connection timeout'));
     }, 10000);
 
-    const options: tls.ConnectionOptions = {
+    const options: any = {
       host,
       port,
       servername: servername || host,
@@ -90,7 +90,7 @@ async function getCertificateInfo(host: string, port: number, servername?: strin
       timeout: 10000
     };
 
-    const socket = tls.connect(options, () => {
+    const socket = (tls as any).connect(options, () => {
       clearTimeout(timeout);
       
       const cert = socket.getPeerCertificate(true);
@@ -142,7 +142,7 @@ async function getCertificateInfo(host: string, port: number, servername?: strin
       resolve(result);
     });
 
-    socket.on('error', (err) => {
+    socket.on('error', (err: any) => {
       clearTimeout(timeout);
       reject(err);
     });
@@ -166,7 +166,7 @@ async function probeTLSVersions(host: string, port: number, servername?: string)
           reject(new Error('Timeout'));
         }, 5000);
 
-        const options: tls.ConnectionOptions = {
+        const options: any = {
           host,
           port,
           servername: servername || host,
@@ -176,14 +176,14 @@ async function probeTLSVersions(host: string, port: number, servername?: string)
           timeout: 5000
         };
 
-        const socket = tls.connect(options, () => {
+        const socket = (tls as any).connect(options, () => {
           clearTimeout(timeout);
           results[version] = true;
           socket.end();
           resolve();
         });
 
-        socket.on('error', (err) => {
+        socket.on('error', (err: any) => {
           clearTimeout(timeout);
           results[version] = false;
           errors[version] = err.message;
@@ -224,7 +224,7 @@ async function probeALPN(host: string, port: number, protocols: string[], server
       reject(new Error('Connection timeout'));
     }, 10000);
 
-    const options: tls.ConnectionOptions = {
+    const options: any = {
       host,
       port,
       servername: servername || host,
@@ -233,7 +233,7 @@ async function probeALPN(host: string, port: number, protocols: string[], server
       timeout: 10000
     };
 
-    const socket = tls.connect(options, () => {
+    const socket = (tls as any).connect(options, () => {
       clearTimeout(timeout);
       
       let negotiatedProtocol = null;
@@ -270,7 +270,7 @@ async function probeALPN(host: string, port: number, protocols: string[], server
       resolve(result);
     });
 
-    socket.on('error', (err) => {
+    socket.on('error', (err: any) => {
       clearTimeout(timeout);
       reject(err);
     });

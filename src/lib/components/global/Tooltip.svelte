@@ -3,7 +3,7 @@
     text: string;
     position?: 'top' | 'bottom' | 'left' | 'right';
     delay?: number;
-    children: any;
+    children: () => any;
   }
 
   let { 
@@ -14,7 +14,7 @@
   }: Props = $props();
 
   let showTooltip = $state(false);
-  let tooltipTimeout: NodeJS.Timeout;
+  let tooltipTimeout: number;
 
   /**
    * Show tooltip after delay

@@ -175,7 +175,7 @@
             </div>
             <div class="metadata-item">
               <span class="metadata-label" use:tooltip={"Cryptographic algorithm used by this key. Common values: 8 (RSASHA256), 13 (ECDSA P-256), 15 (Ed25519)."}>Algorithm</span>
-              <span class="metadata-value mono">{result.dnskey.algorithm} ({DNSSEC_ALGORITHMS[result.dnskey.algorithm] || 'Unknown'})</span>
+              <span class="metadata-value mono">{result.dnskey.algorithm} ({(DNSSEC_ALGORITHMS as any)[result.dnskey.algorithm] || 'Unknown'})</span>
             </div>
           </div>
           

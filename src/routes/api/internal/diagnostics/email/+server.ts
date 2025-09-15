@@ -186,11 +186,11 @@ async function checkDMARC(domain: string): Promise<any> {
     const alignment = result.parsed.alignment;
     
     result.deliverabilityHints = {
-      policyImpact: {
+      policyImpact: ({
         none: 'No impact on delivery - monitoring only',
         quarantine: 'Failed messages may go to spam/junk folder',
         reject: 'Failed messages will be rejected outright'
-      }[policy] || 'Unknown policy impact',
+      } as any)[policy] || 'Unknown policy impact',
       
       alignmentComplexity: {
         strict: alignment.dkim === 's' || alignment.spf === 's' ? 'Strict alignment may cause delivery issues if domains don\'t match exactly' : null,

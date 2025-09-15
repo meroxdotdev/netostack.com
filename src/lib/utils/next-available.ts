@@ -142,6 +142,17 @@ function parseIPInput(input: string): Array<{
   return results;
 }
 
+function convertToIPRanges(parsed: Array<{start_ip: string; end_ip: string; cidr?: string}>): IPRange[] {
+  return parsed.map(item => {
+    const version = detectIPVersion(item.start_ip);
+    return {
+      start: ipToNumber(item.start_ip, version),
+      end: ipToNumber(item.end_ip, version),
+      version
+    };
+  });
+}
+
 export interface NextAvailableInput {
   pools: string;
   allocations: string;
@@ -311,7 +322,8 @@ export function findNextAvailableSubnet(input: NextAvailableInput): NextAvailabl
     let pools: IPRange[] = [];
     if (input.pools.trim()) {
       try {
-        pools = parseIPInput(input.pools);
+        const parsed = parseIPInput(input.pools);
+        pools = convertToIPRanges(parsed);
       } catch (error) {
         errors.push(`Pool parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
@@ -325,19 +337,20 @@ export function findNextAvailableSubnet(input: NextAvailableInput): NextAvailabl
     let allocations: IPRange[] = [];
     if (input.allocations.trim()) {
       try {
-        allocations = parseIPInput(input.allocations);
+        const parsed = parseIPInput(input.allocations);
+        allocations = convertToIPRanges(parsed);
       } catch (error) {
         warnings.push(`Allocation parsing warning: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
     
     // Determine IP version (use first pool)
-    const version = pools.length > 0 ? (isValidIPv4(pools[0].start_ip) ? 4 : 6) : 4;
+    const version = pools.length > 0 ? pools[0].version : 4;
     const maxPrefix = version === 4 ? 32 : 128;
-    
+
     // Filter pools and allocations by IP version
-    const versionPools = pools.filter(p => isValidIPv4(p.start_ip) === (version === 4));
-    const versionAllocations = allocations.filter(a => isValidIPv4(a.start_ip) === (version === 4));
+    const versionPools = pools.filter(p => p.version === version);
+    const versionAllocations = allocations.filter(a => a.version === version);
     
     // Determine target prefix
     let targetPrefix: number;
@@ -383,22 +396,17 @@ export function findNextAvailableSubnet(input: NextAvailableInput): NextAvailabl
     const poolResults: { pool: string; freeBlocks: IPRange[] }[] = [];
     
     for (const pool of versionPools) {
+      const poolStr = `${numberToIP(pool.start, version)}-${numberToIP(pool.end, version)}`;
       try {
         // Calculate pool - allocations for this specific pool
         const poolAllocationsStr = versionAllocations
           .filter(alloc => {
-            const allocStart = ipToNumber(alloc.start_ip, version);
-            const allocEnd = ipToNumber(alloc.end_ip, version);
-            const poolStart = ipToNumber(pool.start_ip, version);
-            const poolEnd = ipToNumber(pool.end_ip, version);
-            
             // Check if allocation overlaps with this pool
-            return allocStart <= poolEnd && allocEnd >= poolStart;
+            return alloc.start <= pool.end && alloc.end >= pool.start;
           })
-          .map(alloc => alloc.cidr || `${alloc.start_ip}-${alloc.end_ip}`)
+          .map(alloc => `${numberToIP(alloc.start, version)}-${numberToIP(alloc.end, version)}`)
           .join('\n');
-        
-        const poolStr = pool.cidr || `${pool.start_ip}-${pool.end_ip}`;
+
         const diffResult = computeCIDRDifference(poolStr, poolAllocationsStr, 'minimal');
         
         const freeBlocks: IPRange[] = [];
@@ -408,7 +416,8 @@ export function findNextAvailableSubnet(input: NextAvailableInput): NextAvailabl
         for (const freeCidr of allFreeAddresses) {
           try {
             const parsed = parseIPInput(freeCidr);
-            freeBlocks.push(...parsed);
+            const converted = convertToIPRanges(parsed);
+            freeBlocks.push(...converted);
           } catch (e) {
             // Skip invalid blocks
           }
@@ -418,40 +427,31 @@ export function findNextAvailableSubnet(input: NextAvailableInput): NextAvailabl
         
         // Add to global free blocks list
         for (const block of freeBlocks) {
-          const start = ipToNumber(block.start_ip, version);
-          const end = ipToNumber(block.end_ip, version);
-          
           allFreeBlocks.push({
-            start,
-            end,
-            cidr: block.cidr || `${block.start_ip}-${block.end_ip}`,
+            start: block.start,
+            end: block.end,
+            cidr: `${numberToIP(block.start, version)}-${numberToIP(block.end, version)}`,
             parentPool: poolStr
           });
         }
         
       } catch (error) {
-        warnings.push(`Error processing pool ${pool.cidr}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        warnings.push(`Error processing pool ${poolStr}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
     
     // Check for allocations outside pools
     for (const allocation of versionAllocations) {
-      const allocStart = ipToNumber(allocation.start_ip, version);
-      const allocEnd = ipToNumber(allocation.end_ip, version);
-      
       let isInsideAnyPool = false;
       for (const pool of versionPools) {
-        const poolStart = ipToNumber(pool.start_ip, version);
-        const poolEnd = ipToNumber(pool.end_ip, version);
-        
-        if (allocStart >= poolStart && allocEnd <= poolEnd) {
+        if (allocation.start >= pool.start && allocation.end <= pool.end) {
           isInsideAnyPool = true;
           break;
         }
       }
-      
+
       if (!isInsideAnyPool) {
-        const allocStr = allocation.cidr || `${allocation.start_ip}-${allocation.end_ip}`;
+        const allocStr = `${numberToIP(allocation.start, version)}-${numberToIP(allocation.end, version)}`;
         warnings.push(`Allocation ${allocStr} is outside all pools`);
       }
     }
@@ -575,15 +575,15 @@ function generateVisualization(
   
   try {
     const poolRanges = pools.map(p => ({
-      start: ipToNumber(p.start_ip, version),
-      end: ipToNumber(p.end_ip, version),
-      cidr: p.cidr || `${p.start_ip}-${p.end_ip}`
+      start: p.start,
+      end: p.end,
+      cidr: `${numberToIP(p.start, version)}-${numberToIP(p.end, version)}`
     }));
-    
+
     const allocationRanges = allocations.map(a => ({
-      start: ipToNumber(a.start_ip, version),
-      end: ipToNumber(a.end_ip, version),
-      cidr: a.cidr || `${a.start_ip}-${a.end_ip}`
+      start: a.start,
+      end: a.end,
+      cidr: `${numberToIP(a.start, version)}-${numberToIP(a.end, version)}`
     }));
     
     const candidateRanges = candidates.map(c => {

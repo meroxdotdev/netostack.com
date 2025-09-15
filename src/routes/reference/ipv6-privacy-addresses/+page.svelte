@@ -125,22 +125,22 @@
                 <code class="example-input">{config}</code>
               {/each}
               
-              {#if os.values}
+              {#if (os as any).values}
                 <h4>Values:</h4>
                 <ul>
-                  {#each os.values as value}
+                  {#each (os as any).values as value}
                     <li><code>{value}</code></li>
                   {/each}
                 </ul>
               {/if}
               
               <h4>Useful Commands:</h4>
-              {#each os.commands as command}
+              {#each (os as any).commands as command}
                 <code class="example-input">{command}</code>
               {/each}
               
-              {#if os.behavior}
-                <div><strong>Behavior:</strong> {os.behavior}</div>
+              {#if (os as any).behavior}
+                <div><strong>Behavior:</strong> {(os as any).behavior}</div>
               {/if}
             </div>
           </div>

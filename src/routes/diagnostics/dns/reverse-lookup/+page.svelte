@@ -221,7 +221,7 @@
       <div class="action-section">
         <button class="lookup-btn" onclick={performReverseLookup} disabled={loading || !ipAddress.trim() || !isValidIP(ipAddress.trim())}>
           {#if loading}
-            <Icon name="loader-2" size="sm" class="animate-spin" />
+            <Icon name="loader-2" size="sm" animate="spin" />
             Performing Reverse Lookup...
           {:else}
             <Icon name="search" size="sm" />

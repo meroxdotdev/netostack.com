@@ -248,7 +248,7 @@ describe('DNS validation utilities', () => {
 
     it('handles mixed scripts correctly', () => {
       const result = normalizeDomainLabel('exampleрусский'); // Latin + Cyrillic
-      expect(result.scripts.length).toBeGreaterThan(1);
+      expect(result.scripts?.length).toBeGreaterThan(1);
       expect(result.warnings).toContain('Mixed scripts detected');
     });
 

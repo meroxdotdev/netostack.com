@@ -216,26 +216,26 @@ function domainNameToWire(name: string): number[] {
 }
 
 async function sha1Hash(data: Uint8Array): Promise<string> {
-  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', data as unknown as ArrayBuffer);
   return Array.from(new Uint8Array(hashBuffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
 async function sha1HashBytes(data: Uint8Array): Promise<Uint8Array> {
-  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', data as unknown as ArrayBuffer);
   return new Uint8Array(hashBuffer);
 }
 
 async function sha256Hash(data: Uint8Array): Promise<string> {
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data as unknown as ArrayBuffer);
   return Array.from(new Uint8Array(hashBuffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
 async function sha384Hash(data: Uint8Array): Promise<string> {
-  const hashBuffer = await crypto.subtle.digest('SHA-384', data);
+  const hashBuffer = await crypto.subtle.digest('SHA-384', data as unknown as ArrayBuffer);
   return Array.from(new Uint8Array(hashBuffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
