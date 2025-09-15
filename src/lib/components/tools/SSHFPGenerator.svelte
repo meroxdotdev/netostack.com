@@ -259,7 +259,7 @@
               <option value={4}>4 - Ed25519</option>
             </select>
             <div class="parameter-description">
-              {algorithmDescriptions[algorithm]}
+              {algorithmDescriptions[algorithm as keyof typeof algorithmDescriptions]}
             </div>
           </div>
           
@@ -272,7 +272,7 @@
               <option value={2}>2 - SHA-256</option>
             </select>
             <div class="parameter-description">
-              {fingerprintTypeDescriptions[fingerprintType]}
+              {fingerprintTypeDescriptions[fingerprintType as keyof typeof fingerprintTypeDescriptions]}
             </div>
           </div>
         </div>

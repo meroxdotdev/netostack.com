@@ -198,15 +198,18 @@
           </div>
 
           <div class="processings-list">
-            {#each result.processings as processing}
+            {#each result?.processings || [] as processing}
               <div class="processing-card" class:valid={processing.isValid} class:invalid={!processing.isValid}>
                 <div class="card-header">
                   <div class="address-info">
                     <div class="original-input">
                       <span class="input-label">Input:</span>
-                      <code onclick={() => copyToClipboard(processing.input)} title="Click to copy">
-                        {processing.input}
-                      </code>
+                      <div class="input-with-copy">
+                        <code>{processing.input}</code>
+                        <button type="button" onclick={() => copyToClipboard(processing.input)} title="Copy input">
+                          <Icon name="copy" size="xs" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                   
@@ -224,17 +227,23 @@
                     <div class="address-breakdown">
                       <div class="breakdown-item">
                         <span class="breakdown-label">Address:</span>
-                        <code onclick={() => copyToClipboard(processing.address)} title="Click to copy">
-                          {processing.address}
-                        </code>
+                        <div class="input-with-copy">
+                          <code>{processing.address}</code>
+                          <button type="button" onclick={() => copyToClipboard(processing.address)} title="Copy address">
+                            <Icon name="copy" size="xs" />
+                          </button>
+                        </div>
                       </div>
                       
                       {#if processing.hasZoneId}
                         <div class="breakdown-item">
                           <span class="breakdown-label">Zone ID:</span>
-                          <code onclick={() => copyToClipboard(processing.zoneId)} title="Click to copy">
-                            {processing.zoneId}
-                          </code>
+                          <div class="input-with-copy">
+                            <code>{processing.zoneId}</code>
+                            <button type="button" onclick={() => copyToClipboard(processing.zoneId)} title="Copy zone ID">
+                              <Icon name="copy" size="xs" />
+                            </button>
+                          </div>
                           {#if processing.processing.zoneIdValid}
                             <span class="zone-status valid">
                               <Icon name="check" />
@@ -277,16 +286,22 @@
                     <div class="processing-results">
                       <div class="result-item">
                         <span class="result-label">With Zone:</span>
-                        <code onclick={() => copyToClipboard(processing.processing.withZone)} title="Click to copy">
-                          {processing.processing.withZone}
-                        </code>
+                        <div class="input-with-copy">
+                          <code>{processing.processing.withZone}</code>
+                          <button type="button" onclick={() => copyToClipboard(processing.processing.withZone)} title="Copy with zone">
+                            <Icon name="copy" size="xs" />
+                          </button>
+                        </div>
                       </div>
                       
                       <div class="result-item">
                         <span class="result-label">Without Zone:</span>
-                        <code onclick={() => copyToClipboard(processing.processing.withoutZone)} title="Click to copy">
-                          {processing.processing.withoutZone}
-                        </code>
+                        <div class="input-with-copy">
+                          <code>{processing.processing.withoutZone}</code>
+                          <button type="button" onclick={() => copyToClipboard(processing.processing.withoutZone)} title="Copy without zone">
+                            <Icon name="copy" size="xs" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -295,9 +310,10 @@
                         <h4>Suggested Zone Identifiers:</h4>
                         <div class="zones-list">
                           {#each processing.processing.suggestedZones as zone}
-                            <code onclick={() => copyToClipboard(`${processing.address}%${zone}`)} title="Click to copy full address">
-                              {zone}
-                            </code>
+                            <button type="button" onclick={() => copyToClipboard(`${processing.address}%${zone}`)} title="Copy full address" class="zone-button">
+                              <code>{zone}</code>
+                              <Icon name="copy" size="xs" />
+                            </button>
                           {/each}
                         </div>
                       </div>

@@ -36,12 +36,12 @@
       const query = searchQuery.toLowerCase().trim();
       filteredTools = toolPages.filter(tool => 
         tool.label.toLowerCase().includes(query) ||
-        tool.description.toLowerCase().includes(query) ||
+        tool.description?.toLowerCase().includes(query) ||
         tool.keywords?.some(keyword => keyword.toLowerCase().includes(query))
       );
       filteredReference = referencePages.filter(page => 
         page.label.toLowerCase().includes(query) ||
-        page.description.toLowerCase().includes(query) ||
+        page.description?.toLowerCase().includes(query) ||
         page.keywords?.some(keyword => keyword.toLowerCase().includes(query))
       );
     }

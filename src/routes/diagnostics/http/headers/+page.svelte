@@ -201,10 +201,10 @@
               type="url" 
               bind:value={url} 
               placeholder="https://example.com"
-              class:invalid={url && !isInputValid}
-              onchange={() => { clearExampleSelection(); if (isInputValid) checkHeaders(); }}
+              class:invalid={url && !isInputValid()}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) checkHeaders(); }}
             />
-            {#if url && !isInputValid}
+            {#if url && !isInputValid()}
               <span class="error-text">Invalid URL format</span>
             {/if}
           </label>
@@ -213,7 +213,7 @@
         <div class="form-group">
           <label for="method" use:tooltip={"HTTP method to use"}>
             Method
-            <select id="method" bind:value={method} onchange={() => { clearExampleSelection(); if (isInputValid) checkHeaders(); }}>
+            <select id="method" bind:value={method} onchange={() => { clearExampleSelection(); if (isInputValid()) checkHeaders(); }}>
               {#each methods as methodOption}
                 <option value={methodOption}>{methodOption}</option>
               {/each}
@@ -230,7 +230,7 @@
             bind:value={customHeadersText}
             placeholder="User-Agent: My Custom Agent&#10;Authorization: Bearer token123"
             rows="3"
-            onchange={() => { clearExampleSelection(); if (isInputValid) checkHeaders(); }}
+            onchange={() => { clearExampleSelection(); if (isInputValid()) checkHeaders(); }}
           ></textarea>
         </label>
       </div>
@@ -255,7 +255,7 @@
       <div class="card-header row">
         <h3>HTTP Response Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
           {copiedState ? "Copied!" : "Copy Results"}
         </button>
       </div>

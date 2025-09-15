@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Icon from '$lib/components/global/Icon.svelte';
 	import { tooltip } from '$lib/actions/tooltip';
 	
@@ -10,7 +10,7 @@
 	let regexp = $state('!^.*$!sip:info@example.com!');
 	let replacement = $state('.');
 	
-	let buttonStates = $state({});
+	let buttonStates = $state({} as Record<string, boolean>);
 	let showExamples = $state(false);
 	
 	const flagOptions = [
@@ -76,7 +76,7 @@
 	/**
      * @param {string} buttonId
      */
-	function showButtonSuccess(buttonId) {
+	function showButtonSuccess(buttonId: string) {
 		buttonStates[buttonId] = true;
 		setTimeout(() => {
 			buttonStates[buttonId] = false;
@@ -101,7 +101,7 @@
 		showButtonSuccess('download');
 	}
 	
-	function loadExample(exampleType) {
+	function loadExample(exampleType: string) {
 		switch (exampleType) {
 			case 'sip':
 				domain = 'example.com';
@@ -157,7 +157,7 @@
 					<summary class="examples-summary">
 						<Icon name="lightbulb" size="sm" />
 						Quick Examples
-						<Icon name="chevron-down" size="sm" class="chevron" />
+						<span class="chevron"><Icon name="chevron-down" size="sm" /></span>
 					</summary>
 					<div class="examples-grid">
 						<button class="example-btn" onclick={() => loadExample('sip')}>

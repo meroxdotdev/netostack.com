@@ -206,7 +206,7 @@
                 type="text"
                 placeholder="Subnet name"
                 bind:value={subnet.name}
-                oninput={(e) => updateSubnet(subnet.id, 'name', e.target?.value)}
+                oninput={(e) => updateSubnet(subnet.id, 'name', (e.target as HTMLInputElement)?.value)}
                 class="subnet-name-input"
               />
               <div class="hosts-input">
@@ -216,7 +216,7 @@
                   min="1"
                   max="16777214"
                   bind:value={subnet.hostsNeeded}
-                  oninput={(e) => updateSubnet(subnet.id, 'hostsNeeded', parseInt(e.target?.value || '1'))}
+                  oninput={(e) => updateSubnet(subnet.id, 'hostsNeeded', parseInt((e.target as HTMLInputElement)?.value || '1'))}
                   class="hosts-number-input"
                 />
               </div>
@@ -236,7 +236,7 @@
               type="text"
               placeholder="Description (optional)"
               bind:value={subnet.description}
-              oninput={(e) => updateSubnet(subnet.id, 'description', e.target?.value)}
+              oninput={(e) => updateSubnet(subnet.id, 'description', (e.target as HTMLTextAreaElement)?.value)}
               class="description-input"
             />
           </div>

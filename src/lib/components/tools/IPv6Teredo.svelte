@@ -424,7 +424,7 @@
                 <code class="component-value">{result.components.serverIPv4}</code>
                 <button
                   class="copy-button {copiedStates['server'] ? 'copied' : ''}"
-                  onclick={() => copyToClipboard(result.components.serverIPv4, 'server')}
+                  onclick={() => result && copyToClipboard(result.components.serverIPv4, 'server')}
                 >
                   <Icon name={copiedStates['server'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -443,7 +443,7 @@
                 <code class="component-value">{result.components.clientIPv4}</code>
                 <button
                   class="copy-button {copiedStates['client'] ? 'copied' : ''}"
-                  onclick={() => copyToClipboard(result.components.clientIPv4, 'client')}
+                  onclick={() => result && copyToClipboard(result.components.clientIPv4, 'client')}
                 >
                   <Icon name={copiedStates['client'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -462,7 +462,7 @@
                 <code class="component-value">{result.components.clientPort}</code>
                 <button
                   class="copy-button {copiedStates['port'] ? 'copied' : ''}"
-                  onclick={() => copyToClipboard(result.components.clientPort.toString(), 'port')}
+                  onclick={() => result && copyToClipboard(result.components.clientPort.toString(), 'port')}
                 >
                   <Icon name={copiedStates['port'] ? 'check' : 'copy'} size="sm" />
                 </button>

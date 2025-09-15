@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Icon from '$lib/components/global/Icon.svelte';
   import { tooltip } from '$lib/actions/tooltip';
 
@@ -15,7 +15,7 @@
 
   let showExamples = $state(false);
   let selectedExample = $state(null);
-  let buttonStates = $state({});
+  let buttonStates = $state({} as Record<string, boolean>);
 
   const usageDescriptions = {
     0: 'CA Constraint - Certificate must be issued by the CA represented in the TLSA record',
@@ -115,14 +115,14 @@
     };
   });
 
-  function showButtonSuccess(buttonId) {
+  function showButtonSuccess(buttonId: string) {
     buttonStates[buttonId] = true;
     setTimeout(() => {
       buttonStates[buttonId] = false;
     }, 2000);
   }
 
-  function copyToClipboard(text, buttonId) {
+  function copyToClipboard(text: string, buttonId: string) {
     navigator.clipboard.writeText(text);
     showButtonSuccess(buttonId);
   }
@@ -190,7 +190,7 @@
     }
   ];
 
-  function loadExample(example) {
+  function loadExample(example: any) {
     domain = example.domain;
     port = example.port;
     protocol = example.protocol;
@@ -264,7 +264,7 @@
               <option value={2}>2 - Trust Anchor Assertion</option>
               <option value={3}>3 - Domain-Issued Certificate</option>
             </select>
-            <p class="description">{usageDescriptions[usage]}</p>
+            <p class="description">{usageDescriptions[usage as keyof typeof usageDescriptions]}</p>
           </div>
           
           <div class="input-group">
@@ -273,7 +273,7 @@
               <option value={0}>0 - Full Certificate</option>
               <option value={1}>1 - Subject Public Key Info</option>
             </select>
-            <p class="description">{selectorDescriptions[selector]}</p>
+            <p class="description">{selectorDescriptions[selector as keyof typeof selectorDescriptions]}</p>
           </div>
           
           <div class="input-group">
@@ -283,7 +283,7 @@
               <option value={1}>1 - SHA-256 Hash</option>
               <option value={2}>2 - SHA-512 Hash</option>
             </select>
-            <p class="description">{matchingTypeDescriptions[matchingType]}</p>
+            <p class="description">{matchingTypeDescriptions[matchingType as keyof typeof matchingTypeDescriptions]}</p>
           </div>
         </div>
 
@@ -466,7 +466,7 @@
         <summary class="examples-summary">
           <Icon name="lightbulb" size="sm" />
           Example Configurations
-          <Icon name="chevron-down" size="sm" class="chevron" />
+          <span class="chevron"><Icon name="chevron-down" size="sm" /></span>
         </summary>
         <div class="examples-grid">
           {#each exampleConfigurations as example}

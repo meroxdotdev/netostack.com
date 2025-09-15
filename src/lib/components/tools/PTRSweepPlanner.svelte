@@ -338,7 +338,7 @@
                 </h4>
                 <button
                   class="copy-button {copiedStates['missing-ptrs'] ? 'copied' : ''}"
-                  onclick={() => copyToClipboard(results.analysis.missingPTRs.join('\n'), 'missing-ptrs')}
+                  onclick={() => results && copyToClipboard(results.analysis.missingPTRs.join('\n'), 'missing-ptrs')}
                 >
                   <Icon name={copiedStates['missing-ptrs'] ? 'check' : 'copy'} size="sm" />
                   Copy List
@@ -370,7 +370,7 @@
                 </h4>
                 <button
                   class="copy-button {copiedStates['extra-ptrs'] ? 'copied' : ''}"
-                  onclick={() => copyToClipboard(results.analysis.extraPTRs.join('\n'), 'extra-ptrs')}
+                  onclick={() => results && copyToClipboard(results.analysis.extraPTRs.join('\n'), 'extra-ptrs')}
                 >
                   <Icon name={copiedStates['extra-ptrs'] ? 'check' : 'copy'} size="sm" />
                   Copy List
@@ -409,7 +409,7 @@
                     <span>Create Missing PTR Records</span>
                     <button
                       class="copy-button {copiedStates['create-commands'] ? 'copied' : ''}"
-                      onclick={() => copyToClipboard(generateCreateCommands(results.analysis.missingPTRs), 'create-commands')}
+                      onclick={() => results && copyToClipboard(generateCreateCommands(results.analysis.missingPTRs), 'create-commands')}
                     >
                       <Icon name={copiedStates['create-commands'] ? 'check' : 'copy'} size="sm" />
                       Copy Zone Lines

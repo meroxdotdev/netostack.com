@@ -170,7 +170,7 @@
       <div class="card-header row">
         <h3>RDAP Data for {formatASN(results.asn)}</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
           {copiedState ? "Copied!" : "Copy Raw JSON"}
         </button>
       </div>

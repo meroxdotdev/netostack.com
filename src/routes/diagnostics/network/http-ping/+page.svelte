@@ -39,7 +39,7 @@
   });
   
   const isInputValid = $derived(() => {
-    return isUrlValid && count >= 1 && count <= 20;
+    return isUrlValid() && count >= 1 && count <= 20;
   });
   
   async function httpPing() {
@@ -94,7 +94,7 @@
   function setMethod(newMethod: string) {
     method = newMethod;
     clearExampleSelection();
-    if (isInputValid) httpPing();
+    if (isInputValid()) httpPing();
   }
   
   function getLatencyClass(latency: number): string {
@@ -201,10 +201,10 @@
               type="url" 
               bind:value={url} 
               placeholder="https://example.com"
-              class:invalid={url && !isUrlValid}
-              onchange={() => { clearExampleSelection(); if (isInputValid) httpPing(); }}
+              class:invalid={url && !isUrlValid()}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) httpPing(); }}
             />
-            {#if url && !isUrlValid}
+            {#if url && !isUrlValid()}
               <span class="error-text">Must be a valid HTTP or HTTPS URL</span>
             {/if}
           </label>
@@ -241,7 +241,7 @@
               bind:value={count} 
               min="1" 
               max="20"
-              onchange={() => { clearExampleSelection(); if (isInputValid) httpPing(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) httpPing(); }}
             />
           </label>
         </div>
@@ -255,14 +255,14 @@
               min="1000" 
               max="30000" 
               step="1000"
-              onchange={() => { clearExampleSelection(); if (isInputValid) httpPing(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) httpPing(); }}
             />
           </label>
         </div>
       </div>
       
       <div class="action-section">
-        <button class="lookup-btn" onclick={httpPing} disabled={loading || !isInputValid}>
+        <button class="lookup-btn" onclick={httpPing} disabled={loading || !isInputValid()}>
           {#if loading}
             <Icon name="loader-2" size="sm" animate="spin" />
             Pinging...

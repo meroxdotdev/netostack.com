@@ -186,10 +186,10 @@
             type="url" 
             bind:value={url} 
             placeholder="https://example.com"
-            class:invalid={url && !isInputValid}
-            onchange={() => { if (isInputValid) analyzeSecurity(); }}
+            class:invalid={url && !isInputValid()}
+            onchange={() => { if (isInputValid()) analyzeSecurity(); }}
           />
-          {#if url && !isInputValid}
+          {#if url && !isInputValid()}
             <span class="error-text">Invalid URL format</span>
           {/if}
         </label>
@@ -216,7 +216,7 @@
       <div class="card-header">
         <h3>Security Headers Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
           {copiedState ? "Copied!" : "Copy Analysis"}
         </button>
       </div>

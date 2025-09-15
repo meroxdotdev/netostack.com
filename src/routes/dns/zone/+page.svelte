@@ -2,9 +2,12 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import { SUB_NAV } from '$lib/constants/nav.js';
 
-  const zoneTools = (SUB_NAV['/dns']?.find(group =>
-    typeof group === 'object' && 'title' in group && group.title === 'Zone File Tools'
-  ))?.items || [];
+  const zoneTools = (() => {
+    const dnsNavGroup = SUB_NAV['/dns']?.find(group =>
+      typeof group === 'object' && 'title' in group && group.title === 'Zone File Tools'
+    );
+    return (dnsNavGroup && 'items' in dnsNavGroup) ? dnsNavGroup.items : [];
+  })();
 </script>
 
 <svelte:head>

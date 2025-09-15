@@ -214,7 +214,7 @@
       <div class="card-header row">
         <h3>NS/SOA Analysis Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
           {copiedState ? "Copied!" : "Copy Results"}
         </button>
       </div>

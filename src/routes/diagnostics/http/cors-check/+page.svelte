@@ -207,10 +207,10 @@
               type="url" 
               bind:value={url} 
               placeholder="https://api.example.com"
-              class:invalid={url && !isInputValid}
-              onchange={() => { if (isInputValid) checkCORS(); }}
+              class:invalid={url && !isInputValid()}
+              onchange={() => { if (isInputValid()) checkCORS(); }}
             />
-            {#if url && !isInputValid}
+            {#if url && !isInputValid()}
               <span class="error-text">Invalid URL format</span>
             {/if}
           </label>
@@ -225,7 +225,7 @@
               bind:value={origin} 
               placeholder="https://yoursite.com"
               class:invalid={origin && !isInputValid}
-              onchange={() => { if (isInputValid) checkCORS(); }}
+              onchange={() => { if (isInputValid()) checkCORS(); }}
             />
             {#if origin && !isInputValid}
               <span class="error-text">Invalid origin format</span>
@@ -236,7 +236,7 @@
         <div class="form-group">
           <label for="method" use:tooltip={"HTTP method to test in preflight request"}>
             Method
-            <select id="method" bind:value={method} onchange={() => { if (isInputValid) checkCORS(); }}>
+            <select id="method" bind:value={method} onchange={() => { if (isInputValid()) checkCORS(); }}>
               {#each methods as methodOption}
                 <option value={methodOption}>{methodOption}</option>
               {/each}
@@ -265,7 +265,7 @@
       <div class="card-header">
         <h3>CORS Policy Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
           {copiedState ? "Copied!" : "Copy Results"}
         </button>
       </div>

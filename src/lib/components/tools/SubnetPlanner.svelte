@@ -194,7 +194,7 @@
   }
 
   /* Generate tooltip text for visualization segments */
-  function getSegmentTooltip(item: { cidr: string; name?: string }, type: 'allocated' | 'leftover'): string {
+  function getSegmentTooltip(item: { cidr: string; name?: string; start?: bigint; end?: bigint }, type: 'allocated' | 'leftover'): string {
     if (type === 'allocated' && item.name) {
       const size = item.start && item.end ? (item.end - item.start + 1n).toLocaleString() : 'Unknown';
       return `${item.name}\n${item.cidr}\nSize: ${size} addresses`;

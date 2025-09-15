@@ -371,8 +371,8 @@
                 <label class="parameter-toggle">
                   <input type="checkbox" bind:checked={parameter.enabled} />
                   <span class="parameter-name">{parameter.key}</span>
-                  <span class="parameter-description" use:tooltip={parameterDescriptions[parameter.key]}>
-                    {parameterDescriptions[parameter.key]}
+                  <span class="parameter-description" use:tooltip={parameterDescriptions[parameter.key as keyof typeof parameterDescriptions]}>
+                    {parameterDescriptions[parameter.key as keyof typeof parameterDescriptions]}
                   </span>
                 </label>
               </div>

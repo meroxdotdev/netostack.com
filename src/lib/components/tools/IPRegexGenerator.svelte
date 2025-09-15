@@ -514,7 +514,7 @@
             <span class="pattern-label">Regular Expression</span>
             <button
               class="copy-button {copiedStates['pattern'] ? 'copied' : ''}"
-              onclick={() => copyToClipboard(result.pattern, 'pattern')}
+              onclick={() => result && copyToClipboard(result.pattern, 'pattern')}
             >
               <Icon name={copiedStates['pattern'] ? 'check' : 'copy'} size="sm" />
               {copiedStates['pattern'] ? 'Copied!' : 'Copy'}
@@ -551,7 +551,7 @@
               <span class="example-title">JavaScript</span>
               <button
                 class="copy-button {copiedStates['javascript'] ? 'copied' : ''}"
-                onclick={() => copyToClipboard(`const ipRegex = /${result.pattern}/${result.flags};\nconst isValid = ipRegex.test(ipAddress);`, 'javascript')}
+                onclick={() => result && copyToClipboard(`const ipRegex = /${result.pattern}/${result.flags};\nconst isValid = ipRegex.test(ipAddress);`, 'javascript')}
               >
                 <Icon name={copiedStates['javascript'] ? 'check' : 'copy'} size="xs" />
               </button>
@@ -565,7 +565,7 @@
               <span class="example-title">Python</span>
               <button
                 class="copy-button {copiedStates['python'] ? 'copied' : ''}"
-                onclick={() => copyToClipboard(`import re\npattern = r'${result.pattern}'\nis_valid = bool(re.match(pattern, ip_address${result.flags ? ', re.IGNORECASE' : ''}))`, 'python')}
+                onclick={() => result && copyToClipboard(`import re\npattern = r'${result.pattern}'\nis_valid = bool(re.match(pattern, ip_address${result.flags ? ', re.IGNORECASE' : ''}))`, 'python')}
               >
                 <Icon name={copiedStates['python'] ? 'check' : 'copy'} size="xs" />
               </button>
@@ -579,7 +579,7 @@
               <span class="example-title">PHP</span>
               <button
                 class="copy-button {copiedStates['php'] ? 'copied' : ''}"
-                onclick={() => copyToClipboard(`$pattern = '/${result.pattern}/${result.flags}';\n$isValid = preg_match($pattern, $ipAddress);`, 'php')}
+                onclick={() => result && copyToClipboard(`$pattern = '/${result.pattern}/${result.flags}';\n$isValid = preg_match($pattern, $ipAddress);`, 'php')}
               >
                 <Icon name={copiedStates['php'] ? 'check' : 'copy'} size="xs" />
               </button>

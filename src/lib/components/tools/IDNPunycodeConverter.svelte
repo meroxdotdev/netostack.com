@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Copy, Download, Check, Globe, Type } from 'lucide-svelte';
 	import { tooltip } from '$lib/actions/tooltip.js';
 	
@@ -6,7 +6,7 @@
 	let mode = $state('unicode-to-punycode');
 	let showExamples = $state(false);
 	
-	let buttonStates = $state({});
+	let buttonStates = $state({} as Record<string, boolean>);
 	
 	const domainExamples = [
 		{ unicode: 'münchen.de', punycode: 'xn--mnchen-3ya.de', description: 'German city domain' },
@@ -18,7 +18,7 @@
 	];
 	
 	// Punycode implementation based on RFC 3492
-	function punycodeDecode(input) {
+	function punycodeDecode(input: string) {
 		const BASE = 36;
 		const TMIN = 1;
 		const TMAX = 26;
@@ -27,7 +27,7 @@
 		const INITIAL_BIAS = 72;
 		const INITIAL_N = 128;
 		
-		function adapt(delta, numPoints, firstTime) {
+		function adapt(delta: number, numPoints: number, firstTime: boolean) {
 			delta = firstTime ? Math.floor(delta / DAMP) : delta >> 1;
 			delta += Math.floor(delta / numPoints);
 			let k = 0;
@@ -38,7 +38,7 @@
 			return k + Math.floor(((BASE - TMIN + 1) * delta) / (delta + SKEW));
 		}
 		
-		function decode(input) {
+		function decode(input: string) {
 			let n = INITIAL_N;
 			let i = 0;
 			let bias = INITIAL_BIAS;
@@ -80,7 +80,7 @@
 			return String.fromCodePoint(...output);
 		}
 		
-		function basicToDigit(codePoint) {
+		function basicToDigit(codePoint: number) {
 			if (codePoint - 48 < 10) return codePoint - 22;
 			if (codePoint - 65 < 26) return codePoint - 65;
 			if (codePoint - 97 < 26) return codePoint - 97;
@@ -90,7 +90,7 @@
 		return decode(input);
 	}
 	
-	function punycodeEncode(input) {
+	function punycodeEncode(input: string) {
 		const BASE = 36;
 		const TMIN = 1;
 		const TMAX = 26;
@@ -99,7 +99,7 @@
 		const INITIAL_BIAS = 72;
 		const INITIAL_N = 128;
 		
-		function adapt(delta, numPoints, firstTime) {
+		function adapt(delta: number, numPoints: number, firstTime: boolean) {
 			delta = firstTime ? Math.floor(delta / DAMP) : delta >> 1;
 			delta += Math.floor(delta / numPoints);
 			let k = 0;
@@ -110,12 +110,12 @@
 			return k + Math.floor(((BASE - TMIN + 1) * delta) / (delta + SKEW));
 		}
 		
-		function digitToBasic(digit) {
+		function digitToBasic(digit: number) {
 			return digit + 22 + (digit < 26 ? 75 : 0);
 		}
 		
-		function encode(input) {
-			const codePoints = Array.from(input).map(char => char.codePointAt(0));
+		function encode(input: string) {
+			const codePoints = Array.from(input).map(char => char.codePointAt(0) || 0);
 			let n = INITIAL_N;
 			let delta = 0;
 			let bias = INITIAL_BIAS;
@@ -165,9 +165,9 @@
 		return encode(input);
 	}
 	
-	function convertDomain(domain, toPunycode) {
+	function convertDomain(domain: string, toPunycode: boolean) {
 		const parts = domain.split('.');
-		return parts.map(part => {
+		return parts.map((part: string) => {
 			if (!part) return part;
 			
 			try {
@@ -229,7 +229,7 @@
 		return warns;
 	});
 	
-	function showButtonSuccess(buttonId) {
+	function showButtonSuccess(buttonId: string) {
 		buttonStates[buttonId] = true;
 		setTimeout(() => {
 			buttonStates[buttonId] = false;
@@ -255,7 +255,7 @@
 		showButtonSuccess('download');
 	}
 	
-	function loadExample(example) {
+	function loadExample(example: typeof domainExamples[0]) {
 		if (mode === 'unicode-to-punycode') {
 			inputText = example.unicode;
 		} else {

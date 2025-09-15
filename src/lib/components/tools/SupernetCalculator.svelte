@@ -157,7 +157,6 @@
                 <IPInput 
                   bind:value={network.network}
                   placeholder="192.168.1.0"
-                  showValidation={true}
                 />
               </div>
               <div class="cidr-input">
@@ -251,7 +250,7 @@
                 <button 
                   class="btn btn-icon copy-btn" 
                   class:copied={copiedStates['supernet']}
-                  onclick={() => copyToClipboard(`${supernetResult.supernet.network}/${supernetResult.supernet.cidr}`, 'supernet')}
+                  onclick={() => supernetResult?.supernet && copyToClipboard(`${supernetResult.supernet.network}/${supernetResult.supernet.cidr}`, 'supernet')}
                 >
                   <Icon name={copiedStates['supernet'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -308,7 +307,7 @@
                 <button 
                   class="btn btn-icon copy-btn" 
                   class:copied={copiedStates['network']}
-                  onclick={() => copyToClipboard(supernetResult.supernet.network, 'network')}
+                  onclick={() => supernetResult?.supernet && copyToClipboard(supernetResult.supernet.network, 'network')}
                 >
                   <Icon name={copiedStates['network'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -327,7 +326,7 @@
                 <button 
                   class="btn btn-icon copy-btn" 
                   class:copied={copiedStates['mask']}
-                  onclick={() => copyToClipboard(supernetResult.supernet.subnetMask, 'mask')}
+                  onclick={() => supernetResult?.supernet && copyToClipboard(supernetResult.supernet.subnetMask, 'mask')}
                 >
                   <Icon name={copiedStates['mask'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -346,7 +345,7 @@
                 <button 
                   class="btn btn-icon copy-btn" 
                   class:copied={copiedStates['wildcard']}
-                  onclick={() => copyToClipboard(supernetResult.supernet.wildcardMask, 'wildcard')}
+                  onclick={() => supernetResult?.supernet && copyToClipboard(supernetResult.supernet.wildcardMask, 'wildcard')}
                 >
                   <Icon name={copiedStates['wildcard'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -367,7 +366,7 @@
                 <button 
                   class="btn btn-icon copy-btn" 
                   class:copied={copiedStates['range']}
-                  onclick={() => copyToClipboard(`${supernetResult.supernet.addressRange.first} - ${supernetResult.supernet.addressRange.last}`, 'range')}
+                  onclick={() => supernetResult?.supernet && copyToClipboard(`${supernetResult.supernet.addressRange.first} - ${supernetResult.supernet.addressRange.last}`, 'range')}
                 >
                   <Icon name={copiedStates['range'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -386,7 +385,7 @@
                 <button 
                   class="btn btn-icon copy-btn" 
                   class:copied={copiedStates['binary']}
-                  onclick={() => copyToClipboard(supernetResult.supernet.binaryMask, 'binary')}
+                  onclick={() => supernetResult?.supernet && copyToClipboard(supernetResult.supernet.binaryMask, 'binary')}
                 >
                   <Icon name={copiedStates['binary'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -511,7 +510,7 @@
     font-weight: 600;
     font-size: var(--font-size-sm);
     flex-shrink: 0;
-    margin-top: 1.5rem; // Align with input labels
+    margin-top: 1.5rem; /* Align with input labels */
   }
 
   .network-inputs-row {
@@ -851,7 +850,7 @@
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-primary);
     flex: 1;
-    min-width: 0; // Allow text to wrap/truncate
+    min-width: 0; /* Allow text to wrap/truncate */
     font-size: var(--font-size-sm);
     
     &.binary-mask {

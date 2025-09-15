@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Copy, Download, Check, User, Mail } from 'lucide-svelte';
 	import { tooltip } from '$lib/actions/tooltip.js';
 	
@@ -7,7 +7,7 @@
 	let txtDname = $state('admin-info.example.com.');
 	let showExamples = $state(false);
 	
-	let buttonStates = $state({});
+	let buttonStates = $state({} as Record<string, boolean>);
 	
 	const roleExamples = [
 		{
@@ -101,7 +101,7 @@
 		return infos;
 	});
 	
-	function showButtonSuccess(buttonId) {
+	function showButtonSuccess(buttonId: string) {
 		buttonStates[buttonId] = true;
 		setTimeout(() => {
 			buttonStates[buttonId] = false;
@@ -136,19 +136,19 @@
 		showButtonSuccess('download');
 	}
 	
-	function loadRoleExample(role) {
+	function loadRoleExample(role: any) {
 		mailboxDname = role.mbox;
 		txtDname = role.txt;
 		if (!domain) domain = 'example.com';
 	}
 	
-	function emailToDname(email) {
+	function emailToDname(email: string) {
 		if (!email.includes('@')) return email;
 		const [local, domain] = email.split('@');
 		return `${local.replace(/\./g, '\\.')}.${domain}.`;
 	}
 	
-	function dnameToEmail(dname) {
+	function dnameToEmail(dname: string) {
 		if (!dname.includes('.') || dname === '.') return '';
 		const parts = dname.replace(/\.$/, '').split('.');
 		if (parts.length < 2) return '';

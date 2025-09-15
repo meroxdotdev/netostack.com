@@ -58,8 +58,8 @@
   });
   
   const isInputValid = $derived(() => {
-    return targetsList.length > 0 && 
-           targetsList.every(target => /^[a-zA-Z0-9.-]+:\d+$/.test(target));
+    return targetsList().length > 0 &&
+           targetsList().every((target: string) => /^[a-zA-Z0-9.-]+:\d+$/.test(target));
   });
   
   async function checkPorts() {
@@ -214,8 +214,8 @@
               bind:value={targets} 
               placeholder="google.com:443&#10;github.com:22&#10;example.com:80"
               rows="6"
-              class:invalid={targets && !isInputValid}
-              onchange={() => { clearExampleSelection(); if (isInputValid) checkPorts(); }}
+              class:invalid={targets && !isInputValid()}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) checkPorts(); }}
             ></textarea>
             <div class="input-help">
               <span class="target-count">{targetsList.length}/50 targets</span>
@@ -257,7 +257,7 @@
               min="1000" 
               max="30000" 
               step="1000"
-              onchange={() => { clearExampleSelection(); if (isInputValid) checkPorts(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) checkPorts(); }}
             />
           </label>
         </div>

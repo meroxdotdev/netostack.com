@@ -95,11 +95,10 @@
 
   <!-- Input Section -->
   <div class="form-group">
-    <IPInput 
+    <IPInput
       bind:value={inputValue}
       label={isIPv4ToIPv6 ? 'IPv4 Address' : 'IPv6 Address'}
       placeholder={placeholder}
-      error={!validation.valid ? validation.error : undefined}
     />
   </div>
 
@@ -123,7 +122,7 @@
                     onclick={() => copyToClipboard(conversionResult?.result || '', 'result')}
                     aria-label="Copy result to clipboard"
                   >
-                    <SvgIcon icon={copiedStates['result'] ? 'check' : 'copy'} size="sm" />
+                    <SvgIcon icon={copiedStates['result'] ? 'check' : 'clipboard'} size="sm" />
                   </button>
                 </Tooltip>
               </div>
@@ -154,7 +153,7 @@
                         class="copy-btn-small {copiedStates['compressed'] ? 'copied' : ''}"
                         onclick={() => copyToClipboard(conversionResult?.details?.compressed || '', 'compressed')}
                       >
-                        <SvgIcon icon={copiedStates['compressed'] ? 'check' : 'copy'} size="sm" />
+                        <SvgIcon icon={copiedStates['compressed'] ? 'check' : 'clipboard'} size="sm" />
                       </button>
                     </Tooltip>
                   </div>
@@ -170,7 +169,7 @@
                         class="copy-btn-small {copiedStates['expanded'] ? 'copied' : ''}"
                         onclick={() => copyToClipboard(conversionResult?.details?.expanded || '', 'expanded')}
                       >
-                        <SvgIcon icon={copiedStates['expanded'] ? 'check' : 'copy'} size="sm" />
+                        <SvgIcon icon={copiedStates['expanded'] ? 'check' : 'clipboard'} size="sm" />
                       </button>
                     </Tooltip>
                   </div>
@@ -186,7 +185,7 @@
                         class="copy-btn-small {copiedStates['dotted'] ? 'copied' : ''}"
                         onclick={() => copyToClipboard(conversionResult?.details?.dotted || '', 'dotted')}
                       >
-                        <SvgIcon icon={copiedStates['dotted'] ? 'check' : 'copy'} size="sm" />
+                        <SvgIcon icon={copiedStates['dotted'] ? 'check' : 'clipboard'} size="sm" />
                       </button>
                     </Tooltip>
                   </div>
@@ -233,7 +232,7 @@
                       class="copy-btn-small {copiedStates['ipv6-expanded'] ? 'copied' : ''}"
                       onclick={() => copyToClipboard(expandIPv6(ipv6Info?.cleaned || ''), 'ipv6-expanded')}
                     >
-                      <SvgIcon icon={copiedStates['ipv6-expanded'] ? 'check' : 'copy'} size="sm" />
+                      <SvgIcon icon={copiedStates['ipv6-expanded'] ? 'check' : 'clipboard'} size="sm" />
                     </button>
                   </Tooltip>
                 </div>
@@ -249,7 +248,7 @@
                       class="copy-btn-small {copiedStates['ipv6-compressed'] ? 'copied' : ''}"
                       onclick={() => copyToClipboard(compressIPv6(ipv6Info?.cleaned || ''), 'ipv6-compressed')}
                     >
-                      <SvgIcon icon={copiedStates['ipv6-compressed'] ? 'check' : 'copy'} size="sm" />
+                      <SvgIcon icon={copiedStates['ipv6-compressed'] ? 'check' : 'clipboard'} size="sm" />
                     </button>
                   </Tooltip>
                 </div>

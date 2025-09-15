@@ -218,7 +218,7 @@
             bind:value={domainName} 
             placeholder="example.com"
             class:invalid={domainName && !isValidDomainName(domainName.trim())}
-            onchange={() => { clearExampleSelection(); if (isInputValid) checkCAA(); }}
+            onchange={() => { clearExampleSelection(); if (isInputValid()) checkCAA(); }}
           />
           {#if domainName && !isValidDomainName(domainName.trim())}
             <span class="error-text">Invalid domain name format</span>
@@ -246,7 +246,7 @@
       <div class="card-header row">
         <h3>CAA Policy Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
           {copiedState ? "Copied!" : "Copy Results"}
         </button>
       </div>
@@ -257,7 +257,7 @@
           {#if results.effective}
             <div class="effective-policy">
               <div class="effective-header">
-                <Icon name="shield-check" size="md" class="text-success" />
+                <span class="text-success"><Icon name="shield-check" size="md" /></span>
                 <div>
                   <h5>Policy found at: <span class="domain-name">{results.effective.domain}</span></h5>
                   <p>This domain has CAA records that control certificate issuance</p>
@@ -295,7 +295,7 @@
             </div>
           {:else}
             <div class="no-policy">
-              <Icon name="shield-off" size="md" class="text-warning" />
+              <span class="text-warning"><Icon name="shield-off" size="md" /></span>
               <div>
                 <h5>No CAA policy found</h5>
                 <p>No CAA records found in the domain chain for <code>{domainName}</code></p>

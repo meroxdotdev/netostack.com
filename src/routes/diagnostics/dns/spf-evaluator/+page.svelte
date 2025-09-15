@@ -220,7 +220,7 @@
       <div class="card-header row">
         <h3>SPF Evaluation Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
           {copiedState ? "Copied!" : "Copy Results"}
         </button>
       </div>
@@ -274,9 +274,9 @@
                     <span class="include-type">{item.type}:</span>
                     <span class="include-domain">{item.domain}</span>
                     {#if item.result?.error}
-                      <Icon name="alert-triangle" size="xs" class="text-error" />
+                      <span class="text-error"><Icon name="alert-triangle" size="xs" /></span>
                     {:else}
-                      <Icon name="check-circle" size="xs" class="text-success" />
+                      <span class="text-success"><Icon name="check-circle" size="xs" /></span>
                     {/if}
                   </div>
                   
@@ -307,9 +307,9 @@
                     <Icon name="external-link" size="xs" />
                     <span>redirect to: {redirect.domain}</span>
                     {#if redirect.result?.error}
-                      <Icon name="alert-triangle" size="xs" class="text-error" />
+                      <span class="text-error"><Icon name="alert-triangle" size="xs" /></span>
                     {:else}
-                      <Icon name="check-circle" size="xs" class="text-success" />
+                      <span class="text-success"><Icon name="check-circle" size="xs" /></span>
                     {/if}
                   </div>
                   

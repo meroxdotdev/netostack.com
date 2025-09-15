@@ -2,6 +2,7 @@
 	import { RESERVED_RANGES } from '$lib/constants/networks.js';
 	import Tooltip from '$lib/components/global/Tooltip.svelte';
 	import SvgIcon from '$lib/components/global/SvgIcon.svelte';
+	import Icon from '$lib/components/global/Icon.svelte';
 	import '../../styles/converters.scss';
 	import '../../styles/components.scss';
 </script>
@@ -45,7 +46,7 @@
 	<!-- Explainer Section -->
 	<div class="explainer-card">
 		<h3>
-			<SvgIcon icon="info" size="md" />
+			<Icon name="info" size="md" />
 			Understanding Reserved IP Ranges
 		</h3>
 		<div class="explainer-content">

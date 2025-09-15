@@ -191,7 +191,7 @@
               bind:value={host} 
               placeholder="google.com:443"
               class:invalid={host && !isInputValid}
-              onchange={() => { clearExampleSelection(); if (isInputValid) probeTLSVersions(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) probeTLSVersions(); }}
             />
             {#if host && !isInputValid}
               <span class="error-text">Invalid host:port format</span>
@@ -206,7 +206,7 @@
             <input 
               type="checkbox" 
               bind:checked={useCustomServername}
-              onchange={() => { clearExampleSelection(); if (isInputValid) probeTLSVersions(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) probeTLSVersions(); }}
             />
             Use custom SNI servername
           </label>
@@ -216,7 +216,7 @@
               bind:value={servername} 
               placeholder="example.com"
               use:tooltip={"Custom servername for SNI (Server Name Indication)"}
-              onchange={() => { clearExampleSelection(); if (isInputValid) probeTLSVersions(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) probeTLSVersions(); }}
             />
           {/if}
         </div>

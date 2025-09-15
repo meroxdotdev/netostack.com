@@ -66,7 +66,7 @@
       }
 
       // Use CIDR diff to get all available blocks (A - B = pools - allocations)
-      const diffResult = computeCIDRDifference(pools, allocations || '', 'detailed');
+      const diffResult = computeCIDRDifference(pools, allocations || '', 'minimal');
       
       // Check for errors
       if (diffResult.errors.length > 0) {
@@ -86,12 +86,13 @@
       // Filter by target prefix if specified
       let filteredBlocks = allBlocks;
       if (targetPrefix !== null) {
+        const target = targetPrefix; // Capture for closure
         filteredBlocks = allBlocks.filter(block => {
           // Extract prefix length from CIDR notation
           const match = block.match(/\/(\d+)$/);
           if (!match) return false;
           const prefixLength = parseInt(match[1]);
-          return prefixLength <= targetPrefix; // Can be subdivided to target prefix
+          return prefixLength <= target; // Can be subdivided to target prefix
         });
       }
       

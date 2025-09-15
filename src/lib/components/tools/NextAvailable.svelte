@@ -166,7 +166,7 @@
   }
 
   /* Generate tooltip text for visualization segments */
-  function getSegmentTooltip(range: { cidr: string }, type: 'pool' | 'allocation' | 'free' | 'candidate'): string {
+  function getSegmentTooltip(range: { cidr: string; start?: bigint; end?: bigint }, type: 'pool' | 'allocation' | 'free' | 'candidate'): string {
     const labels = {
       pool: 'Pool',
       allocation: 'Allocation',

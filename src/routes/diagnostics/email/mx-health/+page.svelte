@@ -276,7 +276,7 @@
                   </div>
                   
                   <div class="mx-status">
-                    <Icon name={mx.error ? 'x-circle' : 'check-circle'} size="sm" class={mx.error ? 'text-error' : 'text-success'} />
+                    <span class={mx.error ? 'text-error' : 'text-success'}><Icon name={mx.error ? 'x-circle' : 'check-circle'} size="sm" /></span>
                   </div>
                 </div>
                 

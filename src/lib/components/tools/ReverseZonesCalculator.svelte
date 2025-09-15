@@ -306,7 +306,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
                 <h5>BIND9 Configuration</h5>
                 <button
                   class="copy-button {copiedStates['bind-config'] ? 'copied' : ''}"
-                  onclick={() => copyToClipboard(generateBindConfig(results.zones), 'bind-config')}
+                  onclick={() => results && copyToClipboard(generateBindConfig(results.zones), 'bind-config')}
                 >
                   <Icon name={copiedStates['bind-config'] ? 'check' : 'copy'} size="sm" />
                   Copy Config
@@ -321,7 +321,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
                 <h5>Zone File Setup Commands</h5>
                 <button
                   class="copy-button {copiedStates['setup-commands'] ? 'copied' : ''}"
-                  onclick={() => copyToClipboard(generateDelegationCommands(results.zones), 'setup-commands')}
+                  onclick={() => results && copyToClipboard(generateDelegationCommands(results.zones), 'setup-commands')}
                 >
                   <Icon name={copiedStates['setup-commands'] ? 'check' : 'copy'} size="sm" />
                   Copy Commands

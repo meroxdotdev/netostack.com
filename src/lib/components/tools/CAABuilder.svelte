@@ -867,10 +867,6 @@
       color: var(--color-success);
     }
     
-    &.warning {
-      color: var(--color-warning);
-    }
-    
     &.error {
       color: var(--color-error);
     }

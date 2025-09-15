@@ -186,10 +186,10 @@
               type="url" 
               bind:value={url} 
               placeholder="https://example.com"
-              class:invalid={url && !isInputValid}
-              onchange={() => { if (isInputValid) measurePerformance(); }}
+              class:invalid={url && !isInputValid()}
+              onchange={() => { if (isInputValid()) measurePerformance(); }}
             />
-            {#if url && !isInputValid}
+            {#if url && !isInputValid()}
               <span class="error-text">Invalid URL format</span>
             {/if}
           </label>
@@ -198,7 +198,7 @@
         <div class="form-group">
           <label for="method" use:tooltip={"HTTP method to use for the request"}>
             Method
-            <select id="method" bind:value={method} onchange={() => { if (isInputValid) measurePerformance(); }}>
+            <select id="method" bind:value={method} onchange={() => { if (isInputValid()) measurePerformance(); }}>
               {#each methods as methodOption}
                 <option value={methodOption}>{methodOption}</option>
               {/each}
@@ -228,7 +228,7 @@
       <div class="card-header">
         <h3>Performance Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
           {copiedState ? "Copied!" : "Copy Results"}
         </button>
       </div>

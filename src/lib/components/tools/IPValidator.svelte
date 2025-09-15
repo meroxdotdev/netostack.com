@@ -15,6 +15,10 @@
       isPrivate?: boolean;
       isReserved?: boolean;
       info?: string[];
+      compressedForm?: string;
+      embeddedIPv4?: string;
+      zoneId?: string;
+      hasEmbeddedIPv4?: boolean;
     };
   } | null>(null);
 

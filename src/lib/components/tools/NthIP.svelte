@@ -239,14 +239,14 @@
                         <div class="details-grid">
                           <div class="detail-item">
                             <span class="detail-label">Start:</span>
-                            <code onclick={() => copyToClipboard(calculation.details.networkStart)} title="Click to copy">
+                            <code onclick={() => calculation.details && copyToClipboard(calculation.details.networkStart)} title="Click to copy">
                               {calculation.details.networkStart}
                             </code>
                           </div>
                           
                           <div class="detail-item">
                             <span class="detail-label">End:</span>
-                            <code onclick={() => copyToClipboard(calculation.details.networkEnd)} title="Click to copy">
+                            <code onclick={() => calculation.details && copyToClipboard(calculation.details.networkEnd)} title="Click to copy">
                               {calculation.details.networkEnd}
                             </code>
                           </div>

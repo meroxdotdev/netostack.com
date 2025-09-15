@@ -306,7 +306,7 @@
               <code class="result-value unicast">{result.details.normalizedUnicast}</code>
               <button
                 class="copy-button {copiedStates['unicast'] ? 'copied' : ''}"
-                onclick={() => copyToClipboard(result.details.normalizedUnicast, 'unicast')}
+                onclick={() => result && copyToClipboard(result.details.normalizedUnicast, 'unicast')}
               >
                 <Icon name={copiedStates['unicast'] ? 'check' : 'copy'} size="sm" />
               </button>
@@ -326,7 +326,7 @@
               <code class="result-value multicast">{result.solicitedNodeAddress}</code>
               <button
                 class="copy-button {copiedStates['multicast'] ? 'copied' : ''}"
-                onclick={() => copyToClipboard(result.solicitedNodeAddress, 'multicast')}
+                onclick={() => result && copyToClipboard(result.solicitedNodeAddress, 'multicast')}
               >
                 <Icon name={copiedStates['multicast'] ? 'check' : 'copy'} size="sm" />
               </button>

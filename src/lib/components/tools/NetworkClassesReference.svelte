@@ -2,6 +2,7 @@
 	import { NETWORK_CLASSES } from '$lib/constants/networks.js';
 	import Tooltip from '$lib/components/global/Tooltip.svelte';
 	import SvgIcon from '$lib/components/global/SvgIcon.svelte';
+	import Icon from '$lib/components/global/Icon.svelte';
 	import '../../styles/converters.scss';
 	import '../../styles/components.scss';
 </script>
@@ -49,7 +50,7 @@
 	<!-- Quick Tips -->
 	<section class="tips-section">
 		<h4 class="tips-header">
-			<SvgIcon icon="info" size="md" />
+			<Icon name="info" size="md" />
 			Understanding Network Classes
 		</h4>
 		<div class="tips-content">
@@ -69,7 +70,7 @@
 	<!-- Explainer Section -->
 	<div class="explainer-card">
 		<h3>
-			<SvgIcon icon="info" size="md" />
+			<Icon name="info" size="md" />
 			Network Class Fundamentals
 		</h3>
 		<div class="explainer-content">

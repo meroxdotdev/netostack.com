@@ -446,13 +446,6 @@
     border-bottom: 1px solid var(--border-secondary);
   }
   
-  &.active h3 {
-    color: var(--color-primary);
-    background-color: rgba(var(--color-primary-rgb), 0.1);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-md);
-    border-bottom-color: var(--color-primary);
-  }
 }
 
 .menu-group {

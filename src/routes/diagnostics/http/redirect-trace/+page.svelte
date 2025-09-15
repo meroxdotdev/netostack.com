@@ -165,8 +165,8 @@
         <h4>Redirect Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
-          <button class="example-card" onclick={() => loadExample(example)}>
+        {#each examples as example, index}
+          <button class="example-card" onclick={() => loadExample(example, index)}>
             <h5>{example.url}</h5>
             <p>{example.description}</p>
           </button>
@@ -190,10 +190,10 @@
               type="url" 
               bind:value={url} 
               placeholder="https://bit.ly/example"
-              class:invalid={url && !isInputValid}
-              onchange={() => { if (isInputValid) traceRedirects(); }}
+              class:invalid={url && !isInputValid()}
+              onchange={() => { if (isInputValid()) traceRedirects(); }}
             />
-            {#if url && !isInputValid}
+            {#if url && !isInputValid()}
               <span class="error-text">Invalid URL format</span>
             {/if}
           </label>
@@ -208,7 +208,7 @@
               bind:value={maxRedirects} 
               min="1" 
               max="50"
-              onchange={() => { if (isInputValid) traceRedirects(); }}
+              onchange={() => { if (isInputValid()) traceRedirects(); }}
             />
           </label>
         </div>
@@ -234,7 +234,7 @@
       <div class="card-header">
         <h3>Redirect Chain Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" class={copiedState ? "text-green-500" : ""} />
+          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
           {copiedState ? "Copied!" : "Copy Chain"}
         </button>
       </div>

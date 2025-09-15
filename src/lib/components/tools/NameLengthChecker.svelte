@@ -301,7 +301,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
           <!-- Success State -->
           <div class="success-card">
             <div class="success-content">
-              <Icon name="check-circle" size="xl" />
+              <Icon name="check-circle" size="lg" />
               <div class="success-message">
                 <h4>All Names Valid!</h4>
                 <p>All {results.totalNames} domain names in your zone comply with DNS length limits.</p>

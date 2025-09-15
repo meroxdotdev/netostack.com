@@ -133,7 +133,7 @@
 
 <!-- Search Modal -->
 {#if isOpen}
-  <div class="search-overlay" onclick={close}>
+  <div class="search-overlay" onclick={close} onkeydown={(e) => { if (e.key === 'Escape') close(); }} role="button" tabindex="-1" aria-label="Close search">
     <div class="search-modal" onclick={(e) => e.stopPropagation()}>
       <div class="search-header">
         <Icon name="search" size="sm" />

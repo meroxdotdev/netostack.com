@@ -138,7 +138,7 @@
       });
     }
 
-    results = estimateEDNSSize(recordsToEstimate);
+    results = estimateEDNSSize(queryName, queryType, recordsToEstimate);
   }
 
   function formatBytes(bytes: number): string {
@@ -165,7 +165,7 @@
   }
 
   function hasRecommendations(): boolean {
-    return results && results.recommendations && results.recommendations.length > 0;
+    return !!(results && results.recommendations && results.recommendations.length > 0);
   }
 
   async function copyEstimate() {

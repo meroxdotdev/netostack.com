@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Icon from '$lib/components/global/Icon.svelte';
 	import { tooltip } from '$lib/actions/tooltip';
 	
@@ -14,7 +14,7 @@
 	let parseMode = $state(false);
 	let showExamples = $state(false);
 	
-	let buttonStates = $state({});
+	let buttonStates = $state({} as Record<string, boolean>);
 	
 	const cityExamples = [
 		{ name: 'San Francisco', lat: 37.7749, lng: -122.4194, alt: 10 },
@@ -24,7 +24,7 @@
 		{ name: 'Sydney', lat: -33.8688, lng: 151.2093, alt: 58 }
 	];
 	
-	function degreesToLOC(degrees, isLongitude = false) {
+	function degreesToLOC(degrees: number, isLongitude = false) {
 		const hemisphere = isLongitude 
 			? (degrees >= 0 ? 'E' : 'W')
 			: (degrees >= 0 ? 'N' : 'S');
@@ -38,12 +38,12 @@
 		return `${deg.toString().padStart(isLongitude ? 3 : 2, '0')} ${min.toString().padStart(2, '0')} ${sec.toString().padStart(5, '0')}.000 ${hemisphere}`;
 	}
 	
-	function altitudeToLOC(altMeters) {
+	function altitudeToLOC(altMeters: number) {
 		const altCm = Math.round((altMeters + 100000) * 100);
 		return altCm.toString().padStart(8, '0');
 	}
 	
-	function sizeToLOC(sizeMeters) {
+	function sizeToLOC(sizeMeters: number) {
 		if (sizeMeters === 0) return '00';
 		
 		let mantissa = 0;
@@ -90,7 +90,7 @@
 		return `Parsed: ${locString}`;
 	}
 	
-	function locToData(locRecord) {
+	function locToData(locRecord: string) {
 		// Simplified parsing for demo
 		const parts = locRecord.split(' ');
 		if (parts.length < 8) return null;
@@ -114,7 +114,7 @@
 		}
 	});
 	
-	function showButtonSuccess(buttonId) {
+	function showButtonSuccess(buttonId: string) {
 		buttonStates[buttonId] = true;
 		setTimeout(() => {
 			buttonStates[buttonId] = false;
@@ -139,7 +139,7 @@
 		showButtonSuccess('download');
 	}
 	
-	function loadCity(city) {
+	function loadCity(city: any) {
 		latitude = city.lat.toString();
 		longitude = city.lng.toString();  
 		altitude = city.alt.toString();

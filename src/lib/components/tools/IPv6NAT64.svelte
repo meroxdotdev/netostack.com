@@ -579,7 +579,7 @@
                 <code class="step-value">{result.translatedAddress}</code>
                 <button
                   class="copy-button {copiedStates['result'] ? 'copied' : ''}"
-                  onclick={() => copyToClipboard(result.translatedAddress, 'result')}
+                  onclick={() => result && copyToClipboard(result.translatedAddress, 'result')}
                 >
                   <Icon name={copiedStates['result'] ? 'check' : 'copy'} size="sm" />
                 </button>

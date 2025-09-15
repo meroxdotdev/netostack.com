@@ -88,7 +88,7 @@
     activeExampleIndex = -1;
     error = null;
     dsRecords = [];
-    if (isValid) {
+    if (isValid()) {
       generateDS();
     }
   }
@@ -99,7 +99,7 @@
     } else {
       selectedDigestTypes = [...selectedDigestTypes, type];
     }
-    if (isValid) {
+    if (isValid()) {
       generateDS();
     }
   }
@@ -255,7 +255,7 @@
             <div class="ds-record">
               <div class="ds-header">
                 <div class="digest-info">
-                  <span class="digest-type">{DS_DIGEST_TYPES[ds.digestType]}</span>
+                  <span class="digest-type">{DS_DIGEST_TYPES[ds.digestType as keyof typeof DS_DIGEST_TYPES]}</span>
                   <span class="key-tag">Key Tag: {ds.keyTag}</span>
                 </div>
                 <button class="copy-btn small" class:copied={copiedStates[`ds-${ds.keyTag}-${ds.digestType}`]} onclick={() => copyDS(ds)} title="Copy this DS record">
@@ -270,11 +270,11 @@
               <div class="ds-details">
                 <div class="detail-item">
                   <span class="label">Algorithm:</span>
-                  <span class="value">{ds.algorithm} ({DNSSEC_ALGORITHMS[ds.algorithm] || 'Unknown'})</span>
+                  <span class="value">{ds.algorithm} ({DNSSEC_ALGORITHMS[ds.algorithm as keyof typeof DNSSEC_ALGORITHMS] || 'Unknown'})</span>
                 </div>
                 <div class="detail-item">
                   <span class="label">Digest Type:</span>
-                  <span class="value">{ds.digestType} ({DS_DIGEST_TYPES[ds.digestType]})</span>
+                  <span class="value">{ds.digestType} ({DS_DIGEST_TYPES[ds.digestType as keyof typeof DS_DIGEST_TYPES]})</span>
                 </div>
                 <div class="detail-item">
                   <span class="label">Digest:</span>

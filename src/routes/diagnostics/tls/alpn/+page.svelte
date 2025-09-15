@@ -91,7 +91,7 @@
   function setCommonProtocols(protocolSet: string) {
     protocols = protocolSet;
     clearExampleSelection();
-    if (isInputValid) probeALPN();
+    if (isInputValid()) probeALPN();
   }
   
   function getProtocolInfo(protocol: string): { name: string, description: string, version: string } {
@@ -210,7 +210,7 @@
               bind:value={host} 
               placeholder="google.com:443"
               class:invalid={host && !isInputValid}
-              onchange={() => { clearExampleSelection(); if (isInputValid) probeALPN(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) probeALPN(); }}
             />
             {#if host && !isInputValid}
               <span class="error-text">Invalid host:port format</span>
@@ -229,7 +229,7 @@
               type="text" 
               bind:value={protocols} 
               placeholder="h2,http/1.1"
-              onchange={() => { clearExampleSelection(); if (isInputValid) probeALPN(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) probeALPN(); }}
             />
           </label>
           <div class="protocol-presets">
@@ -254,7 +254,7 @@
             <input 
               type="checkbox" 
               bind:checked={useCustomServername}
-              onchange={() => { clearExampleSelection(); if (isInputValid) probeALPN(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) probeALPN(); }}
             />
             Use custom SNI servername
           </label>
@@ -264,7 +264,7 @@
               bind:value={servername} 
               placeholder="example.com"
               use:tooltip={"Custom servername for SNI (Server Name Indication)"}
-              onchange={() => { clearExampleSelection(); if (isInputValid) probeALPN(); }}
+              onchange={() => { clearExampleSelection(); if (isInputValid()) probeALPN(); }}
             />
           {/if}
         </div>
@@ -348,7 +348,7 @@
                 <div class="selected-protocol">
                   <div class="protocol-item selected">
                     <div class="protocol-header">
-                      <Icon name="check-circle" size="sm" class="success-icon" />
+                      <span class="success-icon"><Icon name="check-circle" size="sm" /></span>
                       <span class="protocol-name">{selectedProtocol.name}</span>
                       <span class="protocol-id mono">({results.negotiatedProtocol})</span>
                     </div>

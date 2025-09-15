@@ -380,7 +380,7 @@
   <!-- Number Formats Explanation -->
   <div class="card">
     <h3>
-      <Icon icon="info" size="md" />
+      <Icon name="info" size="md" />
       Number Format Explanations
     </h3>
     <div class="explainer-content">
