@@ -17,7 +17,8 @@ on:
         type: boolean
 
 env:
-  REPO_NAME: ${{ vars.REPO_NAME || github.repository }}
+  REPO_NAME: 'lissy93/networking-toolbox'
+  # REPO_NAME: ${{ vars.REPO_NAME || github.repository }}
 
 jobs:
   build:
