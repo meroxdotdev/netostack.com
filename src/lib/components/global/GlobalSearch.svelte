@@ -5,6 +5,7 @@
   import Icon from './Icon.svelte';
   import { ALL_PAGES } from '$lib/constants/nav';
   import type { NavItem } from '$lib/constants/nav';
+  import { bookmarks } from '$lib/stores/bookmarks';
 
   let isOpen = $state(false);
   let query = $state('');
@@ -116,6 +117,7 @@
   });
 
   onMount(() => {
+    bookmarks.init();
     document.addEventListener('keydown', handleGlobalKeydown);
     return () => document.removeEventListener('keydown', handleGlobalKeydown);
   });
@@ -159,16 +161,19 @@
               onmouseenter={() => selectedIndex = index}
             >
               <div class="result-content">
-                <div class="result-title">{result.label}</div>
+                <div class="result-title">
+                  <Icon name={result.icon} size="xs" />
+                  {result.label}
+                </div>
                 {#if result.description}
                   <div class="result-description">{result.description}</div>
                 {/if}
               </div>
               <div class="result-meta">
-                <span class="result-path">{result.href}</span>
                 {#if index === selectedIndex}
-                  <Icon name="corner-down-left" size="xs" />
+                  <Icon name="link" size="xs" />
                 {/if}
+                <span class="result-path">{result.href}</span>
               </div>
             </button>
           {/each}
@@ -189,12 +194,40 @@
             <span>Use ↑↓ to navigate, Enter to select</span>
           </div>
         </div>
+
+        {#if $bookmarks.length > 0}
+          <div class="bookmarks-section">
+            <div class="bookmarks-header">
+              <Icon name="bookmarks" size="xs" />
+              <span>Bookmarked Tools</span>
+            </div>
+            <div class="bookmarks-list">
+              {#each $bookmarks.slice(0, 6) as bookmark, index}
+                <button
+                  class="bookmark-item"
+                  onclick={() => { goto(bookmark.href); close(); }}
+                  tabindex="0"
+                >
+                  <div class="bookmark-icon">
+                    <Icon name={bookmark.icon} size="xs" />
+                  </div>
+                  <span class="bookmark-label">{bookmark.label}</span>
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/if}
       {/if}
     </div>
   </div>
 {/if}
 
 <style lang="scss">
+
+  button:hover:not(:disabled) {
+    border-color: var(--border-primary);
+  }
+
   .search-trigger {
     display: flex;
     align-items: center;
@@ -295,7 +328,7 @@
 
   .result-item {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: space-between;
     width: 100%;
     padding: var(--spacing-md) var(--spacing-lg);
@@ -323,6 +356,12 @@
         color: var(--text-primary);
         font-weight: 500;
         margin-bottom: var(--spacing-xs);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        :global(svg) {
+          color: var(--text-tertiary);
+        }
       }
       
       .result-description {
@@ -341,12 +380,14 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-sm);
-      margin-left: var(--spacing-md);
-      
+      justify-content: end;
       .result-path {
         color: var(--text-tertiary);
         font-size: var(--font-size-xs);
         font-family: var(--font-mono);
+      }
+      :global(svg) {
+        color: var(--text-tertiary);
       }
     }
   }
@@ -364,7 +405,7 @@
   .search-help {
     padding: var(--spacing-lg);
     border-top: 1px solid var(--border-secondary);
-    
+
     .help-item {
       display: flex;
       align-items: center;
@@ -372,6 +413,80 @@
       padding: var(--spacing-sm) 0;
       color: var(--text-tertiary);
       font-size: var(--font-size-sm);
+    }
+  }
+
+  .bookmarks-section {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--border-secondary);
+
+    .bookmarks-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      color: var(--text-secondary);
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--spacing-sm);
+
+      :global(svg) {
+        color: var(--color-primary);
+      }
+    }
+
+    .bookmarks-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-xs);
+    }
+
+    .bookmark-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: var(--font-size-xs);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      max-width: 140px;
+
+      &:hover,
+      &:focus {
+        background: var(--surface-hover);
+        border-color: var(--color-primary);
+        transform: translateY(-1px);
+        outline: none;
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      .bookmark-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        background: var(--color-primary);
+        border-radius: var(--radius-sm);
+        flex-shrink: 0;
+        :global(svg) {
+          color: var(--bg-primary);
+        }
+      }
+      .bookmark-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.2;
+      }
     }
   }
 

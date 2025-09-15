@@ -4,6 +4,7 @@
   import { ALL_PAGES, SUB_NAV, type NavItem, type NavGroup } from '$lib/constants/nav';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import SearchFilter from '$lib/components/furniture/SearchFilter.svelte';
+  import BookmarksGrid from '$lib/components/global/BookmarksGrid.svelte';
   
   // Helper function to extract nav items from mixed structure
   function extractNavItems(items: (NavItem | NavGroup)[]): NavItem[] {
@@ -70,6 +71,10 @@
 <SearchFilter bind:filteredTools bind:searchQuery />
 
 {#if searchQuery.trim() === ''}
+
+  <!-- Bookmarks Section -->
+  <BookmarksGrid hideOther={true} />
+
   <!-- Tools Grid -->
   <ToolsGrid tools={filteredTools} {searchQuery} />
 

@@ -1,10 +1,35 @@
 <script lang="ts">
-    import { tooltip } from '$lib/actions/tooltip';
+  import { tooltip } from '$lib/actions/tooltip';
+  import { onMount } from 'svelte';
   import Icon from '$lib/components/global/Icon.svelte';
   import type { NavItem } from '$lib/constants/nav';
+  import { bookmarks, type BookmarkedTool } from '$lib/stores/bookmarks';
 
   export let tool: NavItem;
   export let small: boolean = false;
+
+  let isHovered = false;
+  let isBookmarked = false;
+
+  onMount(() => {
+    bookmarks.init();
+  });
+
+  $: isBookmarked = bookmarks.isBookmarked(tool.href, $bookmarks);
+
+  function toggleBookmark(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const bookmarkedTool: BookmarkedTool = {
+      href: tool.href,
+      label: tool.label,
+      description: tool.description || '',
+      icon: tool.icon || 'default'
+    };
+
+    bookmarks.toggle(bookmarkedTool);
+  }
 </script>
 {#if small}
   <a href={tool.href} class="tool-card small" aria-label={tool.label} use:tooltip={{ text: tool.description || '' }}>
@@ -21,8 +46,35 @@
     </div>
   </a>
 {:else}
-  <a href={tool.href} class="tool-card" aria-label={tool.label}>
-    <h3>{tool.label}</h3>
+  <a
+    href={tool.href}
+    class="tool-card"
+    aria-label={tool.label}
+    on:mouseenter={() => isHovered = true}
+    on:mouseleave={() => isHovered = false}
+  >
+    <div class="card-header">
+      <h3>{tool.label}</h3>
+      {#if isHovered || isBookmarked}
+        <button
+          class="bookmark-btn"
+          class:bookmarked={isBookmarked}
+          on:click={toggleBookmark}
+          aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
+        >
+          {#if isBookmarked}
+            {#if isHovered}
+              <Icon name="bookmark-remove" size="sm" />
+            {:else}
+              <Icon name="bookmarks" size="sm" />
+            {/if}
+          {:else}
+            <Icon name="bookmark-add" size="md" />
+          {/if}
+          <!-- <Icon name={isBookmarked ? 'bookmark-remove' : 'bookmark-add'} size="sm" /> -->
+        </button>
+      {/if}
+    </div>
     <div class="right">
       <div class="tool-icon">
         <Icon name={tool.icon || 'default'} />
@@ -56,17 +108,84 @@
   height: 100%;
   min-width: 0;
 
-  > h3 {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-    line-height: 1.3;
-    text-overflow: ellipsis;
-    display: block;
-    max-width: 100%;
-    white-space: nowrap;
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+
+    h3 {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+      line-height: 1.3;
+      text-overflow: ellipsis;
+      display: block;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+
+  .bookmark-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    animation: slideInFromTop 0.3s ease forwards;
     overflow: hidden;
+    position: absolute;
+    right: var(--spacing-sm);
+    top: var(--spacing-sm);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: color-mix(in srgb, var(--color-primary), transparent 90%);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+    }
+
+    &:hover {
+      background: var(--surface-hover);
+      color: var(--color-success);
+      transform: scale(1.15);
+
+      &::before {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &.bookmarked {
+      color: var(--text-secondary);
+      opacity: 1;
+      animation: bookmarkPulse 0.6s ease;
+
+      &:hover {
+        color: var(--color-error);
+        transform: scale(1.1) rotate(-5deg);
+      }
+    }
+
+    :global(svg) {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
   }
 
   .right {
@@ -191,6 +310,41 @@
     }
   }
 
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bookmarkPulse {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  75% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 </style>
