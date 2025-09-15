@@ -194,9 +194,9 @@
                     <div class="result-section">
                       <div class="result-ip">
                         <span class="result-label">Result IP:</span>
-                        <code onclick={() => copyToClipboard(calculation.resultIP)} title="Click to copy">
+                        <button type="button" class="code-button result-code" onclick={() => copyToClipboard(calculation.resultIP)} title="Click to copy">
                           {calculation.resultIP}
-                        </code>
+                        </button>
                       </div>
                       
                       {#if !calculation.isInBounds}
@@ -211,9 +211,9 @@
                       <div class="info-grid">
                         <div class="info-item">
                           <span class="info-label">Network:</span>
-                          <code onclick={() => copyToClipboard(calculation.network)} title="Click to copy">
+                          <button type="button" class="code-button info-code" onclick={() => copyToClipboard(calculation.network)} title="Click to copy">
                             {calculation.network}
-                          </code>
+                          </button>
                         </div>
                         
                         <div class="info-item">
@@ -239,16 +239,16 @@
                         <div class="details-grid">
                           <div class="detail-item">
                             <span class="detail-label">Start:</span>
-                            <code onclick={() => calculation.details && copyToClipboard(calculation.details.networkStart)} title="Click to copy">
+                            <button type="button" class="code-button detail-code" onclick={() => calculation.details && copyToClipboard(calculation.details.networkStart)} title="Click to copy">
                               {calculation.details.networkStart}
-                            </code>
+                            </button>
                           </div>
                           
                           <div class="detail-item">
                             <span class="detail-label">End:</span>
-                            <code onclick={() => calculation.details && copyToClipboard(calculation.details.networkEnd)} title="Click to copy">
+                            <button type="button" class="code-button detail-code" onclick={() => calculation.details && copyToClipboard(calculation.details.networkEnd)} title="Click to copy">
                               {calculation.details.networkEnd}
-                            </code>
+                            </button>
                           </div>
                           
                           <div class="detail-item">
@@ -598,21 +598,41 @@
     color: var(--text-primary);
   }
 
-  .result-ip code {
-    background: var(--color-primary);
-    color: var(--bg-primary);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--border-radius);
+  .code-button {
     font-family: var(--font-mono);
-    font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-fast);
-    font-size: var(--font-size-lg);
-  }
+    border: none;
 
-  .result-ip code:hover {
-    background: var(--color-primary-hover);
-    transform: translateY(-1px);
+    &.result-code {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      font-size: var(--font-size-lg);
+
+      &:hover {
+        background: var(--color-primary-hover);
+        transform: translateY(-1px);
+      }
+    }
+
+    &.info-code, &.detail-code {
+      background: var(--bg-secondary);
+      color: var(--color-primary);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      border: 1px solid var(--border-primary);
+      word-break: break-all;
+
+      &:hover {
+        background: var(--bg-primary);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    }
   }
 
   .bounds-warning {
@@ -649,22 +669,6 @@
     font-size: var(--font-size-sm);
   }
 
-  .info-item code {
-    background: var(--bg-secondary);
-    color: var(--color-primary);
-    border: 1px solid var(--border-color);
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-size: var(--font-size-sm);
-  }
-
-  .info-item code:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
-  }
 
   .info-value {
     font-family: var(--font-mono);
@@ -703,22 +707,6 @@
     font-size: var(--font-size-sm);
   }
 
-  .detail-item code {
-    background: var(--bg-secondary);
-    color: var(--color-primary);
-    border: 1px solid var(--border-color);
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-size: var(--font-size-sm);
-  }
-
-  .detail-item code:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
-  }
 
   .detail-value {
     font-family: var(--font-mono);

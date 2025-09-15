@@ -1016,12 +1016,6 @@
       }
     }
 
-    &.neutral {
-      .summary-icon {
-        background-color: var(--color-info);
-        color: var(--bg-primary);
-      }
-    }
   }
 
   .summary-icon {

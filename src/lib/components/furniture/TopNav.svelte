@@ -116,6 +116,7 @@
                     class="nav-group"
                     class:has-secondary={subItem.items.length > 0}
                     role="menuitem"
+                    tabindex="0"
                     on:mouseenter={() => showSubDropdown(subItem.title)}
                     on:mouseleave={hideSubDropdown}
                   >
@@ -314,6 +315,7 @@
     color: var(--text-secondary);
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

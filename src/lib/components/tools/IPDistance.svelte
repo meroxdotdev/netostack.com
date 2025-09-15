@@ -187,9 +187,9 @@
                   <div class="ip-pair">
                     <div class="ip-address">
                       <span class="ip-label">Start</span>
-                      <code onclick={() => copyToClipboard(calculation.startIP)} title="Click to copy">
+                      <button type="button" class="code-button" onclick={() => copyToClipboard(calculation.startIP)} title="Click to copy">
                         {calculation.startIP}
-                      </code>
+                      </button>
                     </div>
                     
                     <div class="direction-arrow" style="color: {getDirectionColor(calculation.direction)}">
@@ -198,9 +198,9 @@
                     
                     <div class="ip-address">
                       <span class="ip-label">End</span>
-                      <code onclick={() => copyToClipboard(calculation.endIP)} title="Click to copy">
+                      <button type="button" class="code-button" onclick={() => copyToClipboard(calculation.endIP)} title="Click to copy">
                         {calculation.endIP}
-                      </code>
+                      </button>
                     </div>
                   </div>
                   
@@ -243,7 +243,7 @@
                         <h4>Intermediate Addresses</h4>
                         <div class="intermediate-list">
                           {#each calculation.intermediateAddresses as ip}
-                            <code onclick={() => copyToClipboard(ip)} title="Click to copy">{ip}</code>
+                            <button type="button" class="code-button" onclick={() => copyToClipboard(ip)} title="Click to copy">{ip}</button>
                           {/each}
                           {#if calculation.distanceNumber > BigInt(calculation.intermediateAddresses.length + 2)}
                             <span class="more-indicator">
@@ -316,32 +316,6 @@
     margin-top: var(--spacing-xs);
   }
 
-  .options {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .option-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  .option-group label {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    color: var(--text-primary);
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  .option-help {
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-    margin-left: var(--spacing-lg);
-  }
 
   .loading {
     display: flex;
@@ -521,22 +495,6 @@
     color: var(--text-secondary);
   }
 
-  .ip-address code {
-    background: var(--bg-secondary);
-    color: var(--color-primary);
-    border: 1px solid var(--border-color);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius);
-    font-family: var(--font-mono);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-  }
-
-  .ip-address code:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
-  }
 
   .direction-arrow {
     font-size: 1.5rem;
@@ -641,22 +599,6 @@
     align-items: center;
   }
 
-  .intermediate-list code {
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
-    font-family: var(--font-mono);
-    font-size: var(--font-size-xs);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-  }
-
-  .intermediate-list code:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
-  }
 
   .more-indicator {
     font-size: var(--font-size-sm);
@@ -690,10 +632,32 @@
     .export-buttons {
       justify-content: stretch;
     }
-    
+
     .export-buttons button {
       flex: 1;
       justify-content: center;
+    }
+  }
+
+  .code-button {
+    background: var(--bg-code);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    margin: 0 var(--spacing-xs) 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    color: var(--text-code);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--bg-code-hover);
+      border-color: var(--color-primary);
+    }
+
+    &:active {
+      transform: translateY(1px);
     }
   }
 </style>

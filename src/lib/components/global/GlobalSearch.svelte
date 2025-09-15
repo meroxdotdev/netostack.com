@@ -11,7 +11,7 @@
   let query = $state('');
   let results = $state<NavItem[]>([]);
   let selectedIndex = $state(0);
-  let searchInput: HTMLInputElement;
+  let searchInput: HTMLInputElement = $state();
   
   const isMac = browser && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
   const shortcutKey = isMac ? '⌘' : 'Ctrl';
@@ -133,7 +133,7 @@
 
 <!-- Search Modal -->
 {#if isOpen}
-  <div class="search-overlay" onclick={close} onkeydown={(e) => { if (e.key === 'Escape') close(); }} role="button" tabindex="-1" aria-label="Close search">
+  <div class="search-overlay" onclick={close} onkeydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') close(); }} role="button" tabindex="-1" aria-label="Close search">
     <div class="search-modal" onclick={(e) => e.stopPropagation()}>
       <div class="search-header">
         <Icon name="search" size="sm" />
@@ -372,6 +372,7 @@
         text-overflow: ellipsis;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
       }
     }

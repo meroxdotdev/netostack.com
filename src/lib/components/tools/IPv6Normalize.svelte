@@ -195,17 +195,17 @@
                   <div class="address-info">
                     <div class="original-address">
                       <span class="address-label">Original:</span>
-                      <code onclick={() => copyToClipboard(normalization.input)} title="Click to copy">
+                      <button type="button" class="code-button" onclick={() => copyToClipboard(normalization.input)} title="Click to copy">
                         {normalization.input}
-                      </code>
+                      </button>
                     </div>
                     
                     {#if normalization.isValid}
                       <div class="normalized-address">
                         <span class="address-label">Normalized:</span>
-                        <code onclick={() => copyToClipboard(normalization.normalized)} title="Click to copy" class="normalized">
+                        <button type="button" class="code-button normalized" onclick={() => copyToClipboard(normalization.normalized)} title="Click to copy">
                           {normalization.normalized}
-                        </code>
+                        </button>
                       </div>
                     {/if}
                   </div>
@@ -572,8 +572,7 @@
     min-width: 80px;
   }
 
-  .original-address code,
-  .normalized-address code {
+  .code-button {
     background: var(--bg-secondary);
     color: var(--text-primary);
     padding: var(--spacing-xs) var(--spacing-sm);
@@ -584,17 +583,16 @@
     word-break: break-all;
     font-size: var(--font-size-sm);
     border: 1px solid var(--border-primary);
-  }
 
-  .normalized-address code.normalized {
-    color: var(--color-success);
-    border-color: var(--color-success);
-  }
+    &.normalized {
+      color: var(--color-success);
+      border-color: var(--color-success);
+    }
 
-  .original-address code:hover,
-  .normalized-address code:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
+    &:hover {
+      background: var(--bg-primary);
+      transform: translateY(-1px);
+    }
   }
 
   .status {

@@ -187,9 +187,9 @@
                 {#if check.alignedCIDR}
                   <div class="aligned-cidr">
                     <strong>Aligned CIDR:</strong>
-                    <code onclick={() => copyToClipboard(check.alignedCIDR!)} title="Click to copy">
+                    <button type="button" class="code-button" onclick={() => copyToClipboard(check.alignedCIDR!)} title="Click to copy">
                       {check.alignedCIDR}
-                    </code>
+                    </button>
                   </div>
                 {/if}
 
@@ -216,7 +216,7 @@
                         </div>
                         <div class="suggestion-cidrs">
                           {#each suggestion.cidrs as cidr}
-                            <code onclick={() => copyToClipboard(cidr)} title="Click to copy">{cidr}</code>
+                            <button type="button" class="code-button" onclick={() => copyToClipboard(cidr)} title="Click to copy">{cidr}</button>
                           {/each}
                         </div>
                         {#if suggestion.efficiency}
@@ -511,24 +511,6 @@
     color: var(--text-primary);
   }
 
-  .aligned-cidr code,
-  .suggestion-cidrs code {
-    background: var(--color-primary);
-    color: var(--bg-primary);
-    padding: 0.375rem 0.75rem;
-    border-radius: var(--radius-sm);
-    font-family: var(--font-mono);
-    cursor: pointer;
-    display: inline-block;
-    margin: 0.125rem;
-    transition: var(--transition-fast);
-    font-weight: 600;
-  }
-
-  .aligned-cidr code:hover,
-  .suggestion-cidrs code:hover {
-    background: var(--color-primary-hover);
-  }
 
   .suggestions {
     border-top: 1px solid var(--border-primary);
@@ -563,15 +545,33 @@
     font-weight: 600;
   }
 
-  @media (max-width: 768px) {
-    .container {
-      padding: var(--spacing-md);
+  .code-button {
+    background: var(--bg-code);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    margin: 0 var(--spacing-xs) 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    color: var(--text-code);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--bg-code-hover);
+      border-color: var(--color-primary);
     }
-    
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  @media (max-width: 768px) {
     .summary-stats {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .export-buttons {
       flex-direction: column;
     }

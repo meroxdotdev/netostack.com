@@ -561,7 +561,7 @@
     align-items: center;
     margin-bottom: var(--spacing-md);
 
-    h3, h4 {
+    h3 {
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);

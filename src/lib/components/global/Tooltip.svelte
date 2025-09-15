@@ -34,8 +34,9 @@
   }
 </script>
 
-<div 
+<div
   class="tooltip-container"
+  role="tooltip"
   onmouseenter={handleMouseEnter}
   onmouseleave={handleMouseLeave}
 >

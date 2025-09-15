@@ -115,16 +115,25 @@ function parseIPInput(input: string): Array<{
         results.push({ start_ip: start, end_ip: end });
       } else if (trimmed.includes('/')) {
         // CIDR format
-        const [ip, prefixStr] = trimmed.split('/');
+        const parts = trimmed.split('/');
+        if (parts.length !== 2) {
+          throw new Error(`Invalid CIDR format: ${trimmed}`);
+        }
+
+        const [ip, prefixStr] = parts;
         const version = detectIPVersion(ip);
         const prefix = parseInt(prefixStr);
         const maxPrefix = version === 4 ? 32 : 128;
-        
+
+        if (isNaN(prefix) || prefix < 0 || prefix > maxPrefix) {
+          throw new Error(`Invalid prefix length: ${prefixStr}`);
+        }
+
         const ipBig = ipToNumber(ip, version);
         const hostBits = BigInt(maxPrefix - prefix);
         const networkBig = ipBig >> hostBits << hostBits;
         const broadcastBig = networkBig + (1n << hostBits) - 1n;
-        
+
         results.push({
           start_ip: numberToIP(networkBig, version),
           end_ip: numberToIP(broadcastBig, version),

@@ -178,18 +178,18 @@ describe('sitemap.xml server endpoint', () => {
     });
   });
 
-  it('handles reference pages with monthly frequency', async () => {
+  it('handles reference pages with weekly frequency', async () => {
     const { GET } = await import('../../../src/routes/sitemap.xml/+server');
-    
+
     const response = await GET();
     const text = await response.text();
-    
-    // Reference pages should have monthly changefreq
+
+    // Reference pages should have weekly changefreq
     const referencePageIndex = text.indexOf('<loc>https://example.com/reference/subnet-masks</loc>');
     if (referencePageIndex > -1) {
       const nextUrlIndex = text.indexOf('<url>', referencePageIndex + 1);
       const referencePageSection = text.substring(referencePageIndex, nextUrlIndex);
-      expect(referencePageSection).toContain('<changefreq>monthly</changefreq>');
+      expect(referencePageSection).toContain('<changefreq>weekly</changefreq>');
     }
   });
 

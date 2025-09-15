@@ -7,7 +7,7 @@
     searchQuery: string;
   } = $props();
   
-  let searchInput: HTMLInputElement;
+  let searchInput: HTMLInputElement = $state();
   let isSearchOpen: boolean = $state(false);
 
   // Weight different match types for relevance scoring

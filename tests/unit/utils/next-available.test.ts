@@ -316,8 +316,8 @@ describe('next-available.ts', () => {
 
     it('handles mixed valid and invalid input lines', () => {
       const input: NextAvailableInput = {
-        pools: '192.168.0.0/16\ninvalid-cidr\n10.0.0.0/8',
-        allocations: '192.168.1.0/24\nbad-allocation\n192.168.2.0/24',
+        pools: '192.168.0.0/16\n999.999.999.999/24\n10.0.0.0/8',
+        allocations: '192.168.1.0/24\n888.888.888.888/24\n192.168.2.0/24',
         desiredPrefix: 24,
         ipv4UsableHosts: true,
         policy: 'first-fit',
@@ -325,7 +325,7 @@ describe('next-available.ts', () => {
       };
 
       const result = findNextAvailableSubnet(input);
-      
+
       // Should process valid entries and skip invalid ones
       expect(result.stats.totalPools).toBe(2); // Only valid pools
       expect(result.candidates.length).toBeGreaterThan(0);

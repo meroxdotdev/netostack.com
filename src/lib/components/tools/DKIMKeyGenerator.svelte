@@ -458,7 +458,7 @@
     align-items: center;
     margin-bottom: var(--spacing-md);
 
-    h3, h4 {
+    h3 {
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
@@ -686,15 +686,6 @@
     transition: all 0.3s ease;
     transform: scale(1);
 
-    &.success {
-      background: var(--color-success) !important;
-      color: var(--bg-secondary) !important;
-      transform: scale(1.05);
-      
-      &:hover {
-        background: var(--color-success) !important;
-      }
-    }
   }
 
   .toggle-btn {

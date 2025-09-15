@@ -207,13 +207,14 @@
             {@const validation = validateMXRecord(record)}
             <div class="record-row" class:error={!validation.valid}>
               <div class="priority-input">
-                <label use:tooltip={"Lower numbers = higher priority"}>Priority</label>
-                <input 
-                  type="number" 
+                <label for="priority-{record.id}" use:tooltip={"Lower numbers = higher priority"}>Priority</label>
+                <input
+                  id="priority-{record.id}"
+                  type="number"
                   value={record.priority}
                   oninput={(e) => updateRecord(record.id, 'priority', parseInt((e.target as HTMLInputElement).value))}
-                  min="0" 
-                  max="65535" 
+                  min="0"
+                  max="65535"
                 />
                 {#if record.priority !== undefined}
                   {@const guideline = getPriorityGuideline(record.priority)}
@@ -222,8 +223,9 @@
               </div>
 
               <div class="mailserver-input">
-                <label>Mail Server (FQDN)</label>
-                <input 
+                <label for="mailserver-{record.id}">Mail Server (FQDN)</label>
+                <input
+                  id="mailserver-{record.id}"
                   type="text" 
                   value={record.mailserver}
                   oninput={(e) => updateRecord(record.id, 'mailserver', (e.target as HTMLInputElement).value)}
@@ -232,8 +234,9 @@
               </div>
 
               <div class="role-select">
-                <label>Role</label>
-                <select 
+                <label for="role-{record.id}">Role</label>
+                <select
+                  id="role-{record.id}"
                   value={record.role}
                   onchange={(e) => updateRecord(record.id, 'role', (e.target as HTMLSelectElement).value)}
                 >

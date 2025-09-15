@@ -229,7 +229,7 @@
           {#if result.allGeneratedIPs.length > 0}
             <div class="all-ips-list">
               {#each result.allGeneratedIPs as ip}
-                <code onclick={() => copyToClipboard(ip)} title="Click to copy">{ip}</code>
+                <button type="button" class="code-button all-ips-code" onclick={() => copyToClipboard(ip)} title="Click to copy">{ip}</button>
               {/each}
             </div>
           {/if}
@@ -281,9 +281,9 @@
                         {#if generation.seed}
                           <div class="info-item">
                             <span class="info-label">Seed:</span>
-                            <code onclick={() => copyToClipboard(generation.seed!)} title="Click to copy">
+                            <button type="button" class="code-button info-code" onclick={() => copyToClipboard(generation.seed!)} title="Click to copy">
                               {generation.seed}
-                            </code>
+                            </button>
                           </div>
                         {/if}
                       </div>
@@ -295,16 +295,16 @@
                         <div class="range-info">
                           <div class="range-item">
                             <span class="range-label">Start:</span>
-                            <code onclick={() => copyToClipboard(generation.networkDetails!.start)} title="Click to copy">
+                            <button type="button" class="code-button range-code" onclick={() => copyToClipboard(generation.networkDetails!.start)} title="Click to copy">
                               {generation.networkDetails.start}
-                            </code>
+                            </button>
                           </div>
                           
                           <div class="range-item">
                             <span class="range-label">End:</span>
-                            <code onclick={() => copyToClipboard(generation.networkDetails!.end)} title="Click to copy">
+                            <button type="button" class="code-button range-code" onclick={() => copyToClipboard(generation.networkDetails!.end)} title="Click to copy">
                               {generation.networkDetails.end}
-                            </code>
+                            </button>
                           </div>
                           
                           <div class="range-item">
@@ -320,7 +320,7 @@
                         <h4>Generated IPs</h4>
                         <div class="ips-list">
                           {#each generation.generatedIPs as ip}
-                            <code onclick={() => copyToClipboard(ip)} title="Click to copy">{ip}</code>
+                            <button type="button" class="code-button selected-ips-code" onclick={() => copyToClipboard(ip)} title="Click to copy">{ip}</button>
                           {/each}
                         </div>
                       </div>
@@ -617,22 +617,56 @@
     border: 1px solid var(--border-color);
   }
 
-  .all-ips-list code {
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
+  .code-button {
     font-family: var(--font-mono);
-    font-size: var(--font-size-xs);
     cursor: pointer;
     transition: all var(--transition-fast);
-    white-space: nowrap;
-  }
+    border: none;
 
-  .all-ips-list code:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
+    &.all-ips-code {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      padding: var(--spacing-xs);
+      border-radius: var(--border-radius);
+      font-size: var(--font-size-xs);
+      white-space: nowrap;
+
+      &:hover {
+        background: var(--bg-primary);
+        transform: translateY(-1px);
+      }
+    }
+
+    &.info-code, &.range-code {
+      background: var(--bg-secondary);
+      color: var(--color-primary);
+      border: 1px solid var(--border-color);
+      padding: var(--spacing-xs);
+      border-radius: var(--border-radius);
+      font-size: var(--font-size-sm);
+      word-break: break-all;
+
+      &:hover {
+        background: var(--bg-primary);
+        transform: translateY(-1px);
+      }
+    }
+
+    &.selected-ips-code {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      padding: var(--spacing-xs);
+      border-radius: var(--border-radius);
+      font-size: var(--font-size-xs);
+      white-space: nowrap;
+
+      &:hover {
+        background: var(--bg-primary);
+        transform: translateY(-1px);
+      }
+    }
   }
 
   .generations h3 {
@@ -742,22 +776,6 @@
     color: var(--text-primary);
   }
 
-  .info-item code {
-    background: var(--bg-secondary);
-    color: var(--color-primary);
-    border: 1px solid var(--border-color);
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-size: var(--font-size-sm);
-  }
-
-  .info-item code:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
-  }
 
   .network-details,
   .generated-ips {
@@ -792,22 +810,6 @@
     font-size: var(--font-size-sm);
   }
 
-  .range-item code {
-    background: var(--bg-secondary);
-    color: var(--color-primary);
-    border: 1px solid var(--border-color);
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-size: var(--font-size-sm);
-  }
-
-  .range-item code:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
-  }
 
   .range-value {
     font-family: var(--font-mono);
