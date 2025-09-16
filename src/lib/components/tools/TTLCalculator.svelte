@@ -430,10 +430,9 @@
   .common-details, .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
-      .common-summary :global(.icon),
-      .examples-summary :global(.icon) {
+      :global(.icon) {
         transform: rotate(90deg);
       }
     }
@@ -463,10 +462,6 @@
       transition: transform var(--transition-fast);
     }
 
-    h3 {
-      margin: 0;
-      font-size: var(--font-size-md);
-    }
   }
 
   .ttls-grid {

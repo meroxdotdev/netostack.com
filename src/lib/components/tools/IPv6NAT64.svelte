@@ -474,7 +474,7 @@
   <div class="card input-card">
     <!-- Conversion Mode -->
     <div class="mode-section">
-      <label class="mode-label">Conversion Direction</label>
+      <h3 class="mode-label">Conversion Direction</h3>
       <div class="mode-options">
         <label class="mode-option">
           <input

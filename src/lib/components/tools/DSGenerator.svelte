@@ -313,26 +313,6 @@
 </div>
 
 <style lang="scss">
-  .info-card {
-    margin-bottom: var(--spacing-xl);
-  }
-
-  .overview-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  .overview-item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-    color: var(--text-secondary);
-
-    strong {
-      color: var(--text-primary);
-    }
-  }
 
   .examples-card {
     padding: 0;
@@ -521,11 +501,6 @@
     &:hover {
       background: var(--surface-hover);
     }
-
-    &.recommended {
-      // background: color-mix(in srgb, var(--color-success) 5%, var(--bg-secondary));
-    }
-
     input[type="checkbox"] {
       display: none;
     }
@@ -627,8 +602,6 @@
   }
 
   .card.success {
-    // background: color-mix(in srgb, var(--color-success) 5%, var(--bg-secondary));
-    // border-color: var(--color-success);
     background: var(--bg-tertiary);
     .card-header {
       display: flex;

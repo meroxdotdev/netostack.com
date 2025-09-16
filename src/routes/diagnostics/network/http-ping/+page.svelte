@@ -214,7 +214,7 @@
       <!-- HTTP Method Selection -->
       <div class="form-row">
         <div class="form-group">
-          <label>HTTP Method</label>
+          <h3>HTTP Method</h3>
           <div class="method-options">
             {#each httpMethods as methodOption}
               <button 

@@ -222,9 +222,10 @@
               <div class="record-fields">
                 <div class="service-protocol-row">
                   <div class="service-input">
-                    <label use:tooltip={"The service name, typically starting with underscore (e.g., _http, _smtp)"}>Service</label>
+                    <label for="service-{record.id}" use:tooltip={"The service name, typically starting with underscore (e.g., _http, _smtp)"}>Service</label>
                     <div class="service-select-wrapper">
-                      <select 
+                      <select
+                        id="service-{record.id}"
                         value={record.service}
                         onchange={(e) => {
                           const serviceName = (e.target as HTMLSelectElement).value;
@@ -252,8 +253,9 @@
                   </div>
 
                   <div class="protocol-input">
-                    <label use:tooltip={"Transport protocol used by the service (TCP/UDP/TLS/SCTP)"}>Protocol</label>
-                    <select 
+                    <label for="protocol-{record.id}" use:tooltip={"Transport protocol used by the service (TCP/UDP/TLS/SCTP)"}>Protocol</label>
+                    <select
+                      id="protocol-{record.id}"
                       value={record.protocol}
                       onchange={(e) => updateRecord(record.id, 'protocol', (e.target as HTMLSelectElement).value)}
                     >
@@ -265,9 +267,10 @@
                   </div>
 
                   <div class="name-input">
-                    <label use:tooltip={"The domain name where this service is located"}>Domain</label>
-                    <input 
-                      type="text" 
+                    <label for="domain-{record.id}" use:tooltip={"The domain name where this service is located"}>Domain</label>
+                    <input
+                      id="domain-{record.id}"
+                      type="text"
                       value={record.name}
                       oninput={(e) => updateRecord(record.id, 'name', (e.target as HTMLInputElement).value)}
                       placeholder="example.com" 
@@ -277,9 +280,10 @@
 
                 <div class="priority-weight-row">
                   <div class="priority-input">
-                    <label use:tooltip={"Lower numbers = higher priority"}>Priority</label>
-                    <input 
-                      type="number" 
+                    <label for="priority-{record.id}" use:tooltip={"Lower numbers = higher priority"}>Priority</label>
+                    <input
+                      id="priority-{record.id}"
+                      type="number"
                       value={record.priority}
                       oninput={(e) => updateRecord(record.id, 'priority', parseInt((e.target as HTMLInputElement).value))}
                       min="0" 
@@ -288,8 +292,9 @@
                   </div>
 
                   <div class="weight-input">
-                    <label use:tooltip={"Load balancing weight for same priority"}>Weight</label>
-                    <input 
+                    <label for="weight-{record.id}" use:tooltip={"Load balancing weight for same priority"}>Weight</label>
+                    <input
+                      id="weight-{record.id}"
                       type="number" 
                       value={record.weight}
                       oninput={(e) => updateRecord(record.id, 'weight', parseInt((e.target as HTMLInputElement).value))}
@@ -299,9 +304,10 @@
                   </div>
 
                   <div class="port-input">
-                    <label use:tooltip={"Port number where the service is listening (1-65535)"}>Port</label>
-                    <input 
-                      type="number" 
+                    <label for="port-{record.id}" use:tooltip={"Port number where the service is listening (1-65535)"}>Port</label>
+                    <input
+                      id="port-{record.id}"
+                      type="number"
                       value={record.port}
                       oninput={(e) => updateRecord(record.id, 'port', parseInt((e.target as HTMLInputElement).value))}
                       min="1" 
@@ -310,9 +316,10 @@
                   </div>
 
                   <div class="target-input">
-                    <label use:tooltip={"Fully Qualified Domain Name of the server hosting the service (must end with dot)"}>Target (FQDN)</label>
-                    <input 
-                      type="text" 
+                    <label for="target-{record.id}" use:tooltip={"Fully Qualified Domain Name of the server hosting the service (must end with dot)"}>Target (FQDN)</label>
+                    <input
+                      id="target-{record.id}"
+                      type="text"
                       value={record.target}
                       oninput={(e) => updateRecord(record.id, 'target', (e.target as HTMLInputElement).value)}
                       placeholder="server.example.com." 
@@ -545,7 +552,7 @@
 .priority-weight-row {
   display: grid;
   gap: var(--spacing-sm);
-  
+
   label {
     display: block;
     font-size: var(--font-size-xs);
@@ -553,8 +560,8 @@
     color: var(--text-secondary);
     margin-bottom: var(--spacing-xs);
   }
-  
-  input, select {
+
+  input {
     width: 100%;
     padding: var(--spacing-xs);
     border: 1px solid var(--border-primary);
@@ -566,7 +573,16 @@
 
 .service-protocol-row {
   grid-template-columns: 2fr 1fr 2fr;
-  
+
+  select {
+    width: 100%;
+    padding: var(--spacing-xs);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    font-size: var(--font-size-sm);
+  }
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }

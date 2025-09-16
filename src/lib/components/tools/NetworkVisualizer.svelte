@@ -162,7 +162,7 @@
 			<div class="address-grid-wrap">
 				<div class="address-grid">
 					{#each networkBlocks as block}
-						<Tooltip text="{block.tooltip}" position="top">
+						<Tooltip text={block.tooltip} position="top">
 							<div class="address-block {block.type}">
 								{#if block.type === 'network'}
 									N

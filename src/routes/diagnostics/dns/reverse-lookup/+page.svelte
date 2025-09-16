@@ -369,8 +369,7 @@
   .form-group {
     label {
       flex-direction: column;
-      
-      input, select {
+      input {
         &.invalid {
           border-color: var(--color-error);
         }

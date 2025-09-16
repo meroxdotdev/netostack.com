@@ -681,7 +681,9 @@ www	IN	A	192.0.2.1"
     &:hover {
       background-color: var(--surface-hover);
     }
+  }
 
+  .copy-button {
     &.copied {
       color: var(--color-success);
       border-color: var(--color-success);

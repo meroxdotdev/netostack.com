@@ -337,28 +337,6 @@
 </div>
 
 <style>
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--spacing-lg);
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: var(--spacing-xl);
-  }
-
-  .header h1 {
-    font-size: var(--font-size-2xl);
-    font-weight: 700;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .header p {
-    color: var(--text-secondary);
-    font-size: var(--font-size-lg);
-  }
 
   .input-section {
     display: grid;
@@ -863,9 +841,6 @@
   }
 
   @media (max-width: 768px) {
-    .container {
-      padding: var(--spacing-md);
-    }
     
     .summary-stats {
       grid-template-columns: repeat(2, 1fr);

@@ -407,14 +407,6 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
     align-items: flex-start;
     gap: var(--spacing-sm);
     color: var(--text-secondary);
-    
-    code {
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
-      padding: 2px var(--spacing-xs);
-      border-radius: var(--radius-sm);
-      font-family: var(--font-mono);
-    }
 
     strong {
       color: var(--text-primary);

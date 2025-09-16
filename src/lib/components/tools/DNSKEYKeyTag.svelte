@@ -238,16 +238,6 @@
     gap: var(--spacing-sm);
   }
 
-  .overview-item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-    color: var(--text-secondary);
-
-    strong {
-      color: var(--text-primary);
-    }
-  }
 
   .examples-card {
     background: var(--bg-tertiary);

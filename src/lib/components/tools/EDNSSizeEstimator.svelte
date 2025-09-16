@@ -315,8 +315,9 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
         <div class="record-item">
           <div class="record-fields">
             <div class="field-group">
-              <label>Name</label>
+              <label for="name-{index}">Name</label>
               <input
+                id="name-{index}"
                 type="text"
                 bind:value={record.name}
                 oninput={() => updateRecord(index, 'name', record.name)}
@@ -324,8 +325,9 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
               />
             </div>
             <div class="field-group">
-              <label>Type</label>
+              <label for="type-{index}">Type</label>
               <select
+                id="type-{index}"
                 bind:value={record.type}
                 onchange={() => updateRecord(index, 'type', record.type)}
               >
@@ -335,8 +337,9 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
               </select>
             </div>
             <div class="field-group">
-              <label>Value</label>
+              <label for="value-{index}">Value</label>
               <input
+                id="value-{index}"
                 type="text"
                 bind:value={record.value}
                 oninput={() => updateRecord(index, 'value', record.value)}
@@ -345,8 +348,9 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
             </div>
             {#if record.type === 'MX'}
               <div class="field-group">
-                <label>Priority</label>
+                <label for="priority-{index}">Priority</label>
                 <input
+                  id="priority-{index}"
                   type="number"
                   bind:value={record.priority}
                   oninput={() => updateRecord(index, 'priority', record.priority || 0)}
@@ -356,8 +360,9 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
               </div>
             {/if}
             <div class="field-group">
-              <label>TTL</label>
+              <label for="ttl-{index}">TTL</label>
               <input
+                id="ttl-{index}"
                 type="number"
                 bind:value={record.ttl}
                 oninput={() => updateRecord(index, 'ttl', record.ttl || 0)}
@@ -635,7 +640,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     color: var(--text-secondary);
   }
 
-  .config-card, .records-card {
+  .records-card {
     margin-bottom: var(--spacing-xl);
   }
 
@@ -783,20 +788,6 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     border: 2px dashed var(--border-secondary);
   }
 
-  .results-card {
-    margin-bottom: var(--spacing-xl);
-  }
-
-  .results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-lg);
-
-    h3 {
-      margin: 0;
-    }
-  }
 
   .copy-button {
     display: flex;
@@ -881,14 +872,6 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     }
   }
 
-  .fragmentation-section {
-    margin-bottom: var(--spacing-lg);
-
-    h4 {
-      margin-bottom: var(--spacing-md);
-      color: var(--text-primary);
-    }
-  }
 
   .fragmentation-risk {
     display: flex;
@@ -1213,11 +1196,6 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     }
   }
 
-  .results-actions {
-    margin-top: var(--spacing-md);
-    padding-top: var(--spacing-md);
-    border-top: 1px solid var(--border-secondary);
-  }
 
   @media (max-width: 768px) {
     .examples-grid {

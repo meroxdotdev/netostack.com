@@ -160,10 +160,11 @@
                 />
               </div>
               <div class="cidr-input">
-                <label>CIDR</label>
+                <label for="cidr-{index}">CIDR</label>
                 <div class="cidr-controls">
                   <span class="cidr-display">/{network.cidr}</span>
                   <input
+                    id="cidr-{index}"
                     type="range"
                     min="8"
                     max="30"

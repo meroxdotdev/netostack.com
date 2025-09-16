@@ -230,7 +230,7 @@
       <!-- Common Ports -->
       <div class="form-row">
         <div class="form-group">
-          <label>Common Ports</label>
+          <h3>Common Ports</h3>
           <div class="port-shortcuts">
             {#each commonPorts as port}
               <button 

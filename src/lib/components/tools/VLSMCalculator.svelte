@@ -210,8 +210,9 @@
                 class="subnet-name-input"
               />
               <div class="hosts-input">
-                <label>Hosts needed:</label>
+                <label for="hosts-{index}">Hosts needed:</label>
                 <input
+                  id="hosts-{index}"
                   type="number"
                   min="1"
                   max="16777214"

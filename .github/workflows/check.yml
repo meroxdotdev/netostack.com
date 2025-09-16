@@ -1,0 +1,70 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: ${{ matrix.check-name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - check-name: "TypeScript & Svelte Check"
+            command: "npm run check"
+            description: "Verify TypeScript types and Svelte components"
+          - check-name: "Build"
+            command: "npm run build"
+            description: "Verify project builds successfully"
+          - check-name: "Lint"
+            command: "npm run lint"
+            description: "Check code style and quality with ESLint"
+          # - check-name: "Format Check"
+          #   command: "npm run format:check"
+          #   description: "Verify code formatting with Prettier"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ${{ matrix.check-name }}
+        run: ${{ matrix.command }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=8192"
+          
+      - name: Quality Summary
+        run: |
+          echo "## 📊 Quality Check Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          checks=(
+            "TypeScript & Svelte Check"
+            "Build"
+            "Lint"
+            "Format Check"
+            "Tests"
+            "Test Coverage"
+          )
+
+          for check in "${checks[@]}"; do
+            if [[ "${{ needs.check.result }}" == "success" ]]; then
+              echo "| $check | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| $check | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done

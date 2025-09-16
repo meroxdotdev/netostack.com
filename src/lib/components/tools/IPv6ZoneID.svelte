@@ -899,13 +899,6 @@
   }
 
   @media (max-width: 767px) {
-    .ipv6-zone-id {
-      padding: 0 var(--spacing-sm);
-    }
-    
-    .header h1 {
-      font-size: 1.5rem;
-    }
     
     .summary-stats {
       grid-template-columns: repeat(2, 1fr);

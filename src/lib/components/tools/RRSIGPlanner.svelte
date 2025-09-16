@@ -388,26 +388,6 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
 </div>
 
 <style lang="scss">
-  .info-card {
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .overview-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
-  }
-
-  .overview-item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-    color: var(--text-secondary);
-
-    strong {
-      color: var(--text-primary);
-    }
-  }
 
   .input-card {
     margin-bottom: var(--spacing-lg);

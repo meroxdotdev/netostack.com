@@ -11,7 +11,7 @@
   let query = $state('');
   let results = $state<NavItem[]>([]);
   let selectedIndex = $state(0);
-  let searchInput: HTMLInputElement = $state();
+  let searchInput: HTMLInputElement | undefined = $state();
   
   const isMac = browser && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
   const shortcutKey = isMac ? '⌘' : 'Ctrl';
@@ -61,7 +61,7 @@
       .slice(0, 8);
   }
 
-  function open() {
+  function showSearch() {
     isOpen = true;
     setTimeout(() => searchInput?.focus(), 0);
   }
@@ -107,7 +107,7 @@
   function handleGlobalKeydown(e: KeyboardEvent) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
-      open();
+      showSearch();
     }
   }
 
@@ -122,11 +122,11 @@
     return () => document.removeEventListener('keydown', handleGlobalKeydown);
   });
 
-  export { open };
+  // export { showSearch as open };
 </script>
 
 <!-- Trigger Button -->
-<button class="search-trigger" onclick={open} aria-label="Open search">
+<button class="search-trigger" onclick={showSearch} aria-label="Open search">
   <Icon name="search" size="sm" />
   <span class="shortcut">{shortcutKey}K</span>
 </button>
@@ -134,7 +134,7 @@
 <!-- Search Modal -->
 {#if isOpen}
   <div class="search-overlay" onclick={close} onkeydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') close(); }} role="button" tabindex="-1" aria-label="Close search">
-    <div class="search-modal" onclick={(e) => e.stopPropagation()}>
+    <div class="search-modal" onclick={(e) => e.stopPropagation()} onkeydown={(e) => { if (e.key === 'Escape') close(); e.stopPropagation(); }} role="dialog" aria-modal="true" tabindex="-1">
       <div class="search-header">
         <Icon name="search" size="sm" />
         <input

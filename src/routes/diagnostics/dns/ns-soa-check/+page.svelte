@@ -546,7 +546,14 @@
   .nameservers-section, .soa-section, .recommendations-section {
     margin: var(--spacing-lg) 0;
 
-    h4, h5 {
+    h4 {
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-md) 0;
+    }
+  }
+
+  .soa-section, .recommendations-section {
+    h5 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
     }

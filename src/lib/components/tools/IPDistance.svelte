@@ -217,9 +217,9 @@
                   <div class="calculation-details">
                     <div class="distance-info">
                       <div class="distance-value">
-                        <span class="distance-number" onclick={() => copyToClipboard(calculation.distance)} title="Click to copy">
+                        <button type="button" class="distance-number" onclick={() => copyToClipboard(calculation.distance)} title="Click to copy">
                           {calculation.distance}
-                        </span>
+                        </button>
                         <span class="distance-label">
                           address{calculation.distanceNumber === 1n ? '' : 'es'}
                           ({calculation.inclusive ? 'inclusive' : 'exclusive'})

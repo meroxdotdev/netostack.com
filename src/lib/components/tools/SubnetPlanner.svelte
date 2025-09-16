@@ -305,15 +305,17 @@
       </div>
     </div>
 
-    <div class="requests-list">
+    <div class="requests-list" role="list">
       {#each requests as request, index (request.id)}
-        <div 
+        <div
           class="request-item"
           draggable="true"
           ondragstart={(e) => handleDragStart(e, index)}
           ondragover={handleDragOver}
           ondrop={(e) => handleDrop(e, index)}
           class:dragging={draggedIndex === index}
+          role="listitem"
+          aria-grabbed={draggedIndex === index}
         >
           <div class="drag-handle">
             <Icon name="draggable" size="sm" />
@@ -1021,13 +1023,27 @@
 
   .range-info, .hosts-info {
     font-size: var(--font-size-sm);
-    
-    .network-broadcast, .usable-hosts {
+  }
+
+  .range-info {
+    .network-broadcast {
       color: var(--text-primary);
       font-family: var(--font-mono);
     }
-    
-    .host-range, .total-hosts {
+
+    .host-range {
+      color: var(--text-secondary);
+      font-size: var(--font-size-xs);
+    }
+  }
+
+  .hosts-info {
+    .usable-hosts {
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+
+    .total-hosts {
       color: var(--text-secondary);
       font-size: var(--font-size-xs);
     }

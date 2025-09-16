@@ -778,12 +778,6 @@
   .tag-explanation, .caa-example {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    
-    strong {
-      color: var(--text-primary);
-      font-family: var(--font-mono);
-    }
-
     code {
       background: var(--bg-secondary);
       padding: 2px 4px;
@@ -793,8 +787,6 @@
       margin-right: var(--spacing-xs);
     }
   }
-
-  // Shared utilities moved to diagnostics-pages.scss
 
   .text-success {
     color: var(--color-success);

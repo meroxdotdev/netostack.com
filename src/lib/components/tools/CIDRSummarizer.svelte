@@ -341,7 +341,6 @@ fe80::/10`
   %tooltip-fade {
     opacity: 0.7;
     transition: opacity var(--transition-fast);
-    &:hover { opacity: 1; }
   }
 
   /* ---------- Mode selection ---------- */
@@ -532,7 +531,6 @@ fe80::/10`
     :global(.tooltip-trigger) {
       color: var(--text-secondary);
       @extend %tooltip-fade;
-      &:hover { color: var(--color-info); }
     }
   }
 

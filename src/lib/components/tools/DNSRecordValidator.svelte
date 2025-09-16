@@ -726,7 +726,9 @@
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
     }
+  }
 
+  .record-value-input {
     &.valid {
       border-color: var(--color-success);
     }

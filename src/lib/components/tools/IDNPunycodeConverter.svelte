@@ -363,9 +363,9 @@
 					<div class="output-card">
 						<div class="output-section">
 							<div class="output-header">
-								<label>
+								<h3>
 									{mode === 'unicode-to-punycode' ? 'Punycode Result' : 'Unicode Result'}
-								</label>
+								</h3>
 								{#if isValid}
 									<button
 										onclick={swapModeAndContent}
@@ -731,10 +731,6 @@
 				align-items: center;
 				justify-content: space-between;
 
-				label {
-					color: var(--text-primary);
-					font-weight: 500;
-				}
 
 				.swap-btn {
 					display: flex;

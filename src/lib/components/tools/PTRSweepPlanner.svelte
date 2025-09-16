@@ -537,14 +537,6 @@
     gap: var(--spacing-sm);
     color: var(--text-secondary);
     
-    code {
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
-      padding: 2px var(--spacing-xs);
-      border-radius: var(--radius-sm);
-      font-family: var(--font-mono);
-    }
-
     strong {
       color: var(--text-primary);
     }
@@ -689,7 +681,9 @@
       border-color: var(--border-primary);
       box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
     }
+  }
 
+  .cidr-input {
     &.valid {
       border-color: var(--color-success);
     }

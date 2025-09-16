@@ -821,9 +821,7 @@ mixed-script-еxample.com"
     }
 
     .examples-inner,
-    .input-inner,
-    .results-inner,
-    .education-inner {
+    .input-inner {
       margin: var(--spacing-sm);
       margin-top: 0;
     }

@@ -842,9 +842,6 @@
   }
 
   @media (max-width: 768px) {
-    .container {
-      padding: var(--spacing-md);
-    }
     
     .input-section {
       grid-template-columns: 1fr;

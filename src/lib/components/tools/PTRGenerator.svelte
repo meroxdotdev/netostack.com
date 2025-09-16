@@ -433,7 +433,7 @@ $TTL 86400
   <div class="card input-card">
     <!-- Input Type Selection -->
     <div class="type-section">
-      <label class="type-label">Input Type</label>
+      <h3 class="type-label">Input Type</h3>
       <div class="type-options">
         <label class="type-option">
           <input

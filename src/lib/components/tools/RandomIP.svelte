@@ -826,22 +826,6 @@
     overflow-y: auto;
   }
 
-  .ips-list code {
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
-    font-family: var(--font-mono);
-    font-size: var(--font-size-xs);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-  }
-
-  .ips-list code:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
-  }
 
   .error-message {
     display: flex;
@@ -856,13 +840,6 @@
   }
 
   @media (max-width: 767px) {
-    .random-ip {
-      padding: 0 var(--spacing-sm);
-    }
-    
-    .header h1 {
-      font-size: 1.5rem;
-    }
     
     .summary-stats {
       grid-template-columns: repeat(2, 1fr);

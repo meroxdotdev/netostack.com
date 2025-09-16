@@ -355,8 +355,9 @@
 
     <div class="options-row">
       <div class="limit-control">
-        <label>Max Display</label>
+        <label for="max-display">Max Display</label>
         <input
+          id="max-display"
           type="number"
           bind:value={maxDisplayLimit}
           oninput={handleInputChange}
@@ -681,7 +682,7 @@
         transition: transform var(--transition-fast);
       }
       
-      h3 {
+      h4 {
         margin: 0;
       }
     }
@@ -780,11 +781,13 @@
       font-size: var(--font-size-sm);
       cursor: pointer;
       transition: all var(--transition-fast);
-      
+
       &:hover {
         background: var(--surface-hover);
       }
-      
+    }
+
+    .copy-btn {
       &.copied {
         color: var(--color-success);
       }

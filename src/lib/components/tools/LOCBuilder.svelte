@@ -442,15 +442,6 @@
 		color: var(--color-primary);
 	}
 
-	.chevron {
-		margin-left: auto;
-		transform: rotate(0deg);
-		transition: transform var(--transition-normal);
-	}
-
-	details[open] .chevron {
-		transform: rotate(180deg);
-	}
 
 	.examples-grid {
 		display: grid;

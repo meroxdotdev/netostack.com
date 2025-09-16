@@ -417,26 +417,6 @@
 </div>
 
 <style lang="scss">
-  .info-card {
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .overview-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
-  }
-
-  .overview-item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-    color: var(--text-secondary);
-
-    strong {
-      color: var(--text-primary);
-    }
-  }
 
   .examples-card {
     margin-bottom: var(--spacing-md);
@@ -611,7 +591,9 @@
       border-color: var(--color-primary);
       box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary), transparent 80%);
     }
+  }
 
+  .domain-input {
     &.example-active {
       border-color: var(--color-warning);
       background-color: color-mix(in srgb, var(--color-warning), transparent 95%);

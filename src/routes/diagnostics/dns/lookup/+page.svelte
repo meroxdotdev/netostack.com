@@ -211,11 +211,11 @@
         </div>
         
         <div class="form-group">
-          <label use:tooltip={"Choose a DNS resolver to use for the query"}>
+          <label for="dns-resolver" use:tooltip={"Choose a DNS resolver to use for the query"}>
             DNS Resolver
           </label>
           {#if !useCustomResolver}
-            <select bind:value={resolver} onchange={() => { clearExampleSelection(); if (domainName) performLookup(); }}>
+            <select id="dns-resolver" bind:value={resolver} onchange={() => { clearExampleSelection(); if (domainName) performLookup(); }}>
               {#each resolvers as res}
                 <option value={res.value}>{res.label}</option>
               {/each}

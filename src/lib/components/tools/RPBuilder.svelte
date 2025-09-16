@@ -273,7 +273,7 @@
 				<!-- Output -->
 				<div class="output-section">
 					<div class="output-group">
-						<label>Generated RP Record</label>
+						<h3>Generated RP Record</h3>
 						<div class="code-output">
 							{#if isValid}
 								<pre>{rpRecord}</pre>
@@ -285,7 +285,7 @@
 
 					{#if txtRecord}
 						<div class="output-group">
-							<label>Suggested TXT Record</label>
+							<h3>Suggested TXT Record</h3>
 							<div class="code-output txt-output">
 								<pre>{txtRecord}</pre>
 								<small>This TXT record should be created at the specified domain</small>
@@ -600,13 +600,6 @@
 		gap: var(--spacing-md);
 
 		.output-group {
-			label {
-				display: block;
-				color: var(--text-primary);
-				font-weight: 500;
-				margin-bottom: var(--spacing-sm);
-			}
-
 			.code-output {
 				padding: var(--spacing-md);
 				background: var(--bg-tertiary);

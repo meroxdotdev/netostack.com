@@ -413,7 +413,7 @@
   .examples-section {
     margin-bottom: var(--spacing-lg);
     
-    h3 {
+    h4 {
       margin-bottom: var(--spacing-md);
       color: var(--color-info-light);
     }
@@ -663,34 +663,6 @@
     h4 {
       color: var(--color-error-light);
       margin-bottom: var(--spacing-sm);
-    }
-  }
-
-  .visualization-toggle {
-    margin-top: var(--spacing-lg);
-    text-align: center;
-  }
-
-  .toggle-viz {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-
-    &:hover {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-    }
-
-    &.active {
-      background-color: var(--color-primary);
-      color: var(--bg-primary);
     }
   }
 
