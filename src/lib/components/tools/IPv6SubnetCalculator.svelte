@@ -1,4 +1,4 @@
-<script lang="ts">
+  <script lang="ts">
   import { 
     calculateIPv6Subnet,
     getCommonIPv6Prefixes,
@@ -13,8 +13,33 @@
   let subnetResult = $state<IPv6SubnetResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let showBinaryView = $state(false);
+  let activePreset = $state<string | null>(null);
 
   const commonPrefixes = getCommonIPv6Prefixes();
+
+  // Define preset configurations for matching
+  const presetConfigs = [
+    { address: '2001:db8::', prefix: 48, id: 'doc-48' },
+    { address: '2001:db8::', prefix: 64, id: 'doc-64' },
+    { address: 'fe80::', prefix: 64, id: 'link-local' },
+    { address: '::1', prefix: 128, id: 'loopback' },
+    { address: '2001:4860:4860::', prefix: 48, id: 'google-dns' },
+    { address: 'ff02::1', prefix: 128, id: 'multicast' }
+  ];
+
+  /**
+   * Check if current input matches a preset
+   */
+  function getActivePreset(): string | null {
+    const currentAddress = networkAddress.split('/')[0];
+
+    for (const preset of presetConfigs) {
+      if (currentAddress === preset.address && prefixLength === preset.prefix) {
+        return preset.id;
+      }
+    }
+    return null;
+  }
 
   /* Handle input change for combined address/prefix */
   function handleAddressInput(value: string) {
@@ -68,6 +93,11 @@
     if (addressPart && prefixLength) {
       subnetResult = calculateIPv6Subnet(addressPart, prefixLength);
     }
+  });
+
+  // Update active preset when input changes
+  $effect(() => {
+    activePreset = getActivePreset();
   });
 </script>
 
@@ -129,22 +159,22 @@
   <div class="presets-section">
     <h3>Common IPv6 Networks</h3>
     <div class="presets-grid">
-      <button type="button" class="preset-btn" onclick={() => setPreset('2001:db8::', 48)}>
+      <button type="button" class="preset-btn {activePreset === 'doc-48' ? 'active' : ''}" onclick={() => setPreset('2001:db8::', 48)}>
         Documentation /48
       </button>
-      <button type="button" class="preset-btn" onclick={() => setPreset('2001:db8::', 64)}>
+      <button type="button" class="preset-btn {activePreset === 'doc-64' ? 'active' : ''}" onclick={() => setPreset('2001:db8::', 64)}>
         Standard Subnet /64
       </button>
-      <button type="button" class="preset-btn" onclick={() => setPreset('fe80::', 64)}>
+      <button type="button" class="preset-btn {activePreset === 'link-local' ? 'active' : ''}" onclick={() => setPreset('fe80::', 64)}>
         Link-Local /64
       </button>
-      <button type="button" class="preset-btn" onclick={() => setPreset('::1', 128)}>
+      <button type="button" class="preset-btn {activePreset === 'loopback' ? 'active' : ''}" onclick={() => setPreset('::1', 128)}>
         Loopback /128
       </button>
-      <button type="button" class="preset-btn" onclick={() => setPreset('2001:4860:4860::', 48)}>
+      <button type="button" class="preset-btn {activePreset === 'google-dns' ? 'active' : ''}" onclick={() => setPreset('2001:4860:4860::', 48)}>
         Google DNS /48
       </button>
-      <button type="button" class="preset-btn" onclick={() => setPreset('ff02::1', 128)}>
+      <button type="button" class="preset-btn {activePreset === 'multicast' ? 'active' : ''}" onclick={() => setPreset('ff02::1', 128)}>
         Multicast All Nodes
       </button>
     </div>
@@ -534,10 +564,16 @@
     border: 1px solid var(--border-secondary);
     transition: all var(--transition-fast);
     text-align: left;
-    
+
     &:hover {
       background-color: var(--surface-hover);
       border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    &.active {
+      border-color: var(--color-primary);
+      background-color: var(--surface-hover);
       color: var(--color-primary);
     }
   }

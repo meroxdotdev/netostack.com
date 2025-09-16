@@ -247,11 +247,8 @@
             bind:checked={usableHosts}
             onchange={() => performPlanning()}
           />
-          <span class="checkbox-text">
+          <span class="checkbox-text" use:tooltip={"For IPv4, treat network and broadcast addresses as unusable"}>
             IPv4 usable hosts (exclude network/broadcast)
-            <Tooltip text="For IPv4, treat network and broadcast addresses as unusable">
-              <Icon name="help" size="sm" />
-            </Tooltip>
           </span>
         </label>
       </div>
@@ -263,11 +260,8 @@
   <!-- Parent Network -->
   <div class="parent-section">
     <div class="input-group">
-      <label for="parent-cidr">
+      <label for="parent-cidr" use:tooltip={"The parent CIDR to subdivide (e.g., 192.168.1.0/24)"}>
         Parent Network
-        <Tooltip text="The parent CIDR to subdivide (e.g., 192.168.1.0/24)">
-          <Icon name="help" size="sm" />
-        </Tooltip>
       </label>
       <input
         id="parent-cidr"
@@ -321,7 +315,7 @@
             <Icon name="draggable" size="sm" />
           </div>
           
-          <div class="request-priority">
+          <div class="request-priority" use:tooltip={"Processing priority - drag to reorder"}>
             #{request.priority}
           </div>
           
@@ -434,22 +428,22 @@
 
           <div class="stats-grid">
             <div class="stat-card parent">
-              <span class="stat-label">Parent Network</span>
+              <span class="stat-label" use:tooltip={"The original network being subdivided into smaller subnets"}>Parent Network</span>
               <span class="stat-value">{result.stats.parentCIDR}</span>
               <span class="stat-detail">total space</span>
             </div>
             <div class="stat-card allocated">
-              <span class="stat-label">Allocated</span>
+              <span class="stat-label" use:tooltip={"Total addresses assigned to subnets"}>Allocated</span>
               <span class="stat-value">{result.stats.totalAllocated}</span>
               <span class="stat-detail">{result.stats.successfulAllocations} subnets</span>
             </div>
             <div class="stat-card leftover">
-              <span class="stat-label">Leftover</span>
+              <span class="stat-label" use:tooltip={"Unallocated address space that could be used for future subnets"}>Leftover</span>
               <span class="stat-value">{result.stats.totalLeftover}</span>
               <span class="stat-detail">addresses</span>
             </div>
             <div class="stat-card efficiency">
-              <span class="stat-label">Efficiency</span>
+              <span class="stat-label" use:tooltip={"Percentage of parent network space that has been allocated"}>Efficiency</span>
               <span class="stat-value">{result.stats.efficiency}%</span>
               <span class="stat-detail">space utilized</span>
             </div>
@@ -509,11 +503,11 @@
           <h4>Allocated Subnets ({result.allocated.length})</h4>
           <div class="allocations-table">
             <div class="table-header">
-              <div class="col-name">Name</div>
-              <div class="col-cidr">CIDR</div>
-              <div class="col-range">Address Range</div>
-              <div class="col-hosts">Hosts</div>
-              <div class="col-efficiency">Efficiency</div>
+              <div class="col-name" use:tooltip={"User-defined name for the subnet"}>Name</div>
+              <div class="col-cidr" use:tooltip={"Network address in CIDR notation"}>CIDR</div>
+              <div class="col-range" use:tooltip={"Network/broadcast range and usable host addresses"}>Address Range</div>
+              <div class="col-hosts" use:tooltip={"Number of usable and total host addresses"}>Hosts</div>
+              <div class="col-efficiency" use:tooltip={"How well the allocated subnet matches the requested size"}>Efficiency</div>
               <div class="col-actions">Actions</div>
             </div>
             
@@ -647,13 +641,47 @@
           width: 16px;
           height: 16px;
           flex-shrink: 0;
+          appearance: none;
+          border: 2px solid var(--border-primary);
+          border-radius: var(--radius-xs);
+          background-color: var(--bg-primary);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+          position: relative;
+
+          &:checked {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+
+            &::after {
+              content: '✓';
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              color: var(--bg-tertiary);
+              font-size: 12px;
+              font-weight: bold;
+              line-height: 1;
+            }
+          }
+
+          &:hover {
+            border-color: var(--color-primary);
+          }
+
+          &:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+          }
         }
         
         .checkbox-text {
           display: flex;
           align-items: center;
           gap: var(--spacing-xs);
-          
+          cursor: help;
+
           :global(.tooltip-trigger) {
             color: var(--text-secondary);
             opacity: 0.7;

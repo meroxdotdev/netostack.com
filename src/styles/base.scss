@@ -430,6 +430,9 @@ code, pre {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  .info-label {
+    min-width: 4.5rem;
+  }
 }
 
 
@@ -469,28 +472,6 @@ code, pre {
   position: relative;
   display: flex;
   align-items: center;
-}
-
-.field-icon {
-  position: absolute;
-  right: var(--spacing-sm);
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.field-error {
-  color: var(--color-error-light);
-  font-size: var(--font-size-xs);
-  margin-top: var(--spacing-xs);
-  margin-bottom: 0;
-}
-
-.field-help {
-  color: var(--color-success-light);
-  font-size: var(--font-size-xs);
-  margin-top: var(--spacing-xs);
-  margin-bottom: 0;
 }
 
 .status-icon {

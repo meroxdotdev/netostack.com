@@ -174,9 +174,12 @@
       margin-bottom: var(--spacing-sm);
       font-size: var(--font-size-md);
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
       :global(.icon) {
-        width: 1.6em;
-        height: 1.8em;
+        width: 1.25em;
+        height: 1.25em;
       }
     }
     

@@ -7,20 +7,19 @@
 	import '../styles/diagnostics-pages.scss';
 	import favicon from '$lib/assets/favicon.svg';
 
-  
+
   import Header from '$lib/components/furniture/Header.svelte';
   import SubHeader from '$lib/components/furniture/SubHeader.svelte';
   import Footer from '$lib/components/furniture/Footer.svelte';
 
-	let { children } = $props();
+  let { data, children } = $props();
 
   import '../styles/pages.scss';
-  
+
   let darkMode = $state(true);
 
   function initializeTheme() {
     if (typeof window === 'undefined') return;
-    
     const saved = localStorage.getItem('theme');
     if (saved === 'light') {
       darkMode = false;
@@ -43,12 +42,21 @@
   onMount(() => {
     initializeTheme();
   });
+
+  function jsonLdTag(data: unknown, type = 'application/ld+json', nonce?: string) {
+    if (!data) return '';
+    const json = JSON.stringify(data)
+      .replace(/</g, '\\u003c')
+      .replace(/-->/g, '--\\>');
+    const nonceAttr = nonce ? ` nonce="${nonce}"` : '';
+    return `<script type="${type}"${nonceAttr}>${json} <\/script>`;
+  }
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+  <link rel="icon" href={favicon} />
+  {@html jsonLdTag(data.breadcrumbJsonLd)}
 </svelte:head>
-
 
 <Header {darkMode} {toggleTheme} />
 <SubHeader />

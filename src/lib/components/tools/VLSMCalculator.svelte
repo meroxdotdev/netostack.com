@@ -10,6 +10,7 @@
   import IPInput from './IPInput.svelte';
   import Tooltip from '$lib/components/global/Tooltip.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
+  import { tooltip } from '$lib/actions/tooltip.js';
 
   let networkIP = $state('192.168.1.0');
   let cidr = $state(24);
@@ -121,7 +122,7 @@
       copiedStates[id] = true;
       setTimeout(() => {
         copiedStates[id] = false;
-      }, 3000);
+      }, 1000);
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }
@@ -343,15 +344,15 @@
                 <div class="col-actions">
                   <button
                     type="button"
-                    class="btn btn-ghost"
+                    class="btn btn-ghost primary-ghost {expandedSubnets.has(subnet.id) ? 'expanded' : ''}"
                     onclick={() => toggleSubnetExpansion(subnet.id)}
                   >
-                    <Icon name={expandedSubnets.has(subnet.id) ? 'chevron-up' : 'chevron-down'} size="sm" />
+                    <Icon name="chevron-down" size="sm" />
                   </button>
                   <Tooltip text="Copy network info" position="left">
                     <button
                       type="button"
-                      class="btn btn-ghost"
+                      class="btn btn-ghost {copiedStates[`copy-${subnet.id}`] ? 'copied' : ''}"
                       onclick={() => copyToClipboard(`${subnet.networkAddress}/${subnet.cidr}`, `copy-${subnet.id}`)}
                     >
                       <Icon name={copiedStates[`copy-${subnet.id}`] ? 'tick' : 'copy'} size="sm" />
@@ -364,35 +365,35 @@
                 <div class="subnet-details">
                   <div class="details-grid">
                     <div class="detail-item">
-                      <span class="detail-label">Network Address</span>
+                      <span class="detail-label" use:tooltip={"First IP address in the subnet - identifies the network"}>Network Address</span>
                       <code class="detail-value">{subnet.networkAddress}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label">Broadcast Address</span>
+                      <span class="detail-label" use:tooltip={"Last IP address in the subnet - sends to all hosts"}>Broadcast Address</span>
                       <code class="detail-value">{subnet.broadcastAddress}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label">First Usable Host</span>
+                      <span class="detail-label" use:tooltip={"First IP address available for host assignment"}>First Usable Host</span>
                       <code class="detail-value">{subnet.firstUsableHost}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label">Last Usable Host</span>
+                      <span class="detail-label" use:tooltip={"Last IP address available for host assignment"}>Last Usable Host</span>
                       <code class="detail-value">{subnet.lastUsableHost}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label">Subnet Mask</span>
+                      <span class="detail-label" use:tooltip={"Defines which portion of IP represents network vs host"}>Subnet Mask</span>
                       <code class="detail-value">{subnet.subnetMask}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label">Wildcard Mask</span>
+                      <span class="detail-label" use:tooltip={"Inverse of subnet mask - used in access control lists"}>Wildcard Mask</span>
                       <code class="detail-value">{subnet.wildcardMask}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label">Binary Mask</span>
+                      <span class="detail-label" use:tooltip={"Binary representation of the subnet mask"}>Binary Mask</span>
                       <code class="detail-value binary-mask">{subnet.binaryMask}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label">Host Bits</span>
+                      <span class="detail-label" use:tooltip={"Number of bits available for host addressing"}>Host Bits</span>
                       <code class="detail-value">{subnet.actualHostBits} bits</code>
                     </div>
                   </div>
@@ -428,12 +429,28 @@
   
   .btn {
     :global(.icon) {
-      width: 1rem;
-      height: 1rem;
       vertical-align: middle;
+      transition: transform var(--transition-fast);
     }
     &.btn-ghost {
       height: fit-content;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      transition: all var(--transition-fast);
+
+      &.copied {
+        background-color: var(--color-success);
+        border-color: var(--color-success);
+        color: var(--bg-primary);
+        transform: scale(1.05);
+      }
+    }
+    &.primary-ghost {
+      background: var(--color-primary);
+      color: var(--bg-primary);
+
+      &.expanded :global(.icon) {
+        transform: rotate(180deg);
+      }
     }
   }
 

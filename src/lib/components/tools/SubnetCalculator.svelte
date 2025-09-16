@@ -5,6 +5,7 @@
   import NetworkVisualizer from '$lib/components/tools/NetworkVisualizer.svelte';
   import Tooltip from '$lib/components/global/Tooltip.svelte';
   import SvgIcon from '$lib/components/global/SvgIcon.svelte';
+  import { tooltip } from '$lib/actions/tooltip.js';
   import type { SubnetInfo } from '$lib/types/ip.js';
 
   let cidrInput = $state('192.168.1.0/24');
@@ -17,15 +18,16 @@
    */
   $effect(() => {
     if (cidrInput && validateCIDR(cidrInput).valid) {
-      isCalculating = true;
       const [ip, cidr] = cidrInput.split('/');
-      setTimeout(() => {
+      try {
         subnetInfo = calculateSubnet(ip, parseInt(cidr, 10));
-        isCalculating = false;
         if (!hasEverShownResults) {
           hasEverShownResults = true;
         }
-      }, 100);
+      } catch (error) {
+        console.error('Calculation error:', error);
+        subnetInfo = null;
+      }
     } else {
       subnetInfo = null;
     }
@@ -73,7 +75,7 @@
 
   <!-- Results -->
   {#if subnetInfo}
-    <div class="grid grid-2 {!hasEverShownResults ? 'fade-in' : ''} {isCalculating ? 'calculating' : ''}">
+    <div class="grid grid-2">
       <!-- Network Info -->
       <section>
         <h3 style="margin-bottom: var(--spacing-md); border-bottom: 1px solid var(--border-primary); padding-bottom: var(--spacing-xs);">
@@ -82,7 +84,7 @@
         
         <div class="info-cards">
           <div class="info-card">
-            <span class="info-label">Network Address</span>
+            <span class="info-label" use:tooltip={"First IP in subnet - identifies the network"}>Network Address</span>
             <div class="value-copy">
               <code class="ip-value success">{subnetInfo.network.octets.join('.')}</code>
               <Tooltip text={copiedStates['network'] ? 'Copied!' : 'Copy network address to clipboard'} position="top">
@@ -99,7 +101,7 @@
           </div>
 
           <div class="info-card">
-            <span class="info-label">Broadcast Address</span>
+            <span class="info-label" use:tooltip={"Last IP in subnet - sends to all hosts"}>Broadcast Address</span>
             <div class="value-copy">
               <code class="ip-value error">{subnetInfo.broadcast.octets.join('.')}</code>
               <Tooltip text={copiedStates['broadcast'] ? 'Copied!' : 'Copy broadcast address to clipboard'} position="top">
@@ -116,7 +118,7 @@
           </div>
 
           <div class="info-card">
-            <span class="info-label">Subnet Mask</span>
+            <span class="info-label" use:tooltip={"Defines network vs host portion of IP"}>Subnet Mask</span>
             <div class="value-copy">
               <code class="ip-value info">{subnetInfo.subnet.octets.join('.')}</code>
               <span class="cidr">/{subnetInfo.cidr}</span>
@@ -124,7 +126,7 @@
           </div>
 
           <div class="info-card">
-            <span class="info-label">Wildcard Mask</span>
+            <span class="info-label" use:tooltip={"Inverse of subnet mask - used in ACLs"}>Wildcard Mask</span>
             <code class="ip-value warning">{subnetInfo.wildcardMask.octets.join('.')}</code>
           </div>
         </div>
@@ -138,22 +140,22 @@
         
         <div class="info-cards">
           <div class="info-card">
-            <span class="info-label">Total Hosts</span>
+            <span class="info-label" use:tooltip={"All IP addresses in this subnet"}>Total Hosts</span>
             <span class="metric-value info">{formatNumber(subnetInfo.hostCount)}</span>
           </div>
 
           <div class="info-card">
-            <span class="info-label">Usable Hosts</span>
+            <span class="info-label" use:tooltip={"IPs available for devices (excludes network/broadcast)"}>Usable Hosts</span>
             <span class="metric-value success">{formatNumber(subnetInfo.usableHosts)}</span>
           </div>
 
           <div class="info-card">
-            <span class="info-label">First Host</span>
+            <span class="info-label" use:tooltip={"First IP address available for devices"}>First Host</span>
             <code class="ip-value success">{subnetInfo.firstHost.octets.join('.')}</code>
           </div>
 
           <div class="info-card">
-            <span class="info-label">Last Host</span>
+            <span class="info-label" use:tooltip={"Last IP address available for devices"}>Last Host</span>
             <code class="ip-value success">{subnetInfo.lastHost.octets.join('.')}</code>
           </div>
         </div>
@@ -165,15 +167,15 @@
       <h3>Binary Representation</h3>
       <div class="binary-display">
         <div class="binary-row">
-          <span class="info-label">Network:</span>
+          <span class="info-label" use:tooltip={"Network address in binary format"}>Network:</span>
           <code class="binary-value success">{subnetInfo.network.binary}</code>
         </div>
         <div class="binary-row">
-          <span class="info-label">Mask:</span>
+          <span class="info-label" use:tooltip={"Subnet mask in binary format"}>Mask:</span>
           <code class="binary-value info">{subnetInfo.subnet.binary}</code>
         </div>
         <div class="binary-row">
-          <span class="info-label">Broadcast:</span>
+          <span class="info-label" use:tooltip={"Broadcast address in binary format"}>Broadcast:</span>
           <code class="binary-value error">{subnetInfo.broadcast.binary}</code>
         </div>
       </div>
@@ -242,11 +244,6 @@
 </div>
 
 <style lang="scss">
-  .calculating {
-    opacity: 0.7;
-    pointer-events: none;
-    transition: opacity var(--transition-fast);
-  }
 
   .explainer-section {
     margin-top: var(--spacing-xl);

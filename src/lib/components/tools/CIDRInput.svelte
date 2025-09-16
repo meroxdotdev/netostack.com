@@ -24,6 +24,21 @@
 
   let validation: ValidationResult = $state({ valid: true });
   let focused = $state(false);
+  let activePreset = $state<number | null>(null);
+
+  /**
+   * Check if current value matches a preset
+   */
+  function getActivePreset(): number | null {
+    if (!value || !value.includes('/')) return null;
+    const currentCidr = parseInt(value.split('/')[1], 10);
+    return cidrPresets.find(p => p.cidr === currentCidr)?.cidr || null;
+  }
+
+  // Initialize active preset on load
+  $effect(() => {
+    activePreset = getActivePreset();
+  });
 
   /**
    * Validates CIDR input on change
@@ -32,6 +47,7 @@
     const target = event.target as HTMLInputElement;
     value = target.value;
     validation = validateCIDR(value);
+    activePreset = getActivePreset();
   }
 
   /**
@@ -59,6 +75,7 @@
       value = `${value}/${cidr}`;
     }
     validation = validateCIDR(value);
+    activePreset = cidr;
   }
 </script>
 
@@ -116,7 +133,7 @@
         <Tooltip text="Apply {preset.label} - {preset.hosts}" position="top">
           <button
             type="button"
-            class="preset-btn"
+            class="preset-btn {activePreset === preset.cidr ? 'active' : ''}"
             {disabled}
             onclick={() => applyPreset(preset.cidr)}
             aria-label="Apply {preset.label} preset with {preset.hosts}"
@@ -192,6 +209,12 @@
       &:disabled {
         opacity: 0.6;
         cursor: not-allowed;
+      }
+
+      &.active {
+        border-color: var(--color-primary);
+        background-color: var(--surface-hover);
+        color: var(--color-primary);
       }
     }
   }

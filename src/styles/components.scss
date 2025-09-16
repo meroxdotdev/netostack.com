@@ -1,5 +1,11 @@
 /* Layout components (.container, .page, .header, .card) already defined in base.scss - removed duplicates */
 
+hr {
+  border: none;
+  border-top: 1px solid var(--border-primary);
+  margin: var(--spacing-md) 0 var(--spacing-lg);
+}
+
 // Tabs
 .tabs {
   display: flex;
@@ -55,22 +61,29 @@
   &.success {
     border-color: var(--color-success);
     background: linear-gradient(135deg, 
-      rgba(35, 134, 54, 0.1), 
-      rgba(46, 160, 67, 0.05));
+      color-mix(in srgb, var(--color-success), transparent 95%), 
+      color-mix(in srgb, var(--color-success), transparent 98%));
   }
   
   &.info {
     border-color: var(--color-info);
     background: linear-gradient(135deg, 
-      rgba(9, 105, 218, 0.1), 
-      rgba(31, 111, 235, 0.05));
+      color-mix(in srgb, var(--color-info), transparent 95%), 
+      color-mix(in srgb, var(--color-info), transparent 98%));
   }
   
   &.warning {
     border-color: var(--color-warning);
     background: linear-gradient(135deg, 
-      rgba(210, 153, 34, 0.1), 
-      rgba(251, 133, 0, 0.05));
+      color-mix(in srgb, var(--color-warning), transparent 95%), 
+      color-mix(in srgb, var(--color-warning), transparent 98%));
+  }
+  
+  &.error {
+    border-color: var(--color-error);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--color-error), transparent 95%), 
+      color-mix(in srgb, var(--color-error), transparent 98%));
   }
 }
 
@@ -195,6 +208,7 @@
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
+    opacity: 0.2;
   }
   
   .field-error {

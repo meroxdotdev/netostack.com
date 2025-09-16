@@ -45,6 +45,15 @@
 	
 	let networkBlocks = $derived(generateNetworkBlocks());
 	let usablePercentage = $derived(subnetInfo.hostCount > 0 ? (subnetInfo.usableHosts / subnetInfo.hostCount) * 100 : 0);
+
+	/**
+	 * Get color class based on address utilization percentage
+	 */
+	function getUtilizationColor(percentage: number): string {
+		if (percentage >= 70) return 'success';
+		if (percentage >= 40) return 'warning';
+		return 'error';
+	}
 </script>
 
 <div class="network-visualizer {className}">
@@ -185,7 +194,7 @@
 		
 		<div class="efficiency-grid">
 			<div class="efficiency-metric">
-				<div class="metric-value">
+				<div class="metric-value {getUtilizationColor(usablePercentage)}">
 					{usablePercentage.toFixed(1)}%
 				</div>
 				<div class="metric-label">
@@ -271,7 +280,7 @@
 				
 				.segment-label {
 					font-size: var(--font-size-xs);
-					color: var(--text-primary);
+					color: var(--bg-tertiary);
 					font-weight: 600;
 				}
 			}
@@ -442,25 +451,22 @@
 					border-radius: var(--radius-sm);
 					cursor: pointer;
 					transition: transform var(--transition-fast);
-					
+					color: var(--bg-tertiary);
+
 					&:hover {
 						transform: scale(1.1);
 					}
 					
 					&.network {
 						background-color: var(--color-info);
-						color: var(--text-primary);
 					}
 					
 					&.broadcast {
 						background-color: var(--color-error);
-						color: var(--text-primary);
 					}
 					
 					&.usable {
 						background-color: var(--color-success);
-						color: var(--text-primary);
-						
 						&:hover {
 							background-color: var(--color-success-light);
 						}
@@ -505,5 +511,18 @@
 				grid-template-columns: 1fr;
 			}
 		}
+	}
+
+	/* Color coding for address utilization */
+	.metric-value.success {
+		color: var(--color-success) !important;
+	}
+
+	.metric-value.warning {
+		color: var(--color-warning) !important;
+	}
+
+	.metric-value.error {
+		color: var(--color-error) !important;
 	}
 </style>
