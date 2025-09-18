@@ -2,11 +2,59 @@
   import { convertWildcardMasks, type WildcardResult } from '$lib/utils/wildcard-mask.js';
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../styles/diagnostics-pages.scss';
   
   let inputText = $state('192.168.1.0/24\n10.0.0.0 255.255.255.0\n172.16.0.0 0.0.255.255');
   let result = $state<WildcardResult | null>(null);
   let isLoading = $state(false);
   let copiedStates = $state<Record<string, boolean>>({});
+  let selectedExample = $state<string | null>(null);
+  let selectedExampleIndex = $state<number | null>(null);
+  let userModified = $state(false);
+
+  const examples = [
+    {
+      label: 'Basic CIDR to Wildcard',
+      input: `192.168.1.0/24
+10.0.0.0/16
+172.16.0.0/20`,
+      generateACL: false
+    },
+    {
+      label: 'Subnet Mask Format',
+      input: `192.168.1.0 255.255.255.0
+10.0.0.0 255.255.0.0
+172.16.0.0 255.255.240.0`,
+      generateACL: false
+    },
+    {
+      label: 'Wildcard Mask Input',
+      input: `192.168.0.0 0.0.255.255
+10.0.0.0 0.255.255.255
+172.16.0.0 0.0.15.255`,
+      generateACL: false
+    },
+    {
+      label: 'Mixed Formats',
+      input: `192.168.1.0/24
+10.0.0.0 255.255.0.0
+172.16.0.0 0.0.255.255`,
+      generateACL: false
+    },
+    {
+      label: 'Cisco ACL Generation',
+      input: `192.168.1.0/24
+10.0.0.0/16`,
+      generateACL: true
+    },
+    {
+      label: 'Complex Network ACLs',
+      input: `192.168.0.0/22
+10.1.0.0/20
+172.16.100.0/24`,
+      generateACL: true
+    }
+  ];
   
   // ACL options
   let generateACL = $state(false);
@@ -84,14 +132,36 @@
     if (!result) return;
     const rules = result.aclRules[type];
     if (rules.length > 0) {
-      copyToClipboard(rules.join('\n'));
+      copyToClipboard(rules.join('\n'), `acl-${type}`);
     }
   }
+
+  function loadExample(example: typeof examples[0], index: number) {
+    inputText = example.input;
+    generateACL = example.generateACL;
+    selectedExample = example.label;
+    selectedExampleIndex = index;
+    userModified = false;
+  }
+
+  function handleInputChange() {
+    userModified = true;
+    selectedExample = null;
+    selectedExampleIndex = null;
+  }
   
-  // Auto-convert when inputs change
+  // Auto-convert when inputs or ACL settings change
   $effect(() => {
     if (inputText.trim()) {
       const timeoutId = setTimeout(convertMasks, 300);
+      return () => clearTimeout(timeoutId);
+    }
+  });
+
+  // Update ACL when settings change
+  $effect(() => {
+    if (result && generateACL) {
+      const timeoutId = setTimeout(convertMasks, 100);
       return () => clearTimeout(timeoutId);
     }
   });
@@ -103,16 +173,44 @@
     <p>Convert between CIDR notation, subnet masks, and wildcard masks with ACL rule generation</p>
   </header>
 
+  <!-- Examples -->
+  <div class="card examples-card">
+    <details class="examples-details">
+      <summary class="examples-summary">
+        <Icon name="chevron-right" size="xs" />
+        <h4>Quick Examples</h4>
+      </summary>
+      <div class="examples-grid">
+        {#each examples as example, i}
+          <button
+            class="example-card"
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+          >
+            <div class="example-label">{example.label}</div>
+            <div class="example-preview">
+              {example.generateACL ? 'With ACL' : 'Conversion only'}
+            </div>
+          </button>
+        {/each}
+      </div>
+    </details>
+  </div>
+
   <div class="input-section">
     <div class="inputs-section">
-      <h3>Network Inputs</h3>
+      <h3 use:tooltip={"Enter networks in various formats for wildcard mask conversion"}>Network Inputs</h3>
       <div class="input-group">
-        <label for="inputs" use:tooltip={{ text: 'Enter networks in CIDR, subnet mask, or wildcard mask format', position: 'top' }}>
+        <label
+          for="inputs"
+          use:tooltip={"Enter networks in CIDR, subnet mask, or wildcard mask format"}
+        >
           IP Addresses, CIDRs, or Ranges
         </label>
         <textarea
           id="inputs"
           bind:value={inputText}
+          oninput={handleInputChange}
           placeholder="192.168.1.0/24&#10;10.0.0.0 255.255.255.0&#10;172.16.0.0 0.0.255.255"
           rows="6"
         ></textarea>
@@ -123,10 +221,13 @@
     </div>
 
     <div class="acl-section">
-      <h3>ACL Options</h3>
+      <h3 use:tooltip={"Configure access control list rule generation for network devices"}>ACL Options</h3>
       <div class="checkbox-group">
-        <label class="checkbox-label" use:tooltip={{ text: 'Generate access control list rules for network devices', position: 'top' }}>
-          <input type="checkbox" bind:checked={generateACL} />
+        <label
+          class="checkbox-label"
+          use:tooltip={"Generate access control list rules for network devices"}
+        >
+          <input type="checkbox" bind:checked={generateACL} onchange={handleInputChange} />
           <span class="checkbox-text">Generate ACL Rules</span>
         </label>
       </div>
@@ -134,29 +235,46 @@
       {#if generateACL}
         <div class="acl-settings">
           <div class="input-group">
-            <label for="acl-type" use:tooltip={{ text: 'Whether to permit or deny traffic matching this rule', position: 'top' }}>Action</label>
-            <select id="acl-type" bind:value={aclType}>
+            <label
+              for="acl-type"
+              use:tooltip={"Whether to permit or deny traffic matching this rule"}
+            >
+              Action
+            </label>
+            <select id="acl-type" bind:value={aclType} onchange={handleInputChange}>
               <option value="permit">Permit</option>
               <option value="deny">Deny</option>
             </select>
           </div>
-          
+
           <div class="input-group">
-            <label for="protocol" use:tooltip={{ text: 'Network protocol (ip, tcp, udp, etc.)', position: 'top' }}>Protocol</label>
+            <label
+              for="protocol"
+              use:tooltip={"Network protocol (ip, tcp, udp, icmp, etc.)"}
+            >
+              Protocol
+            </label>
             <input
               id="protocol"
               type="text"
               bind:value={protocol}
+              oninput={handleInputChange}
               placeholder="ip"
             />
           </div>
-          
+
           <div class="input-group">
-            <label for="destination" use:tooltip={{ text: 'Destination network or "any" for all destinations', position: 'top' }}>Destination</label>
+            <label
+              for="destination"
+              use:tooltip={"Destination network or 'any' for all destinations"}
+            >
+              Destination
+            </label>
             <input
               id="destination"
               type="text"
               bind:value={destination}
+              oninput={handleInputChange}
               placeholder="any"
             />
           </div>
@@ -185,33 +303,33 @@
 
       {#if result.conversions.length > 0}
         <div class="summary">
-          <h3>Conversion Summary</h3>
+          <h3 use:tooltip={"Overview of wildcard mask conversion results"}>Conversion Summary</h3>
           <div class="summary-stats">
             <div class="stat">
               <span class="stat-value">{result.summary.totalInputs}</span>
-              <span class="stat-label">Total Inputs</span>
+              <span class="stat-label" use:tooltip={"Total number of network inputs processed"}>Total Inputs</span>
             </div>
             <div class="stat aligned">
               <span class="stat-value">{result.summary.validInputs}</span>
-              <span class="stat-label">Valid</span>
+              <span class="stat-label" use:tooltip={"Successfully converted network inputs"}>Valid</span>
             </div>
             <div class="stat misaligned">
               <span class="stat-value">{result.summary.invalidInputs}</span>
-              <span class="stat-label">Invalid</span>
+              <span class="stat-label" use:tooltip={"Network inputs that could not be converted"}>Invalid</span>
             </div>
           </div>
         </div>
 
         <div class="conversions">
           <div class="conversions-header">
-            <h3>Mask Conversions</h3>
+            <h3 use:tooltip={"Detailed conversion results for each network input"}>Mask Conversions</h3>
             <div class="export-buttons">
               <button onclick={() => exportResults('csv')}>
-                <Icon name="download" />
+                <Icon name="csv-file" />
                 Export CSV
               </button>
               <button onclick={() => exportResults('json')}>
-                <Icon name="download" />
+                <Icon name="json-file" />
                 Export JSON
               </button>
             </div>
@@ -239,7 +357,7 @@
                 {#if conversion.isValid}
                   <div class="conversion-details">
                     <div class="detail-row">
-                      <span class="label">CIDR:</span>
+                      <span class="label" use:tooltip={"Classless Inter-Domain Routing notation"}>CIDR:</span>
                       <div class="code-container">
                         <code>{conversion.cidr}</code>
                         <button 
@@ -255,7 +373,7 @@
                     </div>
                     
                     <div class="detail-row">
-                      <span class="label">Subnet Mask:</span>
+                      <span class="label" use:tooltip={"Standard subnet mask in dotted decimal notation"}>Subnet Mask:</span>
                       <div class="code-container">
                         <code>{conversion.subnetMask}</code>
                         <button 
@@ -271,7 +389,7 @@
                     </div>
                     
                     <div class="detail-row">
-                      <span class="label">Wildcard Mask:</span>
+                      <span class="label" use:tooltip={"Inverse subnet mask used in Cisco ACLs and OSPF"}>Wildcard Mask:</span>
                       <div class="code-container">
                         <code>{conversion.wildcardMask}</code>
                         <button 
@@ -289,19 +407,19 @@
                     <div class="network-info">
                       <div class="info-grid">
                         <div>
-                          <span class="info-label">Network:</span>
+                          <span class="info-label" use:tooltip={"First address in the network range"}>Network:</span>
                           <span class="info-value">{conversion.networkAddress}</span>
                         </div>
                         <div>
-                          <span class="info-label">Broadcast:</span>
+                          <span class="info-label" use:tooltip={"Last address in the network range"}>Broadcast:</span>
                           <span class="info-value">{conversion.broadcastAddress}</span>
                         </div>
                         <div>
-                          <span class="info-label">Host Bits:</span>
+                          <span class="info-label" use:tooltip={"Number of bits available for host addresses"}>Host Bits:</span>
                           <span class="info-value">{conversion.hostBits}</span>
                         </div>
                         <div>
-                          <span class="info-label">Usable Hosts:</span>
+                          <span class="info-label" use:tooltip={"Total assignable host addresses (excluding network and broadcast)"}>Usable Hosts:</span>
                           <span class="info-value">{conversion.usableHosts.toLocaleString()}</span>
                         </div>
                       </div>
@@ -319,16 +437,20 @@
         </div>
 
         {#if generateACL && (result.aclRules.cisco.length > 0 || result.aclRules.juniper.length > 0 || result.aclRules.generic.length > 0)}
-          <div class="card">
-            <h3>Generated ACL Rules</h3>
-            
+          <div class="acl-rules-container">
+            <h3 use:tooltip={"Access control list rules generated for network devices"}>Generated ACL Rules</h3>
+
             {#if result.aclRules.cisco.length > 0}
               <div class="acl-section">
                 <div class="acl-header">
-                  <h4>Cisco ACL</h4>
-                  <button onclick={() => copyACLRules('cisco')} class="copy-btn">
-                    <Icon name="copy" />
-                    Copy
+                  <h4 use:tooltip={"Cisco IOS access control list format"}>Cisco ACL</h4>
+                  <button
+                    onclick={() => copyACLRules('cisco')}
+                    class="copy-btn {copiedStates['acl-cisco'] ? 'copied' : ''}"
+                    use:tooltip={"Copy all Cisco ACL rules to clipboard"}
+                  >
+                    <Icon name={copiedStates['acl-cisco'] ? 'check' : 'copy'} size="xs" />
+                    {copiedStates['acl-cisco'] ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
                 <div class="acl-code">
@@ -342,10 +464,14 @@
             {#if result.aclRules.juniper.length > 0}
               <div class="acl-section">
                 <div class="acl-header">
-                  <h4>Juniper ACL</h4>
-                  <button onclick={() => copyACLRules('juniper')} class="copy-btn">
-                    <Icon name="copy" />
-                    Copy
+                  <h4 use:tooltip={"Juniper JunOS firewall filter format"}>Juniper ACL</h4>
+                  <button
+                    onclick={() => copyACLRules('juniper')}
+                    class="copy-btn {copiedStates['acl-juniper'] ? 'copied' : ''}"
+                    use:tooltip={"Copy all Juniper ACL rules to clipboard"}
+                  >
+                    <Icon name={copiedStates['acl-juniper'] ? 'check' : 'copy'} size="xs" />
+                    {copiedStates['acl-juniper'] ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
                 <div class="acl-code">
@@ -359,10 +485,14 @@
             {#if result.aclRules.generic.length > 0}
               <div class="acl-section">
                 <div class="acl-header">
-                  <h4>Generic ACL</h4>
-                  <button onclick={() => copyACLRules('generic')} class="copy-btn">
-                    <Icon name="copy" />
-                    Copy
+                  <h4 use:tooltip={"Generic access control list format"}>Generic ACL</h4>
+                  <button
+                    onclick={() => copyACLRules('generic')}
+                    class="copy-btn {copiedStates['acl-generic'] ? 'copied' : ''}"
+                    use:tooltip={"Copy all generic ACL rules to clipboard"}
+                  >
+                    <Icon name={copiedStates['acl-generic'] ? 'check' : 'copy'} size="xs" />
+                    {copiedStates['acl-generic'] ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
                 <div class="acl-code">
@@ -384,10 +514,8 @@
     display: grid;
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
-  }
 
-  @media (min-width: 768px) {
-    .input-section {
+    @media (min-width: 768px) {
       grid-template-columns: 2fr 1fr;
     }
   }
@@ -398,56 +526,50 @@
     border: 1px solid var(--border-secondary);
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
-  }
 
-  .inputs-section h3,
-  .acl-section h3 {
-    color: var(--text-primary);
-    font-size: var(--font-size-lg);
-    margin-bottom: var(--spacing-md);
-    font-weight: 600;
-  }
-
-  .checkbox-group {
-    margin-bottom: var(--spacing-md);
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    cursor: pointer;
-    padding: var(--spacing-sm);
-    background-color: var(--bg-primary);
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
-    width: fit-content;
-    
-    &:hover {
-      background-color: var(--surface-hover);
-    }
-    
-    input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
-      cursor: pointer;
-      accent-color: var(--color-primary);
-    }
-    
-    .checkbox-text {
+    h3 {
       color: var(--text-primary);
-      font-size: var(--font-size-sm);
-      line-height: 1.4;
+      font-size: var(--font-size-lg);
+      margin-bottom: var(--spacing-md);
       font-weight: 600;
     }
   }
 
-  .acl-settings {
-    padding-top: var(--spacing-md);
-    border-top: 1px solid var(--border-primary);
-    margin-top: var(--spacing-md);
+  .checkbox-group {
+    margin-bottom: var(--spacing-md);
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      cursor: pointer;
+      padding: var(--spacing-sm);
+      background-color: var(--bg-primary);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+      width: fit-content;
+
+      &:hover {
+        background-color: var(--surface-hover);
+      }
+
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        cursor: pointer;
+        accent-color: var(--color-primary);
+      }
+
+      .checkbox-text {
+        color: var(--text-primary);
+        font-size: var(--font-size-sm);
+        line-height: 1.4;
+        font-weight: 600;
+      }
+    }
   }
+
 
   .input-group {
     display: flex;
@@ -841,18 +963,113 @@
     white-space: nowrap;
   }
 
+  /* ACL Rules Container */
+  .acl-rules-container {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+
+    h3 {
+      margin-bottom: var(--spacing-lg);
+      color: var(--text-primary);
+      font-size: var(--font-size-lg);
+    }
+
+    .acl-section {
+      margin-bottom: var(--spacing-lg);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .acl-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-sm);
+
+        h4 {
+          color: var(--text-primary);
+          font-size: var(--font-size-md);
+          margin: 0;
+        }
+      }
+
+      .copy-btn {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-primary);
+        border-radius: var(--radius-sm);
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: var(--transition-fast);
+
+        &:hover {
+          background: var(--surface-hover);
+          border-color: var(--color-primary);
+        }
+
+        &.copied {
+          color: var(--color-success);
+          border-color: var(--color-success);
+          background: color-mix(in srgb, var(--color-success), transparent 90%);
+        }
+      }
+
+      .acl-code {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        padding: var(--spacing-md);
+        border-radius: var(--radius-sm);
+        font-family: var(--font-mono);
+        font-size: var(--font-size-sm);
+        overflow-x: auto;
+        border: 1px solid var(--border-primary);
+
+        .acl-line {
+          margin-bottom: 0.25rem;
+          white-space: nowrap;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+
   @media (max-width: 768px) {
-    
     .input-section {
       grid-template-columns: 1fr;
     }
-    
+
     .summary-stats {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .export-buttons {
       flex-direction: column;
+    }
+
+    .acl-rules-container {
+      .acl-section {
+        .acl-header {
+          flex-direction: column;
+          gap: var(--spacing-sm);
+          align-items: stretch;
+
+          .copy-btn {
+            align-self: center;
+          }
+        }
+      }
     }
   }
 </style>

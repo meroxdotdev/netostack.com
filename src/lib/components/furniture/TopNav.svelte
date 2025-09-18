@@ -52,12 +52,21 @@
   }
 
   function getSubPages(href: string): (NavItem | NavGroup)[] {
-    return SUB_NAV[href] || [];
+    const pages = SUB_NAV[href] || [];
+    // Sort so that NavGroups (sub-sections) come before NavItems (top-level pages)
+    return pages.sort((a, b) => {
+      const aIsGroup = isNavGroup(a);
+      const bIsGroup = isNavGroup(b);
+      if (aIsGroup && !bIsGroup) return -1; // Groups first
+      if (!aIsGroup && bIsGroup) return 1;  // Items second
+      return 0; // Keep original order within same type
+    });
   }
 
   function isNavGroup(item: NavItem | NavGroup): item is NavGroup {
     return 'title' in item && 'items' in item;
   }
+
 </script>
 
 <nav class="top-nav" aria-label="Primary navigation">
@@ -324,8 +333,8 @@
     overflow: visible;
 
     & + .nav-group {
-      margin-top: 0.75rem;
-      padding-top: 0.75rem;
+      margin-top: var(--spacing-xs);
+      padding-top: var(--spacing-xs);
       border-top: 1px solid var(--border-secondary);
     }
 

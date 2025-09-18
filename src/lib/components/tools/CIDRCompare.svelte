@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../styles/diagnostics-pages.scss';
   
   let listA = $state(`192.168.0.0/16
 10.0.0.0/8
@@ -27,6 +28,7 @@
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
+  let selectedExampleIndex = $state<number | null>(null);
   let userModified = $state(false);
 
   const examples = [
@@ -57,13 +59,43 @@
 10.0.1.0/24
 172.16.2.0/24`,
       description: 'Swapped subnets'
+    },
+    {
+      label: 'VLAN Reconfiguration',
+      listA: `192.168.10.0/24
+192.168.20.0/24
+192.168.30.0/24`,
+      listB: `192.168.10.0/24
+192.168.25.0/24
+192.168.35.0/24`,
+      description: 'Replaced VLANs 20,30 with 25,35'
+    },
+    {
+      label: 'Network Consolidation',
+      listA: `10.1.0.0/24
+10.1.1.0/24
+10.1.2.0/24
+10.1.3.0/24`,
+      listB: `10.1.0.0/22`,
+      description: 'Merged 4 /24s into 1 /22'
+    },
+    {
+      label: 'Branch Office Migration',
+      listA: `172.16.1.0/24
+172.16.2.0/24
+192.168.100.0/24`,
+      listB: `10.10.1.0/24
+10.10.2.0/24
+192.168.100.0/24`,
+      description: 'Migrated 172.16.x.x to 10.10.x.x'
     }
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     listA = example.listA;
     listB = example.listB;
     selectedExample = example.label;
+    selectedExampleIndex = index;
     userModified = false;
     performComparison();
   }
@@ -219,6 +251,7 @@
   function handleInputChange() {
     userModified = true;
     selectedExample = null;
+    selectedExampleIndex = null;
     performComparison();
   }
 
@@ -247,6 +280,7 @@
     listB = temp;
     userModified = true;
     selectedExample = null;
+    selectedExampleIndex = null;
     performComparison();
   }
 
@@ -261,25 +295,31 @@
   </header>
 
   <!-- Examples -->
-  <section class="examples-section">
-    <h4>Quick Examples</h4>
-    <div class="examples-grid">
-      {#each examples as example}
-        <button
-          class="example-card {selectedExample === example.label ? 'active' : ''}"
-          onclick={() => loadExample(example)}
-        >
-          <div class="example-label">{example.label}</div>
-          <div class="example-preview">{example.description}</div>
-        </button>
-      {/each}
-    </div>
-  </section>
+  <div class="card examples-card">
+    <details class="examples-details">
+      <summary class="examples-summary">
+        <Icon name="chevron-right" size="xs" />
+        <h4>Quick Examples</h4>
+      </summary>
+      <div class="examples-grid">
+        {#each examples as example, i}
+          <button
+            class="example-card"
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+          >
+            <div class="example-label">{example.label}</div>
+            <div class="example-preview">{example.description}</div>
+          </button>
+        {/each}
+      </div>
+    </details>
+  </div>
 
   <!-- Input Section -->
   <section class="input-section">
     <div class="input-header">
-      <h3>Network Lists</h3>
+      <h3 use:tooltip={"Compare two network lists to identify additions, removals, and unchanged items"}>Network Lists</h3>
       <button
         class="swap-button"
         onclick={swapLists}
@@ -333,7 +373,7 @@
       {#if result.success}
         <!-- Summary -->
         <div class="comparison-summary">
-          <h3>Comparison Summary</h3>
+          <h3 use:tooltip={"Overview of changes between the two network lists"}>Comparison Summary</h3>
           <div class="summary-grid">
             <div class="summary-card">
               <div class="summary-icon added">
@@ -381,7 +421,7 @@
           <!-- Added -->
           <div class="change-category added">
             <div class="category-header">
-              <h4>
+              <h4 use:tooltip={"Networks present in List B but not in List A"}>
                 <Icon name="plus-circle" size="sm" />
                 Added Networks ({result.added.length})
               </h4>
@@ -420,7 +460,7 @@
           <!-- Removed -->
           <div class="change-category removed">
             <div class="category-header">
-              <h4>
+              <h4 use:tooltip={"Networks present in List A but not in List B"}>
                 <Icon name="minus-circle" size="sm" />
                 Removed Networks ({result.removed.length})
               </h4>
@@ -429,7 +469,7 @@
                   class="copy-category {copiedStates['category-removed'] ? 'copied' : ''}"
                   onclick={() => result && copyCategory(result.removed, 'removed')}
                 >
-                  <Icon name={copiedStates['category-removed'] ? '192.168.0.0/16' : 'copy'} size="xs" />
+                  <Icon name={copiedStates['category-removed'] ? 'check-circle' : 'copy'} size="xs" />
                 </button>
               {/if}
             </div>
@@ -459,7 +499,7 @@
           <!-- Unchanged -->
           <div class="change-category unchanged">
             <div class="category-header">
-              <h4>
+              <h4 use:tooltip={"Networks present in both List A and List B"}>
                 <Icon name="check-circle" size="sm" />
                 Unchanged Networks ({result.unchanged.length})
               </h4>
@@ -508,52 +548,6 @@
 </div>
 
 <style lang="scss">
-  .examples-section {
-    margin-bottom: var(--spacing-lg);
-    
-    h4 {
-      margin-bottom: var(--spacing-md);
-      color: var(--color-info-light);
-    }
-  }
-
-  .examples-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-sm);
-  }
-
-  .example-card {
-    padding: var(--spacing-sm);
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    text-align: left;
-
-    &:hover {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-    }
-
-    &.active {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-      box-shadow: var(--shadow-sm);
-    }
-  }
-
-  .example-label {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .example-preview {
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-  }
 
   .input-section {
     margin-bottom: var(--spacing-lg);
@@ -848,9 +842,6 @@
       grid-template-columns: 1fr;
     }
 
-    .examples-grid {
-      grid-template-columns: 1fr;
-    }
 
     .summary-grid {
       grid-template-columns: 1fr;

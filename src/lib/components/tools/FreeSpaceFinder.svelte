@@ -2,6 +2,7 @@
   import { computeCIDRDifference, type DiffResult } from '$lib/utils/cidr-diff.js';
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../styles/diagnostics-pages.scss';
   
   let pools = $state(`192.168.0.0/16
 10.0.0.0/8`);
@@ -20,6 +21,7 @@
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
+  let selectedExampleIndex = $state<number | null>(null);
   let userModified = $state(false);
 
   const examples = [
@@ -32,7 +34,7 @@
       targetPrefix: 24
     },
     {
-      label: 'Large Pool Analysis', 
+      label: 'Large Pool Analysis',
       pools: '10.0.0.0/8',
       allocations: `10.0.0.0/16
 10.1.0.0/16
@@ -46,14 +48,41 @@
       allocations: `172.16.1.0/24
 192.168.100.0/24`,
       targetPrefix: 28
+    },
+    {
+      label: 'Campus Network Planning',
+      pools: `10.10.0.0/16
+10.20.0.0/16`,
+      allocations: `10.10.1.0/24
+10.10.5.0/24
+10.20.10.0/24`,
+      targetPrefix: 25
+    },
+    {
+      label: 'Data Center Allocation',
+      pools: '172.20.0.0/14',
+      allocations: `172.20.0.0/16
+172.21.0.0/16
+172.23.128.0/17`,
+      targetPrefix: 20
+    },
+    {
+      label: 'Service Provider Space',
+      pools: `203.0.113.0/24
+198.51.100.0/24`,
+      allocations: `203.0.113.0/26
+203.0.113.128/25
+198.51.100.64/26`,
+      targetPrefix: 27
     }
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     pools = example.pools;
     allocations = example.allocations;
     targetPrefix = example.targetPrefix;
     selectedExample = example.label;
+    selectedExampleIndex = index;
     userModified = false;
     calculateGaps();
   }
@@ -128,6 +157,7 @@
   function handleInputChange() {
     userModified = true;
     selectedExample = null;
+    selectedExampleIndex = null;
     calculateGaps();
   }
 
@@ -189,23 +219,29 @@
   </header>
 
   <!-- Examples -->
-  <section class="examples-section">
-    <h4>Quick Examples</h4>
-    <div class="examples-grid">
-      {#each examples as example}
-        <button
-          class="example-card {selectedExample === example.label ? 'active' : ''}"
-          onclick={() => loadExample(example)}
-        >
-          <div class="example-label">{example.label}</div>
-          <div class="example-preview">
-            {example.pools.split('\n')[0]}
-            {example.pools.includes('\n') ? '...' : ''}
-          </div>
-        </button>
-      {/each}
-    </div>
-  </section>
+  <div class="card examples-card">
+    <details class="examples-details">
+      <summary class="examples-summary">
+        <Icon name="chevron-right" size="xs" />
+        <h4>Quick Examples</h4>
+      </summary>
+      <div class="examples-grid">
+        {#each examples as example, i}
+          <button
+            class="example-card"
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+          >
+            <div class="example-label">{example.label}</div>
+            <div class="example-preview">
+              {example.pools.split('\n')[0]}
+              {example.pools.includes('\n') ? '...' : ''}
+            </div>
+          </button>
+        {/each}
+      </div>
+    </details>
+  </div>
 
   <!-- Input Section -->
   <section class="input-section">
@@ -410,53 +446,6 @@
 </div>
 
 <style lang="scss">
-  .examples-section {
-    margin-bottom: var(--spacing-lg);
-    
-    h4 {
-      margin-bottom: var(--spacing-md);
-      color: var(--color-info-light);
-    }
-  }
-
-  .examples-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-sm);
-  }
-
-  .example-card {
-    padding: var(--spacing-sm);
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    text-align: left;
-
-    &:hover {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-    }
-
-    &.active {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-      box-shadow: var(--shadow-sm);
-    }
-  }
-
-  .example-label {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .example-preview {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-  }
 
   .input-section {
     margin-bottom: var(--spacing-lg);
@@ -784,10 +773,6 @@
 
   @media (max-width: 768px) {
     .input-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .examples-grid {
       grid-template-columns: 1fr;
     }
 

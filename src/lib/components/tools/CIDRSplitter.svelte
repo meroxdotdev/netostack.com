@@ -1,8 +1,8 @@
 <script lang="ts">
   import { splitCIDRByCount, splitCIDRByPrefix, type SplitResult } from '$lib/utils/cidr-split.js';
   import { tooltip } from '$lib/actions/tooltip.js';
-  import Tooltip from '$lib/components/global/Tooltip.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../styles/diagnostics-pages.scss';
 
   let inputCIDR = $state('192.168.1.0/24');
   let splitMode = $state<'count' | 'prefix'>('count');
@@ -10,6 +10,7 @@
   let targetPrefix = $state(26);
   let result = $state<SplitResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
+  let selectedExampleIndex = $state<number | null>(null);
 
   const modes = [
     {
@@ -52,7 +53,7 @@
   ];
 
   /* Set example */
-  function setExample(example: typeof examples[0]) {
+  function setExample(example: typeof examples[0], index: number) {
     inputCIDR = example.cidr;
     splitMode = example.mode;
     if (example.mode === 'count') {
@@ -60,7 +61,13 @@
     } else {
       targetPrefix = example.prefix!;
     }
+    selectedExampleIndex = index;
     performSplit();
+  }
+
+  /* Clear example selection when input changes */
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
   }
 
   /* Copy to clipboard */
@@ -68,7 +75,7 @@
     try {
       await navigator.clipboard.writeText(text);
       copiedStates[id] = true;
-      setTimeout(() => copiedStates[id] = false, 3000);
+      setTimeout(() => copiedStates[id] = false, 1500);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -134,10 +141,23 @@
     return `${subnet.cidr}\nRange: ${subnet.network} - ${subnet.broadcast}\nHosts: ${subnet.totalHosts}`;
   }
 
-  // Reactive split
+  // Reactive split and example selection tracking
   $effect(() => {
     if (inputCIDR.trim()) {
       performSplit();
+    }
+
+    // Check if current input matches any example
+    const matchingIndex = examples.findIndex(example =>
+      example.cidr === inputCIDR &&
+      example.mode === splitMode &&
+      (example.mode === 'count' ? example.count === subnetCount : example.prefix === targetPrefix)
+    );
+
+    if (matchingIndex !== -1 && selectedExampleIndex !== matchingIndex) {
+      selectedExampleIndex = matchingIndex;
+    } else if (matchingIndex === -1 && selectedExampleIndex !== null) {
+      selectedExampleIndex = null;
     }
   });
 </script>
@@ -153,16 +173,14 @@
     <h3>Split Mode</h3>
     <div class="tabs">
       {#each modes as modeOption}
-        <button 
+        <button
           type="button"
           class="tab"
           class:active={splitMode === modeOption.value}
           onclick={() => splitMode = modeOption.value}
+          use:tooltip={modeOption.description}
         >
           {modeOption.label}
-          <Tooltip text={modeOption.description} position="top">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </button>
       {/each}
     </div>
@@ -172,11 +190,8 @@
   <div class="input-section">
     <h3>Parent Network</h3>
     <div class="form-group">
-      <label for="input-cidr">
+      <label for="input-cidr" use:tooltip={"Enter IPv4 or IPv6 network in CIDR notation (e.g., 192.168.1.0/24)"}>
         Parent CIDR block
-        <Tooltip text="Enter IPv4 or IPv6 network in CIDR notation (e.g., 192.168.1.0/24)">
-          <Icon name="help" size="sm" />
-        </Tooltip>
       </label>
       <div class="input-wrapper">
         <input
@@ -186,12 +201,13 @@
           placeholder="192.168.1.0/24"
           class="input-field"
         />
-        <button 
-          type="button" 
+        <button
+          type="button"
           class="btn btn-secondary btn-sm clear-btn"
           onclick={clearInput}
+          use:tooltip={"Clear input"}
         >
-          <Tooltip text="Clear input"><Icon name="trash" size="sm" /></Tooltip>
+          <Icon name="trash" size="sm" />
         </button>
       </div>
     </div>
@@ -199,11 +215,8 @@
     <!-- Split Parameters -->
     <div class="form-group">
       {#if splitMode === 'count'}
-        <label for="subnet-count">
+        <label for="subnet-count" use:tooltip={"How many equal subnets to create (will be rounded to nearest power of 2)"}>
           Number of subnets
-          <Tooltip text="How many equal subnets to create">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </label>
         <input
           id="subnet-count"
@@ -214,11 +227,8 @@
           class="input-field"
         />
       {:else}
-        <label for="target-prefix">
+        <label for="target-prefix" use:tooltip={"The prefix length for child subnets (must be larger than parent prefix)"}>
           Target prefix length
-          <Tooltip text="The prefix length for child subnets (must be larger than parent)">
-            <Icon name="help" size="sm" />
-          </Tooltip>
         </label>
         <input
           id="target-prefix"
@@ -231,21 +241,29 @@
       {/if}
     </div>
 
-    <!-- Examples -->
-    <div class="examples-section">
-      <h4>Quick Examples</h4>
+  </div>
+
+  <!-- Examples -->
+  <div class="card examples-card">
+    <details class="examples-details">
+      <summary class="examples-summary">
+        <Icon name="chevron-right" size="xs" />
+        <h4>Quick Examples</h4>
+      </summary>
       <div class="examples-grid">
-        {#each examples as example}
-          <button 
-            type="button"
-            class="example-btn"
-            onclick={() => setExample(example)}
+        {#each examples as example, i}
+          <button
+            class="example-card"
+            class:selected={selectedExampleIndex === i}
+            onclick={() => setExample(example, i)}
+            use:tooltip={`${example.mode === 'count' ? 'Split into ' + example.count + ' subnets' : 'Split to /' + example.prefix + ' prefix'}`}
           >
-            {example.label}
+            <h5>{example.cidr}</h5>
+            <p>{example.label}</p>
           </button>
         {/each}
       </div>
-    </div>
+    </details>
   </div>
 
   <!-- Results Section -->
@@ -261,7 +279,7 @@
         <div class="stats-section">
           <div class="summary-header">
             <h3>Split Results</h3>
-            <button 
+            <button
               type="button"
               class="btn btn-primary btn-sm"
               class:copied={copiedStates['all-subnets']}
@@ -274,24 +292,24 @@
 
           <div class="stats-grid">
             <div class="stat-card">
-              <span class="stat-label">Parent Network</span>
+              <span class="stat-label" use:tooltip={"The original network that was split"}>Parent Network</span>
               <span class="stat-value">{result.stats.parentCIDR}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label">Child Subnets</span>
+              <span class="stat-label" use:tooltip={"Number of child subnets created"}>Child Subnets</span>
               <span class="stat-value">{result.stats.childCount}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label">Child Prefix</span>
+              <span class="stat-label" use:tooltip={"Prefix length of each child subnet"}>Child Prefix</span>
               <span class="stat-value">/{result.stats.childPrefix}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label">Addresses per Child</span>
+              <span class="stat-label" use:tooltip={"Total IP addresses in each child subnet"}>Addresses per Child</span>
               <span class="stat-value">{result.stats.addressesPerChild}</span>
             </div>
             {#if result.stats.utilizationPercent < 100}
               <div class="stat-card">
-                <span class="stat-label">Utilization</span>
+                <span class="stat-label" use:tooltip={"Percentage of parent network's address space used"}>Utilization</span>
                 <span class="stat-value">{result.stats.utilizationPercent}%</span>
               </div>
             {/if}
@@ -320,7 +338,7 @@
               <div class="subnet-card">
                 <div class="subnet-header">
                   <code class="subnet-cidr">{subnet.cidr}</code>
-                  <button 
+                  <button
                     type="button"
                     class="btn btn-icon btn-xs"
                     class:copied={copiedStates[subnet.cidr]}
@@ -408,30 +426,6 @@
     }
   }
 
-  .examples-section {
-    margin-top: var(--spacing-md);
-    
-    .examples-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: var(--spacing-sm);
-    }
-    
-    .example-btn {
-      padding: var(--spacing-sm);
-      background-color: var(--bg-tertiary);
-      border: 1px solid var(--border-secondary);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-sm);
-      transition: all var(--transition-fast);
-      
-      &:hover {
-        background-color: var(--surface-hover);
-        border-color: var(--color-primary);
-        transform: translateY(-1px);
-      }
-    }
-  }
 
   .results-section {
     border-top: 2px solid var(--border-secondary);
@@ -482,6 +476,10 @@
     font-size: var(--font-size-lg);
     font-weight: 600;
     color: var(--color-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
   }
 
   .visualization-section {
@@ -558,6 +556,11 @@
     font-weight: 600;
     color: var(--color-primary);
     font-size: var(--font-size-md);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    flex: 1;
   }
 
   .subnet-details {
@@ -582,6 +585,12 @@
     font-family: var(--font-mono);
     font-size: var(--font-size-sm);
     color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    flex: 1;
+    text-align: right;
   }
 
   label {

@@ -1,28 +1,158 @@
 <script lang="ts">
   import { checkCIDRAlignment, type AlignmentResult } from '$lib/utils/cidr-alignment.js';
+  import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../styles/diagnostics-pages.scss';
   
   let inputText = $state('192.168.1.0/24\n10.0.0.0-10.0.0.255\n172.16.1.5');
   let targetPrefix = $state(24);
   let result = $state<AlignmentResult | null>(null);
   let isLoading = $state(false);
+  let copiedStates = $state<Record<string, boolean>>({});
+  let selectedExample = $state<string | null>(null);
+  let selectedExampleIndex = $state<number | null>(null);
+  let userModified = $state(false);
+  let validationErrors = $state<string[]>([]);
+
+  const examples = [
+    {
+      label: 'Basic IPv4 Alignment',
+      input: `192.168.1.0/24
+192.168.2.0/24
+192.168.3.0/24`,
+      targetPrefix: 22
+    },
+    {
+      label: 'Mixed IP Types',
+      input: `10.0.0.0-10.0.0.255
+172.16.5.100
+192.168.1.0/25`,
+      targetPrefix: 24
+    },
+    {
+      label: 'Subnet Aggregation Check',
+      input: `192.168.0.0/26
+192.168.0.64/26
+192.168.0.128/26
+192.168.0.192/26`,
+      targetPrefix: 24
+    },
+    {
+      label: 'Network Consolidation',
+      input: `10.1.0.0/24
+10.1.1.0/24
+10.1.2.0/24
+10.1.3.0/24`,
+      targetPrefix: 22
+    },
+    {
+      label: 'VLAN Alignment Check',
+      input: `172.16.10.0/24
+172.16.11.0/24
+172.16.15.0/24
+172.16.20.0/24`,
+      targetPrefix: 20
+    },
+    {
+      label: 'Point-to-Point Links',
+      input: `192.168.100.0/30
+192.168.100.4/30
+192.168.100.8/30
+192.168.100.12/30`,
+      targetPrefix: 28
+    }
+  ];
   
+  function validateTargetPrefix(): string[] {
+    const errors: string[] = [];
+
+    // Check if target prefix is a valid number
+    if (isNaN(targetPrefix) || targetPrefix === null || targetPrefix === undefined) {
+      errors.push('Target prefix length must be a valid number');
+      return errors;
+    }
+
+    // Check if target prefix is within basic bounds
+    if (targetPrefix < 0 || targetPrefix > 128) {
+      errors.push('Target prefix length must be between 0 and 128');
+      return errors;
+    }
+
+    // Check if inputs exist to validate against
+    if (!inputText.trim()) {
+      return errors;
+    }
+
+    // Analyze input types to determine valid prefix ranges
+    const inputs = inputText.split('\n').filter(line => line.trim());
+    let hasIPv4 = false;
+    let hasIPv6 = false;
+
+    for (const input of inputs) {
+      const trimmed = input.trim();
+      if (!trimmed) continue;
+
+      // Check for IPv6 (contains colons)
+      if (trimmed.includes(':')) {
+        hasIPv6 = true;
+      }
+      // Check for IPv4 patterns
+      else if (trimmed.match(/^\d+\.\d+\.\d+\.\d+/) || trimmed.includes('-') || trimmed.includes('/')) {
+        hasIPv4 = true;
+      }
+    }
+
+    // Validate prefix length based on IP types present
+    if (hasIPv4 && !hasIPv6 && targetPrefix > 32) {
+      errors.push('Target prefix length cannot exceed 32 for IPv4 addresses');
+    }
+
+    if (hasIPv6 && targetPrefix > 128) {
+      errors.push('Target prefix length cannot exceed 128 for IPv6 addresses');
+    }
+
+    // Additional practical validation
+    if (targetPrefix === 0) {
+      errors.push('Target prefix length of 0 is not practical for alignment checking');
+    }
+
+    return errors;
+  }
+
   function checkAlignment() {
+    // Reset validation errors
+    validationErrors = [];
+
     if (!inputText.trim()) {
       result = null;
       return;
     }
-    
-    isLoading = true;
-    
-    try {
-      const inputs = inputText.split('\n').filter(line => line.trim());
-      result = checkCIDRAlignment(inputs, targetPrefix);
-    } catch (error) {
+
+    // Validate target prefix first
+    const prefixErrors = validateTargetPrefix();
+    if (prefixErrors.length > 0) {
+      validationErrors = prefixErrors;
       result = {
         checks: [],
         summary: { totalInputs: 0, alignedInputs: 0, misalignedInputs: 0, alignmentRate: 0 },
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        errors: prefixErrors
+      };
+      return;
+    }
+
+    isLoading = true;
+
+    try {
+      const inputs = inputText.split('\n').filter(line => line.trim());
+      result = checkCIDRAlignment(inputs, targetPrefix);
+      validationErrors = []; // Clear validation errors on success
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      validationErrors = [errorMessage];
+      result = {
+        checks: [],
+        summary: { totalInputs: 0, alignedInputs: 0, misalignedInputs: 0, alignmentRate: 0 },
+        errors: [errorMessage]
       };
     } finally {
       isLoading = false;
@@ -57,8 +187,30 @@
     URL.revokeObjectURL(url);
   }
   
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
+  async function copyToClipboard(text: string, id: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      copiedStates[id] = true;
+      setTimeout(() => {
+        copiedStates[id] = false;
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  }
+
+  function loadExample(example: typeof examples[0], index: number) {
+    inputText = example.input;
+    targetPrefix = example.targetPrefix;
+    selectedExample = example.label;
+    selectedExampleIndex = index;
+    userModified = false;
+  }
+
+  function handleInputChange() {
+    userModified = true;
+    selectedExample = null;
+    selectedExampleIndex = null;
   }
   
   // Auto-check when inputs change
@@ -76,14 +228,44 @@
     <p>Check if IP addresses, ranges, and CIDR blocks align to specific prefix boundaries</p>
   </header>
 
+  <!-- Examples -->
+  <div class="card examples-card">
+    <details class="examples-details">
+      <summary class="examples-summary">
+        <Icon name="chevron-right" size="xs" />
+        <h4>Quick Examples</h4>
+      </summary>
+      <div class="examples-grid">
+        {#each examples as example, i}
+          <button
+            class="example-card"
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+          >
+            <div class="example-label">{example.label}</div>
+            <div class="example-preview">
+              Target: /{example.targetPrefix}
+            </div>
+          </button>
+        {/each}
+      </div>
+    </details>
+  </div>
+
   <div class="input-section">
     <div class="inputs-card">
-      <h3>Network Inputs</h3>
+      <h3 use:tooltip={"Enter IP addresses, CIDR blocks, or ranges to check alignment"}>Network Inputs</h3>
       <div class="input-group">
-        <label for="inputs">IP Addresses, CIDRs, or Ranges</label>
+        <label
+          for="inputs"
+          use:tooltip={"Enter one per line: CIDR blocks, IP ranges, or individual IP addresses"}
+        >
+          IP Addresses, CIDRs, or Ranges
+        </label>
         <textarea
           id="inputs"
           bind:value={inputText}
+          oninput={handleInputChange}
           placeholder="192.168.1.0/24&#10;10.0.0.0-10.0.0.255&#10;172.16.1.5&#10;2001:db8::/32"
           rows="8"
         ></textarea>
@@ -93,18 +275,35 @@
       </div>
 
       <div class="input-group">
-        <label for="prefix">Target Prefix Length</label>
+        <label
+          for="prefix"
+          use:tooltip={"The prefix length boundary to check alignment against (e.g., 24 for /24 boundaries)"}
+        >
+          Target Prefix Length
+        </label>
         <input
           id="prefix"
           type="number"
           bind:value={targetPrefix}
+          oninput={handleInputChange}
           min="0"
           max="128"
           placeholder="24"
+          class:error={validationErrors.length > 0}
         />
         <div class="input-help">
           Prefix length to check alignment against (0-32 for IPv4, 0-128 for IPv6)
         </div>
+        {#if validationErrors.length > 0}
+          <div class="validation-errors">
+            {#each validationErrors as error}
+              <div class="validation-error">
+                <Icon name="alert-circle" size="xs" />
+                {error}
+              </div>
+            {/each}
+          </div>
+        {/if}
       </div>
     </div>
   </div>
@@ -129,37 +328,37 @@
 
       {#if result.checks.length > 0}
         <div class="summary">
-          <h3>Alignment Summary</h3>
+          <h3 use:tooltip={"Overview of alignment results across all inputs"}>Alignment Summary</h3>
           <div class="summary-stats">
             <div class="stat">
               <span class="stat-value">{result.summary.totalInputs}</span>
-              <span class="stat-label">Total Inputs</span>
+              <span class="stat-label" use:tooltip={"Total number of network inputs processed"}>Total Inputs</span>
             </div>
             <div class="stat aligned">
               <span class="stat-value">{result.summary.alignedInputs}</span>
-              <span class="stat-label">Aligned</span>
+              <span class="stat-label" use:tooltip={"Networks that align to the target prefix boundary"}>Aligned</span>
             </div>
             <div class="stat misaligned">
               <span class="stat-value">{result.summary.misalignedInputs}</span>
-              <span class="stat-label">Misaligned</span>
+              <span class="stat-label" use:tooltip={"Networks that do not align to the target prefix boundary"}>Misaligned</span>
             </div>
             <div class="stat">
               <span class="stat-value">{result.summary.alignmentRate}%</span>
-              <span class="stat-label">Alignment Rate</span>
+              <span class="stat-label" use:tooltip={"Percentage of inputs that align to the target boundary"}>Alignment Rate</span>
             </div>
           </div>
         </div>
 
         <div class="checks">
           <div class="checks-header">
-            <h3>Alignment Checks</h3>
+            <h3 use:tooltip={"Detailed results for each network input"}>Alignment Checks</h3>
             <div class="export-buttons">
               <button onclick={() => exportResults('csv')}>
-                <Icon name="download" />
+                <Icon name="csv-file" />
                 Export CSV
               </button>
               <button onclick={() => exportResults('json')}>
-                <Icon name="download" />
+                <Icon name="json-file" />
                 Export JSON
               </button>
             </div>
@@ -175,52 +374,71 @@
                   </div>
                   <div class="check-status">
                     {#if check.isAligned}
-                      <Icon name="check-circle" />
-                      Aligned to /{check.targetPrefix}
+                      <Icon name="check-circle" size="sm" />
+                      <span class="status-text">Aligned to /{check.targetPrefix}</span>
                     {:else}
-                      <Icon name="x-circle" />
-                      Not aligned to /{check.targetPrefix}
+                      <Icon name="x-circle" size="sm" />
+                      <span class="status-text">Not aligned to /{check.targetPrefix}</span>
                     {/if}
                   </div>
                 </div>
 
                 {#if check.alignedCIDR}
                   <div class="aligned-cidr">
-                    <strong>Aligned CIDR:</strong>
-                    <button type="button" class="code-button" onclick={() => copyToClipboard(check.alignedCIDR!)} title="Click to copy">
-                      {check.alignedCIDR}
-                    </button>
+                    <span class="aligned-label" use:tooltip={"The CIDR block that properly aligns to the target prefix boundary"}>Aligned CIDR:</span>
+                    <div class="cidr-with-copy">
+                      <code class="aligned-code">{check.alignedCIDR}</code>
+                      <button
+                        type="button"
+                        class="copy-button {copiedStates[`cidr-${check.input}`] ? 'copied' : ''}"
+                        onclick={() => copyToClipboard(check.alignedCIDR!, `cidr-${check.input}`)}
+                        use:tooltip={"Copy aligned CIDR to clipboard"}
+                      >
+                        <Icon name={copiedStates[`cidr-${check.input}`] ? 'check' : 'copy'} size="xs" />
+                      </button>
+                    </div>
                   </div>
                 {/if}
 
                 {#if check.reason}
                   <div class="reason">
-                    <strong>Reason:</strong> {check.reason}
+                    <span class="reason-label" use:tooltip={"Explanation of why this input aligns or doesn't align"}>Reason:</span>
+                    <span class="reason-text">{check.reason}</span>
                   </div>
                 {/if}
 
                 {#if check.suggestions.length > 0}
                   <div class="suggestions">
-                    <strong>Suggestions:</strong>
+                    <span class="suggestions-label" use:tooltip={"Alternative CIDR configurations that would align to the target boundary"}>Suggestions:</span>
                     {#each check.suggestions as suggestion}
                       <div class="suggestion">
                         <div class="suggestion-type">
                           {#if suggestion.type === 'larger'}
-                            <Icon name="zoom-out" />
+                            <Icon name="zoom-out" size="sm" />
                           {:else if suggestion.type === 'smaller'}
-                            <Icon name="zoom-in" />
+                            <Icon name="zoom-in" size="sm" />
                           {:else}
-                            <Icon name="scissors" />
+                            <Icon name="scissors" size="sm" />
                           {/if}
-                          {suggestion.description}
+                          <span class="suggestion-description">{suggestion.description}</span>
                         </div>
                         <div class="suggestion-cidrs">
-                          {#each suggestion.cidrs as cidr}
-                            <button type="button" class="code-button" onclick={() => copyToClipboard(cidr)} title="Click to copy">{cidr}</button>
+                          {#each suggestion.cidrs as cidr, idx}
+                            <div class="suggestion-cidr">
+                              <code class="suggestion-code">{cidr}</code>
+                              <button
+                                type="button"
+                                class="copy-button {copiedStates[`suggestion-${check.input}-${idx}`] ? 'copied' : ''}"
+                                onclick={() => copyToClipboard(cidr, `suggestion-${check.input}-${idx}`)}
+                                use:tooltip={"Copy suggested CIDR to clipboard"}
+                              >
+                                <Icon name={copiedStates[`suggestion-${check.input}-${idx}`] ? 'check' : 'copy'} size="xs" />
+                              </button>
+                            </div>
                           {/each}
                         </div>
                         {#if suggestion.efficiency}
-                          <div class="suggestion-efficiency">
+                          <div class="suggestion-efficiency" use:tooltip={"Address space utilization efficiency of this suggestion"}>
                             Efficiency: {suggestion.efficiency}%
                           </div>
                         {/if}
@@ -290,6 +508,34 @@
   .input-group input:focus {
     outline: none;
     border-color: var(--color-primary);
+  }
+
+  .input-group input.error {
+    border-color: var(--color-error);
+    background: color-mix(in srgb, var(--color-error), transparent 95%);
+  }
+
+  .validation-errors {
+    margin-top: var(--spacing-xs);
+  }
+
+  .validation-error {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--color-error);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    margin-bottom: var(--spacing-xs);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    :global(.icon) {
+      color: var(--color-error);
+      flex-shrink: 0;
+    }
   }
 
   .input-group textarea {
@@ -432,6 +678,13 @@
     background: var(--color-primary-hover);
   }
 
+  .checks {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+  }
+
   .checks-list {
     display: flex;
     flex-direction: column;
@@ -469,8 +722,8 @@
 
   .check-input {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
+    align-items: center;
+    gap: var(--spacing-sm);
   }
 
   .input-text {
@@ -493,8 +746,12 @@
   .check-status {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-sm);
     font-weight: 600;
+  }
+
+  .status-text {
+    font-size: var(--font-size-sm);
   }
 
   .check-item.aligned .check-status {
@@ -505,65 +762,157 @@
     color: var(--color-error);
   }
 
-  .aligned-cidr,
-  .reason {
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
-  }
-
-
-  .suggestions {
-    border-top: 1px solid var(--border-primary);
-    padding-top: var(--spacing-sm);
-    margin-top: var(--spacing-md);
-  }
-
-  .suggestion {
+  .aligned-cidr {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
     margin-bottom: var(--spacing-sm);
     padding: var(--spacing-sm);
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
+  }
+
+  .aligned-label {
+    font-weight: 600;
+    /* color: var(--color-success-light); */
+    font-size: var(--font-size-sm);
+  }
+
+  .cidr-with-copy {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .aligned-code {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: var(--font-size-md);
+    color: var(--color-success-light);
+    background: var(--bg-tertiary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
     border: 1px solid var(--border-primary);
+  }
+
+  .reason {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-secondary);
+  }
+
+  .reason-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+  }
+
+  .reason-text {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+  }
+
+
+  .suggestions {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-secondary);
+  }
+
+  .suggestions-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .suggestion {
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-primary);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
   .suggestion-type {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-xs);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .suggestion-description {
     font-weight: 600;
     color: var(--text-primary);
+    font-size: var(--font-size-sm);
   }
 
   .suggestion-cidrs {
-    margin-bottom: var(--spacing-xs);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .suggestion-cidr {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .suggestion-code {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    color: var(--color-info-light);
+    background: var(--bg-primary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-info);
   }
 
   .suggestion-efficiency {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
+    color: var(--color-warning-light);
     font-weight: 600;
+    font-family: var(--font-mono);
   }
 
-  .code-button {
-    background: var(--bg-code);
+  .copy-button {
+    background: none;
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-sm);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    margin: 0 var(--spacing-xs) 0 0;
-    font-family: var(--font-mono);
-    font-size: var(--font-size-sm);
-    color: var(--text-code);
+    padding: var(--spacing-xs);
+    color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
-      background: var(--bg-code-hover);
+      background: var(--surface-hover);
       border-color: var(--color-primary);
+      color: var(--text-primary);
     }
 
-    &:active {
-      transform: translateY(1px);
+    &.copied {
+      color: var(--color-success);
+      border-color: var(--color-success);
+      background: color-mix(in srgb, var(--color-success), transparent 90%);
     }
   }
 

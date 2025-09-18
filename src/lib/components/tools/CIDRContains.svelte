@@ -13,6 +13,8 @@
   let strictEquality = $state(false);
   let result = $state<ContainsResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
+  let selectedExampleIndex = $state<number | null>(null);
+  let userModified = $state(false);
 
   const examples = [
     {
@@ -43,10 +45,16 @@
   ];
 
   /* Set example */
-  function setExample(example: typeof examples[0]) {
+  function setExample(example: typeof examples[0], index: number) {
     setA = example.setA;
     setB = example.setB;
+    selectedExampleIndex = index;
+    userModified = false;
     performContainmentCheck();
+  }
+
+  function handleInputChange() {
+    userModified = true;
   }
 
   /* Copy to clipboard */
@@ -209,6 +217,7 @@
             placeholder="192.168.0.0/16&#10;10.0.0.0/8"
             class="input-textarea set-a"
             rows="6"
+            oninput={handleInputChange}
           ></textarea>
         </div>
       </div>
@@ -227,6 +236,7 @@
             placeholder="192.168.1.0/24&#10;172.16.0.0/24"
             class="input-textarea set-b"
             rows="6"
+            oninput={handleInputChange}
           ></textarea>
         </div>
       </div>
@@ -244,19 +254,27 @@
     </div>
 
     <!-- Examples -->
-    <div class="examples-section">
-      <h4>Quick Examples</h4>
-      <div class="examples-grid">
-        {#each examples as example}
-          <button 
-            type="button"
-            class="example-btn"
-            onclick={() => setExample(example)}
-          >
-            {example.label}
-          </button>
-        {/each}
-      </div>
+    <div class="card examples-card">
+      <details class="examples-details">
+        <summary class="examples-summary">
+          <Icon name="chevron-right" size="xs" />
+          <h4>Quick Examples</h4>
+        </summary>
+        <div class="examples-grid">
+          {#each examples as example, i}
+            <button
+              class="example-card"
+              class:selected={selectedExampleIndex === i && !userModified}
+              onclick={() => setExample(example, i)}
+            >
+              <div class="example-label">{example.label}</div>
+              <div class="example-preview">
+                {example.setA.split('\n')[0]}... ⊆ {example.setB.split('\n')[0]}...
+              </div>
+            </button>
+          {/each}
+        </div>
+      </details>
     </div>
   </div>
 
@@ -286,7 +304,7 @@
                 class:copied={copiedStates['csv-export']}
                 onclick={exportAsCSV}
               >
-                <Icon name={copiedStates['csv-export'] ? 'check' : 'download'} size="sm" />
+                <Icon name={copiedStates['csv-export'] ? 'check' : 'csv-file'} size="sm" />
                 CSV
               </button>
               <button 
@@ -295,7 +313,7 @@
                 class:copied={copiedStates['json-export']}
                 onclick={exportAsJSON}
               >
-                <Icon name={copiedStates['json-export'] ? 'check' : 'download'} size="sm" />
+                <Icon name={copiedStates['json-export'] ? 'check' : 'json-file'} size="sm" />
                 JSON
               </button>
             </div>
@@ -500,31 +518,6 @@
       gap: var(--spacing-md);
     }
     
-    .checkbox-label {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--spacing-sm);
-      cursor: pointer;
-      
-      input[type="checkbox"] {
-        margin-top: 2px;
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
-      }
-      
-      .checkbox-text {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-        
-        :global(.tooltip-trigger) {
-          color: var(--text-secondary);
-          opacity: 0.7;
-          &:hover { opacity: 1; }
-        }
-      }
-    }
   }
 
   /* Input section */
@@ -572,29 +565,90 @@
   }
 
   /* Examples section */
-  .examples-section {
+  .examples-card {
     margin-top: var(--spacing-lg);
-    
-    h4 { @extend %section-title; }
-    
+
+    .examples-details {
+      summary {
+        list-style: none;
+        cursor: pointer;
+
+        &::-webkit-details-marker {
+          display: none;
+        }
+      }
+
+      .examples-summary {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm);
+        background-color: var(--bg-tertiary);
+        border-radius: var(--radius-md);
+        transition: all var(--transition-fast);
+
+        &:hover {
+          background-color: var(--surface-hover);
+        }
+
+        :global(svg) {
+          transition: transform var(--transition-fast);
+        }
+
+        h4 {
+          margin: 0;
+          font-size: var(--font-size-md);
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+      }
+
+      &[open] .examples-summary :global(svg) {
+        transform: rotate(90deg);
+      }
+    }
+
     .examples-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
     }
-    
-    .example-btn {
+
+    .example-card {
+      display: flex;
+      flex-direction: column;
       padding: var(--spacing-sm);
-      background-color: var(--bg-tertiary);
+      background: var(--bg-secondary);
       border: 1px solid var(--border-secondary);
       border-radius: var(--radius-sm);
-      font-size: var(--font-size-sm);
       transition: all var(--transition-fast);
-      
+      text-align: left;
+
       &:hover {
         background-color: var(--surface-hover);
         border-color: var(--color-primary);
         transform: translateY(-1px);
+      }
+
+      &.selected {
+        border-color: var(--color-primary);
+        border-width: 2px;
+        background: color-mix(in srgb, var(--color-primary), transparent 95%);
+      }
+
+      .example-label {
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-xs);
+      }
+
+      .example-preview {
+        font-size: var(--font-size-xs);
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        line-height: 1.4;
       }
     }
   }
@@ -705,10 +759,15 @@
       border-bottom: none;
     }
     
-    &.status-inside { background-color: rgba(35, 134, 54, 0.05); }
-    &.status-equal { background-color: rgba(59, 130, 246, 0.05); }
-    &.status-partial { background-color: rgba(245, 158, 11, 0.05); }
-    &.status-outside { background-color: rgba(239, 68, 68, 0.05); }
+    &.status-inside { background-color: color-mix(in srgb, var(--color-success), transparent 90%); }
+    &.status-equal { background-color: color-mix(in srgb, var(--color-info), transparent 90%); }
+    &.status-partial { background-color: color-mix(in srgb, var(--color-warning), transparent 90%); }
+    &.status-outside { background-color: color-mix(in srgb, var(--color-error), transparent 90%) }
+    .col-gaps {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
   }
 
   .candidate-input {
@@ -725,6 +784,8 @@
     gap: var(--spacing-xs);
     font-weight: 500;
     font-size: var(--font-size-sm);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary)
   }
 
   .coverage-bar {
@@ -898,20 +959,13 @@
   }
 
   .btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
     &.copied {
       color: var(--color-success);
       background-color: rgba(35, 134, 54, 0.1);
       border-color: var(--color-success);
-    }
-    
-    :global(.icon) {
-      width: 1rem;
-      height: 1rem;
-    }
-    
-    &.btn-xs :global(.icon) {
-      width: 0.75rem;
-      height: 0.75rem;
     }
   }
 

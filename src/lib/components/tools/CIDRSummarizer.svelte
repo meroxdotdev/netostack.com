@@ -2,6 +2,7 @@
   import { summarizeCIDRs, type SummarizationResult } from '$lib/utils/cidr-summarization-fixed.js';
   import Tooltip from '$lib/components/global/Tooltip.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
+  import SvgIcon from '$lib/components/global/SvgIcon.svelte';
 
   let inputText = $state(`192.168.1.1
 192.168.1.0/24
@@ -11,6 +12,7 @@
   let mode = $state<'exact-merge' | 'minimal-cover'>('exact-merge');
   let result = $state<SummarizationResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
+  let selectedExample = $state<string | null>(null);
 
   const modes = [
     {
@@ -68,6 +70,7 @@ fe80::/10`
   /* Set example content */
   function setExample(content: string) {
     inputText = content;
+    selectedExample = content;
     performSummarization();
   }
 
@@ -76,7 +79,7 @@ fe80::/10`
     try {
       await navigator.clipboard.writeText(text);
       copiedStates[id] = true;
-      setTimeout(() => copiedStates[id] = false, 3000);
+      setTimeout(() => copiedStates[id] = false, 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -126,6 +129,13 @@ fe80::/10`
   $effect(() => {
     if (inputText.trim() || mode) {
       performSummarization();
+    }
+  });
+
+  // Check if current input matches selected example
+  $effect(() => {
+    if (selectedExample && inputText.trim() !== selectedExample.trim()) {
+      selectedExample = null;
     }
   });
 </script>
@@ -190,9 +200,10 @@ fe80::/10`
       <h4>Quick Examples</h4>
       <div class="examples-grid">
         {#each examples as example}
-          <button 
+          <button
             type="button"
             class="example-btn"
+            class:selected={selectedExample === example.content}
             onclick={() => setExample(example.content)}
           >
             {example.label}
@@ -219,15 +230,17 @@ fe80::/10`
       {#if result.ipv4.length > 0 || result.ipv6.length > 0}
         <div class="summary-header">
           <h3>Summarization Results</h3>
-          <button 
-            type="button"
-            class="btn btn-primary btn-sm"
-            class:copied={copiedStates['all-results']}
-            onclick={copyAllResults}
-          >
-            <Icon name={copiedStates['all-results'] ? 'check' : 'copy'} size="sm" />
-            Copy All
-          </button>
+          <Tooltip text="Copy all IPv4 and IPv6 results to clipboard">
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              class:copied={copiedStates['all-results']}
+              onclick={copyAllResults}
+            >
+              <SvgIcon icon={copiedStates['all-results'] ? 'check' : 'clipboard'} size="md" />
+              Copy All
+            </button>
+          </Tooltip>
         </div>
 
         <div class="results-grid">
@@ -236,27 +249,31 @@ fe80::/10`
             <div class="result-panel ipv4">
               <div class="panel-header">
                 <h4>IPv4 CIDR Blocks ({result.ipv4.length})</h4>
-                <button 
-                  type="button"
-                  class="btn btn-icon"
-                  class:copied={copiedStates['ipv4']}
-                  onclick={() => copyToClipboard((result?.ipv4 || []).join('\n'), 'ipv4')}
-                >
-                  <Icon name={copiedStates['ipv4'] ? 'check' : 'copy'} size="sm" />
-                </button>
+                <Tooltip text="Copy all IPv4 CIDR blocks to clipboard">
+                  <button
+                    type="button"
+                    class="btn btn-icon"
+                    class:copied={copiedStates['ipv4']}
+                    onclick={() => copyToClipboard((result?.ipv4 || []).join('\n'), 'ipv4')}
+                  >
+                    <SvgIcon icon={copiedStates['ipv4'] ? 'check' : 'clipboard'} size="md" />
+                  </button>
+                </Tooltip>
               </div>
               <div class="cidr-list">
                 {#each result.ipv4 as cidr}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
-                    <button 
-                      type="button"
-                      class="btn btn-icon btn-xs"
-                      class:copied={copiedStates[cidr]}
-                      onclick={() => copyToClipboard(cidr, cidr)}
-                    >
-                      <Icon name={copiedStates[cidr] ? 'check' : 'copy'} size="xs" />
-                    </button>
+                    <Tooltip text="Copy this CIDR block to clipboard">
+                      <button
+                        type="button"
+                        class="btn btn-icon btn-xs"
+                        class:copied={copiedStates[cidr]}
+                        onclick={() => copyToClipboard(cidr, cidr)}
+                      >
+                        <SvgIcon icon={copiedStates[cidr] ? 'check' : 'clipboard'} size="sm" />
+                      </button>
+                    </Tooltip>
                   </div>
                 {/each}
               </div>
@@ -268,27 +285,31 @@ fe80::/10`
             <div class="result-panel ipv6">
               <div class="panel-header">
                 <h4>IPv6 CIDR Blocks ({result.ipv6.length})</h4>
-                <button 
-                  type="button"
-                  class="btn btn-icon"
-                  class:copied={copiedStates['ipv6']}
-                  onclick={() => copyToClipboard((result?.ipv6 || []).join('\n'), 'ipv6')}
-                >
-                  <Icon name={copiedStates['ipv6'] ? 'check' : 'copy'} size="sm" />
-                </button>
+                <Tooltip text="Copy all IPv6 CIDR blocks to clipboard">
+                  <button
+                    type="button"
+                    class="btn btn-icon"
+                    class:copied={copiedStates['ipv6']}
+                    onclick={() => copyToClipboard((result?.ipv6 || []).join('\n'), 'ipv6')}
+                  >
+                    <SvgIcon icon={copiedStates['ipv6'] ? 'check' : 'clipboard'} size="md" />
+                  </button>
+                </Tooltip>
               </div>
               <div class="cidr-list">
                 {#each result.ipv6 as cidr}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
-                    <button 
-                      type="button"
-                      class="btn btn-icon btn-xs"
-                      class:copied={copiedStates[cidr]}
-                      onclick={() => copyToClipboard(cidr, cidr)}
-                    >
-                      <Icon name={copiedStates[cidr] ? 'check' : 'copy'} size="xs" />
-                    </button>
+                    <Tooltip text="Copy this CIDR block to clipboard">
+                      <button
+                        type="button"
+                        class="btn btn-icon btn-xs"
+                        class:copied={copiedStates[cidr]}
+                        onclick={() => copyToClipboard(cidr, cidr)}
+                      >
+                        <SvgIcon icon={copiedStates[cidr] ? 'check' : 'clipboard'} size="sm" />
+                      </button>
+                    </Tooltip>
                   </div>
                 {/each}
               </div>
@@ -301,23 +322,33 @@ fe80::/10`
           <h4>Summarization Statistics</h4>
           <div class="stats-grid">
             <div class="stat-card">
-              <span class="stat-label">Original IPv4 Items</span>
+              <Tooltip text="Number of individual IPv4 items in the original input">
+                <span class="stat-label">Original IPv4 Items</span>
+              </Tooltip>
               <span class="stat-value">{result.stats.originalIpv4Count}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label">Summarized IPv4 Blocks</span>
+              <Tooltip text="Number of CIDR blocks after IPv4 summarization">
+                <span class="stat-label">Summarized IPv4 Blocks</span>
+              </Tooltip>
               <span class="stat-value">{result.stats.summarizedIpv4Count}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label">Original IPv6 Items</span>
+              <Tooltip text="Number of individual IPv6 items in the original input">
+                <span class="stat-label">Original IPv6 Items</span>
+              </Tooltip>
               <span class="stat-value">{result.stats.originalIpv6Count}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label">Summarized IPv6 Blocks</span>
+              <Tooltip text="Number of CIDR blocks after IPv6 summarization">
+                <span class="stat-label">Summarized IPv6 Blocks</span>
+              </Tooltip>
               <span class="stat-value">{result.stats.summarizedIpv6Count}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label">Total Addresses Covered</span>
+              <Tooltip text="Total number of individual IP addresses covered by all summarized blocks">
+                <span class="stat-label">Total Addresses Covered</span>
+              </Tooltip>
               <span class="stat-value large">{result.stats.totalAddressesCovered}</span>
             </div>
           </div>
@@ -396,10 +427,31 @@ fe80::/10`
       border-radius: var(--radius-sm);
       font-size: var(--font-size-sm);
       transition: all var(--transition-fast);
+      position: relative;
+
       &:hover {
         background-color: var(--surface-hover);
         border-color: var(--color-primary);
         transform: translateY(-1px);
+      }
+
+      &.selected {
+        background-color: color-mix(in srgb, var(--color-primary), transparent 90%);
+        border-color: var(--color-primary);
+        border-width: 2px;
+        color: var(--color-primary);
+        font-weight: 600;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: var(--spacing-xs);
+          right: var(--spacing-xs);
+          width: 8px;
+          height: 8px;
+          background-color: var(--color-primary);
+          border-radius: 50%;
+        }
       }
     }
   }
@@ -538,17 +590,35 @@ fe80::/10`
   .btn {
     &.copied {
       color: var(--color-success);
-      background-color: rgba(35, 134, 54, 0.1);
+      background-color: color-mix(in srgb, var(--color-success), transparent 90%);
       border-color: var(--color-success);
+      transform: scale(1.05);
+
+      :global(.icon) {
+        animation: success-pulse 0.3s ease-out;
+      }
     }
+
     :global(.icon) {
       width: 1rem;
       height: 1rem;
+      transition: transform var(--transition-fast);
     }
+
     &.btn-xs :global(.icon) {
       width: 0.75rem;
       height: 0.75rem;
     }
+
+    &:hover:not(.copied) :global(.icon) {
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes success-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
   }
 
   @media (max-width: 768px) {

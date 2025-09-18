@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../styles/diagnostics-pages.scss';
   
   let input = $state(`192.168.0.0/22
 10.0.0.0-10.0.0.255`);
@@ -18,6 +19,7 @@
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
+  let selectedExampleIndex = $state<number | null>(null);
   let userModified = $state(false);
 
   const examples = [
@@ -36,13 +38,33 @@
       input: `172.16.0.0/24
 172.16.2.0/25`,
       targetPrefix: 26
+    },
+    {
+      label: 'Enterprise Campus to /25s',
+      input: `10.10.0.0/16
+10.20.0.0/17`,
+      targetPrefix: 25
+    },
+    {
+      label: 'Data Center Racks to /29s',
+      input: `192.168.100.0/24
+192.168.101.0-192.168.101.127`,
+      targetPrefix: 29
+    },
+    {
+      label: 'Service Provider to /30s',
+      input: `203.0.113.0/26
+198.51.100.64/27
+198.51.100.96/28`,
+      targetPrefix: 30
     }
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     input = example.input;
     targetPrefix = example.targetPrefix;
     selectedExample = example.label;
+    selectedExampleIndex = index;
     userModified = false;
     performDeaggregation();
   }
@@ -219,6 +241,7 @@
   function handleInputChange() {
     userModified = true;
     selectedExample = null;
+    selectedExampleIndex = null;
     performDeaggregation();
   }
 
@@ -252,22 +275,28 @@
   </header>
 
   <!-- Examples -->
-  <section class="examples-section">
-    <h4>Quick Examples</h4>
-    <div class="examples-grid">
-      {#each examples as example}
-        <button
-          class="example-card {selectedExample === example.label ? 'active' : ''}"
-          onclick={() => loadExample(example)}
-        >
-          <div class="example-label">{example.label}</div>
-          <div class="example-preview">
-            Target: /{example.targetPrefix}
-          </div>
-        </button>
-      {/each}
-    </div>
-  </section>
+  <div class="card examples-card">
+    <details class="examples-details">
+      <summary class="examples-summary">
+        <Icon name="chevron-right" size="xs" />
+        <h4>Quick Examples</h4>
+      </summary>
+      <div class="examples-grid">
+        {#each examples as example, i}
+          <button
+            class="example-card"
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
+          >
+            <div class="example-label">{example.label}</div>
+            <div class="example-preview">
+              Target: /{example.targetPrefix}
+            </div>
+          </button>
+        {/each}
+      </div>
+    </details>
+  </div>
 
   <!-- Input Section -->
   <section class="input-section">
@@ -323,7 +352,7 @@
     <section class="results-section">
       {#if result.success}
         <div class="results-header">
-          <h3>Deaggregated Subnets</h3>
+          <h3 use:tooltip={"Generated uniform subnets from input networks and ranges"}>Deaggregated Subnets</h3>
           <div class="results-actions">
             <div class="results-summary">
               <span class="metric">
@@ -350,20 +379,20 @@
         <!-- Input Summary -->
         <div class="input-summary">
           <div class="summary-item">
-            <span class="summary-label">Input:</span>
+            <span class="summary-label" use:tooltip={"Original networks, ranges, and addresses provided"}>Input:</span>
             <span class="summary-value">
               {result.inputSummary.totalInputs} items, {result.inputSummary.totalInputAddresses.toLocaleString()} addresses
             </span>
           </div>
           <div class="summary-item">
-            <span class="summary-label">Output:</span>
+            <span class="summary-label" use:tooltip={"Uniform subnets generated from input"}>Output:</span>
             <span class="summary-value">
               {result.totalSubnets} /{targetPrefix} subnets, {result.totalAddresses.toLocaleString()} addresses
             </span>
           </div>
           {#if result.totalAddresses !== result.inputSummary.totalInputAddresses}
             <div class="summary-item">
-              <span class="summary-label">Note:</span>
+              <span class="summary-label" use:tooltip={"Address count difference due to subnet boundary alignment"}>Note:</span>
               <span class="summary-value address-diff">
                 {result.totalAddresses > result.inputSummary.totalInputAddresses ? 'Expanded' : 'Reduced'} by {Math.abs(result.totalAddresses - result.inputSummary.totalInputAddresses).toLocaleString()} addresses
                 (due to alignment to /{targetPrefix} boundaries)
@@ -421,53 +450,6 @@
 </div>
 
 <style lang="scss">
-  .examples-section {
-    margin-bottom: var(--spacing-lg);
-    
-    h4 {
-      margin-bottom: var(--spacing-md);
-      color: var(--color-info-light);
-    }
-  }
-
-  .examples-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-sm);
-  }
-
-  .example-card {
-    padding: var(--spacing-sm);
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    text-align: left;
-
-    &:hover {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-    }
-
-    &.active {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-      box-shadow: var(--shadow-sm);
-    }
-  }
-
-  .example-label {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .example-preview {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-  }
 
   .input-section {
     margin-bottom: var(--spacing-lg);
@@ -722,10 +704,6 @@
 
   @media (max-width: 768px) {
     .input-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .examples-grid {
       grid-template-columns: 1fr;
     }
 

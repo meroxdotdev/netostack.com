@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../styles/diagnostics-pages.scss';
   let pools = $state(`192.168.0.0/16
 10.0.0.0/20`);
   let requests = $state(`/24 - Office Network
@@ -51,6 +52,7 @@
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
+  let selectedExampleIndex = $state<number | null>(null);
   let userModified = $state(false);
 
   const examples = [
@@ -58,7 +60,7 @@
       label: 'Office Network Planning',
       pools: '192.168.0.0/16',
       requests: `/24 - Main Office
-/25 - Guest Network  
+/25 - Guest Network
 /26 - Servers
 /27 - Management`,
       algorithm: 'best-fit' as const
@@ -83,14 +85,55 @@
 /28 - Subnet E
 /28 - Subnet F`,
       algorithm: 'best-fit' as const
+    },
+    {
+      label: 'Campus VLAN Allocation',
+      pools: `10.0.0.0/16
+172.16.0.0/16`,
+      requests: `/22 - Student Housing
+/23 - Academic Buildings
+/24 - Admin Offices
+/25 - Library Systems
+/26 - Lab Networks
+/28 - Printer VLANs`,
+      algorithm: 'best-fit' as const
+    },
+    {
+      label: 'Cloud Infrastructure',
+      pools: `10.100.0.0/16
+10.200.0.0/16
+10.255.0.0/20`,
+      requests: `/20 - Production Cluster
+/21 - Staging Environment
+/22 - Development Pods
+/24 - CI/CD Pipeline
+/25 - Database Tier
+/26 - Load Balancers
+/27 - Monitoring Stack`,
+      algorithm: 'first-fit' as const
+    },
+    {
+      label: 'ISP Customer Allocation',
+      pools: `203.0.113.0/24
+198.51.100.0/24
+192.0.2.0/24`,
+      requests: `/27 - Enterprise Customer A
+/28 - Small Business B
+/29 - Home Office C
+/30 - Point-to-Point Links
+/28 - Enterprise Customer D
+/29 - Remote Branch E
+/30 - Backup Connections`,
+      algorithm: 'best-fit' as const
     }
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: typeof examples[0], index: number) {
     pools = example.pools;
     requests = example.requests;
     algorithm = example.algorithm;
     selectedExample = example.label;
+    selectedExampleIndex = index;
     userModified = false;
     performAllocation();
   }
@@ -374,6 +417,7 @@
   function handleInputChange() {
     userModified = true;
     selectedExample = null;
+    selectedExampleIndex = null;
     performAllocation();
   }
 
@@ -410,17 +454,18 @@
   </header>
 
   <!-- Examples -->
-  <section class="examples-section">
+  <div class="card examples-card">
     <details class="examples-details">
       <summary class="examples-summary">
-        <Icon name="chevron-right" size="sm" />
+        <Icon name="chevron-right" size="xs" />
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example, i}
           <button
-            class="example-card {selectedExample === example.label ? 'active' : ''}"
-            onclick={() => loadExample(example)}
+            class="example-card"
+            class:selected={selectedExampleIndex === i}
+            onclick={() => loadExample(example, i)}
           >
             <div class="example-label">{example.label}</div>
             <div class="example-preview">
@@ -430,11 +475,11 @@
         {/each}
       </div>
     </details>
-  </section>
+  </div>
 
   <!-- Algorithm Selection -->
   <section class="algorithm-section">
-    <h4>Allocation Algorithm</h4>
+    <h4 use:tooltip={"Choose between first-fit (faster) and best-fit (more efficient packing) algorithms"}>Allocation Algorithm</h4>
     <div class="algorithm-options">
       <label class="algorithm-option">
         <input
@@ -449,7 +494,7 @@
             First-Fit
           </div>
           <div class="option-description">
-            Fast allocation - uses the first available block that fits
+            Fast allocation - uses the first available block that fits (good for speed)
           </div>
         </div>
       </label>
@@ -467,7 +512,7 @@
             Best-Fit
           </div>
           <div class="option-description">
-            Optimal packing - uses the smallest available block that fits
+            Optimal packing - uses the smallest available block that fits (reduces fragmentation)
           </div>
         </div>
       </label>
@@ -522,7 +567,7 @@
         <!-- Summary -->
         <div class="allocation-summary">
           <div class="summary-header">
-            <h3>Allocation Results</h3>
+            <h3 use:tooltip={"Summary of subnet allocation requests and pool utilization"}>Allocation Results</h3>
             {#if result.summary.successfulAllocations > 0}
               <button
                 class="copy-all-button {copiedStates['all-allocations'] ? 'copied' : ''}"
@@ -590,7 +635,7 @@
 
         <!-- Allocations -->
         <div class="allocations-section">
-          <h4>Subnet Allocations</h4>
+          <h4 use:tooltip={"Individual subnet allocation results with assigned CIDR blocks"}>Subnet Allocations</h4>
           <div class="allocations-list">
             {#each result.allocations as allocation}
               <div class="allocation-item {allocation.allocated ? 'success' : 'failed'}">
@@ -639,7 +684,7 @@
 
         <!-- Pool Utilization -->
         <div class="pools-section">
-          <h4>Pool Utilization</h4>
+          <h4 use:tooltip={"Detailed breakdown of how address space was used in each pool"}>Pool Utilization</h4>
           <div class="pools-grid">
             {#each result.pools as pool}
               <div class="pool-card">
@@ -773,84 +818,6 @@
     }
   }
 
-  .examples-section {
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .examples-details {
-    background: var(--bg-tertiary);
-    padding: var(--spacing-md);
-    border-radius: var(--radius-lg);
-    
-    &[open] {
-      .examples-summary :global(.icon) {
-        transform: rotate(90deg);
-      }
-    }
-  }
-
-  .examples-summary {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    cursor: pointer;
-    list-style: none;
-    user-select: none;
-    transition: all var(--transition-fast);
-
-    &::-webkit-details-marker {
-      display: none;
-    }
-
-    :global(.icon) {
-      transition: transform var(--transition-fast);
-    }
-
-    h4 {
-      margin: 0;
-      font-size: var(--font-size-md);
-      color: var(--text-primary);
-    }
-  }
-
-  .examples-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-md);
-  }
-
-  .example-card {
-    padding: var(--spacing-sm);
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    text-align: left;
-
-    &:hover {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-    }
-
-    &.active {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
-      box-shadow: var(--shadow-sm);
-    }
-  }
-
-  .example-label {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .example-preview {
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-  }
 
   .algorithm-section {
     margin-bottom: var(--spacing-lg);
@@ -1377,9 +1344,6 @@
       grid-template-columns: 1fr;
     }
 
-    .examples-grid {
-      grid-template-columns: 1fr;
-    }
 
     .summary-grid {
       grid-template-columns: 1fr;
@@ -1406,5 +1370,8 @@
       gap: var(--spacing-sm);
       align-items: stretch;
     }
+  }
+  .examples-card {
+    padding: 0;
   }
 </style>

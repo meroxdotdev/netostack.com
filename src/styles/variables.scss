@@ -75,9 +75,9 @@
 /* Light theme */
 .theme-light, html[data-theme="light"] {
   /* Background colors */
---bg-primary: #f9f9f9;
+--bg-primary: #f4f2fa;
 --bg-secondary: #fff;   /* cards */
---bg-tertiary: #eef2f6;    /* subtle panels / code blocks */
+--bg-tertiary: #f6f2fc;    /* subtle panels / code blocks */
 
 /* Text colors (AA on light backgrounds) */
 --text-primary: #0b1220;   /* ~19:1 on white */
@@ -85,9 +85,9 @@
 --text-tertiary: #6b7280;  /* ~12:1 on white */
 
 /* Primary brand (use *-dark for filled buttons) */
---color-primary: #267bff;
---color-primary-hover: #1164e4;
---color-primary-dark: #0f336b;
+--color-primary: #af55fc;
+--color-primary-hover: #c581ff;
+--color-primary-dark: #872bd5;
 
 /* Action colors (chosen so white label text is AA) */
 --color-success: #15803d;        /* white text ≥ 13:1 */
