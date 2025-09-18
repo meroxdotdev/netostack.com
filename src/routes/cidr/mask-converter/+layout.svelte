@@ -68,7 +68,7 @@
 </script>
 
 <div class="card">
-	<header class="card-header">
+	<header class="card-header row">
     <div class="left">
       <h2>{title}</h2>
       <p>{description}</p>
