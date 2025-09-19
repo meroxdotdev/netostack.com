@@ -414,7 +414,7 @@
           onchange={handleRegexGeneration}
         />
         <div class="option-content">
-          <Icon name="globe" size="sm" />
+          <Icon name="ipv6-ipv4" size="sm" />
           <span>IPv4 Only</span>
         </div>
       </label>
@@ -427,7 +427,7 @@
           onchange={handleRegexGeneration}
         />
         <div class="option-content">
-          <Icon name="globe-2" size="sm" />
+          <Icon name="ipv4-ipv6" size="sm" />
           <span>IPv6 Only</span>
         </div>
       </label>
@@ -482,28 +482,6 @@
     <section class="results-section">
       <div class="results-header">
         <h3>Generated Pattern</h3>
-        <div class="results-actions">
-          {#if !isEditingRegex}
-            <button
-              class="edit-button"
-              onclick={enableRegexEditing}
-              use:tooltip={"Edit this regex pattern"}
-            >
-              <Icon name="edit" size="sm" />
-              Edit Pattern
-            </button>
-          {/if}
-          <a
-            href={getRegexRUrl(result)}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="regexr-button"
-            use:tooltip={"Test this pattern on RegexR.com"}
-          >
-            <Icon name="regexr" size="sm" />
-            Test on RegexR
-          </a>
-        </div>
       </div>
 
       <!-- Regex Pattern -->
@@ -582,14 +560,37 @@
           <!-- Display Mode -->
           <div class="regex-pattern">
             <div class="pattern-header">
-              <span class="pattern-label">Regular Expression</span>
-              <button
-                class="copy-button {copiedStates['pattern'] ? 'copied' : ''}"
-                onclick={() => result && copyToClipboard(result.pattern, 'pattern')}
-              >
-                <Icon name={copiedStates['pattern'] ? 'check' : 'copy'} size="sm" />
-                {copiedStates['pattern'] ? 'Copied!' : 'Copy'}
-              </button>
+              <h4 class="pattern-label">Regular Expression</h4>
+
+              <div class="results-actions">
+                {#if !isEditingRegex}
+                  <button
+                    class="edit-button"
+                    onclick={enableRegexEditing}
+                    use:tooltip={"Edit this regex pattern"}
+                  >
+                    <Icon name="edit" size="xs" />
+                    Edit Pattern
+                  </button>
+                {/if}
+                <a
+                  href={getRegexRUrl(result)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="regexr-button"
+                  use:tooltip={"Test this pattern on RegexR.com"}
+                >
+                  <Icon name="regexr" size="xs" />
+                  Test on RegexR
+                </a>
+                <button
+                  class="copy-button {copiedStates['pattern'] ? 'copied' : ''}"
+                  onclick={() => result && copyToClipboard(result.pattern, 'pattern')}
+                >
+                  <Icon name={copiedStates['pattern'] ? 'check' : 'copy'} size="sm" />
+                  {copiedStates['pattern'] ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
             </div>
             <code class="pattern-code">/{result.pattern}/{result.flags}</code>
           </div>
@@ -616,18 +617,20 @@
       <!-- Test Cases -->
       <div class="test-cases">
         <div class="test-cases-header">
-          <h4>Test Cases</h4>
+          <h4 class="pattern-label">Test Cases</h4>
           {#if !isEditingTestCases}
-            <button
-              class="edit-button"
-              onclick={enableTestCaseEditing}
-              use:tooltip={"Edit test cases"}
-            >
-              <Icon name="edit" size="sm" />
-              Edit Test Cases
-            </button>
+            <div class="results-actions">
+              <button
+                class="edit-button"
+                onclick={enableTestCaseEditing}
+                use:tooltip={"Edit test cases"}
+              >
+                <Icon name="edit" size="xs" />
+                Edit Test Cases
+              </button>
+            </div>
           {:else}
-            <div class="test-case-actions">
+            <div class="editor-actions">
               <button
                 class="apply-button"
                 onclick={applyTestCaseEdits}
@@ -759,8 +762,9 @@
         </div>
       </div>
 
-      <!-- Tradeoffs and Limitations -->
+      <!-- Pattern Info -->
       <div class="documentation">
+        <h4>Pattern Info</h4>
         <div class="doc-grid">
           {#if result.tradeoffs.length > 0}
             <div class="doc-section info-panel warning">
@@ -792,33 +796,21 @@
         </div>
 
         <!-- Recommendations -->
-        <div class="recommendations info-panel info">
+        <div class="doc-section info-panel info">
           <h4>
             <Icon name="lightbulb" size="sm" />
             Recommendations
           </h4>
-          <div class="recommendation-list">
-            <div class="recommendation">
-              <Icon name="shield-check" size="sm" />
-              <span>For production use, combine regex validation with dedicated IP parsing libraries</span>
-            </div>
-            <div class="recommendation">
-              <Icon name="performance" size="sm" />
-              <span>Test regex performance with your expected input size and patterns</span>
-            </div>
-            <div class="recommendation">
-              <Icon name="test-tube" size="sm" />
-              <span>Always validate regex patterns against your specific use case requirements</span>
-            </div>
-            <div class="recommendation">
-              <Icon name="book" size="sm" />
-              <span>Consider semantic validation beyond pattern matching (reserved ranges, etc.)</span>
-            </div>
-          </div>
+          <ul class="doc-list">
+            <li>For production use, combine regex validation with dedicated IP parsing libraries</li>
+            <li>Test regex performance with your expected input size and patterns</li>
+            <li>Always validate regex patterns against your specific use case requirements</li>
+            <li>Consider semantic validation beyond pattern matching (reserved ranges, etc.)</li>
+          </ul>
         </div>
       </div>
 
-      <!-- Language Examples -->
+      <!-- Implementation Examples -->
       <div class="language-examples">
         <h4>Implementation Examples</h4>
         <div class="language-accordion">
@@ -905,7 +897,6 @@
 
     h4 {
       margin-bottom: var(--spacing-md);
-      color: var(--color-info-light);
     }
 
     .type-options {
@@ -923,6 +914,7 @@
       border: 2px solid var(--border-primary);
       border-radius: var(--radius-md);
       transition: all var(--transition-fast);
+      cursor: pointer;
 
       &:hover { border-color: var(--color-primary); }
       &:has(input:checked) {
@@ -1023,45 +1015,84 @@
       margin-bottom: var(--spacing-lg);
 
       h3 {
-        color: var(--color-success-light);
         margin: 0;
       }
-
-      .edit-button, .regexr-button {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-        padding: var(--spacing-sm) var(--spacing-md);
-        background-color: var(--color-primary);
-        color: var(--bg-primary);
-        text-decoration: none;
-        border-radius: var(--radius-md);
-        font-weight: 600;
-        transition: all var(--transition-fast);
-
-        &:hover {
-          background-color: var(--color-primary-dark);
-          transform: translateY(-1px);
-        }
-      }
-
-      .edit-button {
-        background-color: var(--color-info);
-        margin-right: var(--spacing-sm);
-
-        &:hover {
-          background-color: var(--color-info-dark);
-        }
-      }
+    }
 
       .results-actions {
         display: flex;
         align-items: center;
+        gap: var(--spacing-sm);
+        .edit-button, .regexr-button {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-xs);
+          padding: var(--spacing-xs) var(--spacing-sm);
+          // background-color: var(--color-primary);
+          background: var(--bg-secondary);
+          color: var(--text-secondary);
+          text-decoration: none;
+          border-radius: var(--radius-md);
+          font-weight: 600;
+          transition: all var(--transition-fast);
+          &:hover {
+            filter: brightness(0.9);
+            transform: translateY(-1px);
+          }
+        }
+
+        .edit-button {
+          background: var(--color-info);
+          color: var(--bg-primary);
+        }
+        .regexr-button {
+          background: var(--color-warning);
+          color: var(--bg-primary);
+        }
+        .copy-button {
+          background: var(--color-success);
+          color: var(--bg-primary);
+        }
+
+      }
+
+    // Shared button styles
+    .apply-button, .cancel-button {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+      transition: all var(--transition-fast);
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .apply-button {
+      background-color: var(--color-success);
+      color: var(--bg-primary);
+
+      &:hover:not(:disabled) {
+        background-color: var(--color-success-light);
+      }
+    }
+
+    .cancel-button {
+      background-color: var(--color-error);
+      color: var(--bg-primary);
+
+      &:hover {
+        background-color: var(--color-error-light);
       }
     }
 
     .regex-output {
-      background-color: var(--bg-secondary);
+      background: var(--bg-tertiary);;
       border: 1px solid var(--border-primary);
       border-radius: var(--radius-lg);
       padding: var(--spacing-lg);
@@ -1088,7 +1119,7 @@
           font-size: var(--font-size-lg);
           font-weight: 600;
           color: var(--color-primary-light);
-          background-color: var(--bg-tertiary);
+          background-color: var(--bg-primary);
           padding: var(--spacing-md);
           border-radius: var(--radius-md);
           word-break: break-all;
@@ -1139,40 +1170,6 @@
           .editor-actions {
             display: flex;
             gap: var(--spacing-xs);
-          }
-
-          .apply-button, .cancel-button {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--radius-sm);
-            font-size: var(--font-size-xs);
-            font-weight: 600;
-            transition: all var(--transition-fast);
-
-            &:disabled {
-              opacity: 0.5;
-              cursor: not-allowed;
-            }
-          }
-
-          .apply-button {
-            background-color: var(--color-success);
-            color: var(--bg-primary);
-
-            &:hover:not(:disabled) {
-              background-color: var(--color-success-dark);
-            }
-          }
-
-          .cancel-button {
-            background-color: var(--color-error);
-            color: var(--bg-primary);
-
-            &:hover {
-              background-color: var(--color-error-dark);
-            }
           }
         }
 
@@ -1233,13 +1230,13 @@
 
         .validation-success {
           background-color: color-mix(in srgb, var(--color-success), transparent 90%);
-          color: var(--color-success-dark);
+          color: var(--color-success-light);
           border: 1px solid var(--color-success);
         }
 
         .validation-error {
           background-color: color-mix(in srgb, var(--color-error), transparent 90%);
-          color: var(--color-error-dark);
+          color: var(--color-error-light);
           border: 1px solid var(--color-error);
         }
 
@@ -1261,18 +1258,12 @@
       align-items: center;
       gap: var(--spacing-xs);
       padding: var(--spacing-xs) var(--spacing-sm);
-      background-color: var(--bg-tertiary);
+      background-color: var(--bg-secondary);
       border: 1px solid var(--border-secondary);
       border-radius: var(--radius-sm);
       color: var(--text-secondary);
-      font-size: var(--font-size-xs);
+      font-size: var(--font-size-sm);
       transition: all var(--transition-fast);
-
-      &:hover {
-        background-color: var(--surface-hover);
-        color: var(--text-primary);
-      }
-
       &.copied {
         background-color: var(--color-success);
         color: var(--bg-primary);
@@ -1280,60 +1271,48 @@
       }
     }
 
-    .language-examples,
     .test-cases {
-      margin-bottom: var(--spacing-xl);
-
-      h4 {
-        color: var(--color-info-light);
-        margin-bottom: var(--spacing-md);
-      }
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
 
       .test-cases-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: var(--spacing-md);
+        margin-bottom: var(--spacing-sm);
 
-        .test-case-actions {
-          display: flex;
-          gap: var(--spacing-xs);
-
-          .apply-button, .cancel-button {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--radius-sm);
-            font-size: var(--font-size-xs);
-            font-weight: 600;
-            transition: all var(--transition-fast);
-          }
-
-          .apply-button {
-            background-color: var(--color-success);
-            color: var(--bg-primary);
-
-            &:hover {
-              background-color: var(--color-success-dark);
-            }
-          }
-
-          .cancel-button {
-            background-color: var(--color-error);
-            color: var(--bg-primary);
-
-            &:hover {
-              background-color: var(--color-error-dark);
-            }
-          }
+        .pattern-label {
+          font-weight: 600;
+          font-size: var(--font-size-sm);
+          margin: 0;
         }
+      }
+    }
+
+    .documentation,
+    .language-examples {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      gap: var(--spacing-md);
+      display: flex;
+      flex-direction: column;
+
+      > h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: var(--font-size-sm);
       }
     }
 
     .language-accordion {
       .language-item {
-        background-color: var(--bg-tertiary);
+        background-color: var(--bg-secondary);
         border: 1px solid var(--border-primary);
         border-radius: var(--radius-md);
         margin-bottom: var(--spacing-sm);
@@ -1382,7 +1361,7 @@
 
           .code-container {
             position: relative;
-            background-color: var(--bg-tertiary);
+            background-color: var(--bg-secondary);
             border-top: 1px solid var(--border-secondary);
 
             .copy-code-btn {
@@ -1428,7 +1407,7 @@
           }
 
           .usage-note {
-            background-color: var(--bg-tertiary);
+            background-color: var(--bg-secondary);
             padding: var(--spacing-sm) var(--spacing-md);
             margin: 0;
             font-size: var(--font-size-xs);
@@ -1440,10 +1419,6 @@
       }
     }
 
-    .doc-grid {
-      display: grid;
-      gap: var(--spacing-md);
-    }
 
     .test-grid {
       display: grid;
@@ -1516,12 +1491,12 @@
               text-align: center;
 
               &.pass {
-                color: var(--color-success-dark);
+                color: var(--color-success-light);
                 background-color: color-mix(in srgb, var(--color-success), transparent 85%);
               }
 
               &.fail {
-                color: var(--color-error-dark);
+                color: var(--color-error-light);
                 background-color: color-mix(in srgb, var(--color-error), transparent 85%);
               }
             }
@@ -1611,7 +1586,7 @@
                 height: 1.5rem;
 
                 &:hover {
-                  background-color: var(--color-error-dark);
+                  background-color: var(--color-error-light);
                   transform: scale(1.1);
                 }
               }
@@ -1621,20 +1596,25 @@
       }
     }
 
-    .documentation {
-      .doc-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: var(--spacing-lg);
-        margin-bottom: var(--spacing-xl);
-      }
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-lg);
 
       .doc-section h4 {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
-        color: var(--color-warning-light);
         margin-bottom: var(--spacing-md);
         font-size: var(--font-size-md);
+      }
+
+      .doc-section.warning h4 {
+        color: var(--color-warning-light);
+      }
+
+      .doc-section.info h4 {
+        color: var(--color-info-light);
       }
 
       .doc-list {
@@ -1658,25 +1638,10 @@
         }
       }
 
-      .recommendations {
-        h4 {
-          color: var(--color-info-light);
-        }
-
-        .recommendation-list {
-          display: flex;
-          flex-direction: column;
-          gap: var(--spacing-sm);
-
-          .recommendation {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            color: var(--text-primary);
-            font-size: var(--font-size-sm);
-          }
-        }
+      .doc-section.info .doc-list li::before {
+        color: var(--color-info);
       }
+
     }
   }
 
