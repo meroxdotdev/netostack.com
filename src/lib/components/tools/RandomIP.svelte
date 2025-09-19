@@ -1,13 +1,45 @@
 <script lang="ts">
+  import { tooltip } from '$lib/actions/tooltip.js';
   import { generateRandomIPAddresses, type RandomIPResult } from '$lib/utils/random-ip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
+  import '../../../styles/diagnostics-pages.scss';
+
   let inputText = $state('192.168.1.0/24 x 10\n10.0.0.0-10.0.0.255 5\n172.16.0.0/16 * 3\n2001:db8::/64[15]');
   let defaultCount = $state(5);
   let unique = $state(true);
   let seed = $state('');
   let result = $state<RandomIPResult | null>(null);
   let isLoading = $state(false);
+  let selectedExampleIndex = $state<number | null>(null);
+  let userModified = $state(false);
+  let copiedStates = $state<Record<string, boolean>>({});
+
+  const examples = [
+    {
+      input: '192.168.1.0/24 x 5',
+      description: 'Generate 5 random IPs from a /24 subnet'
+    },
+    {
+      input: '10.0.0.0-10.0.0.255 * 3\n172.16.0.0/16 [8]',
+      description: 'Multiple formats: range and CIDR with different counts'
+    },
+    {
+      input: '2001:db8::/64 # 10\nfe80::/10 x 5',
+      description: 'IPv6 networks with various syntax formats'
+    },
+    {
+      input: '192.168.0.0/16 100\n203.0.113.0/24 * 20',
+      description: 'Large generation counts from different networks'
+    },
+    {
+      input: '127.0.0.0/8\n::1/128 x 1\n169.254.0.0/16 [10]',
+      description: 'Special-use addresses: loopback and link-local'
+    },
+    {
+      input: '198.51.100.0/24 * 15\n198.18.0.0/15 [25]',
+      description: 'Test networks for documentation and benchmarking'
+    }
+  ];
   
   function generateIPs() {
     if (!inputText.trim()) {
@@ -69,13 +101,21 @@
     URL.revokeObjectURL(url);
   }
   
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
+  async function copyToClipboard(text: string, key: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      copiedStates[key] = true;
+      setTimeout(() => {
+        copiedStates[key] = false;
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   }
   
   function copyAllIPs() {
     if (result && result.allGeneratedIPs.length > 0) {
-      copyToClipboard(result.allGeneratedIPs.join('\n'));
+      copyToClipboard(result.allGeneratedIPs.join('\n'), 'all-ips');
     }
   }
   
@@ -83,6 +123,20 @@
     seed = Math.random().toString(36).substring(2, 15);
   }
   
+  function selectExample(index: number) {
+    const example = examples[index];
+    if (example) {
+      inputText = example.input;
+      selectedExampleIndex = index;
+      userModified = false;
+    }
+  }
+
+  function handleInputChange() {
+    userModified = true;
+    selectedExampleIndex = null;
+  }
+
   // Auto-generate when inputs change
   $effect(() => {
     if (inputText.trim()) {
@@ -92,67 +146,94 @@
   });
 </script>
 
-<div class="card">
-  <header class="card-header">
-    <h2>Random IP Generator</h2>
+<div class="tool-container">
+  <div class="tool-header">
+    <h1>Random IP Generator</h1>
     <p>Generate random IP addresses from networks and ranges with uniqueness control and seeded randomness</p>
-  </header>
+  </div>
 
-  <div class="input-section">
-      <div class="input-group">
-      <label for="inputs">Networks and Counts</label>
-      <textarea
-        id="inputs"
-        bind:value={inputText}
-        placeholder="192.168.1.0/24 x 10&#10;10.0.0.0-10.0.0.255 5&#10;172.16.0.0/16 * 3&#10;2001:db8::/64[15]"
-        rows="6"
-      ></textarea>
-      <div class="input-help">
-        Formats: network x count, network * count, network count, network#count, network[count]
-      </div>
-    </div>
-
-      <div class="options">
-        <div class="option-group">
-        <label for="default-count">Default Count</label>
-        <input
-          id="default-count"
-          type="number"
-          bind:value={defaultCount}
-          min="1"
-          max="1000"
-          placeholder="5"
-        />
-        <div class="option-help">
-          Number of IPs to generate when count is not specified
-        </div>
-      </div>
-      
-      <div class="option-group">
-        <label>
-          <input type="checkbox" bind:checked={unique} />
-          Unique IPs Only
-        </label>
-        <div class="option-help">
-          Ensure all generated IPs are unique within each network
-        </div>
-      </div>
-      
-      <div class="option-group">
-        <label for="seed">Random Seed</label>
-        <div class="seed-input">
-          <input
-            id="seed"
-            type="text"
-            bind:value={seed}
-            placeholder="Optional seed for reproducible results"
-          />
-          <button onclick={generateNewSeed} type="button" title="Generate new seed">
-            <Icon name="refresh-cw" />
+  <div class="card examples-card">
+    <details class="examples-details">
+      <summary class="examples-summary" use:tooltip={"Click to see example inputs"}>
+        <Icon name="chevron-right" size="xs" />
+        <h4>Quick Examples</h4>
+      </summary>
+      <div class="examples-grid">
+        {#each examples as example, index}
+          <button
+            class="example-card"
+            class:selected={selectedExampleIndex === index}
+            onclick={() => selectExample(index)}
+            use:tooltip={example.description}
+          >
+            <div class="example-input">{example.input.split('\n')[0]}{example.input.includes('\n') ? '...' : ''}</div>
+            <div class="example-description">{example.description}</div>
           </button>
+        {/each}
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h3>Network Configuration</h3>
+    <div class="form-row">
+      <div class="textarea-group">
+        <div class="form-group">
+          <label for="inputs" use:tooltip={"Enter networks with generation counts using various formats"}>Networks and Counts</label>
+          <textarea
+            id="inputs"
+            bind:value={inputText}
+            oninput={handleInputChange}
+            placeholder="192.168.1.0/24 x 10&#10;10.0.0.0-10.0.0.255 5&#10;172.16.0.0/16 * 3&#10;2001:db8::/64[15]"
+            rows="6"
+            use:tooltip={"Specify networks and generation counts"}
+          ></textarea>
+          <div class="input-help">
+            Formats: network x count, network * count, network count, network#count, network[count]
+          </div>
         </div>
-        <div class="option-help">
-          Use the same seed for reproducible random results
+      </div>
+
+      <div class="options-group">
+        <div class="option-card">
+          <label for="default-count" use:tooltip={"Number of IPs to generate when count is not specified"}>Default Count</label>
+          <input
+            id="default-count"
+            type="number"
+            bind:value={defaultCount}
+            min="1"
+            max="1000"
+            placeholder="5"
+            use:tooltip={"Default generation count"}
+          />
+        </div>
+
+        <div class="checkbox-group">
+          <label class="checkbox-label" use:tooltip={"Ensure all generated IPs are unique within each network"}>
+            <input type="checkbox" bind:checked={unique} />
+            <span class="checkmark"></span>
+            Unique IPs Only
+          </label>
+        </div>
+
+        <div class="option-card">
+          <label for="seed" use:tooltip={"Use the same seed for reproducible random results"}>Random Seed</label>
+          <div class="seed-input">
+            <input
+              id="seed"
+              type="text"
+              bind:value={seed}
+              placeholder="Optional seed for reproducible results"
+              use:tooltip={"Enter seed for reproducible randomness"}
+            />
+            <button
+              onclick={generateNewSeed}
+              type="button"
+              use:tooltip={"Generate new random seed"}
+            >
+              <Icon name="refresh" size="sm" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -166,82 +247,126 @@
   {/if}
 
   {#if result}
-    <div class="results">
+    <div class="results-container">
       {#if result.errors.length > 0}
-        <div class="errors">
-          <h3><Icon name="alert-triangle" /> Errors</h3>
-          {#each result.errors as error}
-            <div class="error-item">{error}</div>
-          {/each}
+        <div class="card error-card">
+          <div class="card-header row">
+            <h3><Icon name="alert-triangle" size="sm" /> Errors</h3>
+          </div>
+          <div class="card-content">
+            {#each result.errors as error}
+              <div class="error-message">
+                <Icon name="alert-circle" size="sm" />
+                <span>{error}</span>
+              </div>
+            {/each}
+          </div>
         </div>
       {/if}
 
       {#if result.generations.length > 0}
-        <div class="summary">
-          <h3>Generation Summary</h3>
-          <div class="summary-stats">
-            <div class="stat">
-              <span class="stat-value">{result.summary.totalNetworks}</span>
-              <span class="stat-label">Total Networks</span>
-            </div>
-            <div class="stat valid">
-              <span class="stat-value">{result.summary.validNetworks}</span>
-              <span class="stat-label">Valid</span>
-            </div>
-            <div class="stat invalid">
-              <span class="stat-value">{result.summary.invalidNetworks}</span>
-              <span class="stat-label">Invalid</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value">{result.summary.totalIPsGenerated}</span>
-              <span class="stat-label">Total IPs</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value">{result.summary.uniqueIPsGenerated}</span>
-              <span class="stat-label">Unique IPs</span>
+        <div class="card summary-card">
+          <div class="card-header row">
+            <h3>Generation Summary</h3>
+            <button
+              class="copy-btn"
+              class:copied={copiedStates['summary']}
+              onclick={() => result && result.summary && copyToClipboard(`Total Networks: ${result.summary.totalNetworks}\nValid: ${result.summary.validNetworks}\nInvalid: ${result.summary.invalidNetworks}\nTotal IPs: ${result.summary.totalIPsGenerated}\nUnique IPs: ${result.summary.uniqueIPsGenerated}`, 'summary')}
+              use:tooltip={"Copy summary to clipboard"}
+            >
+              <Icon name={copiedStates['summary'] ? 'check' : 'copy'} size="xs" />
+              {copiedStates['summary'] ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+          <div class="card-content">
+            <div class="summary-stats">
+              <div class="info-card">
+                <div class="info-label" use:tooltip={"Total number of networks processed"}>Total Networks</div>
+                <div class="metric-value">{result.summary.totalNetworks}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label" use:tooltip={"Networks that were processed successfully"}>Valid</div>
+                <div class="metric-value success">{result.summary.validNetworks}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label" use:tooltip={"Networks that had processing errors"}>Invalid</div>
+                <div class="metric-value error">{result.summary.invalidNetworks}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label" use:tooltip={"Total IP addresses generated across all networks"}>Total IPs</div>
+                <div class="metric-value info">{result.summary.totalIPsGenerated}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label" use:tooltip={"Number of unique IP addresses generated"}>Unique IPs</div>
+                <div class="metric-value">{result.summary.uniqueIPsGenerated}</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="all-ips">
-          <div class="all-ips-header">
+        <div class="card all-ips-card">
+          <div class="card-header row">
             <h3>All Generated IPs ({result.allGeneratedIPs.length})</h3>
             <div class="export-buttons">
-              <button onclick={copyAllIPs}>
-                <Icon name="copy" />
-                Copy All
+              <button
+                class="copy-btn"
+                class:copied={copiedStates['all-ips']}
+                onclick={copyAllIPs}
+                use:tooltip={"Copy all generated IPs to clipboard"}
+              >
+                <Icon name={copiedStates['all-ips'] ? 'check' : 'copy'} size="xs" />
+                {copiedStates['all-ips'] ? 'Copied!' : 'Copy All'}
               </button>
-              <button onclick={() => exportResults('txt')}>
-                <Icon name="download" />
-                Export TXT
+              <button
+                onclick={() => exportResults('txt')}
+                use:tooltip={"Export as plain text file"}
+              >
+                <Icon name="download" size="xs" />
+                TXT
               </button>
-              <button onclick={() => exportResults('csv')}>
-                <Icon name="download" />
-                Export CSV
+              <button
+                onclick={() => exportResults('csv')}
+                use:tooltip={"Export as CSV file"}
+              >
+                <Icon name="csv-file" size="xs" />
+                CSV
               </button>
-              <button onclick={() => exportResults('json')}>
-                <Icon name="download" />
-                Export JSON
+              <button
+                onclick={() => exportResults('json')}
+                use:tooltip={"Export as JSON file"}
+              >
+                <Icon name="json-file" size="xs" />
+                JSON
               </button>
             </div>
           </div>
-          
-          {#if result.allGeneratedIPs.length > 0}
-            <div class="all-ips-list">
-              {#each result.allGeneratedIPs as ip}
-                <button type="button" class="code-button all-ips-code" onclick={() => copyToClipboard(ip)} title="Click to copy">{ip}</button>
-              {/each}
-            </div>
-          {/if}
+          <div class="card-content">
+            {#if result.allGeneratedIPs.length > 0}
+              <div class="all-ips-list">
+                {#each result.allGeneratedIPs as ip, index}
+                  <button
+                    type="button"
+                    class="ip-tag"
+                    class:copied={copiedStates[`ip-${index}`]}
+                    onclick={() => copyToClipboard(ip, `ip-${index}`)}
+                    use:tooltip={"Click to copy IP address"}
+                  >
+                    {ip}
+                    <Icon name={copiedStates[`ip-${index}`] ? 'check' : 'copy'} size="xs" />
+                  </button>
+                {/each}
+              </div>
+            {/if}
+          </div>
         </div>
 
         <div class="generations">
           <h3>Network Generations</h3>
           
           <div class="generations-list">
-            {#each result.generations as generation}
+            {#each result.generations as generation, index}
               <div class="generation-card" class:valid={generation.isValid} class:invalid={!generation.isValid}>
-                <div class="card-header">
+                <div class="card-header row">
                   <div class="network-info">
                     <span class="network-text">{generation.network}</span>
                     <div class="network-meta">
@@ -315,294 +440,175 @@
                       </div>
                     {/if}
 
-                    {#if generation.generatedIPs.length > 0}
-                      <div class="generated-ips">
-                        <h4>Generated IPs</h4>
-                        <div class="ips-list">
-                          {#each generation.generatedIPs as ip}
-                            <button type="button" class="code-button selected-ips-code" onclick={() => copyToClipboard(ip)} title="Click to copy">{ip}</button>
-                          {/each}
+                      {#if generation.generatedIPs.length > 0}
+                        <div class="generated-ips">
+                          <div class="details-header">
+                            <h4>Generated IPs ({generation.generatedIPs.length})</h4>
+                          </div>
+                          <div class="ips-list">
+                            {#each generation.generatedIPs as ip, ipIndex}
+                              <button
+                                type="button"
+                                class="ip-tag"
+                                class:copied={copiedStates[`gen-${index}-ip-${ipIndex}`]}
+                                onclick={() => copyToClipboard(ip, `gen-${index}-ip-${ipIndex}`)}
+                                use:tooltip={"Click to copy IP address"}
+                              >
+                                {ip}
+                                <Icon name={copiedStates[`gen-${index}-ip-${ipIndex}`] ? 'check' : 'copy'} size="xs" />
+                              </button>
+                            {/each}
+                          </div>
                         </div>
-                      </div>
-                    {/if}
-                  </div>
-                {:else}
-                  <div class="error-message">
-                    <Icon name="alert-triangle" />
-                    {generation.error}
-                  </div>
-                {/if}
-              </div>
-            {/each}
+                      {/if}
+                    </div>
+                  {:else}
+                    <div class="error-message">
+                      <Icon name="alert-triangle" size="sm" />
+                      <span>{generation.error}</span>
+                    </div>
+                  {/if}
+                </div>
+              {/each}
+            </div>
           </div>
-        </div>
       {/if}
     </div>
   {/if}
 </div>
 
-<style>
-
-  .card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-lg);
-  }
-
-  .card h2 {
-    color: var(--color-primary);
-    margin: 0 0 var(--spacing-sm) 0;
-    font-size: var(--font-size-xl);
-  }
-
-  .card p {
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-md);
-    line-height: 1.5;
-  }
-
-  .input-section {
+<style lang="scss">
+  .form-row {
     display: grid;
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
-  }
 
-  @media (min-width: 768px) {
-    .input-section {
+    @media (min-width: 768px) {
       grid-template-columns: 2fr 1fr;
+      align-items: start;
     }
   }
 
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
+  .textarea-group {
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+
+      label {
+        color: var(--text-primary);
+        font-weight: 500;
+        font-size: var(--font-size-sm);
+      }
+
+      textarea {
+        width: 100%;
+        padding: var(--spacing-md);
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-primary);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: var(--font-size-sm);
+        resize: vertical;
+        min-height: 150px;
+        transition: all var(--transition-fast);
+
+        &:focus {
+          border-color: var(--color-primary);
+          outline: none;
+        }
+      }
+
+      .input-help {
+        color: var(--text-secondary);
+        font-size: var(--font-size-xs);
+        line-height: 1.4;
+      }
+    }
   }
 
-  .input-group label {
-    display: block;
-    color: var(--text-primary);
-    font-weight: 500;
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .input-group textarea {
-    width: 100%;
-    padding: var(--spacing-sm);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    color: var(--text-primary);
-    font-family: var(--font-mono);
-    resize: vertical;
-    min-height: 150px;
-  }
-
-  .input-help {
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-    margin-top: var(--spacing-xs);
-  }
-
-  .options {
+  .options-group {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
+    align-self: start;
+
+    .option-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+
+      label {
+        color: var(--text-primary);
+        font-weight: 500;
+        font-size: var(--font-size-sm);
+      }
+
+      input[type="number"],
+      input[type="text"] {
+        padding: var(--spacing-sm);
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-primary);
+        border-radius: var(--radius-sm);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: var(--font-size-sm);
+        transition: all var(--transition-fast);
+
+        &:focus {
+          border-color: var(--color-primary);
+          outline: none;
+        }
+      }
+
+      .seed-input {
+        display: flex;
+        gap: var(--spacing-xs);
+
+        input {
+          flex: 1;
+        }
+
+        button {
+          padding: var(--spacing-xs);
+          background: var(--color-primary);
+          color: var(--bg-primary);
+          border: none;
+          border-radius: var(--radius-sm);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &:hover {
+            background: color-mix(in srgb, var(--color-primary), black 10%);
+            transform: translateY(-1px);
+          }
+        }
+      }
+    }
   }
 
-  .option-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
-
-  .option-group label {
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  .option-group label:has(input[type="checkbox"]) {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    cursor: pointer;
-  }
-
-  .option-group input[type="number"],
-  .option-group input[type="text"] {
-    padding: var(--spacing-xs);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    color: var(--text-primary);
-    font-family: var(--font-mono);
-  }
-
-  .seed-input {
-    display: flex;
-    gap: var(--spacing-xs);
-  }
-
-  .seed-input input {
-    flex: 1;
-  }
-
-  .seed-input button {
-    padding: var(--spacing-xs);
-    background: var(--color-primary);
-    color: var(--bg-primary);
-    border: none;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-  }
-
-  .seed-input button:hover {
-    background: var(--color-primary-hover);
-    transform: translateY(-1px);
-  }
-
-  .option-help {
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-  }
-
-  .loading {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    justify-content: center;
-    padding: var(--spacing-lg);
-    color: var(--color-primary);
-  }
-
-  .results {
+  .results-container {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
-  }
-
-  .errors {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--color-error);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .errors h3 {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    margin: 0 0 var(--spacing-sm) 0;
-    color: var(--color-error);
-  }
-
-  .error-item {
-    color: var(--color-error);
-    font-family: var(--font-mono);
-    font-size: var(--font-size-sm);
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .summary {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .summary h3 {
-    margin: 0 0 var(--spacing-sm) 0;
-    color: var(--text-primary);
+    margin-top: var(--spacing-lg);
+    .card {
+      width: 100%;
+    }
   }
 
   .summary-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: var(--spacing-md);
-  }
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-sm);
 
-  .stat {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-sm);
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-  }
-
-  .stat-value {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .stat-label {
-    color: var(--text-secondary);
-  }
-
-  .stat.valid .stat-value {
-    color: var(--color-success);
-  }
-
-  .stat.invalid .stat-value {
-    color: var(--color-error);
-  }
-
-  .all-ips {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .all-ips-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-md);
-  }
-
-  @media (max-width: 767px) {
-    .all-ips-header {
-      flex-direction: column;
-      gap: var(--spacing-sm);
-      align-items: stretch;
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
     }
-  }
-
-  .all-ips-header h3 {
-    color: var(--text-primary);
-  }
-
-  .export-buttons {
-    display: flex;
-    gap: var(--spacing-xs);
-    flex-wrap: wrap;
-  }
-
-  .export-buttons button {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    background: var(--color-primary);
-    color: var(--bg-primary);
-    border: none;
-    border-radius: var(--border-radius);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    white-space: nowrap;
-  }
-
-  .export-buttons button:hover {
-    background: var(--color-primary-hover);
-    transform: translateY(-1px);
   }
 
   .all-ips-list {
@@ -611,67 +617,43 @@
     gap: var(--spacing-xs);
     max-height: 300px;
     overflow-y: auto;
-    padding: var(--spacing-sm);
+    padding: var(--spacing-md);
     background: var(--bg-secondary);
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-secondary);
   }
 
-  .code-button {
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    border: none;
+  .export-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
 
-    &.all-ips-code {
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-color);
-      padding: var(--spacing-xs);
-      border-radius: var(--border-radius);
+    button {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: var(--radius-sm);
       font-size: var(--font-size-xs);
-      white-space: nowrap;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
 
       &:hover {
-        background: var(--bg-primary);
+        background: color-mix(in srgb, var(--color-primary), black 10%);
         transform: translateY(-1px);
       }
     }
 
-    &.info-code, &.range-code {
-      background: var(--bg-secondary);
-      color: var(--color-primary);
-      border: 1px solid var(--border-color);
-      padding: var(--spacing-xs);
-      border-radius: var(--border-radius);
-      font-size: var(--font-size-sm);
-      word-break: break-all;
+    @media (max-width: 768px) {
+      flex-direction: column;
 
-      &:hover {
-        background: var(--bg-primary);
-        transform: translateY(-1px);
+      button {
+        justify-content: center;
       }
     }
-
-    &.selected-ips-code {
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-color);
-      padding: var(--spacing-xs);
-      border-radius: var(--border-radius);
-      font-size: var(--font-size-xs);
-      white-space: nowrap;
-
-      &:hover {
-        background: var(--bg-primary);
-        transform: translateY(-1px);
-      }
-    }
-  }
-
-  .generations h3 {
-    margin: 0 0 var(--spacing-sm) 0;
-    color: var(--text-primary);
   }
 
   .generations-list {
@@ -681,62 +663,68 @@
   }
 
   .generation-card {
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
     padding: var(--spacing-md);
     background: var(--bg-tertiary);
-    margin-bottom: var(--spacing-md);
+    transition: all var(--transition-fast);
+
+    &.valid {
+      border-color: color-mix(in srgb, var(--color-success), transparent 60%);
+    }
+
+    &.invalid {
+      border-color: color-mix(in srgb, var(--color-error), transparent 60%);
+    }
   }
 
-  .generation-card.valid {
-    border-color: var(--color-success);
-  }
-
-  .generation-card.invalid {
-    border-color: var(--color-error);
-  }
-
-  .card-header {
+  .gen-header {
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: flex-start;
     margin-bottom: var(--spacing-md);
-  }
 
-  .network-info {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
+    .network-info {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
 
-  .network-text {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: var(--text-primary);
-  }
+      .input-text {
+        font-family: var(--font-mono);
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: var(--font-size-sm);
+      }
 
-  .network-meta {
-    display: flex;
-    gap: var(--spacing-xs);
-  }
+      .network-meta {
+        display: flex;
+        gap: var(--spacing-xs);
 
-  .network-type,
-  .ip-version {
-    font-size: var(--font-size-xs);
-    font-weight: 500;
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
+        .network-type,
+        .ip-version {
+          font-size: var(--font-size-xs);
+          font-weight: 500;
+          padding: var(--spacing-xs);
+          border-radius: var(--radius-xs);
+          background: var(--bg-secondary);
+          color: var(--text-secondary);
+          border: 1px solid var(--border-secondary);
+        }
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
   }
 
   .status {
     color: var(--color-success);
-  }
 
-  .generation-card.invalid .status {
-    color: var(--color-error);
+    .generation-card.invalid & {
+      color: var(--color-error);
+    }
   }
 
   .generation-details {
@@ -746,117 +734,103 @@
   }
 
   .generation-info {
-    padding: var(--spacing-sm);
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--spacing-sm);
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  .network-details {
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--spacing-sm);
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  .info-grid, .details-grid {
     background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    .info-card {
+      flex-direction: column;
+    }
   }
 
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: var(--spacing-sm);
-  }
-
-  .info-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .info-label {
-    font-weight: 500;
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-  }
-
-  .info-value {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-
-  .network-details,
   .generated-ips {
-    padding: var(--spacing-sm);
     background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+
+    .ips-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-xs);
+      max-height: 200px;
+      overflow-y: auto;
+    }
   }
 
-  .network-details h4,
-  .generated-ips h4 {
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
-    font-size: var(--font-size-md);
-  }
-
-  .range-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-sm);
-  }
-
-  .range-item {
+  .ip-tag {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-  }
-
-  .range-label {
-    font-weight: 500;
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-  }
-
-
-  .range-value {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: var(--font-size-sm);
-  }
-
-  .ips-list {
-    display: flex;
-    flex-wrap: wrap;
     gap: var(--spacing-xs);
-    max-height: 200px;
-    overflow-y: auto;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background: var(--bg-primary);
+      transform: translateY(-1px);
+    }
+
+    &.copied {
+      background: var(--color-success);
+      color: var(--bg-primary);
+      border-color: var(--color-success);
+    }
   }
 
+  .details-header {
+    margin-bottom: var(--spacing-sm);
+
+    h4 {
+      color: var(--text-primary);
+      font-size: var(--font-size-md);
+      font-weight: 600;
+      margin: 0;
+    }
+  }
 
   .error-message {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    color: var(--color-error);
+    gap: var(--spacing-sm);
+    color: var(--color-error-light);
     font-size: var(--font-size-sm);
-    padding: var(--spacing-sm);
-    background: var(--bg-tertiary);
+    padding: var(--spacing-md);
+    background: color-mix(in srgb, var(--color-error), transparent 95%);
     border: 1px solid var(--color-error);
-    border-radius: var(--border-radius);
-  }
+    border-radius: var(--radius-md);
 
-  @media (max-width: 767px) {
-    
-    .summary-stats {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .info-grid,
-    .range-info {
-      grid-template-columns: 1fr;
-    }
-    
-    .export-buttons {
-      justify-content: stretch;
-    }
-    
-    .export-buttons button {
-      flex: 1;
-      justify-content: center;
+    span {
+      line-height: 1.4;
     }
   }
 </style>

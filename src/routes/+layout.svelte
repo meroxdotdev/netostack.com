@@ -5,19 +5,23 @@
 	import '../styles/components.scss';
 	import '../styles/ref-pages.scss';
 	import '../styles/diagnostics-pages.scss';
-	import favicon from '$lib/assets/favicon.svg';
+	import '../styles/pages.scss';
 
+  import favicon from '$lib/assets/favicon.svg';
 
   import Header from '$lib/components/furniture/Header.svelte';
   import SubHeader from '$lib/components/furniture/SubHeader.svelte';
   import Footer from '$lib/components/furniture/Footer.svelte';
+  
+  let { data, children } = $props(); // Gets data from the server load function
 
-  let { data, children } = $props();
+  let darkMode = $state(true); // Stores the theme mode
 
-  import '../styles/pages.scss';
+  onMount(() => {
+    initializeTheme();
+  });
 
-  let darkMode = $state(true);
-
+  /* Reads and applies user's theme from localstorage on initial load */
   function initializeTheme() {
     if (typeof window === 'undefined') return;
     const saved = localStorage.getItem('theme');
@@ -27,6 +31,7 @@
     }
   }
 
+  /* Toggles between dark and light themes, saving preference to localstorage */
   function toggleTheme() {
     darkMode = !darkMode;
     if (typeof window !== 'undefined') {
@@ -39,10 +44,7 @@
     }
   }
 
-  onMount(() => {
-    initializeTheme();
-  });
-
+  /* Uses the server-generated breadcrumb data, to build a JSON-LD breadcrumb object */
   function jsonLdTag(data: unknown, type = 'application/ld+json', nonce?: string) {
     if (!data) return '';
     const json = JSON.stringify(data)

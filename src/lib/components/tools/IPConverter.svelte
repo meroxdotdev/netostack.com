@@ -3,8 +3,7 @@
   import { validateIPv4 } from '$lib/utils/ip-validation.js';
   import IPInput from './IPInput.svelte';
   import Tooltip from '$lib/components/global/Tooltip.svelte';
-  import SvgIcon from '$lib/components/global/SvgIcon.svelte';
-    import Icon from '../global/Icon.svelte';
+  import Icon from '../global/Icon.svelte';
 
   let ipAddress = $state('192.168.1.1');
   let formats = $state({
@@ -483,7 +482,7 @@
     <div class="explainer-content">
       <div class="usage-scenarios">
         <div class="usage-scenario">
-          <h4>🔧 Network Administration</h4>
+          <h4>Network Administration</h4>
           <ul>
             <li><strong>Dotted Decimal:</strong> Daily configuration and documentation</li>
             <li><strong>Binary:</strong> Subnet calculations and VLSM planning</li>
@@ -492,7 +491,7 @@
         </div>
 
         <div class="usage-scenario">
-          <h4>💻 Programming & Development</h4>
+          <h4>Programming & Development</h4>
           <ul>
             <li><strong>Decimal:</strong> Database storage and IP range operations</li>
             <li><strong>Hexadecimal:</strong> Low-level socket programming</li>
@@ -501,7 +500,7 @@
         </div>
 
         <div class="usage-scenario">
-          <h4>🔍 Troubleshooting & Analysis</h4>
+          <h4>Troubleshooting & Analysis</h4>
           <ul>
             <li><strong>Binary:</strong> Understanding subnet boundaries</li>
             <li><strong>Hexadecimal:</strong> Reading network packet captures</li>
@@ -515,6 +514,12 @@
 
 
 <style>
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
   .results-section {
     margin-top: var(--spacing-lg);
   }
@@ -757,7 +762,7 @@
   }
 
   .explainer-content h4 {
-    color: var(--text-primary);
+    color: var(--color-primary);
     margin-bottom: var(--spacing-sm);
   }
 

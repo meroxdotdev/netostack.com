@@ -308,6 +308,8 @@ hr {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  min-width: 0;
+  flex: 1;
 }
 
 .ip-value, .binary-value {
@@ -316,12 +318,16 @@ hr {
   font-weight: 500;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
-  
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+
   &.success {
     color: var(--color-success-light);
     background-color: rgba(35, 134, 54, 0.1);
   }
-  
+
   &.error {
     color: var(--color-error-light);
     background-color: rgba(218, 54, 51, 0.1);
@@ -365,7 +371,7 @@ hr {
 // Checkbox styles
 .checkbox-label {
   display: flex;
-  align-items: canter;
+  align-items: center;
   gap: var(--spacing-sm);
   cursor: pointer;
 

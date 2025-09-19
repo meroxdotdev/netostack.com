@@ -1,28 +1,77 @@
 <script lang="ts">
+  import { tooltip } from '$lib/actions/tooltip.js';
   import { calculateNthIPs, type NthIPResult } from '$lib/utils/nth-ip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
+  import '../../../styles/diagnostics-pages.scss';
+
   let inputText = $state('192.168.1.0/24 @ 10\n10.0.0.0-10.0.0.255 [50]\n172.16.0.0/16 100\n2001:db8::/64#1000');
   let globalOffset = $state(0);
   let result = $state<NthIPResult | null>(null);
   let isLoading = $state(false);
+  let selectedExampleIndex = $state<number | null>(null);
+  let userModified = $state(false);
+  let copiedStates = $state<Record<string, boolean>>({});
+
+  const examples = [
+    {
+      input: '192.168.1.0/24 @ 10',
+      description: 'Get 10th IP from a /24 subnet'
+    },
+    {
+      input: '10.0.0.0-10.0.0.255 [128]\n172.16.0.0/16 1000',
+      description: 'Multiple range types with different indices'
+    },
+    {
+      input: '2001:db8::/64#100\nfe80::/10 @ 50',
+      description: 'IPv6 networks with various formats'
+    },
+    {
+      input: '192.168.0.0/16 + 100\n10.0.0.0/8 [5000]',
+      description: 'Large networks with high indices'
+    },
+    {
+      input: '203.0.113.0/24 @ 1\n203.0.113.0/24 @ -1',
+      description: 'First and last IP using positive/negative indexing'
+    },
+    {
+      input: '192.168.1.1-192.168.1.100 [25]\n192.168.1.101-192.168.1.200 [75]',
+      description: 'Sequential IP ranges with specific indices'
+    },
+    {
+      input: '2001:db8:85a3::/48#65536\nfc00::/7 @ 1000000',
+      description: 'Large IPv6 address spaces'
+    },
+    {
+      input: '127.0.0.0/8 @ 256\n::1/128 @ 0\n169.254.0.0/16 [32768]',
+      description: 'Special-use addresses: loopback and link-local'
+    }
+  ];
   
   function calculateIPs() {
     if (!inputText.trim()) {
       result = null;
       return;
     }
-    
+
     isLoading = true;
-    
+
     try {
       const inputs = inputText.split('\n').filter(line => line.trim());
+      if (inputs.length === 0) {
+        result = {
+          calculations: [],
+          summary: { totalCalculations: 0, validCalculations: 0, invalidCalculations: 0, outOfBoundsCalculations: 0 },
+          errors: ['No valid input lines found']
+        };
+        return;
+      }
+
       result = calculateNthIPs(inputs, globalOffset);
     } catch (error) {
       result = {
         calculations: [],
         summary: { totalCalculations: 0, validCalculations: 0, invalidCalculations: 0, outOfBoundsCalculations: 0 },
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        errors: [error instanceof Error ? error.message : 'Unknown error occurred while calculating nth IPs']
       };
     } finally {
       isLoading = false;
@@ -57,8 +106,28 @@
     URL.revokeObjectURL(url);
   }
   
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
+  function loadExample(example: typeof examples[0], index: number) {
+    inputText = example.input;
+    selectedExampleIndex = index;
+    userModified = false;
+    calculateIPs();
+  }
+
+  function handleInputChange() {
+    userModified = true;
+    selectedExampleIndex = null;
+  }
+
+  async function copyToClipboard(text: string, key: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      copiedStates[key] = true;
+      setTimeout(() => {
+        copiedStates[key] = false;
+      }, 1500);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
   }
   
   // Auto-calculate when inputs change
@@ -66,212 +135,332 @@
     if (inputText.trim()) {
       const timeoutId = setTimeout(calculateIPs, 300);
       return () => clearTimeout(timeoutId);
+    } else {
+      result = null;
     }
   });
 </script>
 
 <div class="card">
   <header class="card-header">
-    <h2>Nth IP Calculator</h2>
-    <p>Resolve the IP address at a specific index within networks and ranges with optional offset</p>
+    <h1>Nth IP Calculator</h1>
+    <p>Resolve the IP address at a specific index within networks and ranges with optional global offset.</p>
   </header>
 
-  <div class="input-section">
-      <div class="input-group">
-      <label for="inputs">Network and Index Specifications</label>
-      <textarea
-        id="inputs"
-        bind:value={inputText}
-        placeholder="192.168.1.0/24 @ 10&#10;10.0.0.0-10.0.0.255 [50]&#10;172.16.0.0/16 100&#10;2001:db8::/64#1000"
-        rows="6"
-      ></textarea>
-      <div class="input-help">
-        Formats: network @ index, network [index], network index, or network#index. Optional offset: + number
+  <!-- Examples -->
+  <div class="card examples-card">
+    <details class="examples-details">
+      <summary class="examples-summary">
+        <Icon name="chevron-right" size="xs" />
+        <h4>Quick Examples</h4>
+      </summary>
+      <div class="examples-grid">
+        {#each examples as example, i}
+          <button
+            class="example-card"
+            class:selected={selectedExampleIndex === i && !userModified}
+            onclick={() => loadExample(example, i)}
+            use:tooltip={`Calculate: ${example.input.split('\n')[0]}`}
+          >
+            <h5>{example.input.split('\n')[0]}</h5>
+            <p>{example.description}</p>
+          </button>
+        {/each}
       </div>
-    </div>
+    </details>
+  </div>
 
-      <div class="options">
-        <div class="option-group">
-        <label for="offset">Global Offset</label>
-        <input
-          id="offset"
-          type="number"
-          bind:value={globalOffset}
-          placeholder="0"
-          min="0"
-        />
-        <div class="option-help">
-          Add this value to all index calculations (0-based indexing)
+  <!-- Input Form -->
+  <div class="card input-card">
+    <div class="card-header">
+      <h3>Network Configuration</h3>
+    </div>
+    <div class="card-content">
+      <div class="form-row">
+        <div class="form-group textarea-group">
+          <label for="inputs" use:tooltip={"Enter network and index specifications, one per line. Supports formats: network @ index, network [index], network index, or network#index"}>
+            Network and Index Specifications
+          </label>
+          <textarea
+            id="inputs"
+            bind:value={inputText}
+            oninput={handleInputChange}
+            placeholder="192.168.1.0/24 @ 10&#10;10.0.0.0-10.0.0.255 [50]&#10;172.16.0.0/16 100&#10;2001:db8::/64#1000"
+            rows="6"
+          ></textarea>
+          <div class="input-help">
+            Formats: network @ index, network [index], network index, or network#index. Optional offset: + number
+          </div>
+        </div>
+
+        <div class="options-section">
+          <div class="option-group">
+            <label for="offset" use:tooltip={"Add this value to all index calculations (0-based indexing)"}>
+              Global Offset
+            </label>
+            <input
+              id="offset"
+              type="number"
+              bind:value={globalOffset}
+              oninput={handleInputChange}
+              placeholder="0"
+              min="0"
+            />
+            <div class="option-help">
+              Add this value to all index calculations (0-based indexing)
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   {#if isLoading}
-    <div class="loading">
-      <Icon name="loader" />
-      Calculating IPs...
+    <div class="card loading-card">
+      <div class="card-content">
+        <div class="loading">
+          <Icon name="loader-2" size="sm" animate="spin" />
+          Calculating IPs...
+        </div>
+      </div>
     </div>
   {/if}
 
   {#if result}
     <div class="results">
       {#if result.errors.length > 0}
-        <div class="errors">
-          <h3><Icon name="alert-triangle" /> Errors</h3>
-          {#each result.errors as error}
-            <div class="error-item">{error}</div>
-          {/each}
+        <div class="card error-card">
+          <div class="card-content">
+            <div class="error-content">
+              <Icon name="alert-triangle" size="md" />
+              <div>
+                <strong>Calculation Errors</strong>
+                {#each result.errors as error}
+                  <p>{error}</p>
+                {/each}
+              </div>
+            </div>
+          </div>
         </div>
       {/if}
 
       {#if result.calculations.length > 0}
-        <div class="summary">
-          <h3>Calculation Summary</h3>
-          <div class="summary-stats">
-            <div class="stat">
-              <span class="stat-value">{result.summary.totalCalculations}</span>
-              <span class="stat-label">Total Calculations</span>
-            </div>
-            <div class="stat valid">
-              <span class="stat-value">{result.summary.validCalculations}</span>
-              <span class="stat-label">Valid</span>
-            </div>
-            <div class="stat invalid">
-              <span class="stat-value">{result.summary.invalidCalculations}</span>
-              <span class="stat-label">Invalid</span>
-            </div>
-            <div class="stat out-of-bounds">
-              <span class="stat-value">{result.summary.outOfBoundsCalculations}</span>
-              <span class="stat-label">Out of Bounds</span>
+        <div class="card summary-card">
+          <div class="card-header row">
+            <h3>Calculation Summary</h3>
+            <button
+              class="copy-btn"
+              class:copied={copiedStates['summary']}
+              onclick={() => result && result.summary && copyToClipboard(`Total: ${result.summary.totalCalculations}\nValid: ${result.summary.validCalculations}\nInvalid: ${result.summary.invalidCalculations}\nOut of Bounds: ${result.summary.outOfBoundsCalculations}`, 'summary')}
+              use:tooltip={"Copy summary to clipboard"}
+            >
+              <Icon name={copiedStates['summary'] ? 'check' : 'copy'} size="xs" />
+              {copiedStates['summary'] ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+          <div class="card-content">
+            <div class="summary-stats">
+              <div class="info-card">
+                <div class="info-label">Total</div>
+                <div class="metric-value">{result.summary.totalCalculations}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Valid</div>
+                <div class="metric-value success">{result.summary.validCalculations}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Invalid</div>
+                <div class="metric-value" class:error={result.summary.invalidCalculations > 0}>{result.summary.invalidCalculations}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Out of Bounds</div>
+                <div class="metric-value" class:warning={result.summary.outOfBoundsCalculations > 0}>{result.summary.outOfBoundsCalculations}</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="calculations">
-          <div class="calculations-header">
+        <div class="card calculations-card">
+          <div class="card-header row">
             <h3>IP Calculations</h3>
             <div class="export-buttons">
-              <button onclick={() => exportResults('csv')}>
-                <Icon name="download" />
+              <button onclick={() => exportResults('csv')} use:tooltip={"Export results as CSV file"}>
+                <Icon name="csv-file" size="xs" />
                 Export CSV
               </button>
-              <button onclick={() => exportResults('json')}>
-                <Icon name="download" />
+              <button onclick={() => exportResults('json')} use:tooltip={"Export results as JSON file"}>
+                <Icon name="json-file" size="xs" />
                 Export JSON
               </button>
             </div>
           </div>
+          <div class="card-content">
 
-          <div class="calculations-list">
-            {#each result.calculations as calculation}
-              <div class="calculation-card" 
-                   class:valid={calculation.isValid && calculation.isInBounds} 
-                   class:out-of-bounds={calculation.isValid && !calculation.isInBounds}
-                   class:invalid={!calculation.isValid}>
-                <div class="card-header">
-                  <div class="input-info">
-                    <span class="input-text">{calculation.input}</span>
-                    <div class="input-meta">
-                      <span class="network-type">{calculation.inputType.toUpperCase()}</span>
-                      <span class="ip-version">IPv{calculation.version}</span>
-                    </div>
-                  </div>
-                  
-                  <div class="status">
-                    {#if calculation.isValid && calculation.isInBounds}
-                      <Icon name="check-circle" />
-                    {:else if calculation.isValid && !calculation.isInBounds}
-                      <Icon name="alert-circle" />
-                    {:else}
-                      <Icon name="x-circle" />
-                    {/if}
-                  </div>
-                </div>
-
-                {#if calculation.isValid}
-                  <div class="calculation-details">
-                    <div class="result-section">
-                      <div class="result-ip">
-                        <span class="result-label">Result IP:</span>
-                        <button type="button" class="code-button result-code" onclick={() => copyToClipboard(calculation.resultIP)} title="Click to copy">
-                          {calculation.resultIP}
+            <div class="calculations-list">
+              {#each result.calculations as calculation, index}
+                <div class="calculation-card"
+                     class:valid={calculation.isValid && calculation.isInBounds}
+                     class:out-of-bounds={calculation.isValid && !calculation.isInBounds}
+                     class:invalid={!calculation.isValid}>
+                  <div class="calc-header">
+                    <div class="input-info">
+                      <div class="value-copy">
+                        <span class="input-text">{calculation.input}</span>
+                        <button
+                          class="copy-btn"
+                          class:copied={copiedStates[`input-${index}`]}
+                          onclick={() => copyToClipboard(calculation.input, `input-${index}`)}
+                          use:tooltip={"Copy input specification"}
+                        >
+                          <Icon name={copiedStates[`input-${index}`] ? 'check' : 'copy'} size="xs" />
                         </button>
                       </div>
-                      
-                      {#if !calculation.isInBounds}
-                        <div class="bounds-warning">
-                          <Icon name="alert-triangle" />
-                          Index out of bounds
+                      <div class="input-meta">
+                        <span class="network-type" use:tooltip={`Network type: ${calculation.inputType}`}>{calculation.inputType.toUpperCase()}</span>
+                        <span class="ip-version" use:tooltip={`IP version ${calculation.version}`}>IPv{calculation.version}</span>
+                      </div>
+                    </div>
+
+                    <div class="status">
+                      {#if calculation.isValid && calculation.isInBounds}
+                        <span use:tooltip={"Valid calculation within bounds"}>
+                          <Icon name="check-circle" size="md" />
+                        </span>
+                      {:else if calculation.isValid && !calculation.isInBounds}
+                        <span use:tooltip={"Valid calculation but index out of bounds"}>
+                          <Icon name="alert-circle" size="md" />
+                        </span>
+                      {:else}
+                        <span use:tooltip={"Invalid calculation"}>
+                          <Icon name="x-circle" size="md" />
+                        </span>
+                      {/if}
+                    </div>
+                  </div>
+
+                  {#if calculation.isValid}
+                    <div class="calculation-details">
+                      <div class="result-section">
+                        <div class="result-ip">
+                          <span class="result-label" use:tooltip={"The calculated IP address at the specified index"}>Result IP:</span>
+                          <div class="value-copy">
+                            <span class="result-value">{calculation.resultIP}</span>
+                            <button
+                              class="copy-btn"
+                              class:copied={copiedStates[`result-${index}`]}
+                              onclick={() => copyToClipboard(calculation.resultIP, `result-${index}`)}
+                              use:tooltip={"Copy result IP address"}
+                            >
+                              <Icon name={copiedStates[`result-${index}`] ? 'check' : 'copy'} size="xs" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {#if !calculation.isInBounds}
+                          <div class="bounds-warning">
+                            <Icon name="alert-triangle" size="sm" />
+                            <span>Index out of bounds</span>
+                          </div>
+                        {/if}
+                      </div>
+
+                      <div class="calculation-info">
+                          <div class="details-header">
+                          <h4>Calculation Details</h4>
+                        </div>
+                        <div class="info-grid">
+                          <div class="info-card">
+                            <div class="info-label" use:tooltip={"Network or range being processed"}>Network</div>
+                            <div class="value-copy">
+                              <span class="ip-value">{calculation.network}</span>
+                              <button
+                                class="copy-btn"
+                                class:copied={copiedStates[`network-${index}`]}
+                                onclick={() => copyToClipboard(calculation.network, `network-${index}`)}
+                                use:tooltip={"Copy network address"}
+                              >
+                                <Icon name={copiedStates[`network-${index}`] ? 'check' : 'copy'} size="xs" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <div class="info-card">
+                            <div class="info-label" use:tooltip={"Total number of addresses in this network"}>Total Addresses</div>
+                            <div class="metric-value">{calculation.totalAddresses}</div>
+                          </div>
+
+                          <div class="info-card">
+                            <div class="info-label" use:tooltip={"The index position requested"}>Index</div>
+                            <div class="metric-value info">{calculation.index}</div>
+                          </div>
+
+                          <div class="info-card">
+                            <div class="info-label" use:tooltip={"Global offset applied to the calculation"}>Offset</div>
+                            <div class="metric-value">{calculation.offset}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {#if calculation.details}
+                        <div>
+                        <div class="details-header">
+                          <h4>Network Details</h4>
+                        </div>
+                        <div class="network-details">
+                          <div class="details-grid">
+                            <div class="info-card">
+                              <div class="info-label" use:tooltip={"First IP address in the network"}>Start</div>
+                              <div class="value-copy">
+                                <span class="ip-value">{calculation.details.networkStart}</span>
+                                <button
+                                  class="copy-btn"
+                                  class:copied={copiedStates[`start-${index}`]}
+                                  onclick={() => calculation.details && copyToClipboard(calculation.details.networkStart, `start-${index}`)}
+                                  use:tooltip={"Copy network start address"}
+                                >
+                                  <Icon name={copiedStates[`start-${index}`] ? 'check' : 'copy'} size="xs" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div class="info-card">
+                              <div class="info-label" use:tooltip={"Last IP address in the network"}>End</div>
+                              <div class="value-copy">
+                                <span class="ip-value">{calculation.details.networkEnd}</span>
+                                <button
+                                  class="copy-btn"
+                                  class:copied={copiedStates[`end-${index}`]}
+                                  onclick={() => calculation.details && copyToClipboard(calculation.details.networkEnd, `end-${index}`)}
+                                  use:tooltip={"Copy network end address"}
+                                >
+                                  <Icon name={copiedStates[`end-${index}`] ? 'check' : 'copy'} size="xs" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div class="info-card">
+                              <div class="info-label" use:tooltip={"The actual index used (including offset)"}>Actual Index</div>
+                              <div class="metric-value info">{calculation.details.actualIndex}</div>
+                            </div>
+
+                            <div class="info-card">
+                              <div class="info-label" use:tooltip={"Maximum valid index for this network"}>Max Index</div>
+                              <div class="metric-value">{calculation.details.maxIndex}</div>
+                            </div>
+                          </div>
+                        </div>
                         </div>
                       {/if}
                     </div>
-
-                    <div class="calculation-info">
-                      <div class="info-grid">
-                        <div class="info-item">
-                          <span class="info-label">Network:</span>
-                          <button type="button" class="code-button info-code" onclick={() => copyToClipboard(calculation.network)} title="Click to copy">
-                            {calculation.network}
-                          </button>
-                        </div>
-                        
-                        <div class="info-item">
-                          <span class="info-label">Total Addresses:</span>
-                          <span class="info-value">{calculation.totalAddresses}</span>
-                        </div>
-                        
-                        <div class="info-item">
-                          <span class="info-label">Index:</span>
-                          <span class="info-value">{calculation.index}</span>
-                        </div>
-                        
-                        <div class="info-item">
-                          <span class="info-label">Offset:</span>
-                          <span class="info-value">{calculation.offset}</span>
-                        </div>
-                      </div>
+                  {:else}
+                    <div class="error-message">
+                      <Icon name="alert-triangle" size="sm" />
+                      <span>{calculation.error}</span>
                     </div>
-
-                    {#if calculation.details}
-                      <div class="network-details">
-                        <h4>Network Details</h4>
-                        <div class="details-grid">
-                          <div class="detail-item">
-                            <span class="detail-label">Start:</span>
-                            <button type="button" class="code-button detail-code" onclick={() => calculation.details && copyToClipboard(calculation.details.networkStart)} title="Click to copy">
-                              {calculation.details.networkStart}
-                            </button>
-                          </div>
-                          
-                          <div class="detail-item">
-                            <span class="detail-label">End:</span>
-                            <button type="button" class="code-button detail-code" onclick={() => calculation.details && copyToClipboard(calculation.details.networkEnd)} title="Click to copy">
-                              {calculation.details.networkEnd}
-                            </button>
-                          </div>
-                          
-                          <div class="detail-item">
-                            <span class="detail-label">Actual Index:</span>
-                            <span class="detail-value">{calculation.details.actualIndex}</span>
-                          </div>
-                          
-                          <div class="detail-item">
-                            <span class="detail-label">Max Index:</span>
-                            <span class="detail-value">{calculation.details.maxIndex}</span>
-                          </div>
-                        </div>
-                      </div>
-                    {/if}
-                  </div>
-                {:else}
-                  <div class="error-message">
-                    <Icon name="alert-triangle" />
-                    {calculation.error}
-                  </div>
-                {/if}
-              </div>
-            {/each}
+                  {/if}
+                </div>
+              {/each}
+            </div>
           </div>
         </div>
       {/if}
@@ -279,100 +468,97 @@
   {/if}
 </div>
 
-<style>
-
-  .card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-lg);
-  }
-
-  .card h2 {
-    color: var(--color-primary);
-    margin: 0 0 var(--spacing-sm) 0;
-    font-size: var(--font-size-xl);
-  }
-
-  .card p {
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-md);
-    line-height: 1.5;
-  }
-
-  .input-section {
+<style lang="scss">
+  .form-row {
     display: grid;
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
-  }
 
-  @media (min-width: 768px) {
-    .input-section {
-      grid-template-columns: 2fr 1fr;
+    @media (min-width: 768px) {
+      grid-template-columns: 2fr 180px;
+      align-items: start;
     }
   }
 
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
+  .textarea-group {
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+
+      label {
+        color: var(--text-primary);
+        font-weight: 500;
+        font-size: var(--font-size-sm);
+      }
+
+      textarea {
+        width: 100%;
+        padding: var(--spacing-md);
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-primary);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: var(--font-size-sm);
+        resize: vertical;
+        min-height: 150px;
+        transition: all var(--transition-fast);
+
+        &:focus {
+          border-color: var(--color-primary);
+          outline: 2px solid color-mix(in srgb, var(--color-primary), transparent 70%);
+          outline-offset: 2px;
+        }
+      }
+
+      .input-help {
+        color: var(--text-secondary);
+        font-size: var(--font-size-xs);
+        line-height: 1.4;
+      }
+    }
   }
 
-  .input-group label {
-    display: block;
-    color: var(--text-primary);
-    font-weight: 500;
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .input-group textarea {
-    width: 100%;
-    padding: var(--spacing-sm);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    color: var(--text-primary);
-    font-family: var(--font-mono);
-    resize: vertical;
-    min-height: 150px;
-  }
-
-  .input-help {
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-    margin-top: var(--spacing-xs);
-  }
-
-  .options {
+  .options-section {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-  }
 
-  .option-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
 
-  .option-group label {
-    color: var(--text-primary);
-    font-weight: 500;
-  }
+      label {
+        color: var(--text-primary);
+        font-weight: 500;
+        font-size: var(--font-size-sm);
+      }
 
-  .option-group input {
-    padding: var(--spacing-xs);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    color: var(--text-primary);
-    font-family: var(--font-mono);
-    width: 120px;
-  }
+      input {
+        padding: var(--spacing-sm);
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-primary);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: var(--font-size-sm);
+        transition: all var(--transition-fast);
 
-  .option-help {
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
+        &:focus {
+          border-color: var(--color-primary);
+          outline: 2px solid color-mix(in srgb, var(--color-primary), transparent 70%);
+          outline-offset: 2px;
+        }
+      }
+
+      .option-help {
+        color: var(--text-secondary);
+        font-size: var(--font-size-xs);
+        line-height: 1.4;
+      }
+    }
   }
 
   .loading {
@@ -382,120 +568,76 @@
     justify-content: center;
     padding: var(--spacing-lg);
     color: var(--color-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
   }
 
   .results {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
+    .card { width: 100%; }
   }
 
-  .errors {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--color-error);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .errors h3 {
+  .error-content {
     display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    margin: 0 0 var(--spacing-sm) 0;
-    color: var(--color-error);
-  }
+    align-items: flex-start;
+    gap: var(--spacing-sm);
 
-  .error-item {
-    color: var(--color-error);
-    font-family: var(--font-mono);
-    font-size: var(--font-size-sm);
-    margin-bottom: var(--spacing-xs);
-  }
+    strong {
+      color: var(--color-error-light);
+      margin-bottom: var(--spacing-xs);
+    }
 
-  .summary {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .summary h3 {
-    margin: 0 0 var(--spacing-sm) 0;
-    color: var(--text-primary);
+    p {
+      color: var(--color-error-light);
+      font-size: var(--font-size-sm);
+      margin: var(--spacing-xs) 0;
+      line-height: 1.4;
+    }
   }
 
   .summary-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: var(--spacing-md);
-  }
+    gap: var(--spacing-sm);
 
-  .stat {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-sm);
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-  }
-
-  .stat-label {
-    color: var(--text-secondary);
-  }
-
-  .stat-value {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .stat.valid .stat-value {
-    color: var(--color-success);
-  }
-
-  .stat.invalid .stat-value {
-    color: var(--color-error);
-  }
-
-  .stat.out-of-bounds .stat-value {
-    color: var(--color-warning);
-  }
-
-  .calculations-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-md);
-  }
-
-  .calculations-header h3 {
-    color: var(--text-primary);
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   .export-buttons {
     display: flex;
     gap: var(--spacing-sm);
-  }
 
-  .export-buttons button {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    background: var(--color-primary);
-    color: var(--bg-primary);
-    border: none;
-    border-radius: var(--border-radius);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-  }
+    button {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background: var(--color-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
 
-  .export-buttons button:hover {
-    background: var(--color-primary-hover);
-    transform: translateY(-1px);
+      &:hover {
+        background: color-mix(in srgb, var(--color-primary), black 10%);
+        transform: translateY(-1px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+
+      button {
+        justify-content: center;
+      }
+    }
   }
 
   .calculations-list {
@@ -505,70 +647,81 @@
   }
 
   .calculation-card {
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
     padding: var(--spacing-md);
     background: var(--bg-tertiary);
-    margin-bottom: var(--spacing-md);
+    transition: all var(--transition-fast);
+
+    &.valid {
+      border-color: color-mix(in srgb, var(--color-success), transparent 60%);
+    }
+
+    &.out-of-bounds {
+      border-color: color-mix(in srgb, var(--color-warning), transparent 60%);
+    }
+
+    &.invalid {
+      border-color: color-mix(in srgb, var(--color-error), transparent 60%);
+    }
   }
 
-  .calculation-card.valid {
-    border-color: var(--color-success);
-  }
-
-  .calculation-card.out-of-bounds {
-    border-color: var(--color-warning);
-  }
-
-  .calculation-card.invalid {
-    border-color: var(--color-error);
-  }
-
-  .card-header {
+  .calc-header {
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: flex-start;
     margin-bottom: var(--spacing-md);
+    .input-info {
+      display: flex;
+      flex-direction: row;
+      gap: var(--spacing-sm);
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
   }
 
   .input-info {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
-  }
 
-  .input-text {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: var(--text-primary);
-  }
+    .input-text {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+    }
 
-  .input-meta {
-    display: flex;
-    gap: var(--spacing-xs);
-  }
+    .input-meta {
+      display: flex;
+      gap: var(--spacing-xs);
 
-  .network-type,
-  .ip-version {
-    font-size: var(--font-size-xs);
-    font-weight: 500;
-    padding: var(--spacing-xs);
-    border-radius: var(--border-radius);
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
+      .network-type,
+      .ip-version {
+        font-size: var(--font-size-xs);
+        font-weight: 500;
+        padding: var(--spacing-xs);
+        border-radius: var(--radius-xs);
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-secondary);
+      }
+    }
   }
 
   .status {
     color: var(--color-success);
-  }
 
-  .calculation-card.out-of-bounds .status {
-    color: var(--color-warning);
-  }
+    .calculation-card.out-of-bounds & {
+      color: var(--color-warning);
+    }
 
-  .calculation-card.invalid .status {
-    color: var(--color-error);
+    .calculation-card.invalid & {
+      color: var(--color-error);
+    }
   }
 
   .calculation-details {
@@ -578,178 +731,122 @@
   }
 
   .result-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-md);
     background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-  }
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
 
-  .result-ip {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-  }
+    .result-ip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-sm);
 
-  .result-label {
-    font-weight: 500;
-    color: var(--text-primary);
-  }
+      .result-label {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: var(--font-size-md);
+      }
 
-  .code-button {
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    border: none;
+      .result-value {
+        font-family: var(--font-mono);
+        font-size: var(--font-size-lg);
+        font-weight: 700;
+        color: var(--color-primary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+      }
 
-    &.result-code {
-      background: var(--color-primary);
-      color: var(--bg-primary);
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--border-radius);
-      font-weight: 600;
-      font-size: var(--font-size-lg);
-
-      &:hover {
-        background: var(--color-primary-hover);
-        transform: translateY(-1px);
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        align-items: flex-start;
       }
     }
 
-    &.info-code, &.detail-code {
-      background: var(--bg-secondary);
-      color: var(--color-primary);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--radius-md);
+    .bounds-warning {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      color: var(--color-warning-light);
+      font-weight: 500;
       font-size: var(--font-size-sm);
-      border: 1px solid var(--border-primary);
-      word-break: break-all;
-
-      &:hover {
-        background: var(--bg-primary);
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
+      padding: var(--spacing-xs);
+      background: color-mix(in srgb, var(--color-warning), transparent 95%);
+      border-radius: var(--radius-sm);
     }
-  }
-
-  .bounds-warning {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    color: var(--color-warning);
-    font-weight: 500;
-    font-size: var(--font-size-sm);
   }
 
   .calculation-info {
-    padding: var(--spacing-sm);
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-  }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--spacing-sm);
 
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-sm);
-  }
-
-  .info-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .info-label {
-    font-weight: 500;
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-  }
-
-
-  .info-value {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: var(--text-primary);
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
   }
 
   .network-details {
-    padding: var(--spacing-sm);
     background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+
+    .details-header {
+      margin-bottom: var(--spacing-sm);
+
+      h4 {
+        color: var(--text-primary);
+        font-size: var(--font-size-md);
+        font-weight: 600;
+        margin: 0;
+      }
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--spacing-sm);
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
   }
 
-  .network-details h4 {
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
-    font-size: var(--font-size-md);
-  }
-
-  .details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-sm);
-  }
-
-  .detail-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .detail-label {
-    font-weight: 500;
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-  }
-
-
-  .detail-value {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: var(--font-size-sm);
+  .info-grid, .details-grid {
+    background: var(--bg-secondary);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    .info-card {
+      flex-direction: column;
+      .metric-value, .value-copy {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        white-space: nowrap;
+      }
+    }
   }
 
   .error-message {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    color: var(--color-error);
+    gap: var(--spacing-sm);
+    color: var(--color-error-light);
     font-size: var(--font-size-sm);
-    padding: var(--spacing-sm);
-    background: var(--bg-tertiary);
+    padding: var(--spacing-md);
+    background: color-mix(in srgb, var(--color-error), transparent 95%);
     border: 1px solid var(--color-error);
-    border-radius: var(--border-radius);
-  }
+    border-radius: var(--radius-md);
 
-  @media (max-width: 767px) {
-    .summary-stats {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .info-grid,
-    .details-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .result-section {
-      flex-direction: column;
-      gap: var(--spacing-sm);
-      align-items: stretch;
-    }
-    
-    .export-buttons {
-      justify-content: stretch;
-    }
-    
-    .export-buttons button {
-      flex: 1;
-      justify-content: center;
+    span {
+      line-height: 1.4;
     }
   }
 </style>
