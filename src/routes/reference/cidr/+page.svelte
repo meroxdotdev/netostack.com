@@ -79,7 +79,7 @@
     <div class="ref-section">
       <h2>Key Points to Remember</h2>
       <ul>
-        {#each cidrContent.keyPoints as point}
+        {#each cidrContent.keyPoints as point, index (`point-${index}`)}
           <li>{point}</li>
         {/each}
       </ul>

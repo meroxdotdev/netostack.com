@@ -29,7 +29,7 @@
             {#if type.codes}
               <div><strong>Common Codes:</strong></div>
               <ul>
-                {#each type.codes as code, index (`code-${code.code}-${index}`)
+                {#each type.codes as code, index (`code-${code.code}-${index}`)}
                   <li>Code {code.code}: {code.meaning}</li>
                 {/each}
               </ul>
@@ -41,7 +41,7 @@
 
     <div class="ref-section">
       <h2>Common ICMPv6 Types</h2>
-      {#each icmpContent.icmpv6Types as type}
+      {#each icmpContent.icmpv6Types as type, index (`${type.type}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">Type {type.type}: {type.name}</div>
           <div class="example-item">
@@ -52,7 +52,7 @@
             {#if type.codes}
               <div><strong>Common Codes:</strong></div>
               <ul>
-                {#each type.codes as code, index (`code-${code.code}-${index}`)
+                {#each type.codes as code, index (`code-${code.code}-${index}`)}
                   <li>Code {code.code}: {code.meaning}</li>
                 {/each}
               </ul>
@@ -64,7 +64,7 @@
 
     <div class="ref-section">
       <h2>Practical Troubleshooting Scenarios</h2>
-      {#each icmpContent.practicalExamples as scenario}
+      {#each icmpContent.practicalExamples as scenario, index (`${scenario.scenario}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="search" size="sm" />
@@ -74,7 +74,7 @@
             <p><strong>ICMP Types Involved:</strong> {scenario.icmpTypes.join(', ')}</p>
             <p><strong>What to Check:</strong></p>
             <ul>
-              {#each scenario.whatToCheck as check}
+              {#each scenario.whatToCheck as check, index (`check-${index}`)}
                 <li>{check}</li>
               {/each}
             </ul>
@@ -86,7 +86,7 @@
 
     <div class="ref-section">
       <h2>Common ICMP Filtering Issues</h2>
-      {#each icmpContent.filteringIssues as issue}
+      {#each icmpContent.filteringIssues as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{issue.issue}</div>
           <div class="example-item">
@@ -109,7 +109,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each icmpContent.troubleshootingCommands as cmd}
+          {#each icmpContent.troubleshootingCommands as cmd, index (`${cmd.purpose}-${index}`)}
             <tr>
               <td><code>{cmd.command}</code></td>
               <td>{cmd.purpose}</td>
@@ -123,7 +123,7 @@
     <div class="ref-section">
       <h2>Best Practices for ICMP</h2>
       <ul>
-        {#each icmpContent.bestPractices as practice}
+        {#each icmpContent.bestPractices as practice, index (`practice-${index}`)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -135,14 +135,14 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Always Allow These</div>
-          {#each icmpContent.quickReference.mustAllow as type}
+          {#each icmpContent.quickReference.mustAllow as type, index (`must-${index}`)}
             <div class="item-code">{type}</div>
           {/each}
         </div>
 
         <div class="grid-item">
           <div class="item-title">Never Filter These</div>
-          {#each icmpContent.quickReference.neverFilter as type}
+          {#each icmpContent.quickReference.neverFilter as type, index (`never-${index}`)}
             <div class="item-code">{type}</div>
           {/each}
           <div class="item-description">Critical for proper network operation</div>
@@ -154,7 +154,7 @@
       <h2>Common Mistakes to Avoid</h2>
       <div class="ref-examples">
         <div class="examples-title">Don't Do These</div>
-        {#each icmpContent.commonMistakes as mistake}
+        {#each icmpContent.commonMistakes as mistake, index (`mistake-${index}`)}
           <div class="example-item">
             <div class="example-description">{mistake}</div>
           </div>

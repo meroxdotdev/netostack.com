@@ -60,7 +60,7 @@
       <h2>Multicast Address Scopes</h2>
       <p>All multicast addresses start with <code>ff</code>. The second byte indicates scope:</p>
 
-      {#each ipv6AddressTypesContent.multicastTypes as scope}
+      {#each ipv6AddressTypesContent.multicastTypes as scope, index (`${scope.scope}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{scope.scope} Scope</div>
           <div class="example-item">
@@ -68,7 +68,7 @@
             <div><strong>Description:</strong> {scope.description}</div>
             {#if scope.examples.length > 0}
               <div><strong>Common Addresses:</strong></div>
-              {#each scope.examples as example}
+              {#each scope.examples as example, index (`example-${index}`)}
                 <div class="example-input">{example}</div>
               {/each}
             {/if}
@@ -93,7 +93,7 @@
 
       <h3>Common Anycast Uses</h3>
       <ul>
-        {#each ipv6AddressTypesContent.anycast.commonUses as use}
+        {#each ipv6AddressTypesContent.anycast.commonUses as use, index (`use-${index}`)}
           <li>{use}</li>
         {/each}
       </ul>
@@ -109,7 +109,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6AddressTypesContent.reservedRanges as range}
+          {#each ipv6AddressTypesContent.reservedRanges as range, index (`${range.range}-${index}`)}
             <tr>
               <td><code>{range.prefix}</code></td>
               <td>{range.purpose}</td>
@@ -123,7 +123,7 @@
       <h2>Quick Recognition Tips</h2>
       <div class="ref-examples">
         <div class="examples-title">Remember These Patterns</div>
-        {#each ipv6AddressTypesContent.quickTips as tip}
+        {#each ipv6AddressTypesContent.quickTips as tip, index (`tip-${index}`)}
           <div class="example-item">
             <div class="example-description">{tip}</div>
           </div>

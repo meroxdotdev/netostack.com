@@ -18,7 +18,7 @@
 
     <div class="ref-section">
       <h2>Private IP Address Ranges (RFC 1918)</h2>
-      {#each privateVsPublicContent.privateRanges as range}
+      {#each privateVsPublicContent.privateRanges as range, index (`${range.name}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{range.range} - {range.class}</div>
           <div class="example-item">
@@ -26,7 +26,7 @@
             <div><strong>Total Addresses:</strong> {range.addresses}</div>
             <div><strong>Common Use:</strong> {range.commonUse}</div>
             <div><strong>Examples:</strong></div>
-            {#each range.examples as example}
+            {#each range.examples as example, index (`example-${index}`)}
               <code class="example-input">{example}</code>
             {/each}
           </div>
@@ -40,7 +40,7 @@
 
       <h3>Characteristics</h3>
       <ul>
-        {#each privateVsPublicContent.publicRanges.characteristics as characteristic}
+        {#each privateVsPublicContent.publicRanges.characteristics as characteristic, index (`char-${index}`)}
           <li>{characteristic}</li>
         {/each}
       </ul>
@@ -54,7 +54,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each privateVsPublicContent.publicRanges.examples as example}
+          {#each privateVsPublicContent.publicRanges.examples as example, index (`public-example-${index}`)}
             <tr>
               <td><code>{example.ip}</code></td>
               <td>{example.owner}</td>
@@ -74,14 +74,14 @@
 
           <h4>Process:</h4>
           <ol>
-            {#each privateVsPublicContent.natImplications.privateToPublic.process as step}
+            {#each privateVsPublicContent.natImplications.privateToPublic.process as step, index (`nat-step-${index}`)}
               <li>{step}</li>
             {/each}
           </ol>
 
           <h4>Benefits:</h4>
           <ul>
-            {#each privateVsPublicContent.natImplications.privateToPublic.benefits as benefit}
+            {#each privateVsPublicContent.natImplications.privateToPublic.benefits as benefit, index (`benefit-${index}`)}
               <li>{benefit}</li>
             {/each}
           </ul>
@@ -93,14 +93,14 @@
 
           <h4>Challenges:</h4>
           <ul>
-            {#each privateVsPublicContent.natImplications.publicToPrivate.challenges as challenge}
+            {#each privateVsPublicContent.natImplications.publicToPrivate.challenges as challenge, index (`challenge-${index}`)}
               <li>{challenge}</li>
             {/each}
           </ul>
 
           <h4>Solutions:</h4>
           <ul>
-            {#each privateVsPublicContent.natImplications.publicToPrivate.solutions as solution}
+            {#each privateVsPublicContent.natImplications.publicToPrivate.solutions as solution, index (`solution-${index}`)}
               <li>{solution}</li>
             {/each}
           </ul>
@@ -121,7 +121,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each privateVsPublicContent.identification.quickCheck as method}
+          {#each privateVsPublicContent.identification.quickCheck as method, index (`method-${index}`)}
             <tr>
               <td><strong>{method.method}</strong></td>
               <td>{method.description}</td>
@@ -134,7 +134,7 @@
 
       <h3>Useful Tools</h3>
       <div class="ref-grid two-col">
-        {#each privateVsPublicContent.identification.tools as tool}
+        {#each privateVsPublicContent.identification.tools as tool, index (`${tool.name}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{tool.tool}</div>
             <div class="item-description">{tool.purpose}</div>
@@ -145,7 +145,7 @@
 
     <div class="ref-section">
       <h2>Common Network Scenarios</h2>
-      {#each privateVsPublicContent.commonScenarios as scenario}
+      {#each privateVsPublicContent.commonScenarios as scenario, index (`${scenario.scenario}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{scenario.scenario}</div>
           <div class="example-item">
@@ -160,7 +160,7 @@
 
     <div class="ref-section">
       <h2>Troubleshooting Common Issues</h2>
-      {#each privateVsPublicContent.troubleshooting as issue}
+      {#each privateVsPublicContent.troubleshooting as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="help-circle" size="sm" />
@@ -177,12 +177,12 @@
 
     <div class="ref-section">
       <h2>Security Considerations</h2>
-      {#each privateVsPublicContent.securityConsiderations as security}
+      {#each privateVsPublicContent.securityConsiderations as security, index (`${security.aspect}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{security.aspect}</div>
           <div class="example-item">
             <ul>
-              {#each security.considerations as consideration}
+              {#each security.considerations as consideration, index (`consideration-${index}`)}
                 <li>{consideration}</li>
               {/each}
             </ul>
@@ -194,7 +194,7 @@
     <div class="ref-section">
       <h2>Best Practices</h2>
       <ul>
-        {#each privateVsPublicContent.bestPractices as practice}
+        {#each privateVsPublicContent.bestPractices as practice, index (`practice-${index}`)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -206,14 +206,14 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Private IP Ranges</div>
-          {#each privateVsPublicContent.quickReference.privateRanges as range}
+          {#each privateVsPublicContent.quickReference.privateRanges as range, index (`qr-range-${index}`)}
             <div class="item-code">{range}</div>
           {/each}
         </div>
 
         <div class="grid-item">
           <div class="item-title">Identification Tips</div>
-          {#each privateVsPublicContent.quickReference.identificationTips as tip}
+          {#each privateVsPublicContent.quickReference.identificationTips as tip, index (`qr-tip-${index}`)}
             <div class="item-description">{tip}</div>
           {/each}
         </div>

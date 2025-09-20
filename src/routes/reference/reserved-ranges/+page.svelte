@@ -11,7 +11,7 @@
   </header>
 
   <div class="reference-section fade-in">
-    {#each Object.entries(RESERVED_RANGES) as [rangeName, rangeInfo]}
+    {#each Object.entries(RESERVED_RANGES) as [rangeName, rangeInfo] (rangeName)}
       <Tooltip text={`${rangeInfo.description} — Defined in ${rangeInfo.rfc}`} position="top">
         <div class="reference-card">
           <div class="card-header-inline">

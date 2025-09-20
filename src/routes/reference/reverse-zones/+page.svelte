@@ -36,7 +36,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each reverseZonesContent.ipv4Zones.classfullBoundaries as boundary}
+          {#each reverseZonesContent.ipv4Zones.classfullBoundaries as boundary, index (`${boundary.network}-${index}`)}
             <tr>
               <td><code>{boundary.cidr}</code></td>
               <td><code>{boundary.example}</code></td>
@@ -49,7 +49,7 @@
       </table>
 
       <h3>Classless Delegation (CNAME Method)</h3>
-      {#each reverseZonesContent.ipv4Zones.classlessDelegation as delegation}
+      {#each reverseZonesContent.ipv4Zones.classlessDelegation as delegation, index (`${delegation.network}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{delegation.cidr} - {delegation.example}</div>
           <div class="example-item">
@@ -57,7 +57,7 @@
             <div><strong>Problem:</strong> {delegation.problem}</div>
             <div><strong>Solution:</strong> {delegation.solution}</div>
             <div><strong>Zone Names:</strong></div>
-            {#each delegation.zones as zone}
+            {#each delegation.zones as zone, index (`zone-${index}`)}
               <code class="example-input">{zone}</code>
             {/each}
           </div>
@@ -65,7 +65,7 @@
       {/each}
 
       <h3>Practical IPv4 Examples</h3>
-      {#each reverseZonesContent.ipv4Zones.practicalExamples as example}
+      {#each reverseZonesContent.ipv4Zones.practicalExamples as example, index (`${example.network}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{example.scenario}</div>
           <div class="example-item">
@@ -73,13 +73,13 @@
             <div><strong>Reverse Zone:</strong> <code>{example.reverseZone}</code></div>
             {#if example.reverseZones}
               <div><strong>Reverse Zones:</strong></div>
-              {#each example.reverseZones as zone}
+              {#each example.reverseZones as zone, index (`rz-${index}`)}
                 <code class="example-input">{zone}</code>
               {/each}
               <div><strong>Description:</strong> {example.description}</div>
             {:else}
               <div><strong>PTR Records:</strong></div>
-              {#each example.ptrRecords as record}
+              {#each example.ptrRecords as record, index (`ptr-${index}`)}
                 <code class="example-input">{record}</code>
               {/each}
             {/if}
@@ -104,7 +104,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each reverseZonesContent.ipv6Zones.nibbleBoundaries as boundary}
+          {#each reverseZonesContent.ipv6Zones.nibbleBoundaries as boundary, index (`${boundary.prefix}-${index}`)}
             <tr>
               <td><code>{boundary.cidr}</code></td>
               <td><code>{boundary.example}</code></td>
@@ -117,14 +117,14 @@
       </table>
 
       <h3>Practical IPv6 Examples</h3>
-      {#each reverseZonesContent.ipv6Zones.practicalExamples as example}
+      {#each reverseZonesContent.ipv6Zones.practicalExamples as example, index (`${example.network}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{example.scenario}</div>
           <div class="example-item">
             <div><strong>Network:</strong> <code>{example.network}</code></div>
             <div><strong>Master Zone:</strong> <code>{example.reverseZone}</code></div>
             <div><strong>Sub-zones:</strong></div>
-            {#each example.subZones as zone}
+            {#each example.subZones as zone, index (`subzone-${index}`)}
               <code class="example-input">{zone}</code>
             {/each}
             <div><strong>Management:</strong> {example.management}</div>
@@ -146,7 +146,7 @@
 
           <h4>Explanation:</h4>
           <ul>
-            {#each reverseZonesContent.zoneCreation.ipv4Example.explanation as point}
+            {#each reverseZonesContent.zoneCreation.ipv4Example.explanation as point, index (`ipv4-point-${index}`)}
               <li>{point}</li>
             {/each}
           </ul>
@@ -161,7 +161,7 @@
 
           <h4>Explanation:</h4>
           <ul>
-            {#each reverseZonesContent.zoneCreation.ipv6Example.explanation as point}
+            {#each reverseZonesContent.zoneCreation.ipv6Example.explanation as point, index (`ipv6-point-${index}`)}
               <li>{point}</li>
             {/each}
           </ul>
@@ -171,7 +171,7 @@
 
     <div class="ref-section">
       <h2>Delegation Scenarios</h2>
-      {#each reverseZonesContent.delegationScenarios as scenario}
+      {#each reverseZonesContent.delegationScenarios as scenario, index (`${scenario.scenario}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{scenario.scenario}</div>
           <div class="example-item">
@@ -180,21 +180,21 @@
             {#if scenario.customerActions}
               <div><strong>Customer Actions:</strong></div>
               <ul>
-                {#each scenario.customerActions as action}
+                {#each scenario.customerActions as action, index (`customer-${index}`)}
                   <li>{action}</li>
                 {/each}
               </ul>
 
               <div><strong>ISP Actions:</strong></div>
               <ul>
-                {#each scenario.ispActions as action}
+                {#each scenario.ispActions as action, index (`isp-${index}`)}
                   <li>{action}</li>
                 {/each}
               </ul>
             {:else}
               <div><strong>Process:</strong></div>
               <ol>
-                {#each scenario.process as step}
+                {#each scenario.process as step, index (`process-${index}`)}
                   <li>{step}</li>
                 {/each}
               </ol>
@@ -206,7 +206,7 @@
 
     <div class="ref-section">
       <h2>Troubleshooting</h2>
-      {#each reverseZonesContent.troubleshooting as issue}
+      {#each reverseZonesContent.troubleshooting as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="help-circle" size="sm" />
@@ -224,7 +224,7 @@
     <div class="ref-section">
       <h2>Best Practices</h2>
       <ul>
-        {#each reverseZonesContent.bestPractices as practice}
+        {#each reverseZonesContent.bestPractices as practice, index (`practice-${index}`)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -236,14 +236,14 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Zone Name Formulas</div>
-          {#each reverseZonesContent.quickReference.zoneFormulas as formula}
+          {#each reverseZonesContent.quickReference.zoneFormulas as formula, index (`${formula.mask}-${index}`)}
             <div class="item-code">{formula}</div>
           {/each}
         </div>
 
         <div class="grid-item">
           <div class="item-title">Essential Records</div>
-          {#each reverseZonesContent.quickReference.essentialRecords as record}
+          {#each reverseZonesContent.quickReference.essentialRecords as record, index (`${record.type}-${index}`)}
             <div class="item-description">{record}</div>
           {/each}
         </div>
@@ -264,7 +264,7 @@
     <div class="ref-section">
       <h2>Testing Tools</h2>
       <div class="ref-grid two-col">
-        {#each reverseZonesContent.tools as tool}
+        {#each reverseZonesContent.tools as tool, index (`${tool.name}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{tool.tool}</div>
             <div class="item-description">{tool.purpose}</div>

@@ -24,7 +24,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each specialIPv4Content.ranges as range (range.network)}
+          {#each specialIPv4Content.ranges as range, rangeIdx (`${range.network}-${rangeIdx}`)}
             <tr>
               <td><code>{range.network}</code></td>
               <td>{range.purpose}</td>
@@ -49,7 +49,7 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Private Networks (RFC 1918)</div>
-          {#each specialIPv4Content.categories.private as network (network.cidr)}
+          {#each specialIPv4Content.categories.private as network, privIdx (`${network}-${privIdx}`)}
             <div class="item-code">{network}</div>
           {/each}
           <div class="item-description">Never routed on the public internet</div>
@@ -57,7 +57,7 @@
 
         <div class="grid-item">
           <div class="item-title">Test Networks (RFC 5737)</div>
-          {#each specialIPv4Content.categories.testing as network (network.cidr)}
+          {#each specialIPv4Content.categories.testing as network, testIdx (`${network}-${testIdx}`)}
             <div class="item-code">{network}</div>
           {/each}
           <div class="item-description">Safe for documentation and examples</div>
@@ -65,7 +65,7 @@
 
         <div class="grid-item">
           <div class="item-title">Carrier-Grade NAT</div>
-          {#each specialIPv4Content.categories.cgnat as network (network.cidr)}
+          {#each specialIPv4Content.categories.cgnat as network, cgnatIdx (`${network}-${cgnatIdx}`)}
             <div class="item-code">{network}</div>
           {/each}
           <div class="item-description">ISP shared addressing space</div>
@@ -73,7 +73,7 @@
 
         <div class="grid-item">
           <div class="item-title">Special Purpose</div>
-          {#each specialIPv4Content.categories.special as network (network.cidr)}
+          {#each specialIPv4Content.categories.special as network, specIdx (`${network}-${specIdx}`)}
             <div class="item-code">{network}</div>
           {/each}
           <div class="item-description">Loopback, link-local, multicast</div>
@@ -85,7 +85,7 @@
       <h2>Quick Recognition Tips</h2>
       <div class="ref-examples">
         <div class="examples-title">What Each Range Means</div>
-        {#each specialIPv4Content.quickTips as tip (tip)}
+        {#each specialIPv4Content.quickTips as tip, tipIdx (`${tip}-${tipIdx}`)}
           <div class="example-item">
             <div class="example-description">{tip}</div>
           </div>

@@ -40,7 +40,7 @@
       <div class="ref-grid three-col">
         <div class="grid-item">
           <div class="item-title">{ipv6PrefixLengthsContent.usageGuidelines.residential.title}</div>
-          {#each ipv6PrefixLengthsContent.usageGuidelines.residential.allocations as alloc}
+          {#each ipv6PrefixLengthsContent.usageGuidelines.residential.allocations as alloc, index (`residential-${index}`)}
             <div class="item-code">{alloc.size}</div>
             <div class="item-description">{alloc.description}</div>
           {/each}
@@ -48,7 +48,7 @@
 
         <div class="grid-item">
           <div class="item-title">{ipv6PrefixLengthsContent.usageGuidelines.enterprise.title}</div>
-          {#each ipv6PrefixLengthsContent.usageGuidelines.enterprise.allocations as alloc}
+          {#each ipv6PrefixLengthsContent.usageGuidelines.enterprise.allocations as alloc, index (`enterprise-${index}`)}
             <div class="item-code">{alloc.size}</div>
             <div class="item-description">{alloc.description}</div>
           {/each}
@@ -56,7 +56,7 @@
 
         <div class="grid-item">
           <div class="item-title">{ipv6PrefixLengthsContent.usageGuidelines.subnets.title}</div>
-          {#each ipv6PrefixLengthsContent.usageGuidelines.subnets.allocations as alloc}
+          {#each ipv6PrefixLengthsContent.usageGuidelines.subnets.allocations as alloc, index (`subnets-${index}`)}
             <div class="item-code">{alloc.size}</div>
             <div class="item-description">{alloc.description}</div>
           {/each}
@@ -75,7 +75,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6PrefixLengthsContent.comparison.mappings as mapping}
+          {#each ipv6PrefixLengthsContent.comparison.mappings as mapping, index (`${mapping.prefix}-${index}`)}
             <tr>
               <td><code>{mapping.ipv4}</code></td>
               <td><code>{mapping.ipv6}</code></td>
@@ -97,7 +97,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6PrefixLengthsContent.quickReference as row}
+          {#each ipv6PrefixLengthsContent.quickReference as row, index (`${row.prefix}-${index}`)}
             <tr>
               <td><code>{row.prefix}</code></td>
               <td>{row.subnets}</td>
@@ -111,7 +111,7 @@
     <div class="ref-section">
       <h2>Best Practices</h2>
       <ul>
-        {#each ipv6PrefixLengthsContent.bestPractices as practice}
+        {#each ipv6PrefixLengthsContent.bestPractices as practice, index (`practice-${index}`)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -132,7 +132,7 @@
       <h2>Planning Tips</h2>
       <div class="ref-examples">
         <div class="examples-title">Remember These</div>
-        {#each ipv6PrefixLengthsContent.tips as tip}
+        {#each ipv6PrefixLengthsContent.tips as tip, index (`tip-${index}`)}
           <div class="example-item">
             <div class="example-description">{tip}</div>
           </div>

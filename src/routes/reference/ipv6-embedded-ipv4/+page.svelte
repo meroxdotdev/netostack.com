@@ -40,7 +40,7 @@
             {/each}
             <div><strong>Usage:</strong></div>
             <ul>
-              {#each mechanism.usage as use}
+              {#each mechanism.usage as use, index (`use-${index}`)}
                 <li>{use}</li>
               {/each}
             </ul>
@@ -61,7 +61,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6EmbeddedIPv4Content.recognition.patterns as pattern}
+          {#each ipv6EmbeddedIPv4Content.recognition.patterns as pattern, index (`${pattern.type}-${index}`)}
             <tr>
               <td><code>{pattern.pattern}</code></td>
               <td>{pattern.meaning}</td>
@@ -85,7 +85,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6EmbeddedIPv4Content.conversion.examples as example}
+          {#each ipv6EmbeddedIPv4Content.conversion.examples as example, index (`${example.ipv4}-${index}`)}
             <tr>
               <td><code>{example.ipv4}</code></td>
               <td><code>{example.hex}</code></td>
@@ -109,7 +109,7 @@
     <div class="ref-section">
       <h2>Modern Usage Guidelines</h2>
       <ul>
-        {#each ipv6EmbeddedIPv4Content.modernUsage as guideline}
+        {#each ipv6EmbeddedIPv4Content.modernUsage as guideline, index (`guideline-${index}`)}
           <li>{guideline}</li>
         {/each}
       </ul>
@@ -117,7 +117,7 @@
 
     <div class="ref-section">
       <h2>Common Troubleshooting Issues</h2>
-      {#each ipv6EmbeddedIPv4Content.troubleshooting as issue}
+      {#each ipv6EmbeddedIPv4Content.troubleshooting as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="help-circle" size="sm" />
@@ -135,7 +135,7 @@
       <h2>Security Considerations</h2>
       <div class="ref-examples">
         <div class="examples-title">Important Security Notes</div>
-        {#each ipv6EmbeddedIPv4Content.securityNotes as note}
+        {#each ipv6EmbeddedIPv4Content.securityNotes as note, index (`note-${index}`)}
           <div class="example-item">
             <div class="example-description">{note}</div>
           </div>

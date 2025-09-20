@@ -33,12 +33,12 @@
 
     <div class="ref-section">
       <h2>Summarization Examples</h2>
-      {#each supernetContent.examples as example (example.title)}
+      {#each supernetContent.examples as example, exIdx (`${example.title}-${exIdx}`)}
         <div class="ref-examples">
           <div class="examples-title">{example.title}</div>
           <div class="example-item">
             <div><strong>Individual Networks:</strong></div>
-            {#each example.networks as network (network)}
+            {#each example.networks as network, netIdx (`${network}-${netIdx}`)}
               <div class="example-input">{network}</div>
             {/each}
             <div class="example-arrow">↓ Summarizes to ↓</div>
@@ -52,7 +52,7 @@
     <div class="ref-section">
       <h2>{supernetContent.stepByStep.title}</h2>
       <ol>
-        {#each supernetContent.stepByStep.steps as step (step.title)}
+        {#each supernetContent.stepByStep.steps as step, stepIdx (`${step}-${stepIdx}`)}
           <li>{step}</li>
         {/each}
       </ol>
@@ -70,7 +70,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each supernetContent.binaryExample.binary as row (row.network)}
+          {#each supernetContent.binaryExample.binary as row, rowIdx (`${row.network}-${rowIdx}`)}
             <tr>
               <td><code>{row.network}</code></td>
               <td><code>{row.binary}</code></td>
@@ -93,7 +93,7 @@
     <div class="ref-section">
       <h2>Benefits of Route Summarization</h2>
       <ul>
-        {#each supernetContent.benefits as benefit (benefit)}
+        {#each supernetContent.benefits as benefit, benIdx (`${benefit}-${benIdx}`)}
           <li>{benefit}</li>
         {/each}
       </ul>
@@ -101,7 +101,7 @@
 
     <div class="ref-section">
       <h2>Common Pitfalls</h2>
-      {#each supernetContent.pitfalls as pitfall (pitfall.title)}
+      {#each supernetContent.pitfalls as pitfall, pitIdx (`${pitfall.title}-${pitIdx}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="alert-triangle" size="sm" />
@@ -126,7 +126,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each supernetContent.quickReference as row (row.networks)}
+          {#each supernetContent.quickReference as row, refIdx (`${row.networks}-${refIdx}`)}
             <tr>
               <td>{row.networks}</td>
               <td><code>{row.summary}</code></td>

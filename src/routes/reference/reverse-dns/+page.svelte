@@ -26,13 +26,13 @@
 
       <h3>Process Steps</h3>
       <ol>
-        {#each reverseDnsContent.ipv4Reverse.process as step}
+        {#each reverseDnsContent.ipv4Reverse.process as step, index (`ipv4-process-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
 
       <h3>IPv4 Examples</h3>
-      {#each reverseDnsContent.ipv4Reverse.examples as example}
+      {#each reverseDnsContent.ipv4Reverse.examples as example, index (`${example.ip}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">IP Address: {example.ip}</div>
           <div class="example-item">
@@ -54,7 +54,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each reverseDnsContent.ipv4Reverse.delegation.examples as example}
+          {#each reverseDnsContent.ipv4Reverse.delegation.examples as example, index (`delegation-${index}`)}
             <tr>
               <td><code>{example.network}</code></td>
               <td><code>{example.zone}</code></td>
@@ -70,13 +70,13 @@
 
       <h3>Process Steps</h3>
       <ol>
-        {#each reverseDnsContent.ipv6Reverse.process as step}
+        {#each reverseDnsContent.ipv6Reverse.process as step, index (`ipv6-process-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
 
       <h3>IPv6 Examples</h3>
-      {#each reverseDnsContent.ipv6Reverse.examples as example}
+      {#each reverseDnsContent.ipv6Reverse.examples as example, index (`${example.ip}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">IP Address: {example.ip}</div>
           <div class="example-item">
@@ -116,7 +116,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each reverseDnsContent.practicalExamples.digExamples as example}
+          {#each reverseDnsContent.practicalExamples.digExamples as example, index (`dig-${index}`)}
             <tr>
               <td><code>{example.command}</code></td>
               <td>{example.description}</td>
@@ -128,7 +128,7 @@
 
       <h3>Common Use Cases</h3>
       <ul>
-        {#each reverseDnsContent.practicalExamples.commonChecks as check}
+        {#each reverseDnsContent.practicalExamples.commonChecks as check, index (`check-${index}`)}
           <li>{check}</li>
         {/each}
       </ul>
@@ -136,7 +136,7 @@
 
     <div class="ref-section">
       <h2>Troubleshooting Common Issues</h2>
-      {#each reverseDnsContent.troubleshooting as issue}
+      {#each reverseDnsContent.troubleshooting as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="help-circle" size="sm" />
@@ -153,7 +153,7 @@
     <div class="ref-section">
       <h2>Best Practices</h2>
       <ul>
-        {#each reverseDnsContent.bestPractices as practice}
+        {#each reverseDnsContent.bestPractices as practice, index (`practice-${index}`)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -165,14 +165,14 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">IPv4 Quick Examples</div>
-          {#each reverseDnsContent.quickReference.ipv4 as example}
+          {#each reverseDnsContent.quickReference.ipv4 as example, index (`qr-ipv4-${index}`)}
             <div class="item-code">{example}</div>
           {/each}
         </div>
 
         <div class="grid-item">
           <div class="item-title">IPv6 Quick Examples</div>
-          {#each reverseDnsContent.quickReference.ipv6 as example}
+          {#each reverseDnsContent.quickReference.ipv6 as example, index (`qr-ipv6-${index}`)}
             <div class="item-code">{example}</div>
           {/each}
         </div>
@@ -180,7 +180,7 @@
 
       <h3>Useful Tools</h3>
       <div class="ref-grid two-col">
-        {#each reverseDnsContent.tools as tool}
+        {#each reverseDnsContent.tools as tool, index (`${tool.name}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{tool.name}</div>
             <div class="item-description">{tool.description}</div>
