@@ -18,7 +18,7 @@
 
     <div class="ref-section">
       <h2>Unicast Address Types</h2>
-      {#each ipv6AddressTypesContent.unicastTypes as type}
+      {#each ipv6AddressTypesContent.unicastTypes as type, index (`${type.type}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{type.type}</div>
           <div class="example-item">
@@ -44,7 +44,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6AddressTypesContent.specialAddresses as addr}
+          {#each ipv6AddressTypesContent.specialAddresses as addr, index (`${addr.address}-${index}`)}
             <tr>
               <td><code>{addr.address}</code></td>
               <td>{addr.name}</td>

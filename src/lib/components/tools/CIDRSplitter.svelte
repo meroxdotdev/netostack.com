@@ -66,7 +66,7 @@
   }
 
   /* Clear example selection when input changes */
-  function clearExampleSelection() {
+  function _clearExampleSelection() {
     selectedExampleIndex = null;
   }
 
@@ -107,15 +107,26 @@
     } catch (error) {
       result = {
         subnets: [],
-        stats: {} as any,
-        visualization: {} as any,
+        stats: {
+          parentCIDR: '',
+          childCount: 0,
+          childPrefix: 0,
+          addressesPerChild: '0',
+          totalAddressesCovered: '0',
+          utilizationPercent: 0,
+        },
+        visualization: {
+          parentStart: 0n,
+          parentEnd: 0n,
+          childRanges: [],
+        },
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
 
   /* Calculate visualization bar width percentage */
-  function getBarWidth(childRange: any): number {
+  function getBarWidth(childRange: { start: bigint; end: bigint; cidr: string; size: bigint }): number {
     if (!result?.visualization) return 0;
     const parentSize = result.visualization.parentEnd - result.visualization.parentStart + 1n;
     const childSize = childRange.size;
@@ -123,7 +134,7 @@
   }
 
   /* Calculate visualization bar offset percentage */
-  function getBarOffset(childRange: any): number {
+  function getBarOffset(childRange: { start: bigint; end: bigint; cidr: string; size: bigint }): number {
     if (!result?.visualization) return 0;
     const parentSize = result.visualization.parentEnd - result.visualization.parentStart + 1n;
     const offset = childRange.start - result.visualization.parentStart;
@@ -131,7 +142,7 @@
   }
 
   /* Generate tooltip text for subnet segment */
-  function getSubnetTooltipText(childRange: any): string {
+  function getSubnetTooltipText(childRange: { start: bigint; end: bigint; cidr: string; size: bigint }): string {
     if (!result?.subnets) return childRange.cidr;
 
     const subnet = result.subnets.find((s) => s.cidr === childRange.cidr);
@@ -172,7 +183,7 @@
   <div class="mode-section">
     <h3>Split Mode</h3>
     <div class="tabs">
-      {#each modes as modeOption}
+      {#each modes as modeOption (modeOption.value)}
         <button
           type="button"
           class="tab"
@@ -236,7 +247,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (example.label)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -308,7 +319,7 @@
         <div class="visualization-section">
           <h4>Address Space Visualization</h4>
           <div class="address-bar">
-            {#each result.visualization.childRanges as childRange}
+            {#each result.visualization.childRanges as childRange (childRange.cidr)}
               <div
                 class="subnet-segment"
                 style="width: {getBarWidth(childRange)}%; left: {getBarOffset(childRange)}%"
@@ -322,7 +333,7 @@
         <div class="subnets-section">
           <h4>Child Subnets</h4>
           <div class="subnets-grid">
-            {#each result.subnets as subnet}
+            {#each result.subnets as subnet (subnet.cidr)}
               <div class="subnet-card">
                 <div class="subnet-header">
                   <code class="subnet-cidr">{subnet.cidr}</code>

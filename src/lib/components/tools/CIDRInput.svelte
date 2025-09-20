@@ -24,8 +24,6 @@
 
   let validation: ValidationResult = $state({ valid: true });
   let focused = $state(false);
-  let activePreset = $state<number | null>(null);
-
   /**
    * Check if current value matches a preset
    */
@@ -35,10 +33,8 @@
     return cidrPresets.find((p) => p.cidr === currentCidr)?.cidr || null;
   }
 
-  // Initialize active preset on load
-  $effect(() => {
-    activePreset = getActivePreset();
-  });
+  // Derive active preset from current value
+  const activePreset = $derived(getActivePreset());
 
   /**
    * Validates CIDR input on change
@@ -47,7 +43,6 @@
     const target = event.target as HTMLInputElement;
     value = target.value;
     validation = validateCIDR(value);
-    activePreset = getActivePreset();
   }
 
   /**
@@ -75,7 +70,6 @@
       value = `${value}/${cidr}`;
     }
     validation = validateCIDR(value);
-    activePreset = cidr;
   }
 </script>
 
@@ -129,7 +123,7 @@
   <div class="presets-section">
     <p class="presets-label">Quick presets:</p>
     <div class="presets-grid">
-      {#each cidrPresets as preset}
+      {#each cidrPresets as preset (preset.cidr)}
         <Tooltip text="Apply {preset.label} - {preset.hosts}" position="top">
           <button
             type="button"

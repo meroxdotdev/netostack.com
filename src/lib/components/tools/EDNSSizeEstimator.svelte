@@ -147,7 +147,7 @@
     results = estimateEDNSSize(queryName, queryType, recordsToEstimate);
   }
 
-  function formatBytes(bytes: number): string {
+  function _formatBytes(bytes: number): string {
     if (bytes === 0) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB'];
@@ -240,7 +240,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
         <h3>Response Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (index)}
           <button
             class="example-card {activeExampleIndex === index ? 'active' : ''}"
             onclick={() => loadExample(example, index)}
@@ -293,7 +293,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
               Query Type
             </label>
             <select id="query-type" bind:value={queryType} onchange={handleInputChange} class="query-select">
-              {#each recordTypes as type}
+              {#each recordTypes as type (type)}
                 <option value={type}>{type}</option>
               {/each}
             </select>
@@ -314,7 +314,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     </div>
 
     <div class="records-list">
-      {#each records as record, index}
+      {#each records as record, index (index)}
         <div class="record-item">
           <div class="record-fields">
             <div class="field-group">
@@ -334,7 +334,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
                 bind:value={record.type}
                 onchange={() => updateRecord(index, 'type', record.type)}
               >
-                {#each recordTypes as type}
+                {#each recordTypes as type (type)}
                   <option value={type}>{type}</option>
                 {/each}
               </select>
@@ -474,7 +474,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
               Recommendations
             </h4>
             <ul class="recommendations-list">
-              {#each results.recommendations as recommendation}
+              {#each results.recommendations as recommendation (recommendation)}
                 <li class="recommendation-item">{recommendation}</li>
               {/each}
 

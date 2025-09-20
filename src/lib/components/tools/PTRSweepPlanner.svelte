@@ -18,7 +18,7 @@
 
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -63,7 +63,7 @@
     existingPTRsInput = example.ptrs;
     namingPattern = example.pattern;
     selectedExample = example.label;
-    userModified = false;
+    _userModified = false;
     analyzeCoverage();
   }
 
@@ -104,7 +104,7 @@
   }
 
   function handleInputChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     analyzeCoverage();
   }
@@ -121,7 +121,7 @@
     }
   }
 
-  function generateDigCommands(missingPTRs: string[]): string {
+  function _generateDigCommands(missingPTRs: string[]): string {
     return missingPTRs
       .slice(0, 20)
       .map(
@@ -192,7 +192,7 @@
         <h3>Quick Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example, idx (`${example.label}-${idx}`)}
           <button
             class="example-card {selectedExample === example.label ? 'active' : ''}"
             onclick={() => loadExample(example)}
@@ -268,7 +268,7 @@
       <div class="pattern-help">
         <h4>Common Patterns:</h4>
         <div class="pattern-examples">
-          {#each patternHelp as item}
+          {#each patternHelp as item, helpIdx (`${item.title}-${helpIdx}`)}
             <button
               class="pattern-example"
               onclick={() => {
@@ -354,7 +354,7 @@
               </div>
 
               <div class="records-list">
-                {#each results.analysis.missingPTRs.slice(0, 20) as ptr}
+                {#each results.analysis.missingPTRs.slice(0, 20) as ptr, index (`missing-${ptr}-${index}`)}
                   <div class="record-item missing">
                     <code>{ptr}</code>
                   </div>
@@ -386,7 +386,7 @@
               </div>
 
               <div class="records-list">
-                {#each results.analysis.extraPTRs.slice(0, 10) as ptr}
+                {#each results.analysis.extraPTRs.slice(0, 10) as ptr, index (`extra-${ptr}-${index}`)}
                   <div class="record-item extra">
                     <code>{ptr}</code>
                   </div>

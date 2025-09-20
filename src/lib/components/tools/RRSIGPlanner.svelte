@@ -5,7 +5,7 @@
     formatRRSIGDates,
     validateRRSIGTiming,
     type RRSIGPlanningOptions,
-    type RRSIGWindow,
+    type _RRSIGWindow,
   } from '$lib/utils/dnssec';
 
   let ttl = $state(3600);
@@ -198,7 +198,7 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
         <div>
           <strong>Timing Warnings:</strong>
           <ul class="warning-list">
-            {#each currentValidation.warnings as warning}
+            {#each currentValidation.warnings as warning, index (index)}
               <li>{warning}</li>
             {/each}
           </ul>

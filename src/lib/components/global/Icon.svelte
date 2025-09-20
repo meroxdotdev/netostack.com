@@ -34,6 +34,7 @@
 
 <div class="icon {sizeClasses[size]} {animate ? `animate-${animate}` : ''} {rotate ? `rotate rotate-${rotate}` : ''} ">
   {#if svgContent}
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html svgContent}
   {:else}
     <svg fill="currentColor" viewBox="0 0 24 24">

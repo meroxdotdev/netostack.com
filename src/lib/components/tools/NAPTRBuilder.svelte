@@ -212,7 +212,7 @@
               >Flags</label
             >
             <select id="flags" bind:value={flags}>
-              {#each flagOptions as option}
+              {#each flagOptions as option (option.value)}
                 <option value={option.value}>{option.label}</option>
               {/each}
             </select>
@@ -229,7 +229,7 @@
             <details class="service-examples">
               <summary>Show service examples</summary>
               <div class="service-list">
-                {#each serviceExamples as example}
+                {#each serviceExamples as example (example.value)}
                   <button class="service-item" onclick={() => (service = example.value)}>
                     <strong>{example.value}</strong> - {example.description}
                   </button>
@@ -274,7 +274,7 @@
               <div>
                 <h4>Configuration Warnings</h4>
                 <ul>
-                  {#each warnings as warning}
+                  {#each warnings as warning, index (index)}
                     <li>{warning}</li>
                   {/each}
                 </ul>

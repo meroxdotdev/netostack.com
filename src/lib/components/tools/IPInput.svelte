@@ -36,7 +36,7 @@
   /**
    * Formats IP address as user types
    */
-  function formatIP(ip: string): string {
+  function _formatIP(ip: string): string {
     return ip.replace(/[^0-9.]/g, '');
   }
 </script>

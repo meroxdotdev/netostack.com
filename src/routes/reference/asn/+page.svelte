@@ -23,7 +23,7 @@
 
     <div class="ref-section">
       <h2>ASN Number Ranges</h2>
-      {#each asnContent.asnTypes as type}
+      {#each asnContent.asnTypes as type, index (`${type.name}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{type.name}</div>
           <div class="example-item">
@@ -31,7 +31,7 @@
             <div><strong>Description:</strong> {type.description}</div>
             <div><strong>Usage:</strong> {type.usage}</div>
             <div><strong>Examples:</strong></div>
-            {#each type.examples as example}
+            {#each type.examples as example, index (`example-${index}`)}
               <div class="example-input">{example}</div>
             {/each}
           </div>
@@ -45,7 +45,7 @@
 
       <h3>Key BGP Concepts</h3>
       <div class="ref-grid two-col">
-        {#each asnContent.bgpBasics.concepts as concept}
+        {#each asnContent.bgpBasics.concepts as concept, index (`${concept.term}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{concept.term}</div>
             <div class="item-description">
@@ -69,7 +69,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each asnContent.bgpBasics.types as type}
+          {#each asnContent.bgpBasics.types as type, index (`${type.type}-${index}`)}
             <tr>
               <td><strong>{type.type}</strong></td>
               <td>{type.description}</td>
@@ -87,7 +87,7 @@
 
       <h3>How It Works</h3>
       <ol>
-        {#each asnContent.ipToAsnMapping.process as step}
+        {#each asnContent.ipToAsnMapping.process as step, index (`mapping-process-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
@@ -103,7 +103,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each asnContent.ipToAsnMapping.examples as example}
+          {#each asnContent.ipToAsnMapping.examples as example, index (`${example.asn}-${index}`)}
             <tr>
               <td><code>{example.ipRange}</code></td>
               <td><code>{example.asn}</code></td>
@@ -120,7 +120,7 @@
       <p>{asnContent.lookupTools.description}</p>
 
       <div class="ref-grid three-col">
-        {#each asnContent.lookupTools.methods as method}
+        {#each asnContent.lookupTools.methods as method, index (`${method.method}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{method.method}</div>
             <div class="item-code">{method.command}</div>
@@ -135,7 +135,7 @@
       <h3>Common Lookup Commands</h3>
       <div class="ref-examples">
         <div class="examples-title">Try These Commands</div>
-        {#each asnContent.lookupTools.commonCommands as command}
+        {#each asnContent.lookupTools.commonCommands as command, index (`command-${index}`)}
           <div class="example-item">
             <code>{command}</code>
           </div>
@@ -145,7 +145,7 @@
 
     <div class="ref-section">
       <h2>Real-World AS Examples</h2>
-      {#each asnContent.realWorldExamples as example}
+      {#each asnContent.realWorldExamples as example, index (`${example.asn}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{example.scenario}: {example.asn}</div>
           <div class="example-item">
@@ -161,7 +161,7 @@
     <div class="ref-section">
       <h2>Benefits of the AS System</h2>
       <ul>
-        {#each asnContent.benefits as benefit}
+        {#each asnContent.benefits as benefit, index (`benefit-${index}`)}
           <li>{benefit}</li>
         {/each}
       </ul>
@@ -169,7 +169,7 @@
 
     <div class="ref-section">
       <h2>Troubleshooting with ASN Information</h2>
-      {#each asnContent.troubleshooting as issue}
+      {#each asnContent.troubleshooting as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="help-circle" size="sm" />
@@ -186,7 +186,7 @@
 
     <div class="ref-section">
       <h2>Getting Started with ASN Knowledge</h2>
-      {#each asnContent.gettingStarted as step}
+      {#each asnContent.gettingStarted as step, index (`${step.step}-${index}`)}
         <div class="ref-highlight">
           <div class="highlight-title">
             <Icon name="play-circle" size="sm" />
@@ -204,7 +204,7 @@
       <h2>Quick Facts to Remember</h2>
       <div class="ref-examples">
         <div class="examples-title">Key Points</div>
-        {#each asnContent.quickFacts as fact}
+        {#each asnContent.quickFacts as fact, index (`fact-${index}`)}
           <div class="example-item">
             <div class="example-description">{fact}</div>
           </div>

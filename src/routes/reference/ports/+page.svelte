@@ -22,7 +22,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each commonPortsContent.ranges as range}
+          {#each commonPortsContent.ranges as range, index (index)}
             <tr>
               <td><code>{range.range}</code></td>
               <td>{range.name}</td>
@@ -45,7 +45,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each commonPortsContent.wellKnown as port}
+          {#each commonPortsContent.wellKnown as port (port.port)}
             <tr>
               <td><code>{port.port}</code></td>
               <td>{port.protocol}</td>
@@ -69,7 +69,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each commonPortsContent.registered as port}
+          {#each commonPortsContent.registered as port (port.port)}
             <tr>
               <td><code>{port.port}</code></td>
               <td>{port.protocol}</td>
@@ -87,7 +87,7 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Web Services</div>
-          {#each commonPortsContent.categories.web as service}
+          {#each commonPortsContent.categories.web as service, index (index)}
             <div class="item-code">{service.ports} - {service.service}</div>
             <div
               class="item-description"
@@ -100,7 +100,7 @@
 
         <div class="grid-item">
           <div class="item-title">Email Services</div>
-          {#each commonPortsContent.categories.email as service}
+          {#each commonPortsContent.categories.email as service, index (index)}
             <div class="item-code">{service.ports} - {service.service}</div>
             <div
               class="item-description"
@@ -113,7 +113,7 @@
 
         <div class="grid-item">
           <div class="item-title">Remote Access</div>
-          {#each commonPortsContent.categories.remote as service}
+          {#each commonPortsContent.categories.remote as service, index (index)}
             <div class="item-code">{service.ports} - {service.service}</div>
             <div
               class="item-description"
@@ -126,7 +126,7 @@
 
         <div class="grid-item">
           <div class="item-title">Database Services</div>
-          {#each commonPortsContent.categories.database as service}
+          {#each commonPortsContent.categories.database as service, index (index)}
             <div class="item-code">{service.ports} - {service.service}</div>
             <div
               class="item-description"
@@ -143,7 +143,7 @@
       <h2>Important Security Tips</h2>
       <div class="ref-examples">
         <div class="examples-title">Remember These</div>
-        {#each commonPortsContent.tips as tip}
+        {#each commonPortsContent.tips as tip, index (index)}
           <div class="example-item">
             <div class="example-description">{tip}</div>
           </div>

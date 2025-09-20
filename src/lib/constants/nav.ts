@@ -1,4 +1,4 @@
-import { site, author, license } from '$lib/constants/site';
+import { site, author, license as _license } from '$lib/constants/site';
 
 export type NavItem = {
   href: string;

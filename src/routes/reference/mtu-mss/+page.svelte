@@ -40,7 +40,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each mtuMssContent.commonValues as value}
+          {#each mtuMssContent.commonValues as value, index (`${value.type}-${index}`)}
             <tr>
               <td><strong>{value.medium}</strong></td>
               <td><code>{value.mtu}</code></td>
@@ -55,7 +55,7 @@
 
     <div class="ref-section">
       <h2>{mtuMssContent.calculations.title}</h2>
-      {#each mtuMssContent.calculations.examples as example}
+      {#each mtuMssContent.calculations.examples as example, index (`${example.scenario}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{example.scenario}</div>
           <div class="example-item">
@@ -80,7 +80,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each mtuMssContent.overheads as overhead}
+          {#each mtuMssContent.overheads as overhead, index (`${overhead.protocol}-${index}`)}
             <tr>
               <td><strong>{overhead.protocol}</strong></td>
               <td><code>{overhead.overhead}</code></td>
@@ -97,14 +97,14 @@
 
       <h3>PMTU Discovery Process</h3>
       <ol>
-        {#each mtuMssContent.discovery.process as step}
+        {#each mtuMssContent.discovery.process as step, index (`discovery-step-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
 
       <h3>Common Issues</h3>
       <ul>
-        {#each mtuMssContent.discovery.issues as issue}
+        {#each mtuMssContent.discovery.issues as issue, index (`discovery-issue-${index}`)}
           <li>{issue}</li>
         {/each}
       </ul>
@@ -112,7 +112,7 @@
 
     <div class="ref-section">
       <h2>Troubleshooting Common Issues</h2>
-      {#each mtuMssContent.troubleshooting as issue}
+      {#each mtuMssContent.troubleshooting as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="help-circle" size="sm" />
@@ -139,7 +139,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each mtuMssContent.commands as cmd}
+          {#each mtuMssContent.commands as cmd, index (`${cmd.platform}-${index}`)}
             <tr>
               <td><strong>{cmd.platform}</strong></td>
               <td><code>{cmd.command}</code></td>
@@ -159,7 +159,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each mtuMssContent.testCommands as cmd}
+          {#each mtuMssContent.testCommands as cmd, index (`${cmd.purpose}-${index}`)}
             <tr>
               <td><strong>{cmd.platform}</strong></td>
               <td><code style="font-size: 0.85em;">{cmd.command}</code></td>
@@ -173,7 +173,7 @@
     <div class="ref-section">
       <h2>Best Practices</h2>
       <ul>
-        {#each mtuMssContent.bestPractices as practice}
+        {#each mtuMssContent.bestPractices as practice, index (`practice-${index}`)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -194,7 +194,7 @@
       <h2>Quick Reference</h2>
       <div class="ref-examples">
         <div class="examples-title">Common Values to Remember</div>
-        {#each mtuMssContent.quickReference as value}
+        {#each mtuMssContent.quickReference as value, index (`${value.network}-${index}`)}
           <div class="example-item">
             <div class="example-input">{value}</div>
           </div>

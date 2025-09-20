@@ -194,7 +194,7 @@
     },
   ];
 
-  function loadExample(example: any) {
+  function loadExample(example: { name: string; description: string; domain: string; port: number; protocol: string; usage: number; selector: number; matchingType: number; hash: string }) {
     domain = example.domain;
     port = example.port;
     protocol = example.protocol;
@@ -437,7 +437,7 @@
             <div class="message error">
               <Icon name="x-circle" size="sm" />
               <div>
-                {#each validation.errors as error}
+                {#each validation.errors as error, index (index)}
                   <div>{error}</div>
                 {/each}
               </div>
@@ -448,7 +448,7 @@
             <div class="message warning">
               <Icon name="alert-triangle" size="sm" />
               <div>
-                {#each validation.warnings as warning}
+                {#each validation.warnings as warning, index (index)}
                   <div>{warning}</div>
                 {/each}
               </div>
@@ -471,7 +471,7 @@
           </h3>
 
           <ul class="tips-list">
-            {#each securityTips as tip}
+            {#each securityTips as tip, index (index)}
               <li>{tip}</li>
             {/each}
           </ul>
@@ -488,7 +488,7 @@
           <span class="chevron"><Icon name="chevron-down" size="sm" /></span>
         </summary>
         <div class="examples-grid">
-          {#each exampleConfigurations as example}
+          {#each exampleConfigurations as example (example.name)}
             <button
               type="button"
               class="example-card"

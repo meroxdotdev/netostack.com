@@ -122,13 +122,13 @@
   function setOptionValue(option: AdvancedOption, value: boolean) {
     switch (option.optionsObject) {
       case 'ipv4Options':
-        ipv4Options[option.key as keyof typeof ipv4Options] = value as any;
+        (ipv4Options as Record<string, boolean>)[option.key] = value;
         break;
       case 'ipv6Options':
-        ipv6Options[option.key as keyof typeof ipv6Options] = value as any;
+        (ipv6Options as Record<string, boolean>)[option.key] = value;
         break;
       case 'crossOptions':
-        crossOptions[option.key as keyof typeof crossOptions] = value as any;
+        (crossOptions as Record<string, boolean>)[option.key] = value;
         break;
     }
   }
@@ -230,7 +230,7 @@
     if (!result || !regexValidation?.ok) return;
 
     try {
-      const regex = new RegExp(editablePattern, editableFlags);
+      const _regex = new RegExp(editablePattern, editableFlags);
 
       // Update result with new test cases
       result = {
@@ -243,7 +243,7 @@
 
       // Update live validation
       updateTestCaseValidation();
-    } catch (err) {
+    } catch {
       // If regex is invalid, don't update test cases
     }
   }
@@ -288,7 +288,7 @@
           }
         }),
       };
-    } catch (err) {
+    } catch {
       // If regex compilation fails, mark all as errors
       const validCases = isEditingTestCases ? editableValidCases : result.testCases.valid;
       const invalidCases = isEditingTestCases ? editableInvalidCases : result.testCases.invalid;
@@ -438,7 +438,7 @@
     <section class="options-section">
       <h4>Advanced Options</h4>
       <div class="options-grid">
-        {#each ADVANCED_OPTIONS as option}
+        {#each ADVANCED_OPTIONS as option (option.key)}
           {#if option.showForType.includes(regexType)}
             <label class="checkbox-label checkbox-option" class:selected={getOptionValue(option)}>
               <input
@@ -644,7 +644,7 @@
                   </button>
                 </div>
                 <div class="test-list editable">
-                  {#each editableValidCases as testCase, index}
+                  {#each editableValidCases as testCase, index (`valid-${index}`)}
                     <div class="test-case-item valid">
                       <code class="test-case valid">{testCase}</code>
                       <button
@@ -660,7 +660,7 @@
               </div>
             {:else}
               <div class="test-list">
-                {#each testCaseResults.valid as testResult}
+                {#each testCaseResults.valid as testResult (`valid-result-${testResult.text}`)}
                   <div class="test-case-with-status">
                     <code class="test-case valid">{testResult.text}</code>
                     <span class="test-status {testResult.matches ? 'pass' : 'fail'}">
@@ -698,7 +698,7 @@
                   </button>
                 </div>
                 <div class="test-list editable">
-                  {#each editableInvalidCases as testCase, index}
+                  {#each editableInvalidCases as testCase, index (`invalid-${index}`)}
                     <div class="test-case-item invalid">
                       <code class="test-case invalid">{testCase}</code>
                       <button
@@ -714,7 +714,7 @@
               </div>
             {:else}
               <div class="test-list">
-                {#each testCaseResults.invalid as testResult}
+                {#each testCaseResults.invalid as testResult (`invalid-result-${testResult.text}`)}
                   <div class="test-case-with-status">
                     <code class="test-case invalid">{testResult.text}</code>
                     <span class="test-status {!testResult.matches ? 'pass' : 'fail'}">
@@ -739,7 +739,7 @@
                 Trade-offs
               </h4>
               <ul class="doc-list">
-                {#each result.tradeoffs as tradeoff}
+                {#each result.tradeoffs as tradeoff (tradeoff)}
                   <li>{tradeoff}</li>
                 {/each}
               </ul>
@@ -753,7 +753,7 @@
                 Limitations
               </h4>
               <ul class="doc-list">
-                {#each result.limitations as limitation}
+                {#each result.limitations as limitation (limitation)}
                   <li>{limitation}</li>
                 {/each}
               </ul>
@@ -780,7 +780,7 @@
       <div class="language-examples">
         <h4>Implementation Examples</h4>
         <div class="language-accordion">
-          {#each getLanguageExamples(result.pattern, result.flags) as example}
+          {#each getLanguageExamples(result.pattern, result.flags) as example (example.name)}
             <div class="language-item">
               <button
                 class="language-header"

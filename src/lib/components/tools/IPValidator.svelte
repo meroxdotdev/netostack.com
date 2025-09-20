@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from '$lib/actions/tooltip.js';
+  import { tooltip as _tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../styles/diagnostics-pages.scss';
 
@@ -34,10 +34,10 @@
     { label: 'IPv6 too many groups', value: '2001:db8:85a3:0000:0000:8a2e:0370:7334:extra', valid: false },
   ];
 
-  function validateIPv4(ip: string): { isValid: boolean; errors: string[]; warnings: string[]; details: any } {
+  function validateIPv4(ip: string): { isValid: boolean; errors: string[]; warnings: string[]; details: Record<string, unknown> } {
     const errors: string[] = [];
     const warnings: string[] = [];
-    const details: any = { info: [] };
+    const details: Record<string, unknown> = { info: [] };
 
     // Check basic format
     if (!ip.includes('.')) {
@@ -158,10 +158,10 @@
     return { isValid: true, errors: [], warnings, details };
   }
 
-  function validateIPv6(ip: string): { isValid: boolean; errors: string[]; warnings: string[]; details: any } {
+  function validateIPv6(ip: string): { isValid: boolean; errors: string[]; warnings: string[]; details: Record<string, unknown> } {
     const errors: string[] = [];
     const warnings: string[] = [];
-    const details: any = { info: [] };
+    const details: Record<string, unknown> = { info: [] };
 
     // Check for zone ID (remove it for validation but note it)
     let cleanIP = ip;
@@ -501,7 +501,7 @@
         <h4>Quick Test Cases</h4>
       </summary>
       <div class="examples-grid">
-        {#each testCases as testCase, index}
+        {#each testCases as testCase, index (`test-case-${index}`)}
           <button
             class="example-card {testCase.valid ? 'valid-example' : 'invalid-example'}"
             class:selected={selectedExampleIndex === index}
@@ -549,7 +549,7 @@
               Issues Found ({result.errors.length})
             </h4>
             <ul class="error-list">
-              {#each result.errors as error}
+              {#each result.errors as error (error)}
                 <li class="error-item">
                   <Icon name="x" size="xs" />
                   {error}
@@ -567,7 +567,7 @@
               Warnings ({result.warnings.length})
             </h4>
             <ul class="warning-list">
-              {#each result.warnings as warning}
+              {#each result.warnings as warning (warning)}
                 <li class="warning-item">
                   <Icon name="alert-triangle" size="xs" />
                   {warning}
@@ -635,7 +635,7 @@
               <div class="info-section">
                 <h5>Additional Information</h5>
                 <ul class="info-list">
-                  {#each result.details.info as info}
+                  {#each result.details.info as info (info)}
                     <li class="info-item">
                       <Icon name="info" size="xs" />
                       {info}

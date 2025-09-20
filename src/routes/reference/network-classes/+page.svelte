@@ -11,7 +11,7 @@
   </header>
 
   <div class="reference-section fade-in">
-    {#each Object.entries(NETWORK_CLASSES) as [className, classInfo]}
+    {#each Object.entries(NETWORK_CLASSES) as [className, classInfo] (className)}
       <Tooltip
         text={`Class ${className} networks use ${classInfo.defaultMask} (/${classInfo.cidr}) and cover ${classInfo.range}`}
         position="top"

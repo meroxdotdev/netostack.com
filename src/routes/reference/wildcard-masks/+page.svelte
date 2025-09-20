@@ -34,7 +34,7 @@
 
     <div class="ref-section">
       <h2>Conversion Examples</h2>
-      {#each wildcardMasksContent.conversionExamples as example}
+      {#each wildcardMasksContent.conversionExamples as example (example.network)}
         <div class="ref-examples">
           <div class="examples-title">{example.description}</div>
           <div class="example-item">
@@ -53,7 +53,7 @@
 
       <h3>Steps:</h3>
       <ol>
-        {#each wildcardMasksContent.quickConversion.steps as step}
+        {#each wildcardMasksContent.quickConversion.steps as step (step)}
           <li>{step}</li>
         {/each}
       </ol>
@@ -68,7 +68,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each wildcardMasksContent.quickConversion.examples as example}
+          {#each wildcardMasksContent.quickConversion.examples as example (example.subnet)}
             <tr>
               <td><code>{example.subnet}</code></td>
               <td>{example.calculation}</td>
@@ -81,9 +81,9 @@
 
     <div class="ref-section">
       <h2>ACL Examples by Platform</h2>
-      {#each wildcardMasksContent.aclExamples as platform}
+      {#each wildcardMasksContent.aclExamples as platform (platform.name)}
         <h3>{platform.title}</h3>
-        {#each platform.entries as entry}
+        {#each platform.entries as entry (entry)}
           <div class="ref-examples">
             <div class="examples-title">{entry.meaning}</div>
             <div class="example-item">
@@ -98,7 +98,7 @@
     <div class="ref-section">
       <h2>Special Cases</h2>
       <div class="ref-grid two-col">
-        {#each wildcardMasksContent.specialCases as specialCase}
+        {#each wildcardMasksContent.specialCases as specialCase (specialCase.case)}
           <div class="grid-item">
             <div class="item-title">{specialCase.case}</div>
             <div class="item-code">Wildcard: {specialCase.wildcard}</div>
@@ -125,7 +125,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each wildcardMasksContent.platformDifferences as platform}
+          {#each wildcardMasksContent.platformDifferences as platform (platform.platform)}
             <tr>
               <td><strong>{platform.platform}</strong></td>
               <td><code style="font-size: 0.8em;">{platform.format}</code></td>
@@ -149,7 +149,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each wildcardMasksContent.quickReference as row}
+          {#each wildcardMasksContent.quickReference as row (row.subnet)}
             <tr>
               <td><code>{row.prefix}</code></td>
               <td><code>{row.subnet}</code></td>
@@ -163,7 +163,7 @@
 
     <div class="ref-section">
       <h2>Common Mistakes</h2>
-      {#each wildcardMasksContent.commonMistakes as mistake}
+      {#each wildcardMasksContent.commonMistakes as mistake (mistake.mistake)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="alert-triangle" size="sm" />
@@ -181,7 +181,7 @@
       <h2>Tips for Success</h2>
       <div class="ref-examples">
         <div class="examples-title">Remember These</div>
-        {#each wildcardMasksContent.tips as tip}
+        {#each wildcardMasksContent.tips as tip (tip)}
           <div class="example-item">
             <div class="example-description">{tip}</div>
           </div>

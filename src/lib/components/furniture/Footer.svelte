@@ -1,5 +1,5 @@
 <script>
-  import { TOP_NAV, footerLinks } from '$lib/constants/nav';
+  import { footerLinks } from '$lib/constants/nav';
   import { site, author, license } from '$lib/constants/site';
 </script>
 
@@ -17,7 +17,7 @@
     {license.date}
   </p>
   <p class="footer-sub">
-    {#each footerLinks as item, i}
+    {#each footerLinks as item, i (item.href)}
       <a href={item.href}>{item.label}</a>{i < footerLinks.length - 1 ? ' • ' : ''}
     {/each}
   </p>

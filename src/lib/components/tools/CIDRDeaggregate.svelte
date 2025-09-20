@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import { SvelteSet } from 'svelte/reactivity';
   import '../../../styles/diagnostics-pages.scss';
 
   let input = $state(`192.168.0.0/22
@@ -18,9 +19,9 @@
     };
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
-  let selectedExample = $state<string | null>(null);
+  let _selectedExample = $state<string | null>(null);
   let selectedExampleIndex = $state<number | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -63,9 +64,9 @@
   function loadExample(example: (typeof examples)[0], index: number) {
     input = example.input;
     targetPrefix = example.targetPrefix;
-    selectedExample = example.label;
+    _selectedExample = example.label;
     selectedExampleIndex = index;
-    userModified = false;
+    _userModified = false;
     performDeaggregation();
   }
 
@@ -138,7 +139,7 @@
         .filter((line) => line.trim());
       const allSubnets: string[] = [];
       let totalInputAddresses = 0;
-      const seenSubnets = new Set<string>();
+      const seenSubnets = new SvelteSet<string>();
 
       for (const line of lines) {
         const trimmed = line.trim();
@@ -154,7 +155,7 @@
             network = parsed.network;
             size = parsed.size;
             totalInputAddresses += size;
-          } catch (error) {
+          } catch {
             throw new Error(`Invalid CIDR: ${trimmed}`);
           }
         } else if (trimmed.includes('-')) {
@@ -167,7 +168,7 @@
             network = start;
             size = end - start + 1;
             totalInputAddresses += size;
-          } catch (error) {
+          } catch {
             throw new Error(`Invalid range: ${trimmed}`);
           }
         } else if (trimmed.match(/^\d+\.\d+\.\d+\.\d+$/)) {
@@ -239,8 +240,8 @@
   }
 
   function handleInputChange() {
-    userModified = true;
-    selectedExample = null;
+    _userModified = true;
+    _selectedExample = null;
     selectedExampleIndex = null;
     performDeaggregation();
   }
@@ -282,7 +283,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (example.label)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -400,7 +401,7 @@
 
         {#if result.subnets.length > 0}
           <div class="subnets-grid">
-            {#each result.subnets as subnet, index}
+            {#each result.subnets as subnet, index (subnet)}
               {@const subnetSize = Math.pow(2, 32 - targetPrefix)}
               <div class="subnet-card">
                 <div class="subnet-header">

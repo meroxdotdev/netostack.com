@@ -151,10 +151,10 @@
     srvRecords = srvRecords.filter((r) => r.id !== id);
   }
 
-  function updateRecord(id: string, field: keyof SRVRecord, value: any) {
+  function updateRecord(id: string, field: keyof SRVRecord, value: string | number) {
     const record = srvRecords.find((r) => r.id === id);
     if (record) {
-      (record as any)[field] = value;
+      (record as Record<string, unknown>)[field] = value;
       srvRecords = srvRecords;
     }
   }
@@ -291,7 +291,7 @@
                           }
                         }}
                       >
-                        {#each commonServices as service}
+                        {#each commonServices as service (service.service)}
                           <option value={service.service}>{service.service}</option>
                         {/each}
                         <option value="custom">Custom</option>
@@ -404,7 +404,7 @@
 
               {#if !validation.valid}
                 <div class="validation-errors">
-                  {#each validation.issues as issue}
+                  {#each validation.issues as issue, index (index)}
                     <div class="error-message">
                       <Icon name="alert-circle" size="xs" />
                       {issue}
@@ -425,7 +425,7 @@
           Service Examples
         </summary>
         <div class="examples-grid">
-          {#each examples as example}
+          {#each examples as example (example.label)}
             <button class="example-card" onclick={() => loadExample(example)}>
               <h4>{example.label}</h4>
               <p>{example.records.length} SRV records</p>
@@ -474,7 +474,7 @@
           <div use:tooltip={'Target server hostname (FQDN)'}>Target</div>
           <div use:tooltip={'Validation status of this SRV record'}>Status</div>
         </div>
-        {#each srvRecords as record}
+        {#each srvRecords as record (record.id)}
           {@const validation = validateSRVRecord(record)}
           <div class="table-row" class:error={!validation.valid}>
             <div class="service-name">{record.service}.{record.protocol}.{record.name}</div>
@@ -503,7 +503,7 @@
             Configuration Issues
           </h3>
           <ul>
-            {#each srvRecords.filter((r) => !validateSRVRecord(r).valid) as record}
+            {#each srvRecords.filter((r) => !validateSRVRecord(r).valid) as record (record.id)}
               {@const validation = validateSRVRecord(record)}
               <li>
                 <strong>{record.service}.{record.protocol}.{record.name}</strong>: {validation.issues.join(', ')}

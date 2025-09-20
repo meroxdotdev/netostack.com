@@ -224,7 +224,7 @@ $ORIGIN ${zoneName}.
           Quick Examples
         </summary>
         <div class="examples-grid">
-          {#each examples as example}
+          {#each examples as example (example.label)}
             <button class="example-card" onclick={() => loadExample(example)}>
               <h4>{example.label}</h4>
               <p>{example.hostnames.split('\n').length} hosts</p>
@@ -262,7 +262,7 @@ $ORIGIN ${zoneName}.
           <div>Type</div>
           <div>Value</div>
         </div>
-        {#each results as record}
+        {#each results as record, index (index)}
           <div class="table-row" class:invalid={record.type === 'INVALID'}>
             <div class="name">{record.name}</div>
             <div class="ttl">{record.ttl}</div>

@@ -46,7 +46,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each cgnatContent.addressRange.breakdown as block}
+          {#each cgnatContent.addressRange.breakdown as block, index (`${block.network}-${index}`)}
             <tr>
               <td><code>{block.network}</code></td>
               <td>{block.addresses}</td>
@@ -73,7 +73,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each cgnatContent.howItWorks.layers as layer}
+          {#each cgnatContent.howItWorks.layers as layer, index (`${layer.layer}-${index}`)}
             <tr>
               <td><strong>{layer.layer}</strong></td>
               <td>{layer.location}</td>
@@ -87,7 +87,7 @@
 
       <h3>Traffic Flow</h3>
       <ol>
-        {#each cgnatContent.howItWorks.flow as step}
+        {#each cgnatContent.howItWorks.flow as step, index (`flow-step-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
@@ -95,7 +95,7 @@
 
     <div class="ref-section">
       <h2>{cgnatContent.identification.title}</h2>
-      {#each cgnatContent.identification.methods as method}
+      {#each cgnatContent.identification.methods as method, index (`${method.method}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{method.method}</div>
           <div class="example-item">
@@ -116,7 +116,7 @@
       <h2>Impact on Services</h2>
 
       <h3>Negative Impacts</h3>
-      {#each cgnatContent.impacts.negative as impact}
+      {#each cgnatContent.impacts.negative as impact, index (`${impact.impact}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="x-circle" size="sm" />
@@ -132,7 +132,7 @@
 
       <h3>Positive Aspects</h3>
       <ul>
-        {#each cgnatContent.impacts.positive as positive}
+        {#each cgnatContent.impacts.positive as positive, index (`positive-${index}`)}
           <li>{positive}</li>
         {/each}
       </ul>
@@ -140,7 +140,7 @@
 
     <div class="ref-section">
       <h2>Workarounds and Solutions</h2>
-      {#each cgnatContent.workarounds as solution}
+      {#each cgnatContent.workarounds as solution, index (`${solution.solution}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{solution.solution}</div>
           <div class="example-item">
@@ -154,7 +154,7 @@
 
     <div class="ref-section">
       <h2>Troubleshooting Common Issues</h2>
-      {#each cgnatContent.troubleshooting as issue}
+      {#each cgnatContent.troubleshooting as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="help-circle" size="sm" />
@@ -176,7 +176,7 @@
         <div class="grid-item">
           <div class="item-title">Steps to Check</div>
           <ol>
-            {#each cgnatContent.quickCheck.steps as step}
+            {#each cgnatContent.quickCheck.steps as step, index (`quickcheck-step-${index}`)}
               <li>{step}</li>
             {/each}
           </ol>
@@ -185,7 +185,7 @@
         <div class="grid-item">
           <div class="item-title">What to Do Next</div>
           <ul>
-            {#each cgnatContent.quickCheck.whatToDo as action}
+            {#each cgnatContent.quickCheck.whatToDo as action, index (`whatToDo-${index}`)}
               <li>{action}</li>
             {/each}
           </ul>
@@ -196,7 +196,7 @@
     <div class="ref-section">
       <h2>Best Practices</h2>
       <ul>
-        {#each cgnatContent.bestPractices as practice}
+        {#each cgnatContent.bestPractices as practice, index (`practice-${index}`)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -206,7 +206,7 @@
       <h2>ISP Perspective</h2>
       <div class="ref-examples">
         <div class="examples-title">Why ISPs Use CGNAT</div>
-        {#each cgnatContent.ispPerspective as reason}
+        {#each cgnatContent.ispPerspective as reason, index (`isp-reason-${index}`)}
           <div class="example-item">
             <div class="example-description">{reason}</div>
           </div>

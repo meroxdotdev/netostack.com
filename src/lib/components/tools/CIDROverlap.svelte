@@ -269,7 +269,7 @@
     <div class="examples-section">
       <h4>Quick Examples</h4>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.label)}
           <button
             type="button"
             class="example-btn"
@@ -290,7 +290,7 @@
         <div class="info-panel error">
           <h3>Parse Errors</h3>
           <ul class="error-list">
-            {#each result.errors as error}
+            {#each result.errors as error (error)}
               <li>{error}</li>
             {/each}
           </ul>
@@ -389,7 +389,7 @@
               <div class="viz-bar set-a-bar">
                 <div class="bar-label">Set A</div>
                 <div class="bar-segments">
-                  {#each result.visualization.setA as range}
+                  {#each result.visualization.setA as range (`${range.start}-${range.end}`)}
                     <div
                       class="viz-segment set-a-segment"
                       style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
@@ -403,7 +403,7 @@
               <div class="viz-bar set-b-bar">
                 <div class="bar-label">Set B</div>
                 <div class="bar-segments">
-                  {#each result.visualization.setB as range}
+                  {#each result.visualization.setB as range (`${range.start}-${range.end}`)}
                     <div
                       class="viz-segment set-b-segment"
                       style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
@@ -417,7 +417,7 @@
               <div class="viz-bar intersection-bar">
                 <div class="bar-label">A ∩ B</div>
                 <div class="bar-segments">
-                  {#each result.visualization.intersection as range}
+                  {#each result.visualization.intersection as range (`${range.start}-${range.end}`)}
                     <div
                       class="viz-segment intersection-segment"
                       style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
@@ -447,7 +447,7 @@
                 </button>
               </div>
               <div class="cidr-list">
-                {#each result.ipv4 as cidr}
+                {#each result.ipv4 as cidr (cidr)}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
                     <button
@@ -479,7 +479,7 @@
                 </button>
               </div>
               <div class="cidr-list">
-                {#each result.ipv6 as cidr}
+                {#each result.ipv6 as cidr (cidr)}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
                     <button

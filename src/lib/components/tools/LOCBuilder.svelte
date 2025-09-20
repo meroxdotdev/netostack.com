@@ -88,7 +88,7 @@
     return `Parsed: ${locString}`;
   }
 
-  function locToData(locRecord: string) {
+  function _locToData(locRecord: string) {
     // Simplified parsing for demo
     const parts = locRecord.split(' ');
     if (parts.length < 8) return null;
@@ -139,7 +139,7 @@
     showButtonSuccess('download');
   }
 
-  function loadCity(city: any) {
+  function loadCity(city: { name: string; lat: number; lng: number; alt: number }) {
     latitude = city.lat.toString();
     longitude = city.lng.toString();
     altitude = city.alt.toString();
@@ -176,7 +176,7 @@
             <Icon name="chevron-down" size="sm" />
           </summary>
           <div class="examples-grid">
-            {#each cityExamples as city}
+            {#each cityExamples as city (city.name)}
               <button class="example-btn" onclick={() => loadCity(city)}>
                 {city.name}
               </button>

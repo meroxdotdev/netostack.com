@@ -75,7 +75,7 @@
 
     if (record.parameters.length > 0) {
       const paramStrings = record.parameters.map((param) => {
-        const keyNum = parameterKeyMap[param.key];
+        const _keyNum = parameterKeyMap[param.key];
         if (param.key === 'no-default-alpn') {
           return `${param.key}`;
         } else if (param.key === 'alpn') {
@@ -214,7 +214,7 @@
     showButtonSuccess('export-svcb');
   }
 
-  function addParameter(key: string): void {
+  function _addParameter(key: string): void {
     const param = parameters.find((p) => p.key === key);
     if (param) {
       param.enabled = true;
@@ -349,7 +349,7 @@
         </div>
 
         <div class="parameters-list">
-          {#each parameters as parameter}
+          {#each parameters as parameter (parameter.key)}
             <div class="parameter-item" class:enabled={parameter.enabled}>
               <div class="parameter-header">
                 <label class="parameter-toggle">
@@ -471,7 +471,7 @@
           <div class="validation-messages error">
             <Icon name="x-circle" size="sm" />
             <div class="messages">
-              {#each validation.errors as error}
+              {#each validation.errors as error, index (index)}
                 <div class="message">{error}</div>
               {/each}
             </div>
@@ -482,7 +482,7 @@
           <div class="validation-messages warning">
             <Icon name="alert-triangle" size="sm" />
             <div class="messages">
-              {#each validation.warnings as warning}
+              {#each validation.warnings as warning, index (index)}
                 <div class="message">{warning}</div>
               {/each}
             </div>
@@ -507,7 +507,7 @@
 
         <div class="usage-tips">
           <ul>
-            {#each usageNotes as note}
+            {#each usageNotes as note, index (index)}
               <li>{note}</li>
             {/each}
           </ul>
@@ -523,7 +523,7 @@
         Example Configurations
       </summary>
       <div class="examples-grid">
-        {#each exampleConfigurations as example}
+        {#each exampleConfigurations as example (example.name)}
           <button
             type="button"
             class="example-card"

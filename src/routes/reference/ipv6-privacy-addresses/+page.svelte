@@ -23,7 +23,7 @@
 
     <div class="ref-section">
       <h2>IPv6 Address Types</h2>
-      {#each ipv6PrivacyContent.addressTypes as type}
+      {#each ipv6PrivacyContent.addressTypes as type, index (`${type.name}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{type.type}</div>
           <div class="example-item">
@@ -33,7 +33,7 @@
 
             <h4>Characteristics:</h4>
             <ul>
-              {#each type.characteristics as characteristic}
+              {#each type.characteristics as characteristic, index (`characteristic-${index}`)}
                 <li>{characteristic}</li>
               {/each}
             </ul>
@@ -47,21 +47,21 @@
 
       <h3>Address Generation Process</h3>
       <ol>
-        {#each ipv6PrivacyContent.howItWorks.addressGeneration as step}
+        {#each ipv6PrivacyContent.howItWorks.addressGeneration as step, index (`gen-step-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
 
       <h3>Temporary Address Lifecycle</h3>
       <ol>
-        {#each ipv6PrivacyContent.howItWorks.temporaryLifecycle as step}
+        {#each ipv6PrivacyContent.howItWorks.temporaryLifecycle as step, index (`lifecycle-step-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
 
       <h3>Default Operating System Behavior</h3>
       <ul>
-        {#each ipv6PrivacyContent.howItWorks.defaultBehavior as behavior}
+        {#each ipv6PrivacyContent.howItWorks.defaultBehavior as behavior, index (`behavior-${index}`)}
           <li>{behavior}</li>
         {/each}
       </ul>
@@ -104,7 +104,7 @@
     <div class="ref-section">
       <h2>{ipv6PrivacyContent.osImplementations.title}</h2>
 
-      {#each Object.entries(ipv6PrivacyContent.osImplementations) as [key, os]}
+      {#each Object.entries(ipv6PrivacyContent.osImplementations) as [key, os] (key)}
         {#if typeof os === 'object' && os.os}
           <div class="ref-examples">
             <div class="examples-title">{os.os}</div>
@@ -112,21 +112,21 @@
               <div><strong>Default Behavior:</strong> {os.defaultBehavior}</div>
 
               <h4>Configuration:</h4>
-              {#each os.configuration as config}
+              {#each os.configuration as config, index (`config-${index}`)}
                 <code class="example-input">{config}</code>
               {/each}
 
               {#if (os as any).values}
                 <h4>Values:</h4>
                 <ul>
-                  {#each (os as any).values as value}
+                  {#each (os as any).values as value, index (`value-${index}`)}
                     <li><code>{value}</code></li>
                   {/each}
                 </ul>
               {/if}
 
               <h4>Useful Commands:</h4>
-              {#each (os as any).commands as command}
+              {#each (os as any).commands as command, index (`command-${index}`)}
                 <code class="example-input">{command}</code>
               {/each}
 
@@ -151,7 +151,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6PrivacyContent.identifyingAddresses as method}
+          {#each ipv6PrivacyContent.identifyingAddresses as method, index (`method-${index}`)}
             <tr>
               <td><strong>{method.method}</strong></td>
               <td>{method.stable}</td>
@@ -165,7 +165,7 @@
 
     <div class="ref-section">
       <h2>Troubleshooting</h2>
-      {#each ipv6PrivacyContent.troubleshooting as issue}
+      {#each ipv6PrivacyContent.troubleshooting as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="help-circle" size="sm" />
@@ -176,7 +176,7 @@
             <p><strong>Diagnosis:</strong> {issue.diagnosis}</p>
             <div><strong>Solutions:</strong></div>
             <ul>
-              {#each issue.solutions as solution}
+              {#each issue.solutions as solution, index (`solution-${index}`)}
                 <li>{solution}</li>
               {/each}
             </ul>
@@ -187,20 +187,20 @@
 
     <div class="ref-section">
       <h2>Security Considerations</h2>
-      {#each ipv6PrivacyContent.securityConsiderations as security}
+      {#each ipv6PrivacyContent.securityConsiderations as security, index (`${security.aspect}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{security.aspect}</div>
           <div class="example-item">
             <h4>Benefits:</h4>
             <ul>
-              {#each security.benefits as benefit}
+              {#each security.benefits as benefit, index (`benefit-${index}`)}
                 <li>{benefit}</li>
               {/each}
             </ul>
 
             <h4>{security.limitations ? 'Limitations' : 'Challenges'}:</h4>
             <ul>
-              {#each security.limitations || security.challenges as item}
+              {#each security.limitations || security.challenges as item, index (`limitation-${index}`)}
                 <li>{item}</li>
               {/each}
             </ul>
@@ -211,7 +211,7 @@
 
     <div class="ref-section">
       <h2>When to Use Privacy Addresses</h2>
-      {#each ipv6PrivacyContent.whenToUse as scenario}
+      {#each ipv6PrivacyContent.whenToUse as scenario, index (`${scenario.scenario}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{scenario.scenario}</div>
           <div class="example-item">
@@ -226,7 +226,7 @@
     <div class="ref-section">
       <h2>Best Practices</h2>
       <ul>
-        {#each ipv6PrivacyContent.bestPractices as practice}
+        {#each ipv6PrivacyContent.bestPractices as practice, index (`practice-${index}`)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -235,7 +235,7 @@
     <div class="ref-section">
       <h2>Common Mistakes</h2>
       <ul>
-        {#each ipv6PrivacyContent.commonMistakes as mistake}
+        {#each ipv6PrivacyContent.commonMistakes as mistake, index (`mistake-${index}`)}
           <li>{mistake}</li>
         {/each}
       </ul>
@@ -247,14 +247,14 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Address Types</div>
-          {#each ipv6PrivacyContent.quickReference.addressTypes as type}
+          {#each ipv6PrivacyContent.quickReference.addressTypes as type, index (`qr-type-${index}`)}
             <div class="item-description">{type}</div>
           {/each}
         </div>
 
         <div class="grid-item">
           <div class="item-title">Identification</div>
-          {#each ipv6PrivacyContent.quickReference.identification as tip}
+          {#each ipv6PrivacyContent.quickReference.identification as tip, index (`qr-id-${index}`)}
             <div class="item-description">{tip}</div>
           {/each}
         </div>
@@ -263,14 +263,14 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Configuration</div>
-          {#each ipv6PrivacyContent.quickReference.configuration as config}
+          {#each ipv6PrivacyContent.quickReference.configuration as config, index (`qr-config-${index}`)}
             <div class="item-code">{config}</div>
           {/each}
         </div>
 
         <div class="grid-item">
           <div class="item-title">Troubleshooting</div>
-          {#each ipv6PrivacyContent.quickReference.troubleshooting as tip}
+          {#each ipv6PrivacyContent.quickReference.troubleshooting as tip, index (`qr-trouble-${index}`)}
             <div class="item-description">{tip}</div>
           {/each}
         </div>
@@ -291,7 +291,7 @@
     <div class="ref-section">
       <h2>Useful Tools</h2>
       <div class="ref-grid two-col">
-        {#each ipv6PrivacyContent.tools as tool}
+        {#each ipv6PrivacyContent.tools as tool, index (`${tool.name}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{tool.tool}</div>
             <div class="item-description">{tool.purpose}</div>

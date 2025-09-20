@@ -33,27 +33,27 @@
 
       <h3>When APIPA is Used</h3>
       <ul>
-        {#each linkLocalApipaContent.apipa.whenUsed as reason}
+        {#each linkLocalApipaContent.apipa.whenUsed as reason, index (`apipa-reason-${index}`)}
           <li>{reason}</li>
         {/each}
       </ul>
 
       <h3>How APIPA Works</h3>
       <ol>
-        {#each linkLocalApipaContent.apipa.howItWorks as step}
+        {#each linkLocalApipaContent.apipa.howItWorks as step, index (`apipa-step-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
 
       <h3>APIPA Characteristics</h3>
       <ul>
-        {#each linkLocalApipaContent.apipa.characteristics as characteristic}
+        {#each linkLocalApipaContent.apipa.characteristics as characteristic, index (`apipa-char-${index}`)}
           <li>{characteristic}</li>
         {/each}
       </ul>
 
       <h3>Troubleshooting APIPA Issues</h3>
-      {#each linkLocalApipaContent.apipa.troubleshooting as issue}
+      {#each linkLocalApipaContent.apipa.troubleshooting as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="alert-triangle" size="sm" />
@@ -83,28 +83,28 @@
 
       <h3>Address Formation</h3>
       <ol>
-        {#each linkLocalApipaContent.ipv6LinkLocal.formation as step}
+        {#each linkLocalApipaContent.ipv6LinkLocal.formation as step, index (`ipv6-formation-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
 
       <h3>When IPv6 Link-Local is Used</h3>
       <ul>
-        {#each linkLocalApipaContent.ipv6LinkLocal.whenUsed as use}
+        {#each linkLocalApipaContent.ipv6LinkLocal.whenUsed as use, index (`ipv6-use-${index}`)}
           <li>{use}</li>
         {/each}
       </ul>
 
       <h3>IPv6 Link-Local Characteristics</h3>
       <ul>
-        {#each linkLocalApipaContent.ipv6LinkLocal.characteristics as characteristic}
+        {#each linkLocalApipaContent.ipv6LinkLocal.characteristics as characteristic, index (`ipv6-char-${index}`)}
           <li>{characteristic}</li>
         {/each}
       </ul>
 
       <h3>Types of IPv6 Link-Local Addresses</h3>
       <div class="ref-grid two-col">
-        {#each linkLocalApipaContent.ipv6LinkLocal.types as type}
+        {#each linkLocalApipaContent.ipv6LinkLocal.types as type, index (`${type.type}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{type.type}</div>
             <div class="item-description">{type.description}</div>
@@ -127,7 +127,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each linkLocalApipaContent.comparison as row}
+          {#each linkLocalApipaContent.comparison as row, index (`${row.aspect}-${index}`)}
             <tr>
               <td><strong>{row.aspect}</strong></td>
               <td>{row.ipv4}</td>
@@ -140,7 +140,7 @@
 
     <div class="ref-section">
       <h2>Practical Examples</h2>
-      {#each linkLocalApipaContent.practicalExamples as example}
+      {#each linkLocalApipaContent.practicalExamples as example, index (`${example.scenario}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{example.scenario}</div>
           <div class="example-item">
@@ -165,7 +165,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each linkLocalApipaContent.troubleshootingCommands as cmd}
+          {#each linkLocalApipaContent.troubleshootingCommands as cmd, index (`${cmd.purpose}-${index}`)}
             <tr>
               <td><strong>{cmd.purpose}</strong></td>
               <td><code>{cmd.windows}</code></td>
@@ -179,7 +179,7 @@
 
     <div class="ref-section">
       <h2>When to Worry</h2>
-      {#each linkLocalApipaContent.whenToWorry as situation}
+      {#each linkLocalApipaContent.whenToWorry as situation, index (`${situation.situation}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{situation.situation}</div>
           <div class="example-item">
@@ -193,7 +193,7 @@
     <div class="ref-section">
       <h2>Best Practices</h2>
       <ul>
-        {#each linkLocalApipaContent.bestPractices as practice}
+        {#each linkLocalApipaContent.bestPractices as practice, index (`practice-${index}`)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -202,7 +202,7 @@
     <div class="ref-section">
       <h2>Common Mistakes</h2>
       <ul>
-        {#each linkLocalApipaContent.commonMistakes as mistake}
+        {#each linkLocalApipaContent.commonMistakes as mistake, index (`mistake-${index}`)}
           <li>{mistake}</li>
         {/each}
       </ul>
@@ -214,14 +214,14 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Recognition</div>
-          {#each linkLocalApipaContent.quickReference.recognition as item}
+          {#each linkLocalApipaContent.quickReference.recognition as item, index (`recognition-${index}`)}
             <div class="item-description">{item}</div>
           {/each}
         </div>
 
         <div class="grid-item">
           <div class="item-title">Troubleshooting</div>
-          {#each linkLocalApipaContent.quickReference.troubleshooting as item}
+          {#each linkLocalApipaContent.quickReference.troubleshooting as item, index (`qr-trouble-${index}`)}
             <div class="item-description">{item}</div>
           {/each}
         </div>

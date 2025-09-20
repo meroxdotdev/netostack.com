@@ -11,7 +11,7 @@
   let result = $state<RandomIPResult | null>(null);
   let isLoading = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
   let copiedStates = $state<Record<string, boolean>>({});
 
   const examples = [
@@ -135,12 +135,12 @@
     if (example) {
       inputText = example.input;
       selectedExampleIndex = index;
-      userModified = false;
+      _userModified = false;
     }
   }
 
   function handleInputChange() {
-    userModified = true;
+    _userModified = true;
     selectedExampleIndex = null;
   }
 
@@ -166,7 +166,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (`${example.label}-${index}`)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === index}
@@ -261,7 +261,7 @@
             <h3><Icon name="alert-triangle" size="sm" /> Errors</h3>
           </div>
           <div class="card-content">
-            {#each result.errors as error}
+            {#each result.errors as error, index (index)}
               <div class="error-message">
                 <Icon name="alert-circle" size="sm" />
                 <span>{error}</span>
@@ -347,7 +347,7 @@
           <div class="card-content">
             {#if result.allGeneratedIPs.length > 0}
               <div class="all-ips-list">
-                {#each result.allGeneratedIPs as ip, index}
+                {#each result.allGeneratedIPs as ip, index (`${ip}-${index}`)}
                   <button
                     type="button"
                     class="ip-tag"
@@ -368,7 +368,7 @@
           <h3>Network Generations</h3>
 
           <div class="generations-list">
-            {#each result.generations as generation, index}
+            {#each result.generations as generation, index (index)}
               <div class="generation-card" class:valid={generation.isValid} class:invalid={!generation.isValid}>
                 <div class="card-header row">
                   <div class="network-info">
@@ -465,7 +465,7 @@
                           <h4>Generated IPs ({generation.generatedIPs.length})</h4>
                         </div>
                         <div class="ips-list">
-                          {#each generation.generatedIPs as ip, ipIndex}
+                          {#each generation.generatedIPs as ip, ipIndex (`${ip}-${ipIndex}`)}
                             <button
                               type="button"
                               class="ip-tag"

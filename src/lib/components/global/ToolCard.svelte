@@ -220,6 +220,16 @@
       }
     }
 
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      box-shadow:
+        var(--shadow-lg),
+        0 0 0 4px color-mix(in srgb, var(--color-primary), transparent 85%);
+      border-color: var(--color-primary);
+      background-color: var(--surface-hover);
+    }
+
     @media (max-width: 768px) {
       text-align: left;
       padding: var(--spacing-md);
@@ -318,6 +328,14 @@
         transform: scale(1.1);
         filter: saturate(1);
       }
+    }
+
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary), transparent 85%);
+      border-color: var(--color-primary);
+      background-color: var(--surface-hover);
     }
   }
 

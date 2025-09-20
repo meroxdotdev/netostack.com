@@ -8,9 +8,9 @@
   let result = $state<WildcardResult | null>(null);
   let isLoading = $state(false);
   let copiedStates = $state<Record<string, boolean>>({});
-  let selectedExample = $state<string | null>(null);
+  let _selectedExample = $state<string | null>(null);
   let selectedExampleIndex = $state<number | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -141,14 +141,14 @@
   function loadExample(example: (typeof examples)[0], index: number) {
     inputText = example.input;
     generateACL = example.generateACL;
-    selectedExample = example.label;
+    _selectedExample = example.label;
     selectedExampleIndex = index;
-    userModified = false;
+    _userModified = false;
   }
 
   function handleInputChange() {
-    userModified = true;
-    selectedExample = null;
+    _userModified = true;
+    _selectedExample = null;
     selectedExampleIndex = null;
   }
 
@@ -183,7 +183,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (example.label)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -273,7 +273,7 @@
       {#if result.errors.length > 0}
         <div class="errors">
           <h3><Icon name="alert-triangle" /> Errors</h3>
-          {#each result.errors as error}
+          {#each result.errors as error, index (index)}
             <div class="error-item">{error}</div>
           {/each}
         </div>
@@ -314,7 +314,7 @@
           </div>
 
           <div class="conversions-grid">
-            {#each result.conversions as conversion}
+            {#each result.conversions as conversion, index (index)}
               <div class="conversion-card" class:aligned={conversion.isValid} class:misaligned={!conversion.isValid}>
                 <div class="check-header">
                   <div class="check-input">
@@ -442,7 +442,7 @@
                   </button>
                 </div>
                 <div class="acl-code">
-                  {#each result.aclRules.cisco as rule}
+                  {#each result.aclRules.cisco as rule, index (index)}
                     <div class="acl-line">{rule}</div>
                   {/each}
                 </div>
@@ -463,7 +463,7 @@
                   </button>
                 </div>
                 <div class="acl-code">
-                  {#each result.aclRules.juniper as rule}
+                  {#each result.aclRules.juniper as rule, index (index)}
                     <div class="acl-line">{rule}</div>
                   {/each}
                 </div>
@@ -484,7 +484,7 @@
                   </button>
                 </div>
                 <div class="acl-code">
-                  {#each result.aclRules.generic as rule}
+                  {#each result.aclRules.generic as rule, index (index)}
                     <div class="acl-line">{rule}</div>
                   {/each}
                 </div>

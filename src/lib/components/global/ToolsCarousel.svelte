@@ -42,7 +42,7 @@
 </script>
 
 <div class="tools-carousel" style="--gap:{gap}; --card-width:{cardWidthCss};">
-  {#each rows as row, i}
+  {#each rows as row, i (row.category)}
     <section
       class="row {pauseOnHover ? 'pausable' : ''}"
       data-dir={reverseAlternate && i % 2 ? 'rtl' : 'ltr'}

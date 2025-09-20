@@ -18,7 +18,7 @@
 
     <div class="ref-section">
       <h2>Common IPv6 Prefix Lengths</h2>
-      {#each ipv6PrefixLengthsContent.commonPrefixes as prefix}
+      {#each ipv6PrefixLengthsContent.commonPrefixes as prefix, index (`${prefix.prefix}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{prefix.prefix} - {prefix.name}</div>
           <div class="example-item">
@@ -26,7 +26,7 @@
             <div><strong>Typical Use:</strong> {prefix.typical}</div>
             <div><strong>Description:</strong> {prefix.description}</div>
             <div><strong>Examples:</strong></div>
-            {#each prefix.examples as example}
+            {#each prefix.examples as example, index (`prefix-example-${index}`)}
               <div class="example-input">{example}</div>
             {/each}
           </div>

@@ -155,7 +155,7 @@
       {#if result.errors.length > 0}
         <div class="errors">
           <h3><Icon name="alert-triangle" /> Errors</h3>
-          {#each result.errors as error}
+          {#each result.errors as error (error)}
             <div class="error-item">{error}</div>
           {/each}
         </div>
@@ -204,7 +204,7 @@
           </div>
 
           <div class="conversions-list">
-            {#each result.conversions as conversion}
+            {#each result.conversions as conversion (conversion.input)}
               <div class="conversion-card" class:valid={conversion.isValid} class:invalid={!conversion.isValid}>
                 <div class="card-header">
                   <div class="input-info">

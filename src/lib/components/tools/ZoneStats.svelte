@@ -248,7 +248,7 @@ sydney	IN	A	203.0.113.202`,
         <h3>Zone Analysis Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (example.name)}
           <button
             class="example-card {activeExampleIndex === index ? 'active' : ''}"
             onclick={() => loadExample(example, index)}
@@ -353,7 +353,7 @@ www	IN	A	192.0.2.1"
             Record Type Distribution
           </h4>
           <div class="record-types-chart">
-            {#each Object.entries(results.recordsByType).sort(([, a], [, b]) => b - a) as [type, count]}
+            {#each Object.entries(results.recordsByType).sort(([, a], [, b]) => b - a) as [type, count] (type)}
               <div class="type-row">
                 <div class="type-info">
                   <span class="type-name">{type}</span>
@@ -377,7 +377,7 @@ www	IN	A	192.0.2.1"
             TTL Distribution
           </h4>
           <div class="ttl-distribution">
-            {#each Object.entries(results.ttlDistribution).sort(([a], [b]) => parseInt(a) - parseInt(b)) as [ttl, count]}
+            {#each Object.entries(results.ttlDistribution).sort(([a], [b]) => parseInt(a) - parseInt(b)) as [ttl, count] (ttl)}
               <div class="ttl-row">
                 <div class="ttl-info">
                   <span class="ttl-value" style="color: {getTTLColor(parseInt(ttl))}">

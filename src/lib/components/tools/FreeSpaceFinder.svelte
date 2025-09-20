@@ -20,9 +20,9 @@
     visualization?: DiffResult['visualization'];
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
-  let selectedExample = $state<string | null>(null);
+  let _selectedExample = $state<string | null>(null);
   let selectedExampleIndex = $state<number | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -81,9 +81,9 @@
     pools = example.pools;
     allocations = example.allocations;
     targetPrefix = example.targetPrefix;
-    selectedExample = example.label;
+    _selectedExample = example.label;
     selectedExampleIndex = index;
-    userModified = false;
+    _userModified = false;
     calculateGaps();
   }
 
@@ -155,8 +155,8 @@
   }
 
   function handleInputChange() {
-    userModified = true;
-    selectedExample = null;
+    _userModified = true;
+    _selectedExample = null;
     selectedExampleIndex = null;
     calculateGaps();
   }
@@ -221,7 +221,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -323,7 +323,7 @@
 
         {#if result.availableBlocks.length > 0}
           <div class="free-blocks-grid">
-            {#each result.availableBlocks as block, index}
+            {#each result.availableBlocks as block, index (index)}
               {@const blockAddresses = (() => {
                 const match = block.match(/\/(\d+)$/);
                 if (!match) return 0;
@@ -387,7 +387,7 @@
 
               <div class="address-blocks">
                 <!-- Pool blocks (background) -->
-                {#each result.visualization.setA as pool}
+                {#each result.visualization.setA as pool (pool.start + pool.end)}
                   <div
                     class="address-block pool-block"
                     style="left: {getBlockPosition(
@@ -400,7 +400,7 @@
                 {/each}
 
                 <!-- Allocated blocks -->
-                {#each result.visualization.setB as allocation}
+                {#each result.visualization.setB as allocation (allocation.start + allocation.end)}
                   <div
                     class="address-block allocated-block"
                     style="left: {getBlockPosition(
@@ -413,7 +413,7 @@
                 {/each}
 
                 <!-- Available blocks (result) -->
-                {#each result.visualization.result as available}
+                {#each result.visualization.result as available (available.start + available.end)}
                   <div
                     class="address-block available-block"
                     style="left: {getBlockPosition(

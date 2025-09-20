@@ -183,7 +183,7 @@
       {#if result.errors.length > 0}
         <div class="errors">
           <h3><Icon name="alert-triangle" /> Errors</h3>
-          {#each result.errors as error}
+          {#each result.errors as error (error)}
             <div class="error-item">{error}</div>
           {/each}
         </div>
@@ -232,7 +232,7 @@
           </div>
 
           <div class="processings-list">
-            {#each result?.processings || [] as processing}
+            {#each result?.processings || [] as processing (processing.input)}
               <div class="processing-card" class:valid={processing.isValid} class:invalid={!processing.isValid}>
                 <div class="card-header row">
                   <div class="address-info">
@@ -390,7 +390,7 @@
                       <div class="suggested-zones">
                         <h4>Suggested Zone Identifiers:</h4>
                         <div class="zones-list">
-                          {#each processing.processing.suggestedZones as zone}
+                          {#each processing.processing.suggestedZones as zone (zone)}
                             <button
                               type="button"
                               class="zone-button"

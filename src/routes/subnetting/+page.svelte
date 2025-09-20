@@ -65,7 +65,7 @@
   <section class="concepts-section">
     <h2>Essential Concepts</h2>
     <div class="concepts-grid">
-      {#each keyConcepts as concept}
+      {#each keyConcepts as concept (concept.title)}
         <div class="concept-card">
           <div class="concept-header">
             <Icon name={concept.icon} size="md" />
@@ -84,7 +84,7 @@
   <section class="techniques-section">
     <h2>Subnetting Techniques</h2>
     <div class="techniques-grid">
-      {#each subnettingTechniques as technique}
+      {#each subnettingTechniques as technique (technique.title)}
         <div class="technique-card" style="--accent-color: {technique.color}">
           <div class="technique-header">
             <Icon name={technique.icon} size="lg" />
@@ -114,7 +114,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each commonSubnetMasks as mask}
+          {#each commonSubnetMasks as mask (mask.cidr)}
             <tr>
               <td class="cidr-cell">/{mask.cidr}</td>
               <td class="mask-cell">{mask.decimal}</td>
@@ -135,7 +135,7 @@
         <h2>Best Practices</h2>
       </div>
       <ul>
-        {#each practicalTips as tip}
+        {#each practicalTips as tip (tip)}
           <li>{tip}</li>
         {/each}
       </ul>
@@ -147,7 +147,7 @@
         <h2>Common Mistakes</h2>
       </div>
       <ul>
-        {#each commonMistakes as mistake}
+        {#each commonMistakes as mistake (mistake)}
           <li>{mistake}</li>
         {/each}
       </ul>

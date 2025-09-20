@@ -27,7 +27,7 @@
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
   let showZoneFiles = $state(true);
 
   const examples = [
@@ -73,7 +73,7 @@
     inputValue = example.input;
     inputType = example.type;
     selectedExample = example.label;
-    userModified = false;
+    _userModified = false;
     generatePTRs();
   }
 
@@ -347,13 +347,13 @@ $TTL 86400
   }
 
   function handleInputChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     generatePTRs();
   }
 
   function handleTypeChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     generatePTRs();
   }
@@ -413,7 +413,7 @@ $TTL 86400
         <h3>Quick Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.id)}
           <button
             class="example-card {selectedExample === example.label ? 'active' : ''}"
             onclick={() => loadExample(example)}
@@ -533,7 +533,7 @@ $TTL 86400
               <div class="col-type">Type</div>
               <div class="col-zone">Zone</div>
             </div>
-            {#each results.entries.slice(0, 50) as entry}
+            {#each results.entries.slice(0, 50) as entry (`${entry.ip}-${entry.ptr}`)}
               <div class="table-row">
                 <div class="col-ip">
                   <code>{entry.ip}</code>
@@ -570,7 +570,7 @@ $TTL 86400
               <Icon name="file" size="sm" />
               Zone File Stubs
             </h4>
-            {#each results.zoneFiles as zoneFile}
+            {#each results.zoneFiles as zoneFile (zoneFile.name)}
               <div class="zone-file">
                 <div class="zone-file-header">
                   <div class="zone-info">

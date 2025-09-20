@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TOP_NAV, aboutPages, SUB_NAV } from '$lib/constants/nav';
+  import { TOP_NAV, aboutPages, SUB_NAV, type NavItem, type NavGroup } from '$lib/constants/nav';
 
   interface TreeNode {
     label: string;
@@ -8,8 +8,8 @@
     children: TreeNode[];
   }
 
-  const mapToNode = (item: any): TreeNode => ({
-    label: item.label || item.title,
+  const mapToNode = (item: NavItem | NavGroup): TreeNode => ({
+    label: 'label' in item ? item.label : item.title,
     href: item.href || null,
     description: item.description,
     children: [],
@@ -58,7 +58,7 @@
     <details open>
       <summary>{@render nodeLink(node)}</summary>
       <ul>
-        {#each node.children as child}
+        {#each node.children as child (child.title)}
           <li>
             {#if child.children.length > 0}
               {@render treeNode(child, level + 1)}
@@ -82,7 +82,7 @@
   </p>
 
   <div class="tree">
-    {#each siteTree as node}
+    {#each siteTree as node (node.title)}
       {@render treeNode(node)}
     {/each}
   </div>

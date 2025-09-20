@@ -27,7 +27,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each arpVsNdpContent.comparison.basic as item}
+          {#each arpVsNdpContent.comparison.basic as item, index (`${item.aspect}-${index}`)}
             <tr>
               <td><strong>{item.aspect}</strong></td>
               <td>{item.arp}</td>
@@ -42,7 +42,7 @@
       <h2>{arpVsNdpContent.arpDetails.title}</h2>
 
       <h3>ARP Message Types</h3>
-      {#each arpVsNdpContent.arpDetails.messageTypes as type}
+      {#each arpVsNdpContent.arpDetails.messageTypes as type, index (`${type.type}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{type.type}</div>
           <div class="example-item">
@@ -55,14 +55,14 @@
 
       <h3>ARP Process</h3>
       <ol>
-        {#each arpVsNdpContent.arpDetails.process as step}
+        {#each arpVsNdpContent.arpDetails.process as step, index (`arp-process-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
 
       <h3>ARP Limitations</h3>
       <ul>
-        {#each arpVsNdpContent.arpDetails.limitations as limitation}
+        {#each arpVsNdpContent.arpDetails.limitations as limitation, index (`arp-limitation-${index}`)}
           <li>{limitation}</li>
         {/each}
       </ul>
@@ -72,7 +72,7 @@
       <h2>{arpVsNdpContent.ndpDetails.title}</h2>
 
       <h3>NDP Message Types</h3>
-      {#each arpVsNdpContent.ndpDetails.messageTypes as type}
+      {#each arpVsNdpContent.ndpDetails.messageTypes as type, index (`${type.type}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{type.type}</div>
           <div class="example-item">
@@ -86,14 +86,14 @@
 
       <h3>NDP Process</h3>
       <ol>
-        {#each arpVsNdpContent.ndpDetails.process as step}
+        {#each arpVsNdpContent.ndpDetails.process as step, index (`ndp-process-${index}`)}
           <li>{step}</li>
         {/each}
       </ol>
 
       <h3>NDP Advantages Over ARP</h3>
       <ul>
-        {#each arpVsNdpContent.ndpDetails.advantages as advantage}
+        {#each arpVsNdpContent.ndpDetails.advantages as advantage, index (`ndp-advantage-${index}`)}
           <li>{advantage}</li>
         {/each}
       </ul>
@@ -101,7 +101,7 @@
 
     <div class="ref-section">
       <h2>Practical Differences</h2>
-      {#each arpVsNdpContent.practicalDifferences as diff}
+      {#each arpVsNdpContent.practicalDifferences as diff, index (`${diff.scenario}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{diff.scenario}</div>
           <div class="example-item">
@@ -125,7 +125,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each arpVsNdpContent.troubleshootingCommands as cmd}
+          {#each arpVsNdpContent.troubleshootingCommands as cmd, index (`${cmd.purpose}-${index}`)}
             <tr>
               <td><strong>{cmd.purpose}</strong></td>
               <td><code>{cmd.ipv4}</code></td>
@@ -139,7 +139,7 @@
 
     <div class="ref-section">
       <h2>Common Issues</h2>
-      {#each arpVsNdpContent.commonIssues as issue}
+      {#each arpVsNdpContent.commonIssues as issue, index (`${issue.issue}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="alert-triangle" size="sm" />
@@ -156,10 +156,10 @@
 
     <div class="ref-section">
       <h2>Best Practices</h2>
-      {#each arpVsNdpContent.bestPractices as practices}
+      {#each arpVsNdpContent.bestPractices as practices, index (`${practices.protocol}-${index}`)}
         <h3>{practices.protocol} Best Practices</h3>
         <ul>
-          {#each practices.practices as practice}
+          {#each practices.practices as practice, index (`practice-${index}`)}
             <li>{practice}</li>
           {/each}
         </ul>
@@ -171,14 +171,14 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">ARP Key Points</div>
-          {#each arpVsNdpContent.quickReference.arp as point}
+          {#each arpVsNdpContent.quickReference.arp as point, index (`arp-point-${index}`)}
             <div class="item-code">{point}</div>
           {/each}
         </div>
 
         <div class="grid-item">
           <div class="item-title">NDP Key Points</div>
-          {#each arpVsNdpContent.quickReference.ndp as point}
+          {#each arpVsNdpContent.quickReference.ndp as point, index (`ndp-point-${index}`)}
             <div class="item-code">{point}</div>
           {/each}
         </div>
@@ -189,7 +189,7 @@
       <h2>IPv4 to IPv6 Migration Tips</h2>
       <div class="ref-examples">
         <div class="examples-title">Important Considerations</div>
-        {#each arpVsNdpContent.migrationTips as tip}
+        {#each arpVsNdpContent.migrationTips as tip, index (`migration-tip-${index}`)}
           <div class="example-item">
             <div class="example-description">{tip}</div>
           </div>

@@ -21,7 +21,7 @@
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -59,7 +59,7 @@
     customPrefix = example.prefix;
     conversionMode = example.mode;
     selectedExample = example.label;
-    userModified = false;
+    _userModified = false;
     translateAddress();
   }
 
@@ -153,7 +153,7 @@
     });
   }
 
-  function isValidIPv6(address: string): boolean {
+  function _isValidIPv6(address: string): boolean {
     try {
       const expanded = expandIPv6(address);
       const groups = expanded.split(':');
@@ -175,7 +175,7 @@
     const [network, lengthStr] = prefix.split('/');
     const length = parseInt(lengthStr, 10);
 
-    if (!isValidIPv6(network) || isNaN(length) || length < 0 || length > 128) {
+    if (!_isValidIPv6(network) || isNaN(length) || length < 0 || length > 128) {
       throw new Error('Invalid IPv6 prefix format');
     }
 
@@ -221,7 +221,7 @@
 
     const explanation = [
       `1. IPv4 address: ${ipv4}`,
-      `2. Convert to hex: ${parts.map((p, i) => `${p} → ${p.toString(16).padStart(2, '0')}`).join(', ')}`,
+      `2. Convert to hex: ${parts.map((p, _i) => `${p} → ${p.toString(16).padStart(2, '0')}`).join(', ')}`,
       `3. IPv4 as hex: ${ipv4Hex} (${ipv4Group1}:${ipv4Group2})`,
       `4. NAT64 prefix: ${prefix} → first 96 bits`,
       `5. Combine: ${network.split(':').slice(0, 6).join(':')}:${ipv4Group1}:${ipv4Group2}`,
@@ -247,7 +247,7 @@
     ipv4Hex: string;
     explanation: string[];
   } {
-    if (!isValidIPv6(ipv6)) {
+    if (!_isValidIPv6(ipv6)) {
       throw new Error('Invalid IPv6 address format');
     }
 
@@ -303,7 +303,7 @@
 
   function autoDetectInputType(input: string): 'ipv4' | 'ipv6' | 'unknown' {
     if (input.includes(':')) {
-      return isValidIPv6(input) ? 'ipv6' : 'unknown';
+      return _isValidIPv6(input) ? 'ipv6' : 'unknown';
     } else if (input.includes('.')) {
       return isValidIPv4(input) ? 'ipv4' : 'unknown';
     }
@@ -390,13 +390,13 @@
   }
 
   function handleInputChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     translateAddress();
   }
 
   function handleModeChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     translateAddress();
   }
@@ -456,7 +456,7 @@
         <h3>Quick Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.label)}
           <button
             class="example-card {selectedExample === example.label ? 'active' : ''}"
             onclick={() => loadExample(example)}
@@ -620,7 +620,7 @@
             Translation Steps
           </h4>
           <div class="steps-list">
-            {#each result.details.explanation as step, index}
+            {#each result.details.explanation as step, index (`step-${index}`)}
               <div class="step-item">
                 <div class="step-number">{index + 1}</div>
                 <div class="step-content">{step}</div>

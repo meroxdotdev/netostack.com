@@ -189,7 +189,7 @@
         <h4>Common TTL Values</h4>
       </summary>
       <div class="ttls-grid">
-        {#each commonTTLs as ttl, index}
+        {#each commonTTLs as ttl, index (ttl.seconds)}
           <button
             class="ttl-card {activeTTLIndex === index ? 'active' : ''}"
             onclick={() => loadCommonTTL(ttl.seconds, index)}
@@ -211,7 +211,7 @@
         <h4>TTL by Use Case</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (example.scenario)}
           <button
             class="example-card {activeExampleIndex === index ? 'active' : ''}"
             onclick={() => loadExample(example, index)}
@@ -319,7 +319,7 @@
       <div class="recommendations-section">
         <h4>Summary</h4>
         <ul class="recommendations-list">
-          {#each results.ttlInfo.recommendations as recommendation}
+          {#each results.ttlInfo.recommendations as recommendation, index (index)}
             <li class="recommendation-item">{recommendation}</li>
           {/each}
         </ul>

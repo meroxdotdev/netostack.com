@@ -83,10 +83,10 @@
     mxRecords = mxRecords.filter((r) => r.id !== id);
   }
 
-  function updateRecord(id: string, field: keyof MXRecord, value: any) {
+  function updateRecord(id: string, field: keyof MXRecord, value: string | number) {
     const record = mxRecords.find((r) => r.id === id);
     if (record) {
-      (record as any)[field] = value;
+      (record as Record<string, unknown>)[field] = value;
       mxRecords = mxRecords; // Trigger reactivity
     }
   }
@@ -247,7 +247,7 @@
 
               {#if !validation.valid}
                 <div class="validation-errors">
-                  {#each validation.issues as issue}
+                  {#each validation.issues as issue, index (index)}
                     <div class="error-message">
                       <Icon name="alert-circle" size="xs" />
                       {issue}
@@ -268,7 +268,7 @@
           Quick Examples
         </summary>
         <div class="examples-grid">
-          {#each examples as example}
+          {#each examples as example (example.label)}
             <button class="example-card" onclick={() => loadExample(example)}>
               <h4>{example.label}</h4>
               <p>{example.records.length} MX records</p>
@@ -283,7 +283,7 @@
           Priority Guidelines
         </summary>
         <div class="priority-guide">
-          {#each priorityGuidelines as guideline}
+          {#each priorityGuidelines as guideline (guideline.range)}
             <div class="guide-item {guideline.color}">
               <span class="range">{guideline.range}</span>
               <span class="usage">{guideline.usage}</span>
@@ -326,7 +326,7 @@
           <div>Mail Server</div>
           <div>Status</div>
         </div>
-        {#each displayMxRecords as record}
+        {#each displayMxRecords as record (record.id)}
           {@const validation = validateMXRecord(record)}
           <div class="table-row" class:error={!validation.valid}>
             <div class="domain">{domain}</div>
@@ -357,7 +357,7 @@
             Configuration Issues
           </h3>
           <ul>
-            {#each mxRecords.filter((r) => !validateMXRecord(r).valid) as record}
+            {#each mxRecords.filter((r) => !validateMXRecord(r).valid) as record (record.id)}
               {@const validation = validateMXRecord(record)}
               <li>
                 <strong>Priority {record.priority}</strong>: {validation.issues.join(', ')}

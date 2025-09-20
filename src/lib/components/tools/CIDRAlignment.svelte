@@ -9,9 +9,9 @@
   let result = $state<AlignmentResult | null>(null);
   let isLoading = $state(false);
   let copiedStates = $state<Record<string, boolean>>({});
-  let selectedExample = $state<string | null>(null);
+  let _selectedExample = $state<string | null>(null);
   let selectedExampleIndex = $state<number | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
   let validationErrors = $state<string[]>([]);
 
   const examples = [
@@ -203,14 +203,14 @@
   function loadExample(example: (typeof examples)[0], index: number) {
     inputText = example.input;
     targetPrefix = example.targetPrefix;
-    selectedExample = example.label;
+    _selectedExample = example.label;
     selectedExampleIndex = index;
-    userModified = false;
+    _userModified = false;
   }
 
   function handleInputChange() {
-    userModified = true;
-    selectedExample = null;
+    _userModified = true;
+    _selectedExample = null;
     selectedExampleIndex = null;
   }
 
@@ -237,7 +237,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (example.label)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -292,7 +292,7 @@
         <div class="input-help">Prefix length to check alignment against (0-32 for IPv4, 0-128 for IPv6)</div>
         {#if validationErrors.length > 0}
           <div class="validation-errors">
-            {#each validationErrors as error}
+            {#each validationErrors as error (error)}
               <div class="validation-error">
                 <Icon name="alert-circle" size="xs" />
                 {error}
@@ -316,7 +316,7 @@
       {#if result.errors.length > 0}
         <div class="errors">
           <h3><Icon name="alert-triangle" /> Errors</h3>
-          {#each result.errors as error}
+          {#each result.errors as error (error)}
             <div class="error-item">{error}</div>
           {/each}
         </div>
@@ -365,7 +365,7 @@
           </div>
 
           <div class="checks-list">
-            {#each result.checks as check}
+            {#each result.checks as check (check.input)}
               <div class="check-item" class:aligned={check.isAligned} class:misaligned={!check.isAligned}>
                 <div class="check-header">
                   <div class="check-input">
@@ -420,7 +420,7 @@
                       use:tooltip={'Alternative CIDR configurations that would align to the target boundary'}
                       >Suggestions:</span
                     >
-                    {#each check.suggestions as suggestion}
+                    {#each check.suggestions as suggestion (suggestion.type + suggestion.description)}
                       <div class="suggestion">
                         <div class="suggestion-type">
                           {#if suggestion.type === 'larger'}
@@ -433,7 +433,7 @@
                           <span class="suggestion-description">{suggestion.description}</span>
                         </div>
                         <div class="suggestion-cidrs">
-                          {#each suggestion.cidrs as cidr, idx}
+                          {#each suggestion.cidrs as cidr, idx (cidr)}
                             <div class="suggestion-cidr">
                               <code class="suggestion-code">{cidr}</code>
                               <button

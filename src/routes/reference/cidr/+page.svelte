@@ -41,7 +41,7 @@
       <h2>Common Examples</h2>
       <div class="ref-examples">
         <div class="examples-title">Network Examples</div>
-        {#each cidrContent.examples as example}
+        {#each cidrContent.examples as example, index (`${example.cidr}-${index}`)}
           <div class="example-item">
             <span class="example-input">{example.cidr}</span>
             <span class="example-arrow">→</span>
@@ -64,7 +64,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each cidrContent.prefixTable as row}
+          {#each cidrContent.prefixTable as row, index (`${row.prefix}-${index}`)}
             <tr>
               <td><code>{row.prefix}</code></td>
               <td><code>{row.mask}</code></td>

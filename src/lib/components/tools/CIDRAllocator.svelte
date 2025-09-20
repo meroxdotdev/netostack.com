@@ -51,9 +51,9 @@
     };
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
-  let selectedExample = $state<string | null>(null);
+  let _selectedExample = $state<string | null>(null);
   let selectedExampleIndex = $state<number | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -132,9 +132,9 @@
     pools = example.pools;
     requests = example.requests;
     algorithm = example.algorithm;
-    selectedExample = example.label;
+    _selectedExample = example.label;
     selectedExampleIndex = index;
-    userModified = false;
+    _userModified = false;
     performAllocation();
   }
 
@@ -225,7 +225,7 @@
   function findBestFitBlock(
     freeBlocks: Array<{ start: number; size: number }>,
     requiredSize: number,
-    prefixLength: number,
+    _prefixLength: number,
   ): { start: number; size: number } | null {
     // Filter blocks that can fit the required size and are properly aligned
     const viableBlocks = freeBlocks.filter((block) => {
@@ -268,7 +268,7 @@
           throw new Error(`Invalid pool format: ${trimmed}. Expected CIDR notation.`);
         }
 
-        const { network, prefixLength, size } = parseCIDR(trimmed);
+        const { network, prefixLength: _prefixLength, size } = parseCIDR(trimmed);
         return {
           original: trimmed,
           network,
@@ -418,8 +418,8 @@
   }
 
   function handleInputChange() {
-    userModified = true;
-    selectedExample = null;
+    _userModified = true;
+    _selectedExample = null;
     selectedExampleIndex = null;
     performAllocation();
   }
@@ -464,7 +464,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (example.label)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -626,7 +626,7 @@
         <div class="allocations-section">
           <h4 use:tooltip={'Individual subnet allocation results with assigned CIDR blocks'}>Subnet Allocations</h4>
           <div class="allocations-list">
-            {#each result.allocations as allocation}
+            {#each result.allocations as allocation (allocation.request)}
               <div class="allocation-item {allocation.allocated ? 'success' : 'failed'}">
                 <div class="allocation-header">
                   <div class="allocation-info">
@@ -675,7 +675,7 @@
         <div class="pools-section">
           <h4 use:tooltip={'Detailed breakdown of how address space was used in each pool'}>Pool Utilization</h4>
           <div class="pools-grid">
-            {#each result.pools as pool}
+            {#each result.pools as pool (pool.original)}
               <div class="pool-card">
                 <div class="pool-header">
                   <code class="pool-cidr">{pool.original}</code>
@@ -701,7 +701,7 @@
                   <div class="pool-allocations">
                     <h5>Allocated Subnets</h5>
                     <div class="allocated-list">
-                      {#each pool.allocated as subnet}
+                      {#each pool.allocated as subnet (subnet.cidr)}
                         <div class="allocated-subnet">
                           <code class="subnet-cidr">{subnet.cidr}</code>
                           <span class="subnet-desc">{subnet.description}</span>
@@ -716,7 +716,7 @@
                   <div class="pool-remaining">
                     <h5>Available Space</h5>
                     <div class="remaining-list">
-                      {#each pool.remaining.slice(0, 5) as remaining}
+                      {#each pool.remaining.slice(0, 5) as remaining (remaining.cidr)}
                         <div class="remaining-block">
                           <code class="remaining-size">
                             {remaining.size.toLocaleString()} addresses

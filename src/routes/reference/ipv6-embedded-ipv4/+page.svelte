@@ -18,7 +18,7 @@
 
     <div class="ref-section">
       <h2>IPv4-in-IPv6 Mechanisms</h2>
-      {#each ipv6EmbeddedIPv4Content.mechanisms as mechanism}
+      {#each ipv6EmbeddedIPv4Content.mechanisms as mechanism, index (`${mechanism.name}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">
             {mechanism.name}
@@ -35,7 +35,7 @@
             <div><strong>Purpose:</strong> {mechanism.purpose}</div>
             <div><strong>Format:</strong> <code>{mechanism.format}</code></div>
             <div><strong>Examples:</strong></div>
-            {#each mechanism.examples as example}
+            {#each mechanism.examples as example, index (`example-${index}`)}
               <div class="example-input">{example}</div>
             {/each}
             <div><strong>Usage:</strong></div>

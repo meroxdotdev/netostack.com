@@ -92,7 +92,7 @@
           <div class="errors">
             <h4>Errors</h4>
             <ul>
-              {#each result.errors as error}
+              {#each result.errors as error, index (index)}
                 <li class="error">{error}</li>
               {/each}
             </ul>
@@ -102,7 +102,7 @@
         {#if result.generations.some((g) => g.isValid)}
           <div class="generations">
             <h3>Generated ULA Addresses</h3>
-            {#each result.generations as generation, i}
+            {#each result.generations as generation, i (generation.globalId)}
               {#if generation.isValid}
                 <div class="generation-result">
                   <div class="generation-header">

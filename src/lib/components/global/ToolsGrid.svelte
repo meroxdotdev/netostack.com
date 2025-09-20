@@ -12,7 +12,7 @@
   <NoResults {searchQuery} />
 {:else}
   <section class="tools-grid">
-    {#each tools as tool}
+    {#each tools as tool (tool.href)}
       <ToolCard {tool} />
     {/each}
   </section>

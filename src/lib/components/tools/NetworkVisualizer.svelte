@@ -14,7 +14,7 @@
    */
   function generateNetworkBlocks() {
     const totalHosts = subnetInfo.hostCount;
-    const usableHosts = subnetInfo.usableHosts;
+    const _usableHosts = subnetInfo.usableHosts;
 
     // For visualization, we'll show up to 256 blocks max
     const maxBlocks = 256;
@@ -26,7 +26,7 @@
     for (let i = 0; i < blocksToShow; i++) {
       const isNetwork = i === 0;
       const isBroadcast = i === blocksToShow - 1 && totalHosts > 2;
-      const isUsable = !isNetwork && !isBroadcast;
+      const _isUsable = !isNetwork && !isBroadcast;
 
       blocks.push({
         id: i,
@@ -119,14 +119,14 @@
     <h4>Subnet Mask Binary Breakdown</h4>
 
     <div class="binary-display">
-      {#each subnetInfo.subnet.octets as octet, i}
+      {#each subnetInfo.subnet.octets as octet, i (i)}
         <div class="binary-row">
           <span class="octet-decimal">
             {octet.toString().padStart(3, '0')}
           </span>
           <span class="arrow">→</span>
           <div class="bits-group">
-            {#each octet.toString(2).padStart(8, '0').split('') as bit, bitIndex}
+            {#each octet.toString(2).padStart(8, '0').split('') as bit, bitIndex (bitIndex)}
               <Tooltip
                 text="{bit === '1' ? 'Network bit (1)' : 'Host bit (0)'} - Position {i * 8 + bitIndex + 1}"
                 position="top"
@@ -165,7 +165,7 @@
 
       <div class="address-grid-wrap">
         <div class="address-grid">
-          {#each networkBlocks as block}
+          {#each networkBlocks as block (block.id)}
             <Tooltip text={block.tooltip} position="top">
               <div class="address-block {block.type}">
                 {#if block.type === 'network'}

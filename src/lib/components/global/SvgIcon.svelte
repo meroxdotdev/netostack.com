@@ -30,7 +30,7 @@
   {#if icon === 'check'}
     <path fill-rule="evenodd" d={iconPaths.check} clip-rule="evenodd" />
   {:else if icon === 'clipboard'}
-    {#each iconPaths.clipboard.split(' M') as pathData, i}
+    {#each iconPaths.clipboard.split(' M') as pathData, i (i)}
       <path d={i === 0 ? pathData : 'M' + pathData} />
     {/each}
   {:else if icon === 'close'}

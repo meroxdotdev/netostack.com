@@ -150,7 +150,7 @@
       {#if result.errors.length > 0}
         <div class="errors">
           <h3><Icon name="alert-triangle" /> Errors</h3>
-          {#each result.errors as error}
+          {#each result.errors as error (error)}
             <div class="error-item">{error}</div>
           {/each}
         </div>
@@ -205,7 +205,7 @@
 
         <div class="normalizations">
           <div class="normalizations-list">
-            {#each result.normalizations as normalization, index}
+            {#each result.normalizations as normalization, index (`norm-${index}`)}
               <div
                 class="normalization-card"
                 class:valid={normalization.isValid}
@@ -295,7 +295,7 @@
                       {#if normalization.steps.length > 0}
                         <div class="normalization-steps">
                           <h4>Normalization Steps:</h4>
-                          {#each normalization.steps as step}
+                          {#each normalization.steps as step (`step-${step.step}`)}
                             <div class="step">
                               <div class="step-header">
                                 <span class="step-number">Step {step.step}</span>

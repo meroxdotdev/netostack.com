@@ -18,7 +18,7 @@
       <span>Usage</span>
     </div>
 
-    {#each COMMON_SUBNETS as subnet}
+    {#each COMMON_SUBNETS as subnet (`${subnet.cidr}-${subnet.mask}`)}
       <Tooltip
         text={`/${subnet.cidr} with ${subnet.mask} supports ${subnet.hosts.toLocaleString()} hosts`}
         position="top"

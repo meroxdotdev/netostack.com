@@ -87,7 +87,7 @@
   <p>If you've found this app useful, you might also like some of my other projects:</p>
   <div class="more-app-list">
     <div class="links-grid">
-      {#each moreApps as app}
+      {#each moreApps as app (app.name)}
         <a
           class="link-card"
           style="--app-color: {app.color}"

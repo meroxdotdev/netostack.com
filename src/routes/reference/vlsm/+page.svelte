@@ -44,7 +44,7 @@
         <div class="grid-item">
           <div class="item-title">Requirements</div>
           <ul>
-            {#each vlsmContent.example.requirements as req}
+            {#each vlsmContent.example.requirements as req (req.network)}
               <li>{req.name}: {req.hosts} hosts (needs {req.needsPrefix})</li>
             {/each}
           </ul>
@@ -53,7 +53,7 @@
         <div class="grid-item">
           <div class="item-title">VLSM Solution</div>
           <ul>
-            {#each vlsmContent.example.solution as subnet}
+            {#each vlsmContent.example.solution as subnet (subnet.network)}
               <li><code>{subnet.subnet}</code> - {subnet.use} ({subnet.hosts})</li>
             {/each}
           </ul>
@@ -63,7 +63,7 @@
 
     <div class="ref-section">
       <h2>Common Pitfalls and Solutions</h2>
-      {#each vlsmContent.pitfalls as pitfall}
+      {#each vlsmContent.pitfalls as pitfall (pitfall.title)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="alert-triangle" size="sm" />
@@ -80,7 +80,7 @@
     <div class="ref-section">
       <h2>Best Practices</h2>
       <ul>
-        {#each vlsmContent.bestPractices as practice}
+        {#each vlsmContent.bestPractices as practice (practice)}
           <li>{practice}</li>
         {/each}
       </ul>
@@ -90,7 +90,7 @@
       <h2>Quick Tips</h2>
       <div class="ref-examples">
         <div class="examples-title">Remember These</div>
-        {#each vlsmContent.tips as tip}
+        {#each vlsmContent.tips as tip (tip)}
           <div class="example-item">
             <div class="example-description">{tip}</div>
           </div>

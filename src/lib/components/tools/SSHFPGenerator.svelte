@@ -2,7 +2,7 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import { tooltip } from '$lib/actions/tooltip';
 
-  interface SSHFPRecord {
+  interface _SSHFPRecord {
     algorithm: number;
     fingerprintType: number;
     fingerprint: string;
@@ -416,7 +416,7 @@
           <div class="validation-messages error">
             <Icon name="x-circle" size="sm" />
             <div class="messages">
-              {#each validation.errors as error}
+              {#each validation.errors as error, index (index)}
                 <div class="message">{error}</div>
               {/each}
             </div>
@@ -427,7 +427,7 @@
           <div class="validation-messages warning">
             <Icon name="alert-triangle" size="sm" />
             <div class="messages">
-              {#each validation.warnings as warning}
+              {#each validation.warnings as warning, index (index)}
                 <div class="message">{warning}</div>
               {/each}
             </div>
@@ -473,7 +473,7 @@
 
         <div class="security-tips">
           <ul>
-            {#each securityTips as tip}
+            {#each securityTips as tip, tipIdx (`${tip.title}-${tipIdx}`)}
               <li>{tip}</li>
             {/each}
           </ul>
@@ -489,7 +489,7 @@
         Example Configurations
       </summary>
       <div class="examples-grid">
-        {#each exampleConfigurations as example}
+        {#each exampleConfigurations as example, exampleIdx (`${example.title}-${exampleIdx}`)}
           <button
             type="button"
             class="example-card"

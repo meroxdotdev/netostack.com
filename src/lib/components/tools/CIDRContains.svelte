@@ -263,7 +263,7 @@
           <h4>Quick Examples</h4>
         </summary>
         <div class="examples-grid">
-          {#each examples as example, i}
+          {#each examples as example, i (example.label)}
             <button
               class="example-card"
               class:selected={selectedExampleIndex === i && !userModified}
@@ -287,7 +287,7 @@
         <div class="info-panel error">
           <h3>Parse Errors</h3>
           <ul class="error-list">
-            {#each result.errors as error}
+            {#each result.errors as error (error)}
               <li>{error}</li>
             {/each}
           </ul>
@@ -367,7 +367,7 @@
               <div class="col-gaps">Gaps</div>
             </div>
 
-            {#each result.checks as check}
+            {#each result.checks as check, index (`${check.input}-${index}`)}
               {@const statusInfo = getStatusInfo(check.status)}
               <div class="table-row status-{check.status}">
                 <div class="col-input">
@@ -391,7 +391,7 @@
                 <div class="col-containers">
                   {#if check.matchingContainers.length > 0}
                     <div class="container-list">
-                      {#each check.matchingContainers as container}
+                      {#each check.matchingContainers as container (container)}
                         <code class="container-item">{container}</code>
                       {/each}
                     </div>
@@ -402,7 +402,7 @@
                 <div class="col-gaps">
                   {#if check.gaps.length > 0}
                     <div class="gaps-list">
-                      {#each check.gaps as gap}
+                      {#each check.gaps as gap (gap)}
                         <code class="gap-item">{gap}</code>
                       {/each}
                     </div>
@@ -443,7 +443,7 @@
             </div>
 
             <div class="visualization-list">
-              {#each result.visualization as viz, index}
+              {#each result.visualization as viz, index (viz.input)}
                 {@const check = result.checks[index]}
                 {@const statusInfo = getStatusInfo(check.status)}
                 <div class="viz-item status-{check.status}">
@@ -470,7 +470,7 @@
 
                     <!-- Container overlays -->
                     <div class="viz-bar container-bar">
-                      {#each viz.containers as container}
+                      {#each viz.containers as container (`${container.start}-${container.end}`)}
                         <div
                           class="viz-segment container-segment"
                           style="width: {getBarWidth(container, viz.totalRange)}%; left: {getBarOffset(
@@ -484,7 +484,7 @@
 
                     <!-- Gap highlights -->
                     <div class="viz-bar gap-bar">
-                      {#each viz.gaps as gap}
+                      {#each viz.gaps as gap (`${gap.start}-${gap.end}`)}
                         <div
                           class="viz-segment gap-segment"
                           style="width: {getBarWidth(gap, viz.totalRange)}%; left: {getBarOffset(gap, viz.totalRange)}%"

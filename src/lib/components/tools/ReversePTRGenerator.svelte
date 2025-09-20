@@ -18,7 +18,7 @@
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -57,7 +57,7 @@
     inputValue = example.input;
     inputType = example.type;
     selectedExample = example.label;
-    userModified = false;
+    _userModified = false;
     generatePTRs();
   }
 
@@ -108,13 +108,13 @@
   }
 
   function handleInputChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     generatePTRs();
   }
 
   function handleTypeChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     generatePTRs();
   }
@@ -174,7 +174,7 @@
         <h3>Quick Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.label)}
           <button
             class="example-card {selectedExample === example.label ? 'active' : ''}"
             onclick={() => loadExample(example)}
@@ -282,7 +282,7 @@
               <div class="col-zone-line">Zone File Line</div>
               <div class="col-type">Type</div>
             </div>
-            {#each results.entries.slice(0, 100) as entry}
+            {#each results.entries.slice(0, 100) as entry (`${entry.ip}-${entry.ptr}`)}
               <div class="table-row">
                 <div class="col-ip">
                   <code>{entry.ip}</code>

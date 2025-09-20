@@ -174,7 +174,7 @@
         try {
           if (toPunycode) {
             // Check if part contains non-ASCII characters
-            if (!/^[\x00-\x7F]*$/.test(part)) {
+            if (!/^[\x20-\x7F]*$/.test(part)) {
               const encoded = punycodeEncode(part);
               return `xn--${encoded}`;
             }
@@ -186,7 +186,7 @@
             }
             return part;
           }
-        } catch (e) {
+        } catch {
           return part; // Return original if conversion fails
         }
       })
@@ -202,7 +202,7 @@
       } else {
         return convertDomain(inputText.trim(), false);
       }
-    } catch (e) {
+    } catch {
       return 'Error: Invalid input';
     }
   });
@@ -267,7 +267,7 @@
 
   function swapModeAndContent() {
     if (isValid) {
-      const temp = inputText;
+      const _temp = inputText;
       inputText = result;
       mode = mode === 'unicode-to-punycode' ? 'punycode-to-unicode' : 'unicode-to-punycode';
     } else {
@@ -318,7 +318,7 @@
           </svg>
         </summary>
         <div class="examples-grid">
-          {#each domainExamples as example}
+          {#each domainExamples as example (example.unicode)}
             <button class="example-btn" onclick={() => loadExample(example)}>
               <div class="example-domain">
                 {mode === 'unicode-to-punycode' ? example.unicode : example.punycode}
@@ -394,7 +394,7 @@
                 <div class="alert alert-warning">
                   <h4>Notices</h4>
                   <ul>
-                    {#each warnings as warning}
+                    {#each warnings as warning (warning)}
                       <li>{warning}</li>
                     {/each}
                   </ul>

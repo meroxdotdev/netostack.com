@@ -18,7 +18,7 @@
 
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -56,7 +56,7 @@
   function loadExample(example: (typeof examples)[0]) {
     cidrInput = example.cidr;
     selectedExample = example.label;
-    userModified = false;
+    _userModified = false;
     calculateZones();
   }
 
@@ -111,7 +111,7 @@
   }
 
   function handleInputChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     calculateZones();
   }
@@ -143,7 +143,7 @@
   function generateDelegationCommands(zones: ReverseZoneInfo[]): string {
     return zones
       .map((zone) => {
-        const zoneFile = zone.zone.replace(/\./g, '_');
+        const _zoneFile = zone.zone.replace(/\./g, '_');
         return `# Create zone file for ${zone.zone}
 touch /etc/bind/zones/${zone.zone}
 chown bind:bind /etc/bind/zones/${zone.zone}
@@ -195,7 +195,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
         <h3>Quick Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.label)}
           <button
             class="example-card {selectedExample === example.label ? 'active' : ''}"
             onclick={() => loadExample(example)}
@@ -255,7 +255,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
             Required Reverse Zones
           </h4>
           <div class="zones-grid">
-            {#each results.zones as zone, index}
+            {#each results.zones as zone, index (zone.zone)}
               <div class="zone-card">
                 <div class="zone-header">
                   <div class="zone-info">

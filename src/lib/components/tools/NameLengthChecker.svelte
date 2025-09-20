@@ -207,7 +207,7 @@ very.deep.nested.subdomain.with.lots.of.labels.creating.a.domain.name.that.is.ex
         <h3>Name Length Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (example.name)}
           <button
             class="example-card {activeExampleIndex === index ? 'active' : ''}"
             onclick={() => loadExample(example, index)}
@@ -328,7 +328,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
                   Label Length Violations ({results.violations.filter((v) => v.type === 'label').length})
                 </h5>
                 <div class="violations-list">
-                  {#each results.violations.filter((v) => v.type === 'label') as violation}
+                  {#each results.violations.filter((v) => v.type === 'label') as violation (violation.name)}
                     <div class="violation-item" style="border-left-color: {getViolationColor(violation)}">
                       <div class="violation-header">
                         <div class="violation-name">{violation.name}</div>
@@ -347,7 +347,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
                       {#if violation.labels}
                         <div class="violation-labels">
                           <strong>Labels:</strong>
-                          {#each violation.labels as label, index}
+                          {#each violation.labels as label, index (label)}
                             <span class="label-item {label.length > 63 ? 'invalid' : 'valid'}">
                               {label} <span class="label-length">({label.length})</span>
                             </span>
@@ -369,7 +369,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
                   FQDN Length Violations ({results.violations.filter((v) => v.type === 'fqdn').length})
                 </h5>
                 <div class="violations-list">
-                  {#each results.violations.filter((v) => v.type === 'fqdn') as violation}
+                  {#each results.violations.filter((v) => v.type === 'fqdn') as violation (violation.name)}
                     <div class="violation-item" style="border-left-color: {getViolationColor(violation)}">
                       <div class="violation-header">
                         <div class="violation-name">{violation.name}</div>

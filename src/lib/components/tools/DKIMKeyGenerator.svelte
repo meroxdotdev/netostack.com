@@ -420,7 +420,7 @@
         Example Configurations
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example, exIdx (`${example.label}-${exIdx}`)}
           <button type="button" class="example-card" onclick={() => loadExample(example)}>
             <div class="example-header">
               <strong>{example.name}</strong>

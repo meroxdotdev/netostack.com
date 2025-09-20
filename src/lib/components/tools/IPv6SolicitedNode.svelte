@@ -17,7 +17,7 @@
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -50,7 +50,7 @@
   function loadExample(example: (typeof examples)[0]) {
     input = example.address;
     selectedExample = example.label;
-    userModified = false;
+    _userModified = false;
     calculateSolicitedNode();
   }
 
@@ -185,7 +185,7 @@
   }
 
   function handleInputChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     calculateSolicitedNode();
   }
@@ -246,7 +246,7 @@
         <h3>Quick Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.label)}
           <button
             class="example-card {selectedExample === example.label ? 'active' : ''}"
             onclick={() => loadExample(example)}
@@ -340,7 +340,7 @@
             Calculation Steps
           </h4>
           <div class="steps-list">
-            {#each result.details.explanation as step, index}
+            {#each result.details.explanation as step, index (`explanation-${index}`)}
               <div class="step-item">
                 <div class="step-number">{index + 1}</div>
                 <div class="step-content">{step}</div>

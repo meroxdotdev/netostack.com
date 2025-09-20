@@ -5,7 +5,7 @@
     generateCIDRPTRs,
     generateReverseZoneFile,
     calculateReverseZones,
-    type PTRRecord,
+    type _PTRRecord,
     type ZoneFileOptions,
   } from '$lib/utils/reverse-dns';
 
@@ -32,7 +32,7 @@
 
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -71,7 +71,7 @@
     cidrInput = example.cidr;
     hostnameTemplate = example.template;
     selectedExample = example.label;
-    userModified = false;
+    _userModified = false;
     generateZones();
   }
 
@@ -143,7 +143,7 @@
   }
 
   function handleInputChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     generateZones();
   }
@@ -204,7 +204,7 @@
         <h3>Quick Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.label)}
           <button
             class="example-card {selectedExample === example.label ? 'active' : ''}"
             onclick={() => loadExample(example)}
@@ -263,7 +263,7 @@
       <div class="template-help">
         <h4>Available Placeholders:</h4>
         <div class="placeholder-grid">
-          {#each templateHelp as item}
+          {#each templateHelp as item (item.placeholder)}
             <div class="placeholder-item">
               <code class="placeholder">{item.placeholder}</code>
               <span class="placeholder-desc">{item.description}</span>
@@ -350,7 +350,7 @@
 
         <!-- Zone Files -->
         <div class="zone-files">
-          {#each results.zones as zone, index}
+          {#each results.zones as zone, index (zone.zone)}
             <div class="zone-file">
               <div class="zone-file-header">
                 <div class="zone-info">

@@ -220,7 +220,7 @@
         <div>
           <strong>Warnings:</strong>
           <ul class="warning-list">
-            {#each results.warnings as warning}
+            {#each results.warnings as warning (warning)}
               <li>{warning}</li>
             {/each}
           </ul>
@@ -302,7 +302,7 @@
           <div class="record-section">
             <h4>CDS Records (for parent zone):</h4>
             <div class="record-list">
-              {#each results.cdsRecords as cds, i}
+              {#each results.cdsRecords as cds, i (cds.digest)}
                 <div class="record-item">
                   <div class="record-content">
                     <div class="record-text mono">

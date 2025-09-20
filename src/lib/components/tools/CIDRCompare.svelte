@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import { SvelteSet } from 'svelte/reactivity';
   import '../../../styles/diagnostics-pages.scss';
 
   let listA = $state(`192.168.0.0/16
@@ -27,9 +28,9 @@
     };
   } | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
-  let selectedExample = $state<string | null>(null);
+  let _selectedExample = $state<string | null>(null);
   let selectedExampleIndex = $state<number | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   const examples = [
     {
@@ -94,9 +95,9 @@
   function loadExample(example: (typeof examples)[0], index: number) {
     listA = example.listA;
     listB = example.listB;
-    selectedExample = example.label;
+    _selectedExample = example.label;
     selectedExampleIndex = index;
-    userModified = false;
+    _userModified = false;
     performComparison();
   }
 
@@ -136,7 +137,7 @@
       .trim()
       .split('\n')
       .filter((line) => line.trim());
-    const normalized = new Set<string>();
+    const normalized = new SvelteSet<string>();
 
     for (const line of lines) {
       const trimmed = line.trim();
@@ -247,8 +248,8 @@
   }
 
   function handleInputChange() {
-    userModified = true;
-    selectedExample = null;
+    _userModified = true;
+    _selectedExample = null;
     selectedExampleIndex = null;
     performComparison();
   }
@@ -276,8 +277,8 @@
     const temp = listA;
     listA = listB;
     listB = temp;
-    userModified = true;
-    selectedExample = null;
+    _userModified = true;
+    _selectedExample = null;
     selectedExampleIndex = null;
     performComparison();
   }
@@ -300,7 +301,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (example.label)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -427,7 +428,7 @@
 
             {#if result.added.length > 0}
               <div class="networks-list">
-                {#each result.added as network}
+                {#each result.added as network (network)}
                   <div class="network-item added">
                     <code class="network-cidr">{network}</code>
                     <button
@@ -466,7 +467,7 @@
 
             {#if result.removed.length > 0}
               <div class="networks-list">
-                {#each result.removed as network}
+                {#each result.removed as network (network)}
                   <div class="network-item removed">
                     <code class="network-cidr">{network}</code>
                     <button
@@ -505,7 +506,7 @@
 
             {#if result.unchanged.length > 0}
               <div class="networks-list">
-                {#each result.unchanged as network}
+                {#each result.unchanged as network (network)}
                   <div class="network-item unchanged">
                     <code class="network-cidr">{network}</code>
                     <button

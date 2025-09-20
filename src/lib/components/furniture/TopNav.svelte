@@ -69,7 +69,7 @@
 </script>
 
 <nav class="top-nav" aria-label="Primary navigation">
-  {#each TOP_NAV as item}
+  {#each TOP_NAV as item (item.href)}
     <div
       class="nav-item"
       class:has-dropdown={hasSubPages(item.href)}
@@ -108,7 +108,7 @@
         >
           <div class="primary-dropdown">
             <div class="primary-content">
-              {#each getSubPages(item.href) as subItem}
+              {#each getSubPages(item.href) as subItem ('href' in subItem ? subItem.href : subItem.title)}
                 {#if 'href' in subItem}
                   <!-- Direct nav item -->
                   <a
@@ -155,7 +155,7 @@
           </div>
 
           <!-- Secondary dropdowns positioned outside primary container -->
-          {#each getSubPages(item.href) as subItem}
+          {#each getSubPages(item.href) as subItem ('href' in subItem ? subItem.href : subItem.title)}
             {#if 'title' in subItem && activeSubDropdown === subItem.title && subItem.items.length > 0}
               <div
                 class="secondary-dropdown"
@@ -165,7 +165,7 @@
                 on:mouseleave={hideSubDropdown}
               >
                 <div class="secondary-content">
-                  {#each subItem.items as groupItem}
+                  {#each subItem.items as groupItem (groupItem.href)}
                     <a
                       href={groupItem.href}
                       class="dropdown-link {isActive(currentPath, groupItem.href) ? 'active' : ''}"

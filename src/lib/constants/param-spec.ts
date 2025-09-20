@@ -80,7 +80,7 @@ export const fieldOptionsArray = [
 // build the map when you need it
 export const fieldOptions: Record<Field, Omit<FieldOption, 'type'>> = Object.fromEntries(
   fieldOptionsArray.map(({ type, ...rest }) => [type, rest]),
-) as any;
+) as Record<Field, Omit<FieldOption, 'type'>>;
 
 interface PageSpec {
   path: string;

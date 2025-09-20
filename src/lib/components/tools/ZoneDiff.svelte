@@ -216,7 +216,7 @@ mail	IN	A	203.0.113.10
         <h3>Zone Comparison Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (example.name)}
           <button
             class="example-card {activeExampleIndex === index ? 'active' : ''}"
             onclick={() => loadExample(example, index)}
@@ -329,7 +329,7 @@ mail	IN	A	203.0.113.10
                   Added Records ({results.added.length})
                 </h4>
                 <div class="records-list">
-                  {#each results.added as record}
+                  {#each results.added as record, index (index)}
                     <div class="record-item added">
                       <Icon name="plus" size="sm" />
                       <code>{formatRecord(record)}</code>
@@ -347,7 +347,7 @@ mail	IN	A	203.0.113.10
                   Removed Records ({results.removed.length})
                 </h4>
                 <div class="records-list">
-                  {#each results.removed as record}
+                  {#each results.removed as record, index (index)}
                     <div class="record-item removed">
                       <Icon name="minus" size="sm" />
                       <code>{formatRecord(record)}</code>
@@ -365,7 +365,7 @@ mail	IN	A	203.0.113.10
                   Changed Records ({results.changed.length})
                 </h4>
                 <div class="records-list">
-                  {#each results.changed as change}
+                  {#each results.changed as change, index (index)}
                     <div class="change-group">
                       <div class="record-item removed">
                         <Icon name="minus" size="sm" />

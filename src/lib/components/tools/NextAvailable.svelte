@@ -6,7 +6,7 @@
     type AllocationPolicy,
   } from '$lib/utils/next-available.js';
   import { tooltip } from '$lib/actions/tooltip.js';
-  import Tooltip from '$lib/components/global/Tooltip.svelte';
+  import _Tooltip from '$lib/components/global/Tooltip.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
 
   let pools = $state(`192.168.0.0/16
@@ -387,7 +387,7 @@
     <div class="examples-section">
       <h4>Quick Examples</h4>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.id)}
           <button
             type="button"
             class="example-btn"
@@ -409,7 +409,7 @@
         <div class="info-panel error">
           <h3>Errors</h3>
           <ul>
-            {#each result.errors as error}
+            {#each result.errors as error, index (index)}
               <li>{error}</li>
             {/each}
           </ul>
@@ -421,7 +421,7 @@
         <div class="info-panel warning">
           <h3>Warnings</h3>
           <ul>
-            {#each result.warnings as warning}
+            {#each result.warnings as warning, index (index)}
               <li>{warning}</li>
             {/each}
           </ul>
@@ -499,7 +499,7 @@
               <div class="viz-bar pools-bar">
                 <div class="bar-label">Pools</div>
                 <div class="bar-segments">
-                  {#each result.visualization.pools as pool}
+                  {#each result.visualization.pools as pool, poolIndex (`${pool.network}-${poolIndex}`)}
                     <div
                       class="viz-segment pool-segment"
                       style="width: {getBarWidth(pool)}%; left: {getBarOffset(pool)}%"
@@ -513,7 +513,7 @@
               <div class="viz-bar allocations-bar">
                 <div class="bar-label">Allocated</div>
                 <div class="bar-segments">
-                  {#each result.visualization.allocations as allocation}
+                  {#each result.visualization.allocations as allocation, allocIndex (`${allocation.network}-${allocIndex}`)}
                     <div
                       class="viz-segment allocation-segment"
                       style="width: {getBarWidth(allocation)}%; left: {getBarOffset(allocation)}%"
@@ -527,7 +527,7 @@
               <div class="viz-bar free-bar">
                 <div class="bar-label">Free</div>
                 <div class="bar-segments">
-                  {#each result.visualization.freeSpace as free}
+                  {#each result.visualization.freeSpace as free, freeIndex (`${free.network}-${freeIndex}`)}
                     <div
                       class="viz-segment free-segment"
                       style="width: {getBarWidth(free)}%; left: {getBarOffset(free)}%"
@@ -541,7 +541,7 @@
               <div class="viz-bar candidates-bar">
                 <div class="bar-label">Candidates</div>
                 <div class="bar-segments">
-                  {#each result.visualization.candidates as candidate, i}
+                  {#each result.visualization.candidates as candidate, i (`${candidate.network}-${i}`)}
                     <div
                       class="viz-segment candidate-segment"
                       class:primary={i === 0}
@@ -578,7 +578,7 @@
         <div class="candidates-section">
           <h4>Candidate Subnets ({result.candidates.length})</h4>
           <div class="candidates-grid">
-            {#each result.candidates as candidate, i}
+            {#each result.candidates as candidate, i (`${candidate.network}-${i}`)}
               <div class="candidate-card" class:primary={i === 0}>
                 <div class="candidate-header">
                   <div class="candidate-rank">#{i + 1}</div>
@@ -620,7 +620,7 @@
           <div class="free-space-section">
             <h4>Free Space Blocks ({result.freeSpaceBlocks.length})</h4>
             <div class="free-blocks-grid">
-              {#each result.freeSpaceBlocks.slice(0, 10) as block}
+              {#each result.freeSpaceBlocks.slice(0, 10) as block, blockIndex (`${block.network}-${blockIndex}`)}
                 <div class="free-block-card">
                   <code class="block-cidr">{block.cidr}</code>
                   <div class="block-info">

@@ -170,7 +170,7 @@
         <h3>Common Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each exampleAddresses as example, index}
+        {#each exampleAddresses as example, index (`example-${index}`)}
           <button
             type="button"
             class="example-btn"

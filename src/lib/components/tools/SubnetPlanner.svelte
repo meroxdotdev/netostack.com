@@ -1,7 +1,7 @@
 <script lang="ts">
   import { planSubnets, type SubnetRequest, type PlannerResult } from '$lib/utils/subnet-planner.js';
   import { tooltip } from '$lib/actions/tooltip.js';
-  import Tooltip from '$lib/components/global/Tooltip.svelte';
+  import _Tooltip from '$lib/components/global/Tooltip.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
 
   let parentCIDR = $state('192.168.1.0/24');
@@ -354,7 +354,7 @@
   <div class="examples-section">
     <h4>Quick Examples</h4>
     <div class="examples-grid">
-      {#each examples as example}
+      {#each examples as example (example.label)}
         <button type="button" class="example-btn" onclick={() => setExample(example)}>
           {example.label}
         </button>
@@ -370,7 +370,7 @@
         <div class="info-panel error">
           <h3>Errors</h3>
           <ul>
-            {#each result.errors as error}
+            {#each result.errors as error, index (index)}
               <li>{error}</li>
             {/each}
           </ul>
@@ -382,7 +382,7 @@
         <div class="info-panel warning">
           <h3>Warnings</h3>
           <ul>
-            {#each result.warnings as warning}
+            {#each result.warnings as warning, index (index)}
               <li>{warning}</li>
             {/each}
           </ul>
@@ -463,7 +463,7 @@
 
             <div class="visualization-bar">
               <!-- Allocated subnets -->
-              {#each result.visualization.allocated as subnet, i}
+              {#each result.visualization.allocated as subnet, i (subnet.cidr)}
                 <div
                   class="viz-segment allocated-segment subnet-{i % 5}"
                   style="width: {getBarWidth(subnet)}%; left: {getBarOffset(subnet)}%"
@@ -472,7 +472,7 @@
               {/each}
 
               <!-- Leftover space -->
-              {#each result.visualization.leftover as leftover}
+              {#each result.visualization.leftover as leftover, index (index)}
                 <div
                   class="viz-segment leftover-segment"
                   style="width: {getBarWidth(leftover)}%; left: {getBarOffset(leftover)}%"
@@ -511,7 +511,7 @@
               <div class="col-actions">Actions</div>
             </div>
 
-            {#each result.allocated as subnet}
+            {#each result.allocated as subnet (subnet.cidr)}
               <div class="table-row">
                 <div class="col-name">
                   <span class="subnet-name">{subnet.name}</span>
@@ -561,7 +561,7 @@
           <div class="leftover-section">
             <h4>Leftover Space ({result.leftover.length} blocks)</h4>
             <div class="leftover-grid">
-              {#each result.leftover as block}
+              {#each result.leftover as block, index (index)}
                 <div class="leftover-card">
                   <code class="leftover-cidr">{block.cidr}</code>
                   <span class="leftover-size">{block.size} addresses</span>

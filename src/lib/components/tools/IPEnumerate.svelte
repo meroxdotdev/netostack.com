@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from '$lib/actions/tooltip.js';
+  // import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
 
   let input = $state('192.168.1.0/28');
@@ -25,7 +25,7 @@
   let isGenerating = $state(false);
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   // Safety limits to prevent browser crashes
   const ABSOLUTE_MAX_DISPLAY = 10000;
@@ -62,7 +62,7 @@
   function loadExample(example: (typeof examples)[0]) {
     input = example.input;
     selectedExample = example.label;
-    userModified = false;
+    _userModified = false;
     enumerateIPs();
   }
 
@@ -145,7 +145,7 @@
       const trimmed = input.trim();
       let addresses: string[] = [];
       let totalCount = 0;
-      let networkInfo: any = {};
+      let networkInfo: Record<string, unknown> = {};
 
       // Determine input type
       if (trimmed.includes('/')) {
@@ -261,7 +261,7 @@
   }
 
   function handleInputChange() {
-    userModified = true;
+    _userModified = true;
     selectedExample = null;
     enumerateIPs();
   }
@@ -389,7 +389,7 @@
           <h4>Quick Examples</h4>
         </summary>
         <div class="examples-list">
-          {#each examples as example}
+          {#each examples as example (example.label)}
             <button
               class="example-item {selectedExample === example.label ? 'active' : ''}"
               onclick={() => loadExample(example)}
@@ -500,7 +500,7 @@
           </div>
 
           <div class="addresses-list">
-            {#each result.addresses as address, index}
+            {#each result.addresses as address, index (index)}
               <div class="address-item">
                 <span class="address-index">{index + 1}</span>
                 <code class="address-code">{address}</code>

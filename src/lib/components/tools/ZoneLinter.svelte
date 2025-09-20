@@ -175,7 +175,7 @@ _https._tcp	IN	SRV	0 5 443 www.example.com.`,
         <h3>Zone File Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (example.name)}
           <button
             class="example-card {activeExampleIndex === index ? 'active' : ''}"
             onclick={() => loadExample(example, index)}
@@ -234,7 +234,7 @@ www	IN	A	192.0.2.1"
             {#if results.normalized.errors.length > 0}
               <div class="error-list">
                 <h5>Errors ({results.normalized.errors.length})</h5>
-                {#each results.normalized.errors as error}
+                {#each results.normalized.errors as error, index (index)}
                   <div class="issue-item error">
                     <Icon name="x-circle" size="sm" />
                     <div>
@@ -249,7 +249,7 @@ www	IN	A	192.0.2.1"
             {#if results.normalized.warnings.length > 0}
               <div class="warning-list">
                 <h5>Warnings ({results.normalized.warnings.length})</h5>
-                {#each results.normalized.warnings as warning}
+                {#each results.normalized.warnings as warning, index (index)}
                   <div class="issue-item warning">
                     <Icon name="alert-triangle" size="sm" />
                     <div>

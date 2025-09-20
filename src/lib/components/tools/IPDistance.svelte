@@ -164,7 +164,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i && !userModified}
@@ -256,7 +256,7 @@
               <Icon name="alert-triangle" size="md" />
               <div>
                 <strong>Calculation Errors</strong>
-                {#each result.errors as error}
+                {#each result.errors as error (error)}
                   <p>{error}</p>
                 {/each}
               </div>
@@ -328,7 +328,7 @@
           </div>
           <div class="card-content">
             <div class="calculations-list">
-              {#each result.calculations as calculation, index}
+              {#each result.calculations as calculation, index (index)}
                 <div class="calculation-card" class:valid={calculation.isValid} class:invalid={!calculation.isValid}>
                   <div class="calc-header">
                     <div class="ip-pair">
@@ -433,7 +433,7 @@
                             </button>
                           </div>
                           <div class="intermediate-list">
-                            {#each calculation.intermediateAddresses as ip, ipIndex}
+                            {#each calculation.intermediateAddresses as ip, ipIndex (ipIndex)}
                               <div class="value-copy">
                                 <span class="ip-value">{ip}</span>
                                 <button

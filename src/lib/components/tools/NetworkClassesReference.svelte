@@ -1,7 +1,7 @@
 <script lang="ts">
   import { NETWORK_CLASSES } from '$lib/constants/networks.js';
   import Tooltip from '$lib/components/global/Tooltip.svelte';
-  import SvgIcon from '$lib/components/global/SvgIcon.svelte';
+  import _SvgIcon from '$lib/components/global/SvgIcon.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../styles/converters.scss';
   import '../../styles/components.scss';
@@ -15,7 +15,7 @@
 
   <!-- Network Classes -->
   <div class="reference-section">
-    {#each Object.entries(NETWORK_CLASSES) as [className, classInfo]}
+    {#each Object.entries(NETWORK_CLASSES) as [className, classInfo] (className)}
       <Tooltip
         text="Class {className} networks use {classInfo.defaultMask} as default subnet mask and support {classInfo.range}"
         position="top"

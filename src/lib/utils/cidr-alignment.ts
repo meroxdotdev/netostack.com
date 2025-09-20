@@ -216,7 +216,7 @@ function generateSuggestions(start: bigint, end: bigint, targetPrefix: number, v
     // Suggest a larger CIDR that contains the range
     const hostBits = BigInt(maxPrefix - containingPrefix);
     const alignedStart = (start >> hostBits) << hostBits;
-    const alignedEnd = alignedStart + (1n << hostBits) - 1n;
+    const _alignedEnd = alignedStart + (1n << hostBits) - 1n;
     const efficiency = Math.round(Number(rangeSize * 100n) / Number(1n << hostBits));
 
     suggestions.push({

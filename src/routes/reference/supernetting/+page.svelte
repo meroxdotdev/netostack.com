@@ -33,12 +33,12 @@
 
     <div class="ref-section">
       <h2>Summarization Examples</h2>
-      {#each supernetContent.examples as example}
+      {#each supernetContent.examples as example (example.title)}
         <div class="ref-examples">
           <div class="examples-title">{example.title}</div>
           <div class="example-item">
             <div><strong>Individual Networks:</strong></div>
-            {#each example.networks as network}
+            {#each example.networks as network (network)}
               <div class="example-input">{network}</div>
             {/each}
             <div class="example-arrow">↓ Summarizes to ↓</div>
@@ -52,7 +52,7 @@
     <div class="ref-section">
       <h2>{supernetContent.stepByStep.title}</h2>
       <ol>
-        {#each supernetContent.stepByStep.steps as step}
+        {#each supernetContent.stepByStep.steps as step (step.title)}
           <li>{step}</li>
         {/each}
       </ol>
@@ -70,7 +70,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each supernetContent.binaryExample.binary as row}
+          {#each supernetContent.binaryExample.binary as row (row.network)}
             <tr>
               <td><code>{row.network}</code></td>
               <td><code>{row.binary}</code></td>
@@ -93,7 +93,7 @@
     <div class="ref-section">
       <h2>Benefits of Route Summarization</h2>
       <ul>
-        {#each supernetContent.benefits as benefit}
+        {#each supernetContent.benefits as benefit (benefit)}
           <li>{benefit}</li>
         {/each}
       </ul>
@@ -101,7 +101,7 @@
 
     <div class="ref-section">
       <h2>Common Pitfalls</h2>
-      {#each supernetContent.pitfalls as pitfall}
+      {#each supernetContent.pitfalls as pitfall (pitfall.title)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="alert-triangle" size="sm" />
@@ -126,7 +126,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each supernetContent.quickReference as row}
+          {#each supernetContent.quickReference as row (row.networks)}
             <tr>
               <td>{row.networks}</td>
               <td><code>{row.summary}</code></td>

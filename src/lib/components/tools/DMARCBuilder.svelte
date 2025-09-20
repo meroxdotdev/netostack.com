@@ -404,7 +404,7 @@
               <h4 use:tooltip={'When to generate forensic failure reports'}>Failure Reporting Options (fo):</h4>
 
               <div class="failure-options">
-                {#each Object.entries(failureOptionDescriptions) as [option, description]}
+                {#each Object.entries(failureOptionDescriptions) as [option, description] (option)}
                   <label class="failure-option">
                     <input
                       type="checkbox"
@@ -495,7 +495,7 @@
           <div class="validation-messages error">
             <Icon name="x-circle" size="sm" />
             <div class="messages">
-              {#each validation.errors as error}
+              {#each validation.errors as error, index (index)}
                 <div class="message">{error}</div>
               {/each}
             </div>
@@ -506,7 +506,7 @@
           <div class="validation-messages warning">
             <Icon name="alert-triangle" size="sm" />
             <div class="messages">
-              {#each validation.warnings as warning}
+              {#each validation.warnings as warning, index (index)}
                 <div class="message">{warning}</div>
               {/each}
             </div>
@@ -531,7 +531,7 @@
 
         <div class="deployment-steps">
           <ol>
-            {#each deploymentSteps as step, index}
+            {#each deploymentSteps as step, index (index)}
               <li
                 class:current={(policy.policy === 'none' && index === 0) ||
                   (policy.policy === 'quarantine' && index >= 2 && index <= 5) ||
@@ -553,7 +553,7 @@
         Example Policies
       </summary>
       <div class="examples-grid">
-        {#each examplePolicies as example}
+        {#each examplePolicies as example (example.name)}
           <button
             type="button"
             class="example-card"

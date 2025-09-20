@@ -18,7 +18,7 @@
 
     <div class="ref-section">
       <h2>Common ICMPv4 Types</h2>
-      {#each icmpContent.icmpv4Types as type}
+      {#each icmpContent.icmpv4Types as type, index (`${type.type}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">Type {type.type}: {type.name}</div>
           <div class="example-item">
@@ -29,7 +29,7 @@
             {#if type.codes}
               <div><strong>Common Codes:</strong></div>
               <ul>
-                {#each type.codes as code}
+                {#each type.codes as code, index (`code-${code.code}-${index}`)
                   <li>Code {code.code}: {code.meaning}</li>
                 {/each}
               </ul>
@@ -52,7 +52,7 @@
             {#if type.codes}
               <div><strong>Common Codes:</strong></div>
               <ul>
-                {#each type.codes as code}
+                {#each type.codes as code, index (`code-${code.code}-${index}`)
                   <li>Code {code.code}: {code.meaning}</li>
                 {/each}
               </ul>

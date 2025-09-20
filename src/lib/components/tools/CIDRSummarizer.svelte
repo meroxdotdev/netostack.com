@@ -158,7 +158,7 @@ fe80::/10`,
   <div class="mode-section">
     <h3>Summarization Mode</h3>
     <div class="tabs">
-      {#each modes as modeOption}
+      {#each modes as modeOption (modeOption.value)}
         <button
           type="button"
           class="tab"
@@ -203,7 +203,7 @@ fe80::/10`,
     <div class="examples-section">
       <h4>Quick Examples</h4>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.label)}
           <button
             type="button"
             class="example-btn"
@@ -224,7 +224,7 @@ fe80::/10`,
         <div class="info-panel error">
           <h3>Parsing Errors</h3>
           <ul class="error-list">
-            {#each result.errors as error}
+            {#each result.errors as error (error)}
               <li>{error}</li>
             {/each}
           </ul>
@@ -265,7 +265,7 @@ fe80::/10`,
                 </Tooltip>
               </div>
               <div class="cidr-list">
-                {#each result.ipv4 as cidr}
+                {#each result.ipv4 as cidr (cidr)}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
                     <Tooltip text="Copy this CIDR block to clipboard">
@@ -301,7 +301,7 @@ fe80::/10`,
                 </Tooltip>
               </div>
               <div class="cidr-list">
-                {#each result.ipv6 as cidr}
+                {#each result.ipv6 as cidr (cidr)}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
                     <Tooltip text="Copy this CIDR block to clipboard">

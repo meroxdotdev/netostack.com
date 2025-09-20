@@ -15,7 +15,7 @@
   let copiedStates = $state<Record<string, boolean>>({});
   let showVisualization = $state(false);
   let selectedExample = $state<string | null>(null);
-  let userModified = $state(false);
+  let _userModified = $state(false);
 
   // Add initial network
   $effect(() => {
@@ -44,11 +44,11 @@
   }
 
   /* Update network input */
-  function updateNetwork(id: string, field: keyof NetworkInput, value: any) {
+  function _updateNetwork(id: string, field: keyof NetworkInput, value: string | number) {
     const index = networks.findIndex((n) => n.id === id);
     if (index !== -1) {
       networks[index] = { ...networks[index], [field]: value };
-      userModified = true;
+      _userModified = true;
       selectedExample = null;
     }
   }
@@ -143,7 +143,7 @@
   function loadExample(example: (typeof examples)[0]) {
     networks = example.networks.map((net) => ({ ...net, id: generateNetworkId() }));
     selectedExample = example.label;
-    userModified = false;
+    _userModified = false;
   }
 
   /* Get efficiency color based on aggregation analysis */
@@ -194,7 +194,7 @@
         <h3>Quick Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.label)}
           <button
             class="example-card {selectedExample === example.label ? 'active' : ''}"
             onclick={() => loadExample(example)}
@@ -297,7 +297,7 @@
           <div class="recommendations">
             <h4>Recommendations</h4>
             <ul>
-              {#each aggregationAnalysis.recommendations as recommendation}
+              {#each aggregationAnalysis.recommendations as recommendation, index (index)}
                 <li>{recommendation}</li>
               {/each}
             </ul>
@@ -509,7 +509,7 @@
               <div class="network-diagram">
                 <div class="input-networks">
                   <h5>Input Networks</h5>
-                  {#each supernetResult.inputNetworks as network, index}
+                  {#each supernetResult.inputNetworks as network, index (network.id)}
                     <div class="network-visual">
                       <div class="network-bar" style="--network-index: {index}">
                         <span class="network-label">{network.network}/{network.cidr}</span>

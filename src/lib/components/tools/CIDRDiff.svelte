@@ -213,7 +213,7 @@
     <h3>Alignment Mode</h3>
     <div class="tabs-container">
       <div class="tabs">
-        {#each alignmentModes as mode}
+        {#each alignmentModes as mode (mode.value)}
           <button
             type="button"
             class="tab"
@@ -304,7 +304,7 @@
         </Tooltip>
       </h4>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.label)}
           <button
             type="button"
             class="example-btn"
@@ -325,7 +325,7 @@
         <div class="info-panel error">
           <h3>Parse Errors</h3>
           <ul class="error-list">
-            {#each result.errors as error}
+            {#each result.errors as error (error)}
               <li>{error}</li>
             {/each}
           </ul>
@@ -416,7 +416,7 @@
 
             <div class="visualization-bar">
               <!-- Set A (background) -->
-              {#each result.visualization.setA as range}
+              {#each result.visualization.setA as range (`${range.start}-${range.end}`)}
                 <div
                   class="viz-segment set-a-segment"
                   style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
@@ -425,7 +425,7 @@
               {/each}
 
               <!-- Set B (overlay) -->
-              {#each result.visualization.setB as range}
+              {#each result.visualization.setB as range (`${range.start}-${range.end}`)}
                 <div
                   class="viz-segment set-b-segment"
                   style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
@@ -434,7 +434,7 @@
               {/each}
 
               <!-- Result (final) -->
-              {#each result.visualization.result as range}
+              {#each result.visualization.result as range (`${range.start}-${range.end}`)}
                 <div
                   class="viz-segment result-segment"
                   style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
@@ -462,7 +462,7 @@
                 </button>
               </div>
               <div class="cidr-list">
-                {#each result.ipv4 as cidr}
+                {#each result.ipv4 as cidr (cidr)}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
                     <button
@@ -494,7 +494,7 @@
                 </button>
               </div>
               <div class="cidr-list">
-                {#each result.ipv6 as cidr}
+                {#each result.ipv6 as cidr (cidr)}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
                     <button

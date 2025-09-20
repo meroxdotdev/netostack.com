@@ -24,7 +24,7 @@
   let inputValue = $state('');
   let conversionResult = $state<ConversionResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
-  let ipv6Info = $state<Record<string, any> | null>(null);
+  let ipv6Info = $state<Record<string, unknown> | null>(null);
 
   /**
    * Perform the conversion based on direction
@@ -214,7 +214,7 @@
               <div class="analysis-item">
                 <span class="analysis-label">Address Types</span>
                 <div class="type-badges">
-                  {#each ipv6Info.types as type}
+                  {#each ipv6Info.types as type (type)}
                     <span class="type-badge">{type}</span>
                   {/each}
                 </div>

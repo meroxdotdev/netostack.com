@@ -185,7 +185,7 @@
         <h4>NSEC3 Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (example.title)}
           <button
             class="example-card {activeExampleIndex === index ? 'active' : ''}"
             onclick={() => loadExample(index)}
@@ -286,7 +286,7 @@
           Hash Algorithm
         </label>
         <select id="algorithm" bind:value={algorithm} onchange={handleInputChange}>
-          {#each Object.entries(NSEC3_HASH_ALGORITHMS) as [value, name]}
+          {#each Object.entries(NSEC3_HASH_ALGORITHMS) as [value, name] (value)}
             <option value={Number(value)}>{value} - {name}</option>
           {/each}
         </select>

@@ -11,13 +11,14 @@
   import Tooltip from '$lib/components/global/Tooltip.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
   import { tooltip } from '$lib/actions/tooltip.js';
+  import { SvelteSet } from 'svelte/reactivity';
 
   let networkIP = $state('192.168.1.0');
   let cidr = $state(24);
   let subnets = $state<SubnetRequirement[]>([]);
   let vlsmResult = $state<VLSMResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
-  let expandedSubnets = $state<Set<string>>(new Set());
+  let expandedSubnets = $state<SvelteSet<string>>(new SvelteSet());
 
   // Add initial subnet requirement
   $effect(() => {
@@ -51,7 +52,7 @@
   /**
    * Update subnet requirement
    */
-  function updateSubnet(id: string, field: keyof SubnetRequirement, value: any) {
+  function updateSubnet(id: string, field: keyof SubnetRequirement, value: string | number) {
     const index = subnets.findIndex((s) => s.id === id);
     if (index !== -1) {
       subnets[index] = { ...subnets[index], [field]: value };
@@ -104,7 +105,7 @@
    * Toggle subnet details expansion
    */
   function toggleSubnetExpansion(subnetId: string) {
-    const newSet = new Set(expandedSubnets);
+    const newSet = new SvelteSet(expandedSubnets);
     if (newSet.has(subnetId)) {
       newSet.delete(subnetId);
     } else {

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { SUB_NAV, findSectionKey, isActive, type NavItem, type NavGroup } from '$lib/constants/nav';
+  import { SUB_NAV, findSectionKey, isActive } from '$lib/constants/nav';
 
   $: currentPath = $page.url.pathname;
   $: sectionKey = findSectionKey(currentPath); // e.g. '/reference' or '/cidr'
@@ -17,12 +17,12 @@
         <!-- Mixed navigation with groups and flat items -->
         <div class="mixed-nav">
           <!-- Render all groups first -->
-          {#each navStructure as item}
+          {#each navStructure as item ('title' in item ? item.title : item.href)}
             {#if 'title' in item}
               <div class="nav-group">
                 <div class="group-title">{item.title}</div>
                 <div class="group-links">
-                  {#each item.items as link}
+                  {#each item.items as link (link.href)}
                     <a
                       href={link.href}
                       class="sub-nav-link {isActive(currentPath, link.href) ? 'active' : ''}"
@@ -41,7 +41,7 @@
             <div class="nav-group">
               <div class="group-title">More</div>
               <div class="group-links">
-                {#each navStructure as item}
+                {#each navStructure as item ('title' in item ? item.title : item.href)}
                   {#if 'href' in item}
                     <a
                       href={item.href}
@@ -59,7 +59,7 @@
       {:else}
         <!-- Flat navigation -->
         <div class="sub-nav-links">
-          {#each navStructure as link}
+          {#each navStructure as link (link.href)}
             {#if 'href' in link}
               <a
                 href={link.href}

@@ -152,7 +152,7 @@
         <h4>DNSKEY Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button class="example-card" class:active={activeExampleIndex === i} onclick={() => loadExample(i)}>
             <div class="example-title">{example.title}</div>
             <div class="example-owner">Owner: <code>{example.owner}</code></div>
@@ -196,7 +196,7 @@
           <span>Digest Types</span>
         </div>
         <div class="digest-options">
-          {#each digestTypeOptions as option}
+          {#each digestTypeOptions as option (option.value)}
             <label class="digest-option" class:recommended={option.recommended}>
               <input
                 type="checkbox"
@@ -252,7 +252,7 @@
         </div>
 
         <div class="ds-records">
-          {#each dsRecords as ds}
+          {#each dsRecords as ds (`${ds.keyTag}-${ds.digestType}`)}
             <div class="ds-record">
               <div class="ds-header">
                 <div class="digest-info">

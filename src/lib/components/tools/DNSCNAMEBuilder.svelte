@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip';
   import Icon from '$lib/components/global/Icon.svelte';
+  import { SvelteSet } from 'svelte/reactivity';
 
   let aliasInput = $state('');
   let targetInput = $state('');
@@ -73,7 +74,7 @@
     }
 
     // Check for loops
-    const visited = new Set<string>();
+    const visited = new SvelteSet<string>();
     let current = target;
 
     while (current) {
@@ -262,7 +263,7 @@
           Quick Examples
         </summary>
         <div class="examples-grid">
-          {#each examples as example}
+          {#each examples as example (example.label)}
             <button class="example-card" onclick={() => loadExample(example)}>
               <h4>{example.label}</h4>
               <p>{example.aliases.split('\n').length} records</p>
@@ -305,7 +306,7 @@
           <div>Target</div>
           <div>Status</div>
         </div>
-        {#each results as record}
+        {#each results as record, index (index)}
           {@const statusInfo = getStatusInfo(record.status)}
           <div class="table-row" class:error={record.status !== 'valid'}>
             <div class="alias">{record.alias}</div>
@@ -331,7 +332,7 @@
             Validation Issues
           </h3>
           <ul>
-            {#each results.filter((r) => r.status !== 'valid') as record}
+            {#each results.filter((r) => r.status !== 'valid') as record, index (index)}
               {@const statusInfo = getStatusInfo(record.status)}
               <li class="warning-item {statusInfo.class}">
                 <strong>{record.alias}</strong>: {statusInfo.text}

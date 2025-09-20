@@ -13,7 +13,6 @@
   let subnetResult = $state<IPv6SubnetResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
   let showBinaryView = $state(false);
-  let activePreset = $state<string | null>(null);
 
   const commonPrefixes = getCommonIPv6Prefixes();
 
@@ -40,6 +39,9 @@
     }
     return null;
   }
+
+  // Derived value for active preset - must be after presetConfigs definition
+  let activePreset = $derived(getActivePreset());
 
   /* Handle input change for combined address/prefix */
   function handleAddressInput(value: string) {
@@ -95,10 +97,7 @@
     }
   });
 
-  // Update active preset when input changes
-  $effect(() => {
-    activePreset = getActivePreset();
-  });
+  // activePreset is now derived automatically
 </script>
 
 <div class="card ipv6-calc-card">

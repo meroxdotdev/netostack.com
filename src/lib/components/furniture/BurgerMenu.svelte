@@ -12,7 +12,7 @@
     return titleMap[sectionKey] || sectionKey.replace('/', '').replace('-', ' ');
   }
 
-  function getSectionIcon(sectionKey: string): string {
+  function _getSectionIcon(sectionKey: string): string {
     const iconMap: Record<string, string> = {
       '/subnetting': 'network',
       '/cidr': 'hash',
@@ -205,7 +205,7 @@
     </div>
 
     <div class="menu-sections">
-      {#each Object.entries(SUB_NAV) as [sectionKey, sectionItems]}
+      {#each Object.entries(SUB_NAV) as [sectionKey, sectionItems] (sectionKey)}
         {@const groups = getNavGroups(sectionItems)}
 
         <div class="menu-section">
@@ -215,12 +215,12 @@
               {getSectionTitle(sectionKey)}
             </h3>
           </a>
-          {#each groups as group}
+          {#each groups as group (group.title)}
             {#if groups.length > 1}
               <div class="menu-group">
                 <h4 class="group-title">{group.title}</h4>
                 <ul class="group-items">
-                  {#each group.items as item}
+                  {#each group.items as item (item.href)}
                     <li>
                       <a
                         href={item.href}
@@ -239,7 +239,7 @@
               </div>
             {:else}
               <ul class="section-items">
-                {#each group.items as item}
+                {#each group.items as item (item.href)}
                   <li>
                     <a
                       href={item.href}
@@ -262,7 +262,7 @@
     </div>
     <div class="external-links">
       <div class="about-links">
-        {#each footerLinks as link, index}
+        {#each footerLinks as link, index (link.href)}
           <a href={link.href} target="_blank" rel="noopener noreferrer" on:click={handleLinkClick}>
             {link.label}
           </a>{index < footerLinks.length - 1 ? ' • ' : ''}

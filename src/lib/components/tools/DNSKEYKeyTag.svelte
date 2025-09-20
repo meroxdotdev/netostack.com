@@ -102,7 +102,7 @@
         <h4>DNSKEY Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (index)}
           <button
             class="example-card {activeExampleIndex === index ? 'active' : ''}"
             onclick={() => loadExample(index)}
@@ -208,7 +208,7 @@
                 >Algorithm</span
               >
               <span class="metadata-value mono"
-                >{result.dnskey.algorithm} ({(DNSSEC_ALGORITHMS as any)[result.dnskey.algorithm] || 'Unknown'})</span
+                >{result.dnskey.algorithm} ({(DNSSEC_ALGORITHMS as Record<number, string>)[result.dnskey.algorithm] || 'Unknown'})</span
               >
             </div>
           </div>

@@ -171,7 +171,7 @@
 
       {#if query.trim() && results.length > 0}
         <div class="search-results">
-          {#each results as result, index}
+          {#each results as result, index (result.href)}
             <button
               class="result-item"
               class:selected={index === selectedIndex}
@@ -220,7 +220,7 @@
               <span>Bookmarked Tools</span>
             </div>
             <div class="bookmarks-list">
-              {#each $bookmarks.slice(0, 6) as bookmark, index}
+              {#each $bookmarks.slice(0, 6) as bookmark, _index (bookmark.href)}
                 <button
                   class="bookmark-item"
                   onclick={() => {

@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from '$lib/components/global/Icon.svelte';
   import { tooltip } from '$lib/actions/tooltip';
+  import { SvelteSet } from 'svelte/reactivity';
 
   interface CAARecord {
     flag: number;
@@ -39,7 +40,7 @@
     iodef: 'Contact information for certificate abuse reports',
   };
 
-  const flagDescriptions = {
+  const _flagDescriptions = {
     0: 'Non-critical flag - unknown tags can be ignored',
     128: 'Critical flag - unknown tags must cause rejection',
   };
@@ -118,8 +119,8 @@
     }
 
     // Check for conflicting records
-    const duplicateValues = new Set<string>();
-    const seen = new Set<string>();
+    const duplicateValues = new SvelteSet<string>();
+    const seen = new SvelteSet<string>();
 
     for (const record of enabledRecords) {
       const key = `${record.tag}:${record.value.trim()}`;
@@ -315,7 +316,7 @@
         </div>
 
         <div class="records-list">
-          {#each records as record, index}
+          {#each records as record, index (record.tag + index)}
             <div class="record-item" class:enabled={record.enabled}>
               <div class="record-header">
                 <label class="record-toggle">
@@ -362,7 +363,7 @@
                   <div class="ca-shortcuts">
                     <span class="shortcuts-label">Common CAs:</span>
                     <div class="ca-buttons">
-                      {#each commonCAs.slice(0, 4) as ca}
+                      {#each commonCAs.slice(0, 4) as ca (ca.name)}
                         <button
                           type="button"
                           class="ca-btn"
@@ -422,7 +423,7 @@
 
         {#if caaRecords.length > 0}
           <div class="records-output">
-            {#each caaRecords as record}
+            {#each caaRecords as record (record.tag + record.value)}
               <div class="code-block">
                 <code>{record}</code>
               </div>
@@ -461,7 +462,7 @@
           <div class="validation-messages error">
             <Icon name="x-circle" size="sm" />
             <div class="messages">
-              {#each validation.errors as error}
+              {#each validation.errors as error (error)}
                 <div class="message">{error}</div>
               {/each}
             </div>
@@ -472,7 +473,7 @@
           <div class="validation-messages warning">
             <Icon name="alert-triangle" size="sm" />
             <div class="messages">
-              {#each validation.warnings as warning}
+              {#each validation.warnings as warning (warning)}
                 <div class="message">{warning}</div>
               {/each}
             </div>
@@ -497,7 +498,7 @@
 
         <div class="security-tips">
           <ul>
-            {#each securityTips as tip}
+            {#each securityTips as tip (tip)}
               <li>{tip}</li>
             {/each}
           </ul>
@@ -513,7 +514,7 @@
         Example Configurations
       </summary>
       <div class="examples-grid">
-        {#each exampleConfigurations as example}
+        {#each exampleConfigurations as example (example.name)}
           <button
             type="button"
             class="example-card"
@@ -525,7 +526,7 @@
             </div>
             <p class="example-description">{example.description}</p>
             <div class="example-records">
-              {#each example.records as record}
+              {#each example.records as record (record.tag + record.value)}
                 <div class="example-record">
                   <code>{record.tag}: {record.value}</code>
                 </div>

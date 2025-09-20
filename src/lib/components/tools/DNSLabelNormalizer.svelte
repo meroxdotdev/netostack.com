@@ -111,7 +111,7 @@
       </summary>
       <div class="examples-inner">
         <div class="examples-grid">
-          {#each examples as example, index}
+          {#each examples as example, index (index)}
             <button
               class="example-item {activeExampleIndex === index ? 'active' : ''}"
               onclick={() => loadExample(example.value, index)}
@@ -154,7 +154,7 @@ mixed-script-еxample.com"
   {#if results.length > 0}
     <section class="results-section">
       <h3>Normalization Results</h3>
-      {#each results as result, index}
+      {#each results as result, index (index)}
         <div class="result-item">
           <div class="result-header">
             <h4>Label {index + 1}</h4>
@@ -214,7 +214,7 @@ mixed-script-еxample.com"
                 Scripts Detected ({result.scripts.length})
               </h5>
               <div class="script-badges">
-                {#each result.scripts as script}
+                {#each result.scripts as script (script)}
                   <span class="script-badge">{script}</span>
                 {/each}
               </div>
@@ -228,7 +228,7 @@ mixed-script-еxample.com"
                 Security Warnings ({result.warnings.length})
               </h5>
               <ul class="validation-list">
-                {#each result.warnings as warning}
+                {#each result.warnings as warning, index (`warning-${index}`)}
                   <li class="warning-item">{warning}</li>
                 {/each}
               </ul>
@@ -242,7 +242,7 @@ mixed-script-еxample.com"
                 Errors ({result.errors.length})
               </h5>
               <ul class="validation-list">
-                {#each result.errors as error}
+                {#each result.errors as error, index (`error-${index}`)}
                   <li class="error-item">{error}</li>
                 {/each}
               </ul>

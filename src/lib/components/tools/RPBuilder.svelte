@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Copy, Download, Check, User, Mail } from 'lucide-svelte';
+  import { Copy, Download, Check, Mail } from 'lucide-svelte';
   import { tooltip } from '$lib/actions/tooltip.js';
 
   let domain = $state('');
@@ -137,7 +137,7 @@
     showButtonSuccess('download');
   }
 
-  function loadRoleExample(role: any) {
+  function loadRoleExample(role: { name: string; description: string; mailbox: string; tag: string; }) {
     mailboxDname = role.mbox;
     txtDname = role.txt;
     if (!domain) domain = 'example.com';
@@ -185,7 +185,7 @@
           </svg>
         </summary>
         <div class="examples-grid">
-          {#each roleExamples as role}
+          {#each roleExamples as role (role.tag)}
             <button class="example-btn" onclick={() => loadRoleExample(role)}>
               <div class="example-name">{role.name}</div>
               <div class="example-desc">{role.description}</div>
@@ -283,7 +283,7 @@
             <div class="alert alert-info">
               <h4>Information</h4>
               <ul>
-                {#each info as infoItem}
+                {#each info as infoItem, index (index)}
                   <li>{infoItem}</li>
                 {/each}
               </ul>
@@ -294,7 +294,7 @@
             <div class="alert alert-warning">
               <h4>Configuration Warnings</h4>
               <ul>
-                {#each warnings as warning}
+                {#each warnings as warning, index (index)}
                   <li>{warning}</li>
                 {/each}
               </ul>

@@ -220,7 +220,7 @@
         <h3>Quick Examples</h3>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example (example.type + example.name)}
           <button class="example-card" onclick={() => loadExample(example)}>
             <div class="example-header">
               <span class="record-type-badge">{example.type}</span>
@@ -243,7 +243,7 @@
         Record Type
       </label>
       <select id="record-type" bind:value={recordType} onchange={handleInputChange} class="record-type-select">
-        {#each recordTypes as type}
+        {#each recordTypes as type (type.value)}
           <option value={type.value}>{type.label}</option>
         {/each}
       </select>
@@ -447,7 +447,7 @@
             Errors ({results.errors.length})
           </h4>
           <ul class="validation-list">
-            {#each results.errors as error}
+            {#each results.errors as error, index (index)}
               <li class="error-item">{error}</li>
             {/each}
           </ul>
@@ -462,7 +462,7 @@
             Warnings ({results.warnings.length})
           </h4>
           <ul class="validation-list">
-            {#each results.warnings as warning}
+            {#each results.warnings as warning, index (index)}
               <li class="warning-item">{warning}</li>
             {/each}
           </ul>

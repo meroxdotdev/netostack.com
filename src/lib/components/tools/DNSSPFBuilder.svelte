@@ -45,7 +45,7 @@
     { type: 'exp', value: '', enabled: false },
   ]);
 
-  const qualifierLabels = {
+  const _qualifierLabels = {
     '+': 'Pass',
     '-': 'Fail',
     '~': 'SoftFail',
@@ -103,7 +103,7 @@
 
   const validation = $derived.by((): ValidationResult => {
     const enabledMechanisms = mechanisms.filter((m) => m.enabled);
-    const enabledModifiers = modifiers.filter((m) => m.enabled);
+    const _enabledModifiers = modifiers.filter((m) => m.enabled);
     const messages: string[] = [];
     const warnings: string[] = [];
     let dnsLookups = 0;
@@ -238,7 +238,7 @@
       const existing = mechanisms.find((m) => m.type === exampleMech.type && !m.enabled);
       if (existing) {
         existing.enabled = exampleMech.enabled;
-        existing.qualifier = exampleMech.qualifier as any;
+        existing.qualifier = exampleMech.qualifier as SPFMechanism['qualifier'];
         existing.value = exampleMech.value;
       }
     }
@@ -310,7 +310,7 @@
         </div>
 
         <div class="mechanisms-list">
-          {#each mechanisms as mechanism, index}
+          {#each mechanisms as mechanism, index (index)}
             <div class="mechanism-item" class:enabled={mechanism.enabled}>
               <div class="mechanism-header">
                 <label class="mechanism-toggle">
@@ -375,7 +375,7 @@
         </div>
 
         <div class="modifiers-list">
-          {#each modifiers as modifier}
+          {#each modifiers as modifier (modifier.type)}
             <div class="modifier-item" class:enabled={modifier.enabled}>
               <label class="modifier-toggle">
                 <input type="checkbox" bind:checked={modifier.enabled} />
@@ -474,7 +474,7 @@
           <div class="validation-messages error">
             <Icon name="x-circle" size="sm" />
             <div class="messages">
-              {#each validation.messages as message}
+              {#each validation.messages as message, index (index)}
                 <div class="message">{message}</div>
               {/each}
             </div>
@@ -485,7 +485,7 @@
           <div class="validation-messages warning">
             <Icon name="alert-triangle" size="sm" />
             <div class="messages">
-              {#each validation.warnings as warning}
+              {#each validation.warnings as warning, index (index)}
                 <div class="message">{warning}</div>
               {/each}
             </div>
@@ -509,7 +509,7 @@
         Example Policies
       </summary>
       <div class="examples-grid">
-        {#each examplePolicies as example}
+        {#each examplePolicies as example (example.name)}
           <button
             type="button"
             class="example-card"

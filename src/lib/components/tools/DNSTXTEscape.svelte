@@ -213,7 +213,7 @@
               <label class="checkbox-label">
                 <input type="checkbox" bind:checked={escapeQuotes} />
                 <span>Escape Quotes (")</span>
-                <span use:tooltip={'Escape double quote characters as \\\ '}><Icon name="help" size="sm" /></span>
+                <span use:tooltip={'Escape double quote characters as \\"'}><Icon name="help" size="sm" /></span>
               </label>
               <label class="checkbox-label">
                 <input type="checkbox" bind:checked={escapeBackslashes} />
@@ -256,7 +256,7 @@
           </div>
 
           <div class="chunks-list">
-            {#each chunks as chunk, index}
+            {#each chunks as chunk, index (index)}
               <div class="chunk-item">
                 <div class="chunk-header">
                   <span class="chunk-number">Chunk {index + 1}</span>
@@ -325,7 +325,7 @@
         Example Texts
       </summary>
       <div class="examples-grid">
-        {#each exampleTexts as example}
+        {#each exampleTexts as example (example.name)}
           <button
             type="button"
             class="example-card"

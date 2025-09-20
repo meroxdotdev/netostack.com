@@ -1,7 +1,7 @@
 <script lang="ts">
   import { RESERVED_RANGES } from '$lib/constants/networks.js';
   import Tooltip from '$lib/components/global/Tooltip.svelte';
-  import SvgIcon from '$lib/components/global/SvgIcon.svelte';
+  import _SvgIcon from '$lib/components/global/SvgIcon.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../styles/converters.scss';
   import '../../styles/components.scss';
@@ -15,7 +15,7 @@
 
   <!-- Reserved Ranges -->
   <div class="reference-section">
-    {#each Object.entries(RESERVED_RANGES) as [rangeName, rangeInfo]}
+    {#each Object.entries(RESERVED_RANGES) as [rangeName, rangeInfo] (rangeName)}
       <Tooltip text="{rangeInfo.description} - Defined in {rangeInfo.rfc}" position="top">
         <div class="reference-card">
           <div class="card-header-inline">
