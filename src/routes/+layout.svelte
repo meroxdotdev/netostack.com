@@ -9,18 +9,19 @@
   import '../styles/pages.scss';
 
   import favicon from '$lib/assets/favicon.svg';
-  import { getPageDetails } from '$lib/constants/nav.js';
-  import { site, author } from '$lib/constants/site.js';
+  import { getPageDetails, getPageDetailsWithIcon } from '$lib/constants/nav';
+  import { generateFaviconDataUri } from '$lib/utils/favicon';
+  import { site, author } from '$lib/constants/site';
 
   import Header from '$lib/components/furniture/Header.svelte';
   import SubHeader from '$lib/components/furniture/SubHeader.svelte';
   import Footer from '$lib/components/furniture/Footer.svelte';
 
   let { data, children } = $props(); // Gets data from the server load function
-
   let darkMode = $state(true); // Stores the theme mode
+  let faviconTrigger = $state(0); // Trigger to force favicon updates
 
-  // SEO: Get page-specific metadata or fallback to site defaults
+  // Get page-specific metadata or fallback to site defaults
   const seoData = $derived.by(() => {
     const currentPath = $page.url.pathname;
     const pageDetails = getPageDetails(currentPath);
@@ -32,6 +33,22 @@
       url: `${site.url}${currentPath}`,
       image: site.image,
     };
+  });
+
+  // Dynamic favicon based on page icon
+  const dynamicFavicon = $derived.by(() => {
+    faviconTrigger; // Include faviconTrigger to force updates when theme changes
+    const currentPath = $page.url.pathname;
+    const pageDetailsWithIcon = getPageDetailsWithIcon(currentPath);
+    if (pageDetailsWithIcon?.icon) {
+      const faviconDataUri = generateFaviconDataUri(pageDetailsWithIcon.icon);
+      if (faviconDataUri) {
+        return faviconDataUri;
+      }
+    }
+
+    // Fallback to default favicon
+    return favicon;
   });
 
   onMount(() => {
@@ -58,6 +75,10 @@
       } else {
         document.documentElement.classList.add('theme-light');
       }
+      // Trigger favicon update 50ms after theme change
+      setTimeout(() => {
+        faviconTrigger++;
+      }, 50);
     }
   }
 
@@ -71,8 +92,8 @@
 </script>
 
 <svelte:head>
-  <!-- Favicon -->
-  <link rel="icon" href={favicon} />
+  <!-- Dynamic Favicon -->
+  <link rel="icon" type="image/svg+xml" href={dynamicFavicon} />
 
   <!-- SEO Meta Tags -->
   <title>{seoData.title}</title>

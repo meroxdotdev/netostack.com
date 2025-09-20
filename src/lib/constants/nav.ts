@@ -1874,3 +1874,52 @@ export function getPageDetails(href: string): { title: string; description: stri
 
   return null;
 }
+
+// Enhanced helper: get page details including icon for dynamic favicon
+export function getPageDetailsWithIcon(
+  href: string,
+): { title: string; description: string; keywords: string[]; icon?: string } | null {
+  // First check ALL_PAGES (sub-pages)
+  for (const item of ALL_PAGES) {
+    if (item.href === href) {
+      return {
+        title: item.label,
+        description: item.description || '',
+        keywords: item.keywords || [],
+        icon: item.icon,
+      };
+    }
+  }
+
+  // Then check TOP_NAV (top-level pages)
+  for (const item of TOP_NAV) {
+    if (item.href === href) {
+      return {
+        title: item.label,
+        description: item.description || '',
+        keywords: item.keywords || [],
+        icon: item.icon,
+      };
+    }
+  }
+
+  // Fallback: check for parent section if current path is a sub-path
+  const pathSegments = href.split('/').filter(Boolean);
+  if (pathSegments.length > 1) {
+    const parentPath = '/' + pathSegments[0];
+    const parentSectionData = SUB_NAV[parentPath];
+    if (parentSectionData && parentSectionData.length > 0) {
+      const firstItem = parentSectionData[0];
+      if ('title' in firstItem && 'description' in firstItem) {
+        return {
+          title: firstItem.title,
+          description: firstItem.description || '',
+          keywords: [],
+          icon: undefined,
+        };
+      }
+    }
+  }
+
+  return null;
+}
