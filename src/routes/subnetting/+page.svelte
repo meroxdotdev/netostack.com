@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { site } from '$lib/constants/site';
   import { SUB_NAV } from '$lib/constants/nav';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
@@ -34,14 +33,7 @@
   }
 </script>
 
-<svelte:head>
-  <title>Subnetting Tools - Subnet, VLSM & Supernet Calculators | {site.name}</title>
-  <meta name="description" content="Comprehensive subnetting and supernetting tools including subnet calculator, VLSM calculator, and supernet calculator for network planning, IP allocation, and route aggregation." />
-  <meta name="keywords" content="{site.keywords}, subnetting, subnet calculator, VLSM, supernet, supernetting, route aggregation, network planning" />
-  <meta property="og:title" content="Subnetting Tools - Subnet, VLSM & Supernet Calculators" />
-  <meta property="og:description" content="Comprehensive subnetting and supernetting tools including subnet calculator, VLSM calculator, and supernet calculator for network planning, IP allocation, and route aggregation." />
-  <meta property="og:url" content="{site.url}/subnetting" />
-</svelte:head>
+
 
 <div class="page-container">
   <header class="page-header">

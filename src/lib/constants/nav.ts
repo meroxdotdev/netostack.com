@@ -21,12 +21,42 @@ export const aboutPages: NavItem[] = [
 export const STANDALONE_PAGES: NavItem[] = [];
 
 export const TOP_NAV: NavItem[] = [
-  { href: '/subnetting', label: 'Subnetting' },
-  { href: '/cidr', label: 'CIDR' },
-  { href: '/ip-address-convertor', label: 'IP Tools' },
-  { href: '/dns', label: 'DNS Tools' },
-  { href: '/diagnostics', label: 'Lookups' },
-  { href: '/reference', label: 'Ref' }
+  {
+    href: '/subnetting',
+    label: 'Subnetting',
+    description: 'Subnet calculators and network planning tools for IPv4, IPv6, VLSM, and supernetting',
+    keywords: ['subnet', 'calculator', 'subnetting', 'network', 'planning', 'ipv4', 'ipv6', 'vlsm', 'supernet', 'netmask', 'cidr', 'broadcast', 'hosts', 'addressing', 'allocation']
+  },
+  {
+    href: '/cidr',
+    label: 'CIDR',
+    description: 'CIDR tools and converters for network analysis and optimization',
+    keywords: ['cidr', 'subnet', 'mask', 'converter', 'summarizer', 'splitter', 'set operations', 'aggregation', 'deaggregation', 'prefix', 'notation', 'blocks', 'ranges', 'supernet', 'allocation']
+  },
+  {
+    href: '/ip-address-convertor',
+    label: 'IP Tools',
+    description: 'IP address converters, validators, generators, and format transformation tools',
+    keywords: ['ip', 'address', 'converter', 'validator', 'generator', 'format', 'binary', 'hex', 'decimal', 'ipv4', 'ipv6', 'distance', 'random', 'regex', 'enumerate', 'validation', 'transformation']
+  },
+  {
+    href: '/dns',
+    label: 'DNS Tools',
+    description: 'DNS record generators, validators, zone tools, and DNSSEC utilities',
+    keywords: ['dns', 'records', 'generator', 'validator', 'zone', 'dnssec', 'ptr', 'reverse', 'a record', 'aaaa', 'cname', 'mx', 'txt', 'srv', 'caa', 'spf', 'dmarc', 'dkim', 'soa', 'ns']
+  },
+  {
+    href: '/diagnostics',
+    label: 'Lookups',
+    description: 'Network diagnostics, DNS lookups, HTTP analysis, TLS testing, and connectivity checks',
+    keywords: ['diagnostics', 'lookup', 'dns', 'http', 'tls', 'network', 'connectivity', 'ping', 'port', 'check', 'security', 'headers', 'certificate', 'propagation', 'rdap', 'whois', 'analysis']
+  },
+  {
+    href: '/reference',
+    label: 'Ref',
+    description: 'Networking reference guides, explanations, and quick lookup tables',
+    keywords: ['reference', 'guide', 'explanation', 'networking', 'fundamentals', 'cidr', 'vlsm', 'ipv6', 'dns', 'protocols', 'ports', 'asn', 'icmp', 'arp', 'ndp', 'multicast', 'private', 'public']
+  }
 ];
 
 // Sections that have sub-pages (drives the conditional SubHeader)
@@ -71,6 +101,7 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
   '/cidr': [
     {
       title: 'CIDR Masks',
+      description: 'Convert between CIDR notation and subnet masks',
       items: [
         {
           href: '/cidr/mask-converter/cidr-to-subnet-mask', 
@@ -137,38 +168,43 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       icon: 'cidr-allocator',
       keywords: ['cidr', 'allocator', 'bin-packing', 'first-fit', 'best-fit', 'subnet', 'allocation', 'packing']
     },
-    { 
+    {
       href: '/cidr/alignment',
       label: 'CIDR Alignment',
       description: 'Check if IP addresses and ranges align to CIDR prefix boundaries with optimization suggestions',
-      icon: 'cidr-alignment'
+      icon: 'cidr-alignment',
+      keywords: ['cidr', 'alignment', 'check', 'boundary', 'prefix', 'optimization', 'network', 'boundary', 'validation', 'subnet', 'addressing', 'efficiency']
     },
-    { 
+    {
       href: '/cidr/wildcard-mask',
       label: 'Wildcard Mask Converter',
       description: 'Convert between CIDR, subnet masks, and wildcard masks with ACL rule generation',
-      icon: 'wildcard-mask'
+      icon: 'wildcard-mask',
+      keywords: ['wildcard', 'mask', 'converter', 'acl', 'access', 'control', 'list', 'cisco', 'juniper', 'subnet', 'cidr', 'netmask', 'inverse', 'routing', 'firewall']
     },
     {
       title: 'Set Operations',
       items: [
-        { 
+        {
           href: '/cidr/set-operations/diff',
           label: 'Difference (A - B)',
           description: 'Compute A - B set operations on CIDR blocks, ranges, and IP addresses',
-          icon: 'diff'
+          icon: 'diff',
+          keywords: ['set', 'operations', 'difference', 'subtract', 'exclude', 'minus', 'cidr', 'blocks', 'ranges', 'ip', 'addresses', 'network', 'math', 'complement']
         },
-        { 
+        {
           href: '/cidr/set-operations/overlap',
           label: 'Overlap (A ∩ B)',
           description: 'Detect intersections between two sets of IP addresses and ranges',
-          icon: 'intersection'
+          icon: 'intersection',
+          keywords: ['set', 'operations', 'overlap', 'intersection', 'intersect', 'common', 'shared', 'cidr', 'blocks', 'ranges', 'conflict', 'collision', 'detection']
         },
-        { 
+        {
           href: '/cidr/set-operations/contains',
           label: 'Contains (A ⊆ B)',
           description: 'Check if one set fully contains another with detailed containment analysis',
-          icon: 'containment'
+          icon: 'containment',
+          keywords: ['set', 'operations', 'contains', 'subset', 'superset', 'containment', 'analysis', 'inclusion', 'hierarchy', 'cidr', 'blocks', 'ranges', 'network', 'topology']
         }
       ]
     }
@@ -200,7 +236,8 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/nth-ip',
           label: 'Nth IP Calculator',
           description: 'Resolve the IP address at a specific index within networks and ranges with offset support',
-          icon: 'nth-ip'
+          icon: 'nth-ip',
+          keywords: ['nth', 'ip', 'calculator', 'index', 'offset', 'position', 'network', 'range', 'addressing', 'sequence', 'cidr', 'subnet', 'host', 'enumerate']
         },
         {
           href: '/ip-address-convertor/random',
@@ -239,25 +276,29 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/notation/ipv6-expand',
           label: 'IPv6 Expand',
           description: 'Expand compressed IPv6 addresses to full 128-bit hexadecimal format',
-          icon: 'ipv6-expand'
+          icon: 'ipv6-expand',
+          keywords: ['ipv6', 'expand', 'expansion', 'full', 'format', '128-bit', 'hexadecimal', 'compressed', 'double-colon', 'address', 'canonical', 'notation']
         },
         {
           href: '/ip-address-convertor/notation/ipv6-compress',
           label: 'IPv6 Compress',
           description: 'Compress expanded IPv6 addresses using :: notation and removing leading zeros',
-          icon: 'ipv6-compress'
+          icon: 'ipv6-compress',
+          keywords: ['ipv6', 'compress', 'compression', 'shorten', 'double-colon', 'notation', 'leading', 'zeros', 'compact', 'format', 'address', 'optimization']
         },
         {
           href: '/ip-address-convertor/notation/normalize',
           label: 'IPv6 Normalizer',
           description: 'Normalize IPv6 addresses to RFC 5952 canonical form with step-by-step transformation',
-          icon: 'ip-normalize'
+          icon: 'ip-normalize',
+          keywords: ['ipv6', 'normalize', 'normalizer', 'canonical', 'form', 'rfc', '5952', 'standard', 'format', 'address', 'transformation', 'consistent']
         },
         {
           href: '/ip-address-convertor/notation/zone-id',
           label: 'IPv6 Zone ID Handler',
           description: 'Process IPv6 addresses with zone identifiers for link-local and multicast addresses',
-          icon: 'zone-id-handler'
+          icon: 'zone-id-handler',
+          keywords: ['ipv6', 'zone', 'id', 'identifier', 'link-local', 'multicast', 'scope', 'interface', 'fe80', 'ff02', 'address', 'scoped']
         },
         {
           href: '/ip-address-convertor/ipv6/solicited-node',
@@ -289,13 +330,15 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/families/ipv4-to-ipv6',
           label: 'IPv4 → IPv6',
           description: 'Convert IPv4 addresses to IPv6 format using IPv4-mapped IPv6 addressing',
-          icon: 'ipv4-ipv6'
+          icon: 'ipv4-ipv6',
+          keywords: ['ipv4', 'ipv6', 'convert', 'converter', 'mapped', 'family', 'translation', 'dual-stack', 'transition', 'ffff', 'embedding', 'address']
         },
         {
           href: '/ip-address-convertor/families/ipv6-to-ipv4',
           label: 'IPv6 → IPv4',
           description: 'Extract IPv4 addresses from IPv4-mapped IPv6 addresses',
-          icon: 'ipv6-ipv4'
+          icon: 'ipv6-ipv4',
+          keywords: ['ipv6', 'ipv4', 'extract', 'extractor', 'mapped', 'family', 'reverse', 'dual-stack', 'transition', 'ffff', 'embedded', 'address']
         }
       ]
     },
@@ -306,13 +349,15 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/ip-address-convertor/eui64',
           label: 'EUI-64 Converter',
           description: 'Convert between MAC addresses and IPv6 EUI-64 interface identifiers with IPv6 generation',
-          icon: 'eui64-converter'
+          icon: 'eui64-converter',
+          keywords: ['eui-64', 'eui64', 'mac', 'address', 'converter', 'ipv6', 'interface', 'identifier', 'slaac', 'auto-configuration', 'link-layer', 'ethernet']
         },
         {
           href: '/ip-address-convertor/ula-generator',
           label: 'ULA Generator',
           description: 'Generate RFC 4193 Unique Local Addresses with cryptographically secure Global IDs',
-          icon: 'ula-generator'
+          icon: 'ula-generator',
+          keywords: ['ula', 'unique', 'local', 'address', 'generator', 'rfc', '4193', 'global', 'id', 'cryptographic', 'private', 'fc00', 'fd00', 'ipv6']
         }
       ]
     }
@@ -790,19 +835,22 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/cidr',
           label: 'CIDR Notation Explained',
           description: 'What CIDR is, why it replaced IP classes, and how to read network prefixes',
-          icon: 'ref-cidr'
+          icon: 'ref-cidr',
+          keywords: ['cidr', 'notation', 'explained', 'classless', 'routing', 'prefix', 'subnet', 'mask', 'ip', 'classes', 'network', 'addressing', 'fundamentals', 'slash', 'notation']
         },
         {
           href: '/reference/vlsm',
           label: 'VLSM in Plain English',
           description: 'Variable Length Subnet Masking - when to use it and common pitfalls',
-          icon: 'ref-vlsm'
+          icon: 'ref-vlsm',
+          keywords: ['vlsm', 'variable', 'length', 'subnet', 'masking', 'explained', 'subnetting', 'networks', 'efficiency', 'addressing', 'design', 'planning', 'pitfalls', 'best', 'practices']
         },
         {
           href: '/reference/supernetting',
           label: 'Route Summarization / Supernetting',
           description: 'Combine multiple networks into single routes for efficient routing',
-          icon: 'ref-supernetting'
+          icon: 'ref-supernetting',
+          keywords: ['supernetting', 'route', 'summarization', 'aggregation', 'routing', 'table', 'optimization', 'bgp', 'ospf', 'networks', 'consolidation', 'efficiency', 'prefix', 'summary']
         }
       ]
     },
@@ -813,25 +861,29 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/ipv6-address-types',
           label: 'IPv6 Address Types & Key Prefixes',
           description: 'Global unicast, ULA, link-local, multicast, and special IPv6 addresses',
-          icon: 'ref-ipv6-address-types'
+          icon: 'ref-ipv6-address-types',
+          keywords: ['ipv6', 'address', 'types', 'prefixes', 'global', 'unicast', 'ula', 'link-local', 'multicast', 'loopback', 'special', 'fe80', 'fc00', 'fd00', 'ff00', '2001']
         },
         {
           href: '/reference/ipv6-prefix-lengths',
           label: 'Common IPv6 Prefix Lengths',
           description: 'Quick reference for /128, /127, /64, /60, /56, /48, /32 with typical uses',
-          icon: 'ref-ipv6-prefix-lens'
+          icon: 'ref-ipv6-prefix-lens',
+          keywords: ['ipv6', 'prefix', 'lengths', 'reference', '/128', '/127', '/64', '/60', '/56', '/48', '/32', 'subnet', 'network', 'addressing', 'allocation', 'hierarchy']
         },
         {
           href: '/reference/ipv6-embedded-ipv4',
           label: 'IPv4 in IPv6',
           description: 'IPv4-mapped addresses, 6to4, Teredo, and transition mechanisms',
-          icon: 'ref-ipv4-in-ipv6'
+          icon: 'ref-ipv4-in-ipv6',
+          keywords: ['ipv6', 'ipv4', 'embedded', 'mapped', '6to4', 'teredo', 'transition', 'mechanisms', 'dual-stack', 'tunneling', 'ffff', '2002', '2001:0000', 'migration']
         },
         {
           href: '/reference/ipv6-privacy-addresses',
           label: 'IPv6 Privacy Addresses',
           description: 'SLAAC privacy extensions: temporary vs stable interface identifiers',
-          icon: 'ref-ipv6-privacy-address'
+          icon: 'ref-ipv6-privacy-address',
+          keywords: ['ipv6', 'privacy', 'addresses', 'slaac', 'extensions', 'temporary', 'stable', 'interface', 'identifiers', 'rfc', '4941', 'auto-configuration', 'randomization']
         }
       ]
     },
@@ -842,31 +894,36 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/special-use-ipv4',
           label: 'Special-Use IPv4 Blocks (RFC 6890)',
           description: 'Reserved IPv4 ranges including private networks, CGNAT, and test blocks',
-          icon: 'ref-special-blocks'
+          icon: 'ref-special-blocks',
+          keywords: ['special', 'use', 'ipv4', 'blocks', 'rfc', '6890', 'reserved', 'private', 'networks', 'cgnat', 'test', 'loopback', '127.0.0.1', '10.0.0.0', '192.168.0.0', '172.16.0.0']
         },
         {
           href: '/reference/private-vs-public-ip',
           label: 'Private vs Public IP Addresses',
           description: 'Understanding private/public IPs, NAT implications, and identification',
-          icon: 'ref-public-vs-private'
+          icon: 'ref-public-vs-private',
+          keywords: ['private', 'public', 'ip', 'addresses', 'nat', 'rfc', '1918', 'routable', 'non-routable', 'internet', 'identification', 'comparison', 'difference', 'explained']
         },
         {
           href: '/reference/cgnat',
           label: 'Carrier-Grade NAT Explained',
           description: 'CGNAT (100.64.0.0/10), how to identify it, and service impacts',
-          icon: 'ref-carrier-nat'
+          icon: 'ref-carrier-nat',
+          keywords: ['cgnat', 'carrier', 'grade', 'nat', '100.64.0.0', 'rfc', '6598', 'shared', 'address', 'space', 'service', 'provider', 'impacts', 'detection', 'isp']
         },
         {
           href: '/reference/link-local-apipa',
           label: 'Link-Local & APIPA Addresses',
           description: 'IPv4 APIPA (169.254/16) and IPv6 link-local (fe80::/10) at a glance',
-          icon: 'ref-link-local-apia'
+          icon: 'ref-link-local-apia',
+          keywords: ['link-local', 'apipa', 'addresses', '169.254.0.0', 'fe80::', 'automatic', 'configuration', 'zero-conf', 'local', 'subnet', 'self-assigned', 'ipv4', 'ipv6']
         },
         {
           href: '/reference/multicast',
           label: 'IPv4 & IPv6 Multicast Basics',
           description: 'Multicast scopes, well-known groups, and local subnet limitations',
-          icon: 'ref-multicast-basics'
+          icon: 'ref-multicast-basics',
+          keywords: ['multicast', 'basics', 'ipv4', 'ipv6', 'scopes', 'groups', 'igmp', 'mld', '224.0.0.0', 'ff00::', 'broadcast', 'unicast', 'anycast', 'communication']
         }
       ]
     },
@@ -877,25 +934,29 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/reverse-dns',
           label: 'Reverse DNS (PTR Records)',
           description: 'How in-addr.arpa and ip6.arpa work with examples for IPv4 and IPv6',
-          icon: 'ref-reverse-dns'
+          icon: 'ref-reverse-dns',
+          keywords: ['reverse', 'dns', 'ptr', 'records', 'in-addr.arpa', 'ip6.arpa', 'lookup', 'ipv4', 'ipv6', 'hostname', 'resolution', 'explained', 'examples']
         },
         {
           href: '/reference/reverse-zones',
           label: 'Reverse Zones for CIDR Delegation',
           description: 'Minimal reverse DNS zones needed to delegate IPv4 and IPv6 CIDR blocks',
-          icon: 'ref-reverse-zones'
+          icon: 'ref-reverse-zones',
+          keywords: ['reverse', 'zones', 'cidr', 'delegation', 'dns', 'minimal', 'ipv4', 'ipv6', 'blocks', 'nibble', 'octet', 'boundaries', 'authority', 'nameserver']
         },
         {
           href: '/reference/icmp',
           label: 'ICMP & ICMPv6: Common Types',
           description: 'Practical guide to ICMP message types for network troubleshooting',
-          icon: 'ref-icmp'
+          icon: 'ref-icmp',
+          keywords: ['icmp', 'icmpv6', 'message', 'types', 'ping', 'traceroute', 'destination', 'unreachable', 'time', 'exceeded', 'troubleshooting', 'network', 'protocol', 'error']
         },
         {
           href: '/reference/arp-vs-ndp',
           label: 'ARP vs NDP',
           description: 'Side-by-side comparison of IPv4 ARP and IPv6 Neighbor Discovery',
-          icon: 'ref-arp-vs-ndp'
+          icon: 'ref-arp-vs-ndp',
+          keywords: ['arp', 'ndp', 'neighbor', 'discovery', 'comparison', 'ipv4', 'ipv6', 'address', 'resolution', 'protocol', 'layer2', 'mac', 'solicitation', 'advertisement']
         }
       ]
     },
@@ -906,25 +967,29 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           href: '/reference/asn',
           label: 'What is an ASN?',
           description: 'Autonomous Systems, BGP basics, and how IP addresses map to ASNs',
-          icon: 'ref-asn'
+          icon: 'ref-asn',
+          keywords: ['asn', 'autonomous', 'system', 'number', 'bgp', 'routing', 'internet', 'explained', 'ip', 'addresses', 'mapping', 'iana', 'rir', 'allocation', 'lookup']
         },
         {
           href: '/reference/ports',
           label: 'Common TCP/UDP Ports',
           description: 'Quick reference for frequently used port numbers and services',
-          icon: 'ref-ports'
+          icon: 'ref-ports',
+          keywords: ['tcp', 'udp', 'ports', 'common', 'reference', 'services', 'well-known', 'registered', 'dynamic', 'ephemeral', 'firewall', 'security', 'protocols']
         },
         {
           href: '/reference/wildcard-masks',
           label: 'ACL Wildcard Masks',
           description: 'Wildcard masks vs netmasks, quick conversions and ACL examples',
-          icon: 'ref-wildcard-masks'
+          icon: 'ref-wildcard-masks',
+          keywords: ['wildcard', 'masks', 'acl', 'access', 'control', 'list', 'netmasks', 'inverse', 'cisco', 'juniper', 'conversions', 'examples', 'firewall', 'security']
         },
         {
           href: '/reference/mtu-mss',
           label: 'Common MTU/MSS Values',
           description: 'MTU and MSS values for Ethernet, PPPoE, VPN, and overhead calculations',
-          icon: 'ref-mtu-mss'
+          icon: 'ref-mtu-mss',
+          keywords: ['mtu', 'mss', 'maximum', 'transmission', 'unit', 'segment', 'size', 'ethernet', 'pppoe', 'vpn', 'overhead', 'fragmentation', 'jumbo', 'frames']
         }
       ]
     }
@@ -974,6 +1039,7 @@ export function findSectionKey(pathname: string): string | null {
 
 // Helper: get page details for SEO from navigation
 export function getPageDetails(href: string): { title: string; description: string; keywords: string[] } | null {
+  // First check ALL_PAGES (sub-pages)
   for (const item of ALL_PAGES) {
     if (item.href === href) {
       return {
@@ -983,5 +1049,49 @@ export function getPageDetails(href: string): { title: string; description: stri
       };
     }
   }
+  
+  // Then check TOP_NAV (top-level pages)
+  for (const item of TOP_NAV) {
+    if (item.href === href) {
+      return {
+        title: item.label,
+        description: item.description || '',
+        keywords: item.keywords || []
+      };
+    }
+  }
+  
+  // Check SUB_NAV for section-level metadata (e.g. /cidr)
+  const sectionData = SUB_NAV[href];
+  if (sectionData && sectionData.length > 0) {
+    const firstItem = sectionData[0];
+    // Check if it's a NavGroup with title/description
+    if ('title' in firstItem && 'description' in firstItem) {
+      return {
+        title: firstItem.title,
+        description: firstItem.description || '',
+        keywords: []
+      };
+    }
+  }
+  
+  // Fallback: check for parent section if current path is a sub-path
+  // e.g. /cidr/mask-converter should use /cidr section metadata
+  const pathSegments = href.split('/').filter(Boolean);
+  if (pathSegments.length > 1) {
+    const parentPath = '/' + pathSegments[0];
+    const parentSectionData = SUB_NAV[parentPath];
+    if (parentSectionData && parentSectionData.length > 0) {
+      const firstItem = parentSectionData[0];
+      if ('title' in firstItem && 'description' in firstItem) {
+        return {
+          title: firstItem.title,
+          description: firstItem.description || '',
+          keywords: []
+        };
+      }
+    }
+  }
+  
   return null;
 }

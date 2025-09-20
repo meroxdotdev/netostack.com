@@ -10,16 +10,16 @@ import { site } from '$lib/constants/site';
 export async function GET() {
 	// Collect all unique URLs
 	const urls = new Set<string>();
-	
+
 	// Add homepage
 	urls.add('/');
-	
+
 	// Add top-level navigation pages
 	TOP_NAV.forEach(item => urls.add(item.href));
-	
+
 	// Add all pages from the navigation structure
 	ALL_PAGES.forEach(item => urls.add(item.href));
-	
+
 	// Add footer pages (about, etc.)
 	footerLinks.forEach(item => {
 		// Only include internal links (not external GitHub, etc.)
@@ -27,7 +27,21 @@ export async function GET() {
 			urls.add(item.href);
 		}
 	});
-	
+
+	// Extract and add parent paths for intermediate directories
+	// e.g., from /cidr/mask-converter/cidr-to-subnet-mask, also add /cidr/mask-converter/
+	const allUrls = Array.from(urls);
+	allUrls.forEach(url => {
+		const segments = url.split('/').filter(Boolean);
+		// Generate all parent paths
+		for (let i = 1; i < segments.length; i++) {
+			const parentPath = '/' + segments.slice(0, i).join('/');
+			if (parentPath !== '/' && !urls.has(parentPath)) {
+				urls.add(parentPath);
+			}
+		}
+	});
+
 	// Convert to sorted array for consistent output
 	const sortedUrls = Array.from(urls).sort();
 	

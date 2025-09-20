@@ -24,15 +24,6 @@
   const cidrTools = extractNavItems(SUB_NAV['/cidr'] || []);
 </script>
 
-<svelte:head>
-  <title>CIDR Tools & Converters | {site.title}</title>
-  <meta name="description" content="Comprehensive CIDR tools including subnet mask converters, CIDR summarizer, splitter, and set operations for network analysis and optimization." />
-  <meta name="keywords" content="{site.keywords}, CIDR, subnet mask converter, CIDR summarizer, network tools, IP range calculator" />
-  <meta property="og:title" content="CIDR Tools & Converters" />
-  <meta property="og:description" content="Professional CIDR tools for network engineers including converters, summarizers, and set operations." />
-  <meta property="og:url" content="{site.url}/cidr" />
-</svelte:head>
-
 <div class="page-container">
   <header class="page-header">
     <h1>CIDR Tools & Converters</h1>
