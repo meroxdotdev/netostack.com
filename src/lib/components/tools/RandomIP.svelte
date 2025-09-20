@@ -406,7 +406,7 @@
                         {#if generation.seed}
                           <div class="info-item">
                             <span class="info-label">Seed:</span>
-                            <button type="button" class="code-button info-code" onclick={() => copyToClipboard(generation.seed!)} title="Click to copy">
+                            <button type="button" class="code-button info-code" onclick={() => copyToClipboard(generation.seed!, 'seed')} title="Click to copy">
                               {generation.seed}
                             </button>
                           </div>
@@ -420,14 +420,14 @@
                         <div class="range-info">
                           <div class="range-item">
                             <span class="range-label">Start:</span>
-                            <button type="button" class="code-button range-code" onclick={() => copyToClipboard(generation.networkDetails!.start)} title="Click to copy">
+                            <button type="button" class="code-button range-code" onclick={() => copyToClipboard(generation.networkDetails!.start, 'start')} title="Click to copy">
                               {generation.networkDetails.start}
                             </button>
                           </div>
                           
                           <div class="range-item">
                             <span class="range-label">End:</span>
-                            <button type="button" class="code-button range-code" onclick={() => copyToClipboard(generation.networkDetails!.end)} title="Click to copy">
+                            <button type="button" class="code-button range-code" onclick={() => copyToClipboard(generation.networkDetails!.end, 'end')} title="Click to copy">
                               {generation.networkDetails.end}
                             </button>
                           </div>
@@ -678,46 +678,6 @@
     }
   }
 
-  .gen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--spacing-md);
-
-    .network-info {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xs);
-
-      .input-text {
-        font-family: var(--font-mono);
-        font-weight: 600;
-        color: var(--text-primary);
-        font-size: var(--font-size-sm);
-      }
-
-      .network-meta {
-        display: flex;
-        gap: var(--spacing-xs);
-
-        .network-type,
-        .ip-version {
-          font-size: var(--font-size-xs);
-          font-weight: 500;
-          padding: var(--spacing-xs);
-          border-radius: var(--radius-xs);
-          background: var(--bg-secondary);
-          color: var(--text-secondary);
-          border: 1px solid var(--border-secondary);
-        }
-      }
-    }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      gap: var(--spacing-sm);
-    }
-  }
 
   .status {
     color: var(--color-success);
@@ -745,26 +705,6 @@
     }
   }
 
-  .network-details {
-    .details-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: var(--spacing-sm);
-
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-      }
-    }
-  }
-
-  .info-grid, .details-grid {
-    background: var(--bg-secondary);
-    padding: var(--spacing-md);
-    border-radius: var(--radius-md);
-    .info-card {
-      flex-direction: column;
-    }
-  }
 
   .generated-ips {
     background: var(--bg-secondary);

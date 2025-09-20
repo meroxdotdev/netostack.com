@@ -481,42 +481,40 @@
   }
 
   .textarea-group {
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
 
-      label {
-        color: var(--text-primary);
-        font-weight: 500;
-        font-size: var(--font-size-sm);
+    label {
+      color: var(--text-primary);
+      font-weight: 500;
+      font-size: var(--font-size-sm);
+    }
+
+    textarea {
+      width: 100%;
+      padding: var(--spacing-md);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: var(--font-size-sm);
+      resize: vertical;
+      min-height: 150px;
+      transition: all var(--transition-fast);
+
+      &:focus {
+        border-color: var(--color-primary);
+        outline: 2px solid color-mix(in srgb, var(--color-primary), transparent 70%);
+        outline-offset: 2px;
       }
+    }
 
-      textarea {
-        width: 100%;
-        padding: var(--spacing-md);
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-primary);
-        border-radius: var(--radius-md);
-        color: var(--text-primary);
-        font-family: var(--font-mono);
-        font-size: var(--font-size-sm);
-        resize: vertical;
-        min-height: 150px;
-        transition: all var(--transition-fast);
-
-        &:focus {
-          border-color: var(--color-primary);
-          outline: 2px solid color-mix(in srgb, var(--color-primary), transparent 70%);
-          outline-offset: 2px;
-        }
-      }
-
-      .input-help {
-        color: var(--text-secondary);
-        font-size: var(--font-size-xs);
-        line-height: 1.4;
-      }
+    .input-help {
+      color: var(--text-secondary);
+      font-size: var(--font-size-xs);
+      line-height: 1.4;
     }
   }
 
@@ -797,16 +795,6 @@
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
 
-    .details-header {
-      margin-bottom: var(--spacing-sm);
-
-      h4 {
-        color: var(--text-primary);
-        font-size: var(--font-size-md);
-        font-weight: 600;
-        margin: 0;
-      }
-    }
 
     .details-grid {
       display: grid;

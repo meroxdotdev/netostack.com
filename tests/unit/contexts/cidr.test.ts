@@ -272,7 +272,7 @@ describe('CIDR Context Logic', () => {
       commonCidrs.forEach(selectedCidr => {
         cidr.set(selectedCidr);
         const expectedMask = COMMON_SUBNETS.find(s => s.cidr === selectedCidr)?.mask ||
-                           cidrToMask(selectedCidr).dotted;
+                           cidrToMask(selectedCidr).octets.join('.');
         expect(get(mask)).toBe(expectedMask);
 
         const subnetInfo = getSubnetInfo(selectedCidr);
@@ -285,7 +285,7 @@ describe('CIDR Context Logic', () => {
       // Simulate dragging slider through values
       for (let sliderValue = 0; sliderValue <= 32; sliderValue++) {
         cidr.set(sliderValue);
-        const currentMask = get(mask);
+        const currentMask = get(mask) as string;
 
         // Verify the mask is valid
         const validation = validateSubnetMask(currentMask);
@@ -315,8 +315,8 @@ describe('CIDR Context Logic', () => {
         operation();
 
         // Verify state is always consistent
-        const currentCidr = get(cidr);
-        const currentMask = get(mask);
+        const currentCidr = get(cidr) as number;
+        const currentMask = get(mask) as string;
 
         expect(currentCidr).toBeGreaterThanOrEqual(0);
         expect(currentCidr).toBeLessThanOrEqual(32);
@@ -345,8 +345,8 @@ describe('CIDR Context Logic', () => {
       updates.forEach(update => update());
 
       // Verify final state is consistent
-      const finalCidr = get(cidr);
-      const finalMask = get(mask);
+      const finalCidr = get(cidr) as number;
+      const finalMask = get(mask) as string;
       const expectedMask = cidrToMask(finalCidr).octets.join('.');
 
       expect(finalMask).toBe(expectedMask);

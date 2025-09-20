@@ -821,7 +821,7 @@
         color-mix(in srgb, var(--color-error), transparent 65%));
       border: 1px solid var(--color-error);
       color: var(--text-primary);
-      .detail-section, .errors-section {
+      .errors-section {
         background: color-mix(in srgb, var(--bg-secondary), transparent 50%);
       }
     }
@@ -1000,26 +1000,8 @@
     gap: var(--spacing-xl);
   }
 
-  .seo-list {
-    list-style: none;
-    padding: 0;
-    margin: var(--spacing-sm) 0;
-
-    li {
-      padding: var(--spacing-xs) 0;
-      color: var(--text-secondary);
-      line-height: 1.5;
-
-      strong {
-        color: var(--text-primary);
-      }
-    }
-  }
 
   @media (max-width: 768px) {
-    .test-cases-grid {
-      grid-template-columns: 1fr;
-    }
 
     .result-header {
       flex-direction: column;

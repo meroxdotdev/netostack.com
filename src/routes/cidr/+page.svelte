@@ -129,19 +129,23 @@
             </div>
           {:else if item.example.type === 'summary'}
             <div class="summary-example">
-              <div class="before">
-                <strong>{item.example.before.title}</strong><br>
-                {#each item.example.before.content as line}
-                  {line}<br>
-                {/each}
-              </div>
+              {#if item.example.before}
+                <div class="before">
+                  <strong>{item.example.before.title}</strong><br>
+                  {#each item.example.before.content as line}
+                    {line}<br>
+                  {/each}
+                </div>
+              {/if}
               <div class="arrow">→</div>
-              <div class="after">
-                <strong>{item.example.after.title}</strong><br>
-                {#each item.example.after.content as line}
-                  {line}<br>
-                {/each}
-              </div>
+              {#if item.example.after}
+                <div class="after">
+                  <strong>{item.example.after.title}</strong><br>
+                  {#each item.example.after.content as line}
+                    {line}<br>
+                  {/each}
+                </div>
+              {/if}
             </div>
           {:else if item.example.type === 'tip'}
             <div class="planning-tip">

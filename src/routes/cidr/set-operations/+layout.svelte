@@ -161,15 +161,12 @@
     }
   }
 
-  .patterns-section,
-  .notes-section {
-    .patterns-grid,
-    .notes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-xl);
-    }
+  .patterns-section .patterns-grid,
+  .notes-section .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
   }
 
   .notes-section .notes-grid {
@@ -186,7 +183,18 @@
     h5 {
       margin-bottom: var(--spacing-sm);
     }
+  }
 
+  .note-item {
+    p {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+
+  .pattern-card {
     ul {
       list-style: none;
       padding: 0;
@@ -201,13 +209,6 @@
           color: var(--color-primary);
         }
       }
-    }
-
-    p {
-      font-size: var(--font-size-sm);
-      color: var(--text-secondary);
-      line-height: 1.5;
-      margin: 0;
     }
   }
 

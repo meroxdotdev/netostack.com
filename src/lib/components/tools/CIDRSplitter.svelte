@@ -404,7 +404,7 @@
   .input-section {
     margin-bottom: var(--spacing-lg);
     
-    h3, h4 {
+    h3 {
       color: var(--color-primary);
       margin-bottom: var(--spacing-md);
     }

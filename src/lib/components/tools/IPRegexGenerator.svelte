@@ -1452,21 +1452,11 @@
             &.valid {
               background-color: var(--color-success);
               color: var(--bg-primary);
-
-              &.failing {
-                background-color: var(--color-warning);
-                color: var(--bg-primary);
-              }
             }
 
             &.invalid {
               background-color: var(--color-error);
               color: var(--bg-primary);
-
-              &.failing {
-                background-color: var(--color-warning);
-                color: var(--bg-primary);
-              }
             }
           }
 
@@ -1613,9 +1603,6 @@
         color: var(--color-warning-light);
       }
 
-      .doc-section.info h4 {
-        color: var(--color-info-light);
-      }
 
       .doc-list {
         list-style: none;
@@ -1638,9 +1625,6 @@
         }
       }
 
-      .doc-section.info .doc-list li::before {
-        color: var(--color-info);
-      }
 
     }
   }

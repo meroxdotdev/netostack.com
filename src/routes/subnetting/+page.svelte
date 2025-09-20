@@ -168,11 +168,6 @@
     border-radius: var(--radius-lg);
     padding: var(--spacing-xl);
 
-    h2 {
-      margin-bottom: var(--spacing-md);
-      color: var(--color-primary);
-      font-size: var(--font-size-lg);
-    }
 
     p {
       color: var(--text-secondary);

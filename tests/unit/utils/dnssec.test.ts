@@ -20,7 +20,8 @@ beforeAll(() => {
   // @ts-ignore - Mock atob for Node.js environment
   global.atob = (str: string) => {
     try {
-      return Buffer.from(str, 'base64').toString('binary');
+      // @ts-ignore - Buffer is available in Node.js test environment
+      return globalThis.Buffer.from(str, 'base64').toString('binary');
     } catch {
       throw new Error('Invalid base64');
     }
