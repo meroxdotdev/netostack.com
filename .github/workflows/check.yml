@@ -1,70 +1,144 @@
-name: Code Quality Checks
+name: 🪢 Checks
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  check:
-    name: ${{ matrix.check-name }}
+  build:
+    name: 🔨 Build
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - check-name: "TypeScript & Svelte Check"
-            command: "npm run check"
-            description: "Verify TypeScript types and Svelte components"
-          - check-name: "Build"
-            command: "npm run build"
-            description: "Verify project builds successfully"
-          - check-name: "Lint"
-            command: "npm run lint"
-            description: "Check code style and quality with ESLint"
-          # - check-name: "Format Check"
-          #   command: "npm run format:check"
-          #   description: "Verify code formatting with Prettier"
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build-check
 
-      - name: Install dependencies
-        run: npm ci
+  lint:
+    name: 🧼 Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
 
-      - name: Run ${{ matrix.check-name }}
-        run: ${{ matrix.command }}
+  style:
+    name: 💅 Style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run style
+
+  types:
+    name: 🧩 Types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run types
+
+  svelte_check:
+    name: 🛟 Svelte Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+
+  deps_lockfile:
+    name: ⛓️‍💥 Deps • Lockfile integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+  deps_audit:
+    name: 🔐 Deps • Audit (high+)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+
+  deps_health:
+    name: 🩺 Deps • Peer/health
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm ls --all
+
+  summarize:
+    name: 📊 Summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - build
+      - lint
+      - style
+      - types
+      - svelte_check
+      - deps_lockfile
+      - deps_audit
+      - deps_health
+    steps:
+      - name: Create summary
         env:
-          NODE_OPTIONS: "--max_old_space_size=8192"
-          
-      - name: Quality Summary
+          BUILD: ${{ needs.build.result }}
+          LINT: ${{ needs.lint.result }}
+          STYLE: ${{ needs.style.result }}
+          TYPES: ${{ needs.types.result }}
+          SVCHK: ${{ needs.svelte_check.result }}
+          DEP_LOCK: ${{ needs.deps_lockfile.result }}
+          DEP_AUDIT: ${{ needs.deps_audit.result }}
+          DEP_HEALTH: ${{ needs.deps_health.result }}
         run: |
-          echo "## 📊 Quality Check Results" >> $GITHUB_STEP_SUMMARY
-          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          em() { case "$1" in success) echo "✅";; failure) echo "❌";; cancelled|skipped) echo "⏭️";; *) echo "❔";; esac; }
+          line() { r="$1"; n="$2"; s="Failing"; [ "$r" = "success" ] && s="Passing"; echo "- $(em "$r") $n - $s"; }
 
-          checks=(
-            "TypeScript & Svelte Check"
-            "Build"
-            "Lint"
-            "Format Check"
-            "Tests"
-            "Test Coverage"
-          )
-
-          for check in "${checks[@]}"; do
-            if [[ "${{ needs.check.result }}" == "success" ]]; then
-              echo "| $check | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "| $check | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
-            fi
-          done
+          {
+            echo "## PR Checks"
+            line "$BUILD" "Build"
+            line "$LINT" "Lint"
+            line "$STYLE" "Style"
+            line "$TYPES" "Types"
+            line "$SVCHK" "Svelte Check"
+            line "$DEP_LOCK" "Deps - Lockfile"
+            line "$DEP_AUDIT" "Deps - Audit"
+            line "$DEP_HEALTH" "Deps - Health"
+          } >> "$GITHUB_STEP_SUMMARY"
