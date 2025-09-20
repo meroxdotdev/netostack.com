@@ -32,7 +32,12 @@ function ipv4ToBigInt(ip: string): bigint {
   if (parts.length !== 4 || parts.some(p => p < 0 || p > 255)) {
     throw new Error('Invalid IPv4 address');
   }
-  return BigInt(parts[0] << 24 | parts[1] << 16 | parts[2] << 8 | parts[3]);
+  return BigInt(
+    (parts[0] * 256 * 256 * 256) +
+    (parts[1] * 256 * 256) +
+    (parts[2] * 256) +
+    parts[3]
+  );
 }
 
 /* Convert bigint to IPv4 address */
@@ -194,29 +199,30 @@ function rangeToCIDRs(range: IPRange): string[] {
   let start = range.start;
   const end = range.end;
   const maxPrefix = range.version === 4 ? 32 : 128;
-  
+
   while (start <= end) {
+    // Find the largest block that starts at 'start' and fits in the range
     let prefixLength = maxPrefix;
-    
-    // Find largest block that fits
-    while (prefixLength > 0) {
-      const blockSize = 1n << BigInt(maxPrefix - prefixLength);
+
+    // Start with the largest possible block (prefix 0) and work down
+    for (let len = 0; len <= maxPrefix; len++) {
+      const blockSize = 1n << BigInt(maxPrefix - len);
       const blockStart = start & ~(blockSize - 1n);
-      const blockEnd = blockStart + blockSize - 1n;
-      
-      if (blockStart === start && blockEnd <= end) {
+
+      // Check if this block starts at our current position and fits in range
+      if (blockStart === start && start + blockSize - 1n <= end) {
+        prefixLength = len;
         break;
       }
-      prefixLength--;
     }
-    
+
     const blockSize = 1n << BigInt(maxPrefix - prefixLength);
     const ip = range.version === 4 ? bigIntToIPv4(start) : bigIntToIPv6(start);
     cidrs.push(`${ip}/${prefixLength}`);
-    
+
     start += blockSize;
   }
-  
+
   return cidrs;
 }
 

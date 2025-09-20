@@ -79,7 +79,50 @@ function bigIntToIPv6(num: bigint): string {
     remaining >>= 16n;
   }
   
-  return groups.join(':');
+  let ipv6 = groups.join(':');
+  
+  // Apply IPv6 compression - replace longest sequence of consecutive zeros
+  // Find all sequences of consecutive zero groups
+  const zeroSequences = [];
+  let currentStart = -1;
+  
+  for (let i = 0; i < groups.length; i++) {
+    if (groups[i] === '0') {
+      if (currentStart === -1) currentStart = i;
+    } else {
+      if (currentStart !== -1) {
+        zeroSequences.push({ start: currentStart, length: i - currentStart });
+        currentStart = -1;
+      }
+    }
+  }
+  
+  // Check if there's a trailing sequence
+  if (currentStart !== -1) {
+    zeroSequences.push({ start: currentStart, length: groups.length - currentStart });
+  }
+  
+  // Find the longest sequence (at least 2 consecutive zeros)
+  const longestSequence = zeroSequences
+    .filter(seq => seq.length >= 2)
+    .sort((a, b) => b.length - a.length)[0];
+  
+  if (longestSequence) {
+    const before = groups.slice(0, longestSequence.start).join(':');
+    const after = groups.slice(longestSequence.start + longestSequence.length).join(':');
+    
+    if (before && after) {
+      ipv6 = `${before}::${after}`;
+    } else if (before) {
+      ipv6 = `${before}::`;
+    } else if (after) {
+      ipv6 = `::${after}`;
+    } else {
+      ipv6 = '::';
+    }
+  }
+  
+  return ipv6;
 }
 
 function detectIPVersion(ip: string): 4 | 6 {
@@ -150,14 +193,11 @@ function calculateIPDistance(
     const endNum = ipToNumber(endIP, startVersion);
     
     let distance = endNum > startNum ? endNum - startNum : startNum - endNum;
-    const direction: 'forward' | 'backward' = endNum > startNum ? 'forward' : 'backward';
+    const direction: 'forward' | 'backward' = endNum >= startNum ? 'forward' : 'backward';
     
     // Adjust for inclusive/exclusive counting
-    if (inclusive && distance > 0n) {
+    if (inclusive) {
       distance += 1n;
-    } else if (!inclusive && distance === 0n) {
-      // Same IP address, distance is 0 for exclusive, 1 for inclusive
-      distance = 0n;
     }
     
     const intermediateAddresses = showIntermediates && distance > 1n
@@ -196,8 +236,8 @@ function calculateIPDistance(
 function parseIPPair(input: string): { startIP: string; endIP: string } {
   const trimmed = input.trim();
   
-  // Try different separators
-  const separators = ['->', '<->', '→', '↔', '-', '|', ',', ' '];
+  // Try different separators - order matters! Longer separators first
+  const separators = ['<->', '->', '↔', '→', '-', '|', ','];
   
   for (const sep of separators) {
     if (trimmed.includes(sep)) {

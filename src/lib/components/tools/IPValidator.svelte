@@ -1,8 +1,10 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
+  import '../../../styles/diagnostics-pages.scss';
   
   let inputValue = $state('');
+  let selectedExampleIndex = $state<number | null>(null);
   let result = $state<{
     isValid: boolean;
     type: 'ipv4' | 'ipv6' | null;
@@ -441,12 +443,18 @@
     }
   }
 
-  function setTestCase(testCase: { value: string }) {
+  function setTestCase(testCase: { value: string }, index: number) {
     inputValue = testCase.value;
+    selectedExampleIndex = index;
     validateIP(inputValue);
   }
 
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
+  }
+
   function handleInput() {
+    clearExampleSelection();
     validateIP(inputValue);
   }
 
@@ -488,23 +496,29 @@
   </section>
 
   <!-- Test Cases -->
-  <section class="test-cases-section">
-    <h3>Quick Test Cases</h3>
-    <div class="test-cases-grid">
-      {#each testCases as testCase}
-        <button
-          class="test-case-button {testCase.valid ? 'valid-example' : 'invalid-example'}"
-          onclick={() => setTestCase(testCase)}
-        >
-          <div class="test-case-label">
-            <Icon name={testCase.valid ? 'check-circle' : 'x-circle'} size="sm" />
-            {testCase.label}
-          </div>
-          <code class="test-case-value">{testCase.value}</code>
-        </button>
-      {/each}
-    </div>
-  </section>
+  <div class="card examples-card">
+    <details class="examples-details">
+      <summary class="examples-summary">
+        <Icon name="chevron-right" size="xs" />
+        <h4>Quick Test Cases</h4>
+      </summary>
+      <div class="examples-grid">
+        {#each testCases as testCase, index}
+          <button
+            class="example-card {testCase.valid ? 'valid-example' : 'invalid-example'}"
+            class:selected={selectedExampleIndex === index}
+            onclick={() => setTestCase(testCase, index)}
+          >
+            <div class="test-case-label">
+              <Icon name={testCase.valid ? 'check-circle' : 'x-circle'} size="sm" />
+              <h5>{testCase.label}</h5>
+            </div>
+            <code class="test-case-value">{testCase.value}</code>
+          </button>
+        {/each}
+      </div>
+    </details>
+  </div>
 
   <!-- Results -->
   {#if result && inputValue.trim()}
@@ -639,33 +653,35 @@
   {/if}
 
   <!-- SEO Content -->
-  <section class="seo-content">
-    <div class="seo-grid">
-      <div class="seo-section">
-        <h3>What is IP Address Validation?</h3>
+  <section class="about-content">
+    <div class="about-grid">
+      <div class="about-section">
+        <h3>How to Tell if an IP Address is Valid</h3>
         <p>
-          IP address validation ensures that a given string conforms to the correct format for IPv4 or IPv6 addresses. 
-          This tool checks for proper syntax, valid ranges, and common formatting errors to help network administrators 
-          and developers verify IP addresses before use in network configurations.
+          Valid IP addresses follow specific rules. For IPv4, you need exactly four numbers (0-255) separated by dots,
+          like 192.168.1.1. For IPv6, you need eight groups of hex digits separated by colons, though you can compress
+          consecutive zeros with :: (like 2001:db8::1). The validator checks these rules and tells you exactly what's wrong
+          when something doesn't match.
         </p>
       </div>
-      
-      <div class="seo-section">
-        <h3>Common IP Address Errors</h3>
-        <ul class="seo-list">
-          <li><strong>IPv4 Issues:</strong> Octet values over 255, leading zeros, missing octets</li>
-          <li><strong>IPv6 Issues:</strong> Multiple :: compressions, invalid hex characters, too many groups</li>
-          <li><strong>Format Problems:</strong> Mixed formats, invalid characters, incorrect separators</li>
-        </ul>
+
+      <div class="about-section">
+        <h3>What Happens When Addresses Are Invalid</h3>
+        <p>
+          Invalid IP addresses cause real problems. Your router might reject them, network connections fail, or software
+          crashes. Common mistakes include typos like "192.168.1.256" (256 is too big), missing parts like "192.168.1",
+          or extra zeros like "192.168.01.01". This tool catches these errors before they break your network setup.
+        </p>
       </div>
-      
-      <div class="seo-section">
-        <h3>Supported IP Address Types</h3>
-        <ul class="seo-list">
-          <li><strong>IPv4:</strong> Standard dotted decimal (192.168.1.1), private ranges, special addresses</li>
-          <li><strong>IPv6:</strong> Full format, compressed (::), link-local, unique local, multicast</li>
-          <li><strong>Special Cases:</strong> IPv4-mapped IPv6, zone identifiers, documentation addresses</li>
-        </ul>
+
+      <div class="about-section">
+        <h3>Why Some Addresses Have Warnings</h3>
+        <p>
+          Some valid addresses come with warnings because they have special meanings. For example, addresses ending in
+          .0 are usually network addresses, and ones ending in .255 are broadcast addresses. Private addresses like
+          192.168.x.x won't work on the internet. The tool explains what each address type means so you know if it's
+          right for your use case.
+        </p>
       </div>
     </div>
   </section>
@@ -726,63 +742,56 @@
     font-style: italic;
   }
 
-  .test-cases-section {
-    margin-bottom: var(--spacing-xl);
-
-    h3 {
-      color: var(--color-info-light);
-      margin-bottom: var(--spacing-md);
-    }
-  }
-
-  .test-cases-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-sm);
-  }
-
-  .test-case-button {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    text-align: left;
-
-    &:hover {
-      border-color: var(--color-primary);
-      transform: translateY(-1px);
-    }
-
+  .example-card {
     &.valid-example {
       border-left: 3px solid var(--color-success);
+
+      &:hover, &.selected {
+        border-color: var(--color-success) !important;
+
+        .test-case-label :global(svg) {
+          color: var(--color-success);
+        }
+      }
     }
 
     &.invalid-example {
       border-left: 3px solid var(--color-error);
-    }
-  }
 
-  .test-case-label {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: var(--font-size-sm);
+      &:hover, &.selected {
+        border-color: var(--color-error) !important;
+
+        .test-case-label :global(svg) {
+          color: var(--color-error);
+        }
+      }
+    }
+
+    .test-case-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      margin-bottom: var(--spacing-xs);
+
+      :global(svg) {
+        transition: color var(--transition-fast);
+      }
+
+      h5 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: var(--font-size-sm);
+      }
+    }
   }
 
   .test-case-value {
     font-family: var(--font-mono);
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    background-color: var(--bg-tertiary);
-    padding: 2px var(--spacing-xs);
-    border-radius: var(--radius-sm);
+    margin: 0;
+    display: block;
   }
 
   .results-section {
@@ -796,13 +805,25 @@
     padding: var(--spacing-xl);
 
     &.valid {
-      background-color: var(--color-success);
-      color: var(--bg-primary);
+      background: linear-gradient(135deg,
+        color-mix(in srgb, var(--color-success), transparent 55%),
+        color-mix(in srgb, var(--color-success), transparent 65%));
+      border: 1px solid var(--color-success);
+      color: var(--text-primary);
+      .details-section {
+        background: color-mix(in srgb, var(--bg-secondary), transparent 60%);
+      }
     }
 
     &.invalid {
-      background-color: var(--color-error);
-      color: var(--bg-primary);
+      background: linear-gradient(135deg,
+        color-mix(in srgb, var(--color-error), transparent 55%),
+        color-mix(in srgb, var(--color-error), transparent 65%));
+      border: 1px solid var(--color-error);
+      color: var(--text-primary);
+      .detail-section, .errors-section {
+        background: color-mix(in srgb, var(--bg-secondary), transparent 50%);
+      }
     }
   }
 
@@ -839,9 +860,10 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--bg-tertiary);
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius-md);
+    border: 1px solid var(--border-primary);
   }
 
   .normalized-label {
@@ -854,13 +876,15 @@
     font-family: var(--font-mono);
     font-size: var(--font-size-md);
     font-weight: 600;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--bg-primary);
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
+    color: var(--text-primary);
   }
 
   .errors-section, .warnings-section, .details-section {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
     border-radius: var(--radius-md);
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-md);
@@ -872,6 +896,7 @@
       margin: 0 0 var(--spacing-md) 0;
       font-size: var(--font-size-md);
       font-weight: 600;
+      color: var(--text-primary);
     }
   }
 
@@ -890,6 +915,10 @@
     gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
     line-height: 1.4;
+    color: var(--text-primary);
+  }
+  .info-item {
+    flex-direction: row;
   }
 
   .details-grid {
@@ -911,11 +940,13 @@
     opacity: 0.9;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    color: var(--text-secondary);
   }
 
   .detail-value {
     font-size: var(--font-size-sm);
     font-weight: 600;
+    color: var(--text-primary);
 
     &.private {
       color: var(--color-warning-light);
@@ -927,32 +958,33 @@
 
     &.compressed, &.embedded, &.zone {
       font-family: var(--font-mono);
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: var(--bg-primary);
       padding: 2px var(--spacing-xs);
       border-radius: var(--radius-sm);
+      color: var(--text-primary);
     }
   }
 
   .info-section {
     margin-top: var(--spacing-md);
     padding-top: var(--spacing-md);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid var(--border-secondary);
 
     h5 {
       margin: 0 0 var(--spacing-sm) 0;
       font-size: var(--font-size-sm);
       font-weight: 600;
-      opacity: 0.9;
+      color: var(--text-primary);
     }
   }
 
-  .seo-content {
+  .about-content {
     border-top: 1px solid var(--border-secondary);
     padding-top: var(--spacing-xl);
     margin-top: var(--spacing-xl);
 
     h3 {
-      color: var(--color-info-light);
+      color: var(--color-primary);
       margin-bottom: var(--spacing-md);
     }
 
@@ -962,7 +994,7 @@
     }
   }
 
-  .seo-grid {
+  .about-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--spacing-xl);
@@ -997,7 +1029,7 @@
       grid-template-columns: 1fr;
     }
 
-    .seo-grid {
+    .about-grid {
       grid-template-columns: 1fr;
     }
 

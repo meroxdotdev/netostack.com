@@ -5,6 +5,7 @@
   let inputText = $state('fe80::1\nfe80::1%eth0\nfe80::1234:5678:90ab:cdef%wlan0\n::1\n2001:db8::1\nff02::1%eth0');
   let result = $state<IPv6ZoneResult | null>(null);
   let isLoading = $state(false);
+  let copiedStates = $state<Record<string, boolean>>({});
   
   function processAddresses() {
     if (!inputText.trim()) {
@@ -56,8 +57,18 @@
     URL.revokeObjectURL(url);
   }
   
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
+  async function copyToClipboard(text: string, id?: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (id) {
+        copiedStates[id] = true;
+        setTimeout(() => {
+          copiedStates[id] = false;
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   }
   
   function getAddressTypeColor(type: string): string {
@@ -187,11 +198,11 @@
             <h3>Zone ID Processing</h3>
             <div class="export-buttons">
               <button onclick={() => exportResults('csv')}>
-                <Icon name="download" />
+                <Icon name="csv-file" />
                 Export CSV
               </button>
               <button onclick={() => exportResults('json')}>
-                <Icon name="download" />
+                <Icon name="json-file" />
                 Export JSON
               </button>
             </div>
@@ -200,14 +211,19 @@
           <div class="processings-list">
             {#each result?.processings || [] as processing}
               <div class="processing-card" class:valid={processing.isValid} class:invalid={!processing.isValid}>
-                <div class="card-header">
+                <div class="card-header row ">
                   <div class="address-info">
                     <div class="original-input">
                       <span class="input-label">Input:</span>
                       <div class="input-with-copy">
                         <code>{processing.input}</code>
-                        <button type="button" onclick={() => copyToClipboard(processing.input)} title="Copy input">
-                          <Icon name="copy" size="xs" />
+                        <button
+                          type="button"
+                          class:copied={copiedStates[`input-${processing.input}`]}
+                          onclick={() => copyToClipboard(processing.input, `input-${processing.input}`)}
+                          title="Copy input"
+                        >
+                          <Icon name={copiedStates[`input-${processing.input}`] ? 'check' : 'copy'} size="xs" />
                         </button>
                       </div>
                     </div>
@@ -229,8 +245,13 @@
                         <span class="breakdown-label">Address:</span>
                         <div class="input-with-copy">
                           <code>{processing.address}</code>
-                          <button type="button" onclick={() => copyToClipboard(processing.address)} title="Copy address">
-                            <Icon name="copy" size="xs" />
+                          <button
+                            type="button"
+                            class:copied={copiedStates[`address-${processing.address}`]}
+                            onclick={() => copyToClipboard(processing.address, `address-${processing.address}`)}
+                            title="Copy address"
+                          >
+                            <Icon name={copiedStates[`address-${processing.address}`] ? 'check' : 'copy'} size="xs" />
                           </button>
                         </div>
                       </div>
@@ -240,8 +261,13 @@
                           <span class="breakdown-label">Zone ID:</span>
                           <div class="input-with-copy">
                             <code>{processing.zoneId}</code>
-                            <button type="button" onclick={() => copyToClipboard(processing.zoneId)} title="Copy zone ID">
-                              <Icon name="copy" size="xs" />
+                            <button
+                              type="button"
+                              class:copied={copiedStates[`zone-${processing.zoneId}`]}
+                              onclick={() => copyToClipboard(processing.zoneId, `zone-${processing.zoneId}`)}
+                              title="Copy zone ID"
+                            >
+                              <Icon name={copiedStates[`zone-${processing.zoneId}`] ? 'check' : 'copy'} size="xs" />
                             </button>
                           </div>
                           {#if processing.processing.zoneIdValid}
@@ -288,8 +314,13 @@
                         <span class="result-label">With Zone:</span>
                         <div class="input-with-copy">
                           <code>{processing.processing.withZone}</code>
-                          <button type="button" onclick={() => copyToClipboard(processing.processing.withZone)} title="Copy with zone">
-                            <Icon name="copy" size="xs" />
+                          <button
+                            type="button"
+                            class:copied={copiedStates[`with-zone-${processing.processing.withZone}`]}
+                            onclick={() => copyToClipboard(processing.processing.withZone, `with-zone-${processing.processing.withZone}`)}
+                            title="Copy with zone"
+                          >
+                            <Icon name={copiedStates[`with-zone-${processing.processing.withZone}`] ? 'check' : 'copy'} size="xs" />
                           </button>
                         </div>
                       </div>
@@ -298,8 +329,13 @@
                         <span class="result-label">Without Zone:</span>
                         <div class="input-with-copy">
                           <code>{processing.processing.withoutZone}</code>
-                          <button type="button" onclick={() => copyToClipboard(processing.processing.withoutZone)} title="Copy without zone">
-                            <Icon name="copy" size="xs" />
+                          <button
+                            type="button"
+                            class:copied={copiedStates[`without-zone-${processing.processing.withoutZone}`]}
+                            onclick={() => copyToClipboard(processing.processing.withoutZone, `without-zone-${processing.processing.withoutZone}`)}
+                            title="Copy without zone"
+                          >
+                            <Icon name={copiedStates[`without-zone-${processing.processing.withoutZone}`] ? 'check' : 'copy'} size="xs" />
                           </button>
                         </div>
                       </div>
@@ -310,9 +346,15 @@
                         <h4>Suggested Zone Identifiers:</h4>
                         <div class="zones-list">
                           {#each processing.processing.suggestedZones as zone}
-                            <button type="button" onclick={() => copyToClipboard(`${processing.address}%${zone}`)} title="Copy full address" class="zone-button">
+                            <button
+                              type="button"
+                              class="zone-button"
+                              class:copied={copiedStates[`suggested-${zone}`]}
+                              onclick={() => copyToClipboard(`${processing.address}%${zone}`, `suggested-${zone}`)}
+                              title="Copy full address"
+                            >
                               <code>{zone}</code>
-                              <Icon name="copy" size="xs" />
+                              <Icon name={copiedStates[`suggested-${zone}`] ? 'check' : 'copy'} size="xs" />
                             </button>
                           {/each}
                         </div>
@@ -487,8 +529,8 @@
 
   .error-item {
     color: var(--color-error);
-    font-family: 'Courier New', monospace;
-    font-size: 0.875rem;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
     margin-bottom: var(--spacing-xs);
   }
 
@@ -519,22 +561,22 @@
 
   .stat.valid {
     background: var(--bg-tertiary);
-    border: 1px solid var(--color-success);
+    border: 1px solid color-mix(in srgb, var(--color-success), transparent 65%);
   }
 
   .stat.invalid {
     background: var(--bg-tertiary);
-    border: 1px solid var(--color-error);
+    border: 1px solid color-mix(in srgb, var(--color-error), transparent 65%);
   }
 
   .stat.with-zone {
     background: var(--bg-tertiary);
-    border: 1px solid var(--color-info);
+    border: 1px solid color-mix(in srgb, var(--color-info), transparent 65%);
   }
 
   .stat.require-zone {
     background: var(--bg-tertiary);
-    border: 1px solid var(--color-warning);
+    border: 1px solid color-mix(in srgb, var(--color-warning), transparent 65%);
   }
 
   .stat-value {
@@ -553,7 +595,7 @@
   }
 
   .stat.with-zone .stat-value {
-    color: var(--color-primary);
+    color: var(--color-info);
   }
 
   .stat.require-zone .stat-value {
@@ -596,16 +638,17 @@
     gap: var(--spacing-xs);
     padding: var(--spacing-xs) var(--spacing-sm);
     background: var(--color-primary);
-    color: white;
+    color: var(--bg-secondary);
     border: none;
     border-radius: var(--radius-md);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     cursor: pointer;
-    transition: background-color 0.2s;
-  }
+    transition: all var(--transition-fast);
 
-  .export-buttons button:hover {
-    background: var(--color-primary-dark);
+    &:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+    }
   }
 
   .processings-list {
@@ -622,12 +665,12 @@
   }
 
   .processing-card.valid {
-    border-color: var(--color-success);
+    border-color: color-mix(in srgb, var(--color-success), transparent 65%);
     background: var(--bg-tertiary);
   }
 
   .processing-card.invalid {
-    border-color: var(--color-error);
+    border-color: color-mix(in srgb, var(--color-error), transparent 65%);
     background: var(--bg-tertiary);
   }
 
@@ -648,11 +691,25 @@
     gap: var(--spacing-sm);
   }
 
+  .input-with-copy {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    /* flex: 1; */
+    /* max-width: 28rem; */
+    
+  }
+
   @media (max-width: 767px) {
     .original-input {
       flex-direction: column;
       align-items: stretch;
       gap: var(--spacing-xs);
+    }
+
+    .input-with-copy {
+      flex-direction: row;
+      align-items: center;
     }
   }
 
@@ -662,21 +719,55 @@
     min-width: 50px;
   }
 
-  .original-input code {
+  .input-with-copy code {
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    padding: 0.375rem 0.75rem;
-    border-radius: 0.25rem;
-    font-family: 'Courier New', monospace;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
     cursor: pointer;
-    transition: background-color 0.2s;
-    word-break: break-all;
-    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+
+    &:hover {
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+    }
   }
 
-  .original-input code:hover {
-    background: var(--surface-hover);
+  .input-with-copy button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+    min-width: 32px;
+    height: 32px;
+
+    &:hover {
+      background: var(--surface-hover);
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+      transform: translateY(-1px);
+    }
+
+    &.copied {
+      background: var(--color-success);
+      color: var(--bg-primary);
+      border-color: var(--color-success);
+      transform: scale(1.05);
+    }
   }
+
 
   .status {
     color: var(--color-success);
@@ -693,9 +784,9 @@
     gap: var(--spacing-md);
   }
 
-  .address-breakdown {
+  .address-breakdown, .address-info {
     padding: var(--spacing-sm);
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--bg-secondary);
     border-radius: 0.25rem;
   }
 
@@ -725,60 +816,55 @@
     font-size: 0.875rem;
   }
 
-  .breakdown-item code {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-family: 'Courier New', monospace;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 0.875rem;
-  }
-
-  .breakdown-item code:hover {
-    background: var(--surface-hover);
+  .breakdown-item {
+    .input-with-copy {
+      flex: 1;
+    }
   }
 
   .no-zone {
     color: var(--text-secondary);
     font-style: italic;
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
 
   .zone-status {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xs);
     font-weight: 600;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-  }
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
 
-  .zone-status.valid {
-    color: var(--color-success);
-    background: rgba(5, 150, 105, 0.1);
-  }
+    &.valid {
+      color: var(--color-success);
+      background: color-mix(in srgb, var(--color-success), transparent 90%);
+    }
 
-  .zone-status.invalid {
-    color: var(--color-error);
-    background: rgba(220, 38, 38, 0.1);
+    &.invalid {
+      color: var(--color-error);
+      background: color-mix(in srgb, var(--color-error), transparent 90%);
+    }
   }
 
   .address-classification,
   .processing-results {
     padding: var(--spacing-sm);
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--bg-primary), transparent 40%);
+    border-radius: var(--radius-sm);
   }
 
   .classification-item,
   .result-item {
     display: flex;
-    justify-content: space-between;
+    gap: var(--spacing-md);
     align-items: center;
     margin-bottom: var(--spacing-sm);
+
+    .result-label, .classification-label {
+      min-width: 8rem;
+    }
   }
 
   .classification-item:last-child,
@@ -799,53 +885,54 @@
   .result-label {
     font-weight: 600;
     color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
 
   .address-type {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--spacing-xs);
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
 
   .zone-requirement {
     font-weight: 600;
-    font-size: 0.875rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-  }
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
 
-  .zone-requirement.required {
-    color: var(--color-warning);
-    background: rgba(217, 119, 6, 0.1);
-  }
+    &.required {
+      color: var(--color-warning);
+      background: color-mix(in srgb, var(--color-warning), transparent 90%);
+    }
 
-  .zone-requirement.optional {
-    color: var(--color-success);
-    background: rgba(5, 150, 105, 0.1);
+    &.optional {
+      color: var(--color-success);
+      background: color-mix(in srgb, var(--color-success), transparent 90%);
+    }
   }
 
   .result-item code {
     background: var(--color-primary);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-family: 'Courier New', monospace;
+    color: var(--bg-primary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
     cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 0.875rem;
-  }
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
 
-  .result-item code:hover {
-    background: var(--color-primary-dark);
+    &:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+    }
   }
 
   .suggested-zones {
     padding: var(--spacing-sm);
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--bg-primary), transparent 40%);
+    border-radius: var(--radius-sm);
   }
 
   .suggested-zones h4 {
@@ -860,19 +947,42 @@
     gap: var(--spacing-xs);
   }
 
-  .zones-list code {
-    background: var(--text-secondary);
-    color: var(--text-primary);
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-family: 'Courier New', monospace;
-    font-size: 0.75rem;
+  .zone-button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+    }
+
+    &.copied {
+      background: var(--color-success);
+      color: var(--bg-primary);
+      border-color: var(--color-success);
+      transform: scale(1.05);
+    }
+
+    code {
+      background: transparent;
+      color: var(--text-primary);
+      padding: 0;
+      border-radius: 0;
+      font-family: var(--font-mono);
+      font-size: var(--font-size-xs);
+      border: none;
+    }
   }
 
-  .zones-list code:hover {
-    background: var(--surface-hover);
+  .zone-button.copied code {
+    color: var(--bg-primary);
   }
 
   .zone-warning {
@@ -880,10 +990,10 @@
     align-items: center;
     gap: var(--spacing-xs);
     padding: var(--spacing-sm);
-    background: rgba(217, 119, 6, 0.1);
-    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--color-warning), transparent 90%);
+    border-radius: var(--radius-sm);
     color: var(--color-warning);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     font-weight: 600;
   }
 
@@ -892,10 +1002,10 @@
     align-items: center;
     gap: var(--spacing-xs);
     color: var(--color-error);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     padding: var(--spacing-sm);
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--bg-primary), transparent 40%);
+    border-radius: var(--radius-sm);
   }
 
   @media (max-width: 767px) {

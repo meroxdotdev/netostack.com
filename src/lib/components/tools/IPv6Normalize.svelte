@@ -5,6 +5,7 @@
   let inputText = $state('2001:0db8:0000:0000:0000:ff00:0042:8329\n2001:db8:0:0:1:0:0:1\n2001:0db8:0001:0000:0000:0ab9:C0A8:0102\n2001:db8::1\nfe80::1%eth0');
   let result = $state<IPv6NormalizeResult | null>(null);
   let isLoading = $state(false);
+  let copiedStates = $state<Record<string, boolean>>({});
   
   function normalizeAddresses() {
     if (!inputText.trim()) {
@@ -67,8 +68,18 @@
     URL.revokeObjectURL(url);
   }
   
-  function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
+  async function copyToClipboard(text: string, id?: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (id) {
+        copiedStates[id] = true;
+        setTimeout(() => {
+          copiedStates[id] = false;
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   }
   
   function copyAllNormalized() {
@@ -77,7 +88,7 @@
         .filter(n => n.isValid)
         .map(n => n.normalized)
         .join('\n');
-      copyToClipboard(normalized);
+      copyToClipboard(normalized, 'copy-all');
     }
   }
   
@@ -167,8 +178,11 @@
           <div class="normalized-header">
             <h3>Normalized Addresses</h3>
             <div class="export-buttons">
-              <button onclick={copyAllNormalized}>
-                <Icon name="copy" />
+              <button
+                onclick={copyAllNormalized}
+                class:copied={copiedStates['copy-all']}
+              >
+                <Icon name={copiedStates['copy-all'] ? 'check' : 'copy'} />
                 Copy All
               </button>
               <button onclick={() => exportResults('txt')}>
@@ -176,11 +190,11 @@
                 Export TXT
               </button>
               <button onclick={() => exportResults('csv')}>
-                <Icon name="download" />
+                <Icon name="csv-file" />
                 Export CSV
               </button>
               <button onclick={() => exportResults('json')}>
-                <Icon name="download" />
+                <Icon name="json-file" />
                 Export JSON
               </button>
             </div>
@@ -189,32 +203,43 @@
 
         <div class="normalizations">
           <div class="normalizations-list">
-            {#each result.normalizations as normalization}
+            {#each result.normalizations as normalization, index}
               <div class="normalization-card" class:valid={normalization.isValid} class:invalid={!normalization.isValid}>
-                <div class="card-header">
+                <div class="status">
+                  {#if normalization.isValid}
+                    <Icon name="check-circle" />
+                  {:else}
+                    <Icon name="x-circle" />
+                  {/if}
+                </div>
+
+                <div class="card-content">
                   <div class="address-info">
                     <div class="original-address">
                       <span class="address-label">Original:</span>
-                      <button type="button" class="code-button" onclick={() => copyToClipboard(normalization.input)} title="Click to copy">
+                      <button type="button" class="code-button" onclick={() => copyToClipboard(normalization.input, `original-${index}`)} title="Click to copy">
                         {normalization.input}
                       </button>
                     </div>
-                    
+
                     {#if normalization.isValid}
                       <div class="normalized-address">
                         <span class="address-label">Normalized:</span>
-                        <button type="button" class="code-button normalized" onclick={() => copyToClipboard(normalization.normalized)} title="Click to copy">
-                          {normalization.normalized}
-                        </button>
+                        <div class="normalized-content">
+                          <button type="button" class="code-button normalized" onclick={() => copyToClipboard(normalization.normalized, `normalized-${index}`)} title="Click to copy">
+                            {normalization.normalized}
+                          </button>
+                          <button
+                            type="button"
+                            class="copy-button"
+                            class:copied={copiedStates[`copy-${index}`]}
+                            onclick={() => copyToClipboard(normalization.normalized, `copy-${index}`)}
+                            title="Copy normalized address"
+                          >
+                            <Icon name={copiedStates[`copy-${index}`] ? 'check' : 'copy'} size="sm" />
+                          </button>
+                        </div>
                       </div>
-                    {/if}
-                  </div>
-                  
-                  <div class="status">
-                    {#if normalization.isValid}
-                      <Icon name="check-circle" />
-                    {:else}
-                      <Icon name="x-circle" />
                     {/if}
                   </div>
                 </div>
@@ -297,7 +322,7 @@
   /* Card styles already defined in base.scss */
 
   .card h2 {
-    color: var(--color-primary);
+    color: var(--text-primary);
     margin: 0 0 var(--spacing-sm) 0;
     font-size: var(--font-size-xl);
   }
@@ -501,11 +526,16 @@
     cursor: pointer;
     transition: all var(--transition-fast);
     white-space: nowrap;
-  }
 
-  .export-buttons button:hover {
-    background: var(--color-primary-hover);
-    transform: translateY(-1px);
+    &:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+    }
+
+    &.copied {
+      background: var(--color-success);
+      transform: scale(1.05);
+    }
   }
 
   .normalizations-list {
@@ -519,28 +549,19 @@
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
     background: var(--bg-tertiary);
+    position: relative;
   }
 
   .normalization-card.valid {
-    border-color: var(--color-success);
+    border-color: color-mix(in srgb, var(--color-success), transparent 65%);
   }
 
   .normalization-card.invalid {
-    border-color: var(--color-error);
+    border-color: color-mix(in srgb, var(--color-error), transparent 65%);
   }
 
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
+  .card-content {
     margin-bottom: var(--spacing-md);
-  }
-
-  @media (max-width: 767px) {
-    .card-header {
-      flex-direction: column;
-      gap: var(--spacing-sm);
-    }
   }
 
   .address-info {
@@ -548,6 +569,7 @@
     flex-direction: column;
     gap: var(--spacing-sm);
     flex: 1;
+    max-width: 28rem;
   }
 
   .original-address,
@@ -557,12 +579,52 @@
     gap: var(--spacing-sm);
   }
 
+  .normalized-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex: 1;
+  }
+
+  .copy-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+
+    &:hover {
+      background: var(--surface-hover);
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+      transform: translateY(-1px);
+    }
+
+    &.copied {
+      background: var(--color-success);
+      color: white;
+      border-color: var(--color-success);
+      transform: scale(1.05);
+    }
+  }
+
   @media (max-width: 767px) {
     .original-address,
     .normalized-address {
       flex-direction: column;
       align-items: stretch;
       gap: var(--spacing-xs);
+    }
+
+    .normalized-content {
+      flex-direction: row;
+      align-items: center;
     }
   }
 
@@ -583,6 +645,7 @@
     word-break: break-all;
     font-size: var(--font-size-sm);
     border: 1px solid var(--border-primary);
+    flex: 1;
 
     &.normalized {
       color: var(--color-success);
@@ -596,8 +659,11 @@
   }
 
   .status {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
     color: var(--color-success);
-    margin-left: var(--spacing-sm);
+    z-index: 1;
   }
 
   .normalization-card.invalid .status {
@@ -620,6 +686,7 @@
     border-radius: var(--radius-md);
     color: var(--color-info);
     font-weight: 500;
+    max-width: 28rem;
   }
 
   .applied-rules {

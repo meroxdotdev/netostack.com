@@ -15,6 +15,7 @@
   let outputAddress = $state('');
   let conversionError = $state('');
   let copiedStates = $state<Record<string, boolean>>({});
+  let selectedExampleIndex = $state<number | null>(null);
 
   /* Common IPv6 example addresses for testing */
   const exampleAddresses = [
@@ -27,8 +28,20 @@
   ];
 
   /* Set example address */
-  function setExample(address: string) {
+  function setExample(address: string, index: number) {
     inputAddress = address;
+    selectedExampleIndex = index;
+    performConversion();
+  }
+
+  /* Clear example selection when input changes */
+  function clearExampleSelection() {
+    selectedExampleIndex = null;
+  }
+
+  /* Handle input change */
+  function handleInput() {
+    clearExampleSelection();
     performConversion();
   }
 
@@ -89,8 +102,22 @@
 
 <div class="card converter-card">
   <header class="card-header">
-    <h2>{title}</h2>
-    <p>{description}</p>
+    <div class="header-content">
+      <div class="header-text">
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+      <div class="header-actions">
+        <a
+          href={mode === 'expand' ? '/ip-address-convertor/notation/ipv6-compress' : '/ip-address-convertor/notation/ipv6-expand'}
+          class="mode-switch-btn"
+          title="Switch to {mode === 'expand' ? 'Compress' : 'Expand'} mode"
+        >
+          <Icon name={mode === 'expand' ? 'ipv6-compress' : 'ipv6-expand'} size="sm" />
+          <span>{mode === 'expand' ? 'Compress' : 'Expand'}</span>
+        </a>
+      </div>
+    </div>
   </header>
 
   <!-- Input Section -->
@@ -110,6 +137,7 @@
             id="ipv6-input"
             type="text"
             bind:value={inputAddress}
+            oninput={handleInput}
             placeholder={mode === 'expand' ? '2001:db8::1' : '2001:0db8:0000:0000:0000:0000:0000:0001'}
             class="ipv6-input"
           />
@@ -130,21 +158,27 @@
 
   <!-- Examples Section -->
   <div class="examples-section">
-    <h3>Common Examples</h3>
-    <div class="examples-grid">
-      {#each exampleAddresses as example}
-        <button 
-          type="button" 
-          class="example-btn"
-          onclick={() => setExample(mode === 'expand' ? example.compressed : example.expanded)}
-        >
-          <div class="example-label">{example.label}</div>
-          <code class="example-address">
-            {mode === 'expand' ? example.compressed : example.expanded}
-          </code>
-        </button>
-      {/each}
-    </div>
+    <details class="examples-details">
+      <summary class="examples-summary">
+        <Icon name="chevron-right" size="xs" />
+        <h3>Common Examples</h3>
+      </summary>
+      <div class="examples-grid">
+        {#each exampleAddresses as example, index}
+          <button
+            type="button"
+            class="example-btn"
+            class:selected={selectedExampleIndex === index}
+            onclick={() => setExample(mode === 'expand' ? example.compressed : example.expanded, index)}
+          >
+            <div class="example-label">{example.label}</div>
+            <code class="example-address">
+              {mode === 'expand' ? example.compressed : example.expanded}
+            </code>
+          </button>
+        {/each}
+      </div>
+    </details>
   </div>
 
   <!-- Output Section -->
@@ -217,15 +251,110 @@
     max-width: none;
   }
 
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+  }
+
+  .header-text {
+    flex: 1;
+  }
+
+  .header-actions {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .mode-switch-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--bg-secondary);
+    border: 2px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background-color: var(--surface-hover);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    :global(.icon) {
+      transition: transform var(--transition-fast);
+    }
+
+    &:hover :global(.icon) {
+      transform: scale(1.1);
+    }
+  }
+
   .converter-section, 
-  .examples-section, 
+  .examples-section,
   .output-section {
     margin-bottom: var(--spacing-lg);
-    
+
     h3 {
-      color: var(--color-primary);
+      /* color: var(--color-primary); */
       margin-bottom: var(--spacing-md);
       font-size: var(--font-size-lg);
+    }
+  }
+
+  .examples-section {
+    .examples-details {
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-secondary);
+      transition: all var(--transition-fast);
+
+      &[open] {
+        box-shadow: var(--shadow-sm);
+
+        .examples-summary {
+          border-bottom: 1px solid var(--border-primary);
+        }
+      }
+    }
+
+    .examples-summary {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+
+      &:hover {
+        background-color: var(--surface-hover);
+      }
+
+      h3 {
+        margin: 0;
+        font-size: var(--font-size-,d);
+      }
+
+      :global(.icon) {
+        transition: transform var(--transition-fast);
+        color: var(--color-primary);
+      }
+    }
+
+    .examples-grid {
+      padding: var(--spacing-md);
     }
   }
 
@@ -269,17 +398,33 @@
   .example-btn {
     padding: var(--spacing-sm) var(--spacing-md);
     background-color: var(--bg-tertiary);
-    border: 1px solid var(--border-secondary);
+    border: 2px solid var(--border-secondary);
     border-radius: var(--radius-md);
     transition: all var(--transition-fast);
     text-align: left;
     cursor: pointer;
-    
+
     &:hover {
       background-color: var(--surface-hover);
       border-color: var(--color-primary);
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
+    }
+
+    &.selected {
+      border-color: var(--color-primary);
+      background-color: color-mix(in srgb, var(--color-primary), transparent 95%);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary), transparent 80%);
+
+      .example-label {
+        color: var(--color-primary);
+        font-weight: 700;
+      }
+
+      .example-address {
+        color: var(--color-primary);
+        font-weight: 600;
+      }
     }
   }
 
@@ -463,20 +608,36 @@
   }
 
   @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--spacing-md);
+    }
+
+    .header-actions {
+      justify-content: center;
+    }
+
+    .mode-switch-btn {
+      justify-content: center;
+      padding: var(--spacing-md);
+      font-size: var(--font-size-md);
+    }
+
     .examples-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .stats-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .address-wrapper {
       flex-direction: column;
       align-items: stretch;
       gap: var(--spacing-md);
     }
-    
+
     .input-wrapper {
       flex-direction: column;
       align-items: stretch;

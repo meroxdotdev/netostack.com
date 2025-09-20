@@ -30,20 +30,67 @@ export function validateIPv6(ip: string): { valid: boolean; error?: string } {
   // Remove brackets if present
   const cleanIp = ip.replace(/^\[|\]$/g, '');
   
+  // Check for invalid patterns first
+  if (cleanIp.includes(':::') || cleanIp.startsWith(':') && !cleanIp.startsWith('::') || 
+      cleanIp.endsWith(':') && !cleanIp.endsWith('::')) {
+    return { valid: false, error: 'Invalid IPv6 format' };
+  }
+  
   // Check for IPv4-mapped IPv6 (::ffff:192.0.2.1)
   const ipv4MappedRegex = /^::ffff:(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/i;
   if (ipv4MappedRegex.test(cleanIp)) {
     return { valid: true };
   }
   
-  // Check for standard IPv6
-  const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$|^(?:[0-9a-fA-F]{1,4}:)*::[0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4})*$|^(?:[0-9a-fA-F]{1,4}:)*::[0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4})*$|^[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{1,4}:)*::[0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4})*$/;
-  
-  if (!ipv6Regex.test(cleanIp)) {
+  // More flexible IPv6 validation
+  try {
+    // Simple but effective validation approach
+    if (cleanIp === '::' || cleanIp === '::1') {
+      return { valid: true };
+    }
+    
+    // Split on :: to handle compression
+    const parts = cleanIp.split('::');
+    if (parts.length > 2) {
+      return { valid: false, error: 'Invalid IPv6 format' };
+    }
+    
+    if (parts.length === 2) {
+      // Has compression
+      const leftParts = parts[0] ? parts[0].split(':') : [];
+      const rightParts = parts[1] ? parts[1].split(':') : [];
+      
+      // Check total parts don't exceed 8
+      if (leftParts.length + rightParts.length >= 8) {
+        return { valid: false, error: 'Invalid IPv6 format' };
+      }
+      
+      // Validate each part
+      const allParts = [...leftParts, ...rightParts];
+      for (const part of allParts) {
+        if (part && !/^[0-9a-fA-F]{1,4}$/.test(part)) {
+          return { valid: false, error: 'Invalid IPv6 format' };
+        }
+      }
+    } else {
+      // No compression, must have exactly 8 parts
+      const ipParts = cleanIp.split(':');
+      if (ipParts.length !== 8) {
+        return { valid: false, error: 'Invalid IPv6 format' };
+      }
+      
+      // Validate each part
+      for (const part of ipParts) {
+        if (!/^[0-9a-fA-F]{1,4}$/.test(part)) {
+          return { valid: false, error: 'Invalid IPv6 format' };
+        }
+      }
+    }
+    
+    return { valid: true };
+  } catch (error) {
     return { valid: false, error: 'Invalid IPv6 format' };
   }
-  
-  return { valid: true };
 }
 
 /**

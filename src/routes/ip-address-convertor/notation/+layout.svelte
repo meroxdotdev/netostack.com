@@ -160,6 +160,9 @@
     h3 {
       margin-bottom: 0;
       color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
     }
     
     .usage-scenario, 
@@ -194,7 +197,7 @@
   }
 
   .format-badge {
-    color: var(--text-primary);
+    color: var(--bg-primary);
     border-radius: var(--radius-xs);
     padding: 0.1rem 0.25rem;
     font-weight: 600;

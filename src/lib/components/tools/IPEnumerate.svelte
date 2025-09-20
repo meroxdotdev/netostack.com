@@ -686,10 +686,6 @@
         margin: 0;
       }
     }
-    
-    &[open] summary :global(.icon) {
-      transform: rotate(90deg);
-    }
   }
 
   .examples-list {
@@ -751,6 +747,9 @@
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: var(--spacing-lg);
+    .card {
+      width: 100%;
+    }
     
     @media (max-width: 768px) {
       grid-template-columns: 1fr;

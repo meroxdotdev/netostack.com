@@ -113,6 +113,7 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--spacing-sm);
+    margin: 0 0 var(--spacing-xs) 0;
 
     h3 {
       font-size: var(--font-size-lg);
