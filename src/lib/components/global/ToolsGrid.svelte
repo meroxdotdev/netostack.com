@@ -6,13 +6,19 @@
 
   export let tools: NavItem[] = ALL_PAGES;
   export let searchQuery: string = '';
+  export let idPrefix: string = 'main-';
+
+  // Remove duplicates based on href, keeping the first occurrence
+  $: uniqueTools = tools.filter((tool, index, array) =>
+    array.findIndex(t => t.href === tool.href) === index
+  );
 </script>
 
-{#if tools.length === 0 && searchQuery}
+{#if uniqueTools.length === 0 && searchQuery}
   <NoResults {searchQuery} />
 {:else}
   <section class="tools-grid">
-    {#each tools as tool (tool.href)}
+    {#each uniqueTools as tool (`${idPrefix}-${tool.href.replaceAll('/', '-')}`)}
       <ToolCard {tool} />
     {/each}
   </section>

@@ -6,6 +6,7 @@
   import { ALL_PAGES } from '$lib/constants/nav';
   import type { NavItem } from '$lib/constants/nav';
   import { bookmarks } from '$lib/stores/bookmarks';
+  import { frequentlyUsedTools, toolUsage } from '$lib/stores/toolUsage';
 
   let isOpen = $state(false);
   let query = $state('');
@@ -117,6 +118,7 @@
 
   onMount(() => {
     bookmarks.init();
+    toolUsage.init();
     document.addEventListener('keydown', handleGlobalKeydown);
     return () => document.removeEventListener('keydown', handleGlobalKeydown);
   });
@@ -233,6 +235,32 @@
                     <Icon name={bookmark.icon} size="xs" />
                   </div>
                   <span class="bookmark-label">{bookmark.label}</span>
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        {#if $frequentlyUsedTools.length > 0}
+          <div class="frequently-used-section">
+            <div class="frequently-used-header">
+              <Icon name="clock" size="xs" />
+              <span>Most Used Tools</span>
+            </div>
+            <div class="frequently-used-list">
+              {#each $frequentlyUsedTools.slice(0, 12) as tool, _index (tool.href)}
+                <button
+                  class="frequently-used-item"
+                  onclick={() => {
+                    goto(tool.href);
+                    close();
+                  }}
+                  tabindex="0"
+                >
+                  <div class="frequently-used-icon">
+                    <Icon name={tool.icon || ''} size="xs" />
+                  </div>
+                  <span class="frequently-used-label">{tool.label}</span>
                 </button>
               {/each}
             </div>
@@ -437,78 +465,111 @@
     }
   }
 
-  .bookmarks-section {
+  // Shared styles for quick access sections (bookmarks & frequently used)
+  .bookmarks-section,
+  .frequently-used-section {
     padding: var(--spacing-md) var(--spacing-lg);
     border-top: 1px solid var(--border-secondary);
+  }
 
-    .bookmarks-header {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      color: var(--text-secondary);
-      font-size: var(--font-size-xs);
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: var(--spacing-sm);
+  .bookmarks-header,
+  .frequently-used-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--spacing-sm);
+  }
 
-      :global(svg) {
-        color: var(--color-primary);
-      }
+  .bookmarks-list,
+  .frequently-used-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+
+  .bookmark-item,
+  .frequently-used-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    max-width: 140px;
+
+    &:hover,
+    &:focus {
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+      outline: none;
     }
 
-    .bookmarks-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--spacing-xs);
+    &:active {
+      transform: translateY(0);
     }
+  }
 
-    .bookmark-item {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-secondary);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
-      font-size: var(--font-size-xs);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      max-width: 140px;
-
-      &:hover,
-      &:focus {
-        background: var(--surface-hover);
-        border-color: var(--color-primary);
-        transform: translateY(-1px);
-        outline: none;
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-
-      .bookmark-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 16px;
-        height: 16px;
-        background: var(--color-primary);
-        border-radius: var(--radius-sm);
-        flex-shrink: 0;
-        :global(svg) {
-          color: var(--bg-primary);
-        }
-      }
-      .bookmark-label {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 1.2;
-      }
+  .bookmark-icon,
+  .frequently-used-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    :global(svg) {
+      color: var(--bg-primary);
     }
+  }
+
+  .bookmark-label,
+  .frequently-used-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+
+  // Specific color variations
+  .bookmarks-header :global(svg) {
+    color: var(--color-primary);
+  }
+
+  .frequently-used-header :global(svg) {
+    color: var(--color-info);
+  }
+
+  .bookmark-item {
+    &:hover,
+    &:focus {
+      border-color: var(--color-primary);
+    }
+  }
+
+  .frequently-used-item {
+    &:hover,
+    &:focus {
+      border-color: var(--color-info);
+    }
+  }
+
+  .bookmark-icon {
+    background: var(--color-primary);
+  }
+
+  .frequently-used-icon {
+    background: var(--color-info);
   }
 
   @keyframes fadeIn {

@@ -24,6 +24,21 @@
 
   let validation: ValidationResult = $state({ valid: true });
   let focused = $state(false);
+
+  /**
+   * Quick CIDR presets
+   */
+  const cidrPresets = [
+    { cidr: 8, label: '/8 (Class A)', hosts: '16M hosts' },
+    { cidr: 16, label: '/16 (Class B)', hosts: '65K hosts' },
+    { cidr: 24, label: '/24 (Class C)', hosts: '254 hosts' },
+    { cidr: 25, label: '/25', hosts: '126 hosts' },
+    { cidr: 26, label: '/26', hosts: '62 hosts' },
+    { cidr: 27, label: '/27', hosts: '30 hosts' },
+    { cidr: 28, label: '/28', hosts: '14 hosts' },
+    { cidr: 30, label: '/30 (P2P)', hosts: '2 hosts' },
+  ];
+
   /**
    * Check if current value matches a preset
    */
@@ -44,20 +59,6 @@
     value = target.value;
     validation = validateCIDR(value);
   }
-
-  /**
-   * Quick CIDR presets
-   */
-  const cidrPresets = [
-    { cidr: 8, label: '/8 (Class A)', hosts: '16M hosts' },
-    { cidr: 16, label: '/16 (Class B)', hosts: '65K hosts' },
-    { cidr: 24, label: '/24 (Class C)', hosts: '254 hosts' },
-    { cidr: 25, label: '/25', hosts: '126 hosts' },
-    { cidr: 26, label: '/26', hosts: '62 hosts' },
-    { cidr: 27, label: '/27', hosts: '30 hosts' },
-    { cidr: 28, label: '/28', hosts: '14 hosts' },
-    { cidr: 30, label: '/30 (P2P)', hosts: '2 hosts' },
-  ];
 
   /**
    * Applies CIDR preset

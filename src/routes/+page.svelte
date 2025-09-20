@@ -5,6 +5,10 @@
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import SearchFilter from '$lib/components/furniture/SearchFilter.svelte';
   import BookmarksGrid from '$lib/components/global/BookmarksGrid.svelte';
+  import FrequentlyUsedGrid from '$lib/components/global/FrequentlyUsedGrid.svelte';
+  import { bookmarks } from '$lib/stores/bookmarks';
+  import { frequentlyUsedTools } from '$lib/stores/toolUsage';
+    import Icon from '$lib/components/global/Icon.svelte';
 
   // Helper function to extract nav items from mixed structure
   function extractNavItems(items: (NavItem | NavGroup)[]): NavItem[] {
@@ -65,8 +69,20 @@
   <!-- Bookmarks Section -->
   <BookmarksGrid hideOther={true} />
 
+  <!-- Frequently Used Tools Section -->
+  <FrequentlyUsedGrid hideOther={true} />
+
+  <!-- Show "All Tools" heading if there are bookmarks or frequently used tools -->
+  {#if ($bookmarks.length > 0 || $frequentlyUsedTools.length > 0)}
+    <section class="tools-grid-sub-header">
+      <Icon name="network-port" size="md" />
+      <h2>All Tools</h2>
+      <span class="count">{toolPages.length + referencePages.length}</span>
+    </section>
+  {/if}
+
   <!-- Tools Grid -->
-  <ToolsGrid tools={filteredTools} {searchQuery} />
+  <ToolsGrid idPrefix="tools" tools={filteredTools} {searchQuery} />
 
   <!-- Reference Pages Section -->
   {#if filteredReference.length > 0}
@@ -77,12 +93,12 @@
           Comprehensive reference materials and documentation for network professionals.
         </p>
       </div>
-      <ToolsGrid tools={filteredReference} {searchQuery} />
+      <ToolsGrid idPrefix="reference" tools={filteredReference} {searchQuery} />
     </section>
   {/if}
 {:else}
   <!-- Combined Search Results -->
-  <ToolsGrid tools={[...filteredTools, ...filteredReference]} {searchQuery} />
+  <ToolsGrid idPrefix="search" tools={[...filteredTools, ...filteredReference]} {searchQuery} />
 {/if}
 
 <style lang="scss">
@@ -113,6 +129,18 @@
           font-size: var(--font-size-md);
         }
       }
+    }
+  }
+
+  .all-tools-section {
+    margin: var(--spacing-xl) 0 var(--spacing-lg);
+    text-align: center;
+
+    h2 {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
     }
   }
 

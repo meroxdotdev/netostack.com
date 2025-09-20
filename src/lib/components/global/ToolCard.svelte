@@ -134,6 +134,7 @@
         flex: 1;
         white-space: nowrap;
         overflow: hidden;
+        max-width: 100%;
       }
     }
 

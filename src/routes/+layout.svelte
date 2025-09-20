@@ -12,6 +12,8 @@
   import { getPageDetails, getPageDetailsWithIcon } from '$lib/constants/nav';
   import { generateFaviconDataUri } from '$lib/utils/favicon';
   import { site, author } from '$lib/constants/site';
+  import { toolUsage } from '$lib/stores/toolUsage';
+  import { ALL_PAGES } from '$lib/constants/nav';
 
   import Header from '$lib/components/furniture/Header.svelte';
   import SubHeader from '$lib/components/furniture/SubHeader.svelte';
@@ -53,6 +55,23 @@
 
   onMount(() => {
     initializeTheme();
+    toolUsage.init();
+  });
+
+  // Track tool visits when page changes
+  $effect(() => {
+    const currentPath = $page.url.pathname;
+
+    // Check if current path is a tool page
+    const toolPage = ALL_PAGES.find(tool => tool.href === currentPath);
+    if (toolPage) {
+      toolUsage.trackVisit(
+        toolPage.href,
+        toolPage.label,
+        toolPage.icon,
+        toolPage.description
+      );
+    }
   });
 
   /* Reads and applies user's theme from localstorage on initial load */

@@ -1,56 +1,51 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { bookmarks } from '$lib/stores/bookmarks';
+  import { frequentlyUsedTools } from '$lib/stores/toolUsage';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
 
   export let hideOther: boolean = false;
 
-  onMount(() => {
-    bookmarks.init();
-  });
-
-  $: tools = $bookmarks.map((bookmark, index) => ({
-    href: bookmark.href,
-    label: bookmark.label,
-    description: bookmark.description,
-    icon: bookmark.icon,
+  $: tools = $frequentlyUsedTools.map((tool, index) => ({
+    href: tool.href,
+    label: tool.label || 'Tool',
+    description: tool.description || '',
+    icon: tool.icon,
     keywords: [],
     animationDelay: index * 0.1,
   }));
 </script>
 
-{#if $bookmarks.length > 0}
-  <div class="bookmarks-container" aria-live="polite">
+{#if $frequentlyUsedTools.length > 0}
+  <div class="frequently-used-container" aria-live="polite">
 
-    <div class="bookmarks-header">
+    <div class="frequently-used-header">
       <div class="tools-grid-sub-header">
-        <Icon name="bookmarks" size="sm" />
-        <h2>Bookmarked Tools</h2>
-        <span class="count">{$bookmarks.length}</span>
+        <Icon name="clock" size="md" />
+        <h2>Most Used Tools</h2>
+        <span class="count">{$frequentlyUsedTools.length}</span>
       </div>
     </div>
 
-    <div class="bookmarks-grid">
-      <ToolsGrid {tools} idPrefix="bookmarks" />
+    <div class="frequently-used-grid">
+      <ToolsGrid {tools} idPrefix="frequent" />
     </div>
   </div>
 {:else if !hideOther}
-  <div class="empty-bookmarks">
+  <div class="empty-frequently-used">
     <div class="empty-icon">
-      <Icon name="bookmarks" size="lg" />
+      <Icon name="clock" size="lg" />
     </div>
-    <h3>No bookmarks yet</h3>
-    <p>Hover over any tool card and click the bookmark icon to save your favorites</p>
+    <h3>No frequently used tools yet</h3>
+    <p>Start using tools to see your most frequently accessed ones here</p>
   </div>
 {/if}
 
 <style lang="scss">
-  .bookmarks-container {
+  .frequently-used-container {
     animation: slideIn 0.3s ease-out;
   }
 
-  .bookmarks-grid {
+  .frequently-used-grid {
     animation: subtleFadeIn 0.2s ease-out;
 
     :global(.tool-card) {
@@ -80,7 +75,7 @@
     }
   }
 
-  .empty-bookmarks {
+  .empty-frequently-used {
     background: var(--bg-secondary);
     margin: var(--spacing-xl) auto;
     padding: var(--spacing-xl) var(--spacing-lg);
@@ -155,24 +150,6 @@
       transform: scale(1.05);
     }
     100% {
-      transform: scale(1);
-    }
-  }
-
-  @keyframes bounceIn {
-    0% {
-      opacity: 0;
-      transform: scale(0.3);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.05);
-    }
-    70% {
-      transform: scale(0.9);
-    }
-    100% {
-      opacity: 1;
       transform: scale(1);
     }
   }
