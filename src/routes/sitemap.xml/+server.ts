@@ -1,4 +1,4 @@
-import { ALL_PAGES, TOP_NAV, footerLinks } from '$lib/constants/nav';
+import { ALL_PAGES, TOP_NAV, footerLinks, aboutPages } from '$lib/constants/nav';
 import { site } from '$lib/constants/site';
 
 /**
@@ -19,6 +19,9 @@ export async function GET() {
 
 	// Add all pages from the navigation structure
 	ALL_PAGES.forEach(item => urls.add(item.href));
+
+	// Add about pages
+	aboutPages.forEach(item => urls.add(item.href));
 
 	// Add footer pages (about, etc.)
 	footerLinks.forEach(item => {
