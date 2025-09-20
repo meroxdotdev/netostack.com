@@ -208,7 +208,8 @@
                 >Algorithm</span
               >
               <span class="metadata-value mono"
-                >{result.dnskey.algorithm} ({(DNSSEC_ALGORITHMS as Record<number, string>)[result.dnskey.algorithm] || 'Unknown'})</span
+                >{result.dnskey.algorithm} ({(DNSSEC_ALGORITHMS as Record<number, string>)[result.dnskey.algorithm] ||
+                  'Unknown'})</span
               >
             </div>
           </div>

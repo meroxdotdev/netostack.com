@@ -9,9 +9,7 @@
   export let idPrefix: string = 'main-';
 
   // Remove duplicates based on href, keeping the first occurrence
-  $: uniqueTools = tools.filter((tool, index, array) =>
-    array.findIndex(t => t.href === tool.href) === index
-  );
+  $: uniqueTools = tools.filter((tool, index, array) => array.findIndex((t) => t.href === tool.href) === index);
 </script>
 
 {#if uniqueTools.length === 0 && searchQuery}

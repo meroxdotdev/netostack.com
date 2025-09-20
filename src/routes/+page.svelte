@@ -8,7 +8,7 @@
   import FrequentlyUsedGrid from '$lib/components/global/FrequentlyUsedGrid.svelte';
   import { bookmarks } from '$lib/stores/bookmarks';
   import { frequentlyUsedTools } from '$lib/stores/toolUsage';
-    import Icon from '$lib/components/global/Icon.svelte';
+  import Icon from '$lib/components/global/Icon.svelte';
 
   // Helper function to extract nav items from mixed structure
   function extractNavItems(items: (NavItem | NavGroup)[]): NavItem[] {
@@ -73,7 +73,7 @@
   <FrequentlyUsedGrid hideOther={true} />
 
   <!-- Show "All Tools" heading if there are bookmarks or frequently used tools -->
-  {#if ($bookmarks.length > 0 || $frequentlyUsedTools.length > 0)}
+  {#if $bookmarks.length > 0 || $frequentlyUsedTools.length > 0}
     <section class="tools-grid-sub-header">
       <Icon name="network-port" size="md" />
       <h2>All Tools</h2>
@@ -131,7 +131,6 @@
       }
     }
   }
-
 
   .reference-section {
     margin-top: var(--spacing-xl);

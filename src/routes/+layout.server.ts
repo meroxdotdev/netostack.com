@@ -21,7 +21,9 @@ function generateBreadcrumbJsonLd(pathname: string) {
   if (pathname === '/') return null;
 
   const segs = pathname.split('/').filter(Boolean);
-  const items: Array<{ '@type': string; position: number; name: string; item: string }> = [{ '@type': 'ListItem', position: 1, name: 'Home', item: site.url }];
+  const items: Array<{ '@type': string; position: number; name: string; item: string }> = [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+  ];
   let pos = 2;
   let curr = '';
   for (const s of segs) {

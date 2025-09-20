@@ -46,7 +46,7 @@ function createToolUsageStore() {
     trackVisit(href: string, label?: string, icon?: string, description?: string) {
       if (!browser) return;
 
-      update(usage => {
+      update((usage) => {
         const newUsage = { ...usage };
 
         if (!newUsage[href]) {
@@ -55,7 +55,7 @@ function createToolUsageStore() {
             lastVisited: Date.now(),
             label,
             icon,
-            description
+            description,
           };
         }
 
@@ -98,7 +98,7 @@ function createToolUsageStore() {
     remove(href: string) {
       if (!browser) return;
 
-      update(usage => {
+      update((usage) => {
         const newUsage = { ...usage };
         delete newUsage[href];
 
@@ -110,7 +110,7 @@ function createToolUsageStore() {
 
         return newUsage;
       });
-    }
+    },
   };
 }
 
@@ -119,17 +119,14 @@ export const toolUsage = createToolUsageStore();
 /**
  * Derived store for frequently used tools
  */
-export const frequentlyUsedTools = derived(
-  toolUsage,
-  ($toolUsage) => {
-    const sorted = Object.entries($toolUsage)
-      .filter(([_, data]) => data.count >= thresholdVisits)
-      .sort((a, b) => b[1].count - a[1].count)
-      .slice(0, maxItems);
+export const frequentlyUsedTools = derived(toolUsage, ($toolUsage) => {
+  const sorted = Object.entries($toolUsage)
+    .filter(([_, data]) => data.count >= thresholdVisits)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, maxItems);
 
-    return sorted.map(([href, data]) => ({
-      href,
-      ...data
-    }));
-  }
-);
+  return sorted.map(([href, data]) => ({
+    href,
+    ...data,
+  }));
+});

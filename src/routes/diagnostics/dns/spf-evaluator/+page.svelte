@@ -90,7 +90,9 @@
       }
 
       if (include.result?.expanded?.redirects) {
-        const includeData = include as {result: {expanded: {redirects: Array<{domain: string; result: unknown}>}}};
+        const includeData = include as {
+          result: { expanded: { redirects: Array<{ domain: string; result: unknown }> } };
+        };
         includeData.result.expanded.redirects.forEach((redirect) => {
           items.push({
             type: 'redirect',
@@ -125,7 +127,7 @@
       text += `Original SPF Record:\n${results.record}\n\n`;
     }
 
-    const expandedData = (results as {expanded?: {mechanisms?: string[]; includes?: unknown[]}}).expanded;
+    const expandedData = (results as { expanded?: { mechanisms?: string[]; includes?: unknown[] } }).expanded;
     if (expandedData?.mechanisms) {
       text += `Mechanisms:\n`;
       expandedData.mechanisms.forEach((mech: string) => {
@@ -264,8 +266,8 @@
         {/if}
 
         <!-- Mechanisms -->
-        {#if (results as {expanded?: {mechanisms?: string[]}}).expanded?.mechanisms?.length}
-          {@const resultsExpanded = (results as {expanded?: {mechanisms?: string[]}}).expanded}
+        {#if (results as { expanded?: { mechanisms?: string[] } }).expanded?.mechanisms?.length}
+          {@const resultsExpanded = (results as { expanded?: { mechanisms?: string[] } }).expanded}
           <div class="mechanisms-section">
             <h4>Direct Mechanisms</h4>
             <div class="mechanisms-grid">
@@ -288,7 +290,7 @@
           <div class="includes-section">
             <h4>Include Chain</h4>
             <div class="include-tree">
-              {@const includesData = (results as {expanded: {includes: unknown[]}}).expanded.includes}
+              {@const includesData = (results as { expanded: { includes: unknown[] } }).expanded.includes}
               {#each renderIncludeTree(includesData) as item, itemIndex (itemIndex)}
                 <div class="include-item level-{item.level}">
                   <div class="include-header">
@@ -323,7 +325,11 @@
           <div class="redirects-section">
             <h4>Redirects</h4>
             <div class="redirects-list">
-              {@const redirectsData = (results as {expanded: {redirects: Array<{domain: string; result?: {error?: string; record?: string}}>}}).expanded.redirects}
+              {@const redirectsData = (
+                results as {
+                  expanded: { redirects: Array<{ domain: string; result?: { error?: string; record?: string } }> };
+                }
+              ).expanded.redirects}
               {#each redirectsData as redirect, redirectIndex (redirectIndex)}
                 <div class="redirect-item">
                   <div class="redirect-header">

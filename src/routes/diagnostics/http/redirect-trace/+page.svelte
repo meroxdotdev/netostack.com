@@ -108,7 +108,9 @@
 
     let text = `Redirect Chain Analysis\nOriginal URL: ${url}\nTotal Redirects: ${results.totalRedirects}\n\n`;
 
-    (results as { redirectChain: Array<{ url: string; status: number; location?: string; duration: number }> }).redirectChain.forEach((step, i: number) => {
+    (
+      results as { redirectChain: Array<{ url: string; status: number; location?: string; duration: number }> }
+    ).redirectChain.forEach((step, i: number) => {
       text += `${i + 1}. ${step.url}\n`;
       text += `   Status: ${step.status}\n`;
       if (step.location) {

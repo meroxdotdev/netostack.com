@@ -22,7 +22,6 @@
 
 {#if $bookmarks.length > 0}
   <div class="bookmarks-container" aria-live="polite">
-
     <div class="bookmarks-header">
       <div class="tools-grid-sub-header">
         <Icon name="bookmarks" size="sm" />

@@ -123,7 +123,7 @@
   }
 
   async function copyResults() {
-    const res = results as {Answer?: Array<{data: string}>};
+    const res = results as { Answer?: Array<{ data: string }> };
     if (!res?.Answer?.length) return;
 
     const text = res.Answer.map((r) => r.data).join('\n');
@@ -254,7 +254,7 @@
 
   <!-- Warnings -->
   {#if results?.warnings?.length > 0}
-    {@const res = results as {warnings?: string[]}}
+    {@const res = results as { warnings?: string[] }}
     <div class="card warning-card">
       <div class="card-content">
         <div class="warning-content">
@@ -298,7 +298,7 @@
         </div>
 
         {#if results.Answer?.length > 0}
-          {@const resData = results as {Answer: Array<{data: string; TTL?: number}>}}
+          {@const resData = results as { Answer: Array<{ data: string; TTL?: number }> }}
           <div class="records-list">
             <h4>PTR Records Found:</h4>
             {#each resData.Answer as record, _i (_i)}

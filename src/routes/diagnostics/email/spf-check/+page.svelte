@@ -100,7 +100,10 @@
       text += `  Allows All (+all): ${results.emailAnalysis.allowsAll ? 'Yes' : 'No'}\n\n`;
     }
 
-    const expandedResults = results as {expanded?: {mechanisms: string[]; includes: Array<{domain: string}>}; lookupCount?: number};
+    const expandedResults = results as {
+      expanded?: { mechanisms: string[]; includes: Array<{ domain: string }> };
+      lookupCount?: number;
+    };
     if (expandedResults.expanded) {
       text += `Expanded SPF Analysis:\n`;
       text += `  Total DNS lookups: ${expandedResults.lookupCount || 0}\n`;
@@ -315,7 +318,7 @@
                 <div class="mechanisms-section">
                   <h5>Direct Mechanisms</h5>
                   <div class="mechanism-list">
-                    {@const spfExpanded = (results as {expanded: {mechanisms: string[]}}).expanded}
+                    {@const spfExpanded = (results as { expanded: { mechanisms: string[] } }).expanded}
                     {#each spfExpanded.mechanisms as mechanism, mechanismIndex (mechanismIndex)}
                       <div class="mechanism-item">
                         <code>{mechanism}</code>
@@ -359,7 +362,9 @@
                 <div class="includes-section">
                   <h5>Included SPF Policies</h5>
                   <div class="include-list">
-                    {@const spfIncludes = (results as {expanded: {includes: Array<{domain: string; result: {record?: string}}>}}).expanded}
+                    {@const spfIncludes = (
+                      results as { expanded: { includes: Array<{ domain: string; result: { record?: string } }> } }
+                    ).expanded}
                     {#each spfIncludes.includes as include, includeIndex (includeIndex)}
                       <div class="include-item">
                         <div class="include-header">

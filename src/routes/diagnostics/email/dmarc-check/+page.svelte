@@ -232,7 +232,8 @@
               <div class="recommendations-section">
                 <h5>Deliverability Recommendations</h5>
                 <div class="recommendation-list">
-                  {@const hintsData = (results as {deliverabilityHints: {recommendations: string[]}}).deliverabilityHints}
+                  {@const hintsData = (results as { deliverabilityHints: { recommendations: string[] } })
+                    .deliverabilityHints}
                   {#each hintsData.recommendations as recommendation, recIndex (recIndex)}
                     <div class="recommendation-item">
                       <Icon name="lightbulb" size="xs" />

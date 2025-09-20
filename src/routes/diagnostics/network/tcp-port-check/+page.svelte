@@ -123,7 +123,11 @@
     clearExampleSelection();
   }
 
-  function getPortStatus(result: { open: boolean; latency?: number; error?: string }): { icon: string; class: string; text: string } {
+  function getPortStatus(result: { open: boolean; latency?: number; error?: string }): {
+    icon: string;
+    class: string;
+    text: string;
+  } {
     if (result.open) {
       return {
         icon: 'check-circle',
@@ -153,7 +157,9 @@
     }
     text += `\nResults:\n`;
 
-    (results as { results: Array<{ host: string; port: number; open: boolean; latency?: number; error?: string }> }).results.forEach((result) => {
+    (
+      results as { results: Array<{ host: string; port: number; open: boolean; latency?: number; error?: string }> }
+    ).results.forEach((result) => {
       const status = result.open ? `OPEN (${result.latency}ms)` : `CLOSED${result.error ? ` - ${result.error}` : ''}`;
       text += `  ${result.host}:${result.port} - ${status}\n`;
     });

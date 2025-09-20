@@ -63,14 +63,9 @@
     const currentPath = $page.url.pathname;
 
     // Check if current path is a tool page
-    const toolPage = ALL_PAGES.find(tool => tool.href === currentPath);
+    const toolPage = ALL_PAGES.find((tool) => tool.href === currentPath);
     if (toolPage) {
-      toolUsage.trackVisit(
-        toolPage.href,
-        toolPage.label,
-        toolPage.icon,
-        toolPage.description
-      );
+      toolUsage.trackVisit(toolPage.href, toolPage.label, toolPage.icon, toolPage.description);
     }
   });
 

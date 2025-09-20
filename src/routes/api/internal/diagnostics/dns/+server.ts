@@ -251,7 +251,11 @@ async function performNativeDNSLookup(
             controller.signal.addEventListener('abort', () => reject(new Error('DNS timeout')));
           }),
         ]);
-        result = { Answer: (mx as { priority: number; exchange: string }[]).map((r) => ({ data: `${r.priority} ${r.exchange}` })) };
+        result = {
+          Answer: (mx as { priority: number; exchange: string }[]).map((r) => ({
+            data: `${r.priority} ${r.exchange}`,
+          })),
+        };
         break;
       }
       case 'TXT': {
@@ -281,7 +285,15 @@ async function performNativeDNSLookup(
             controller.signal.addEventListener('abort', () => reject(new Error('DNS timeout')));
           }),
         ]);
-        const soaRecord = soa as { nsname: string; hostmaster: string; serial: number; refresh: number; retry: number; expire: number; minttl: number };
+        const soaRecord = soa as {
+          nsname: string;
+          hostmaster: string;
+          serial: number;
+          refresh: number;
+          retry: number;
+          expire: number;
+          minttl: number;
+        };
         result = {
           Answer: [
             {
@@ -299,7 +311,9 @@ async function performNativeDNSLookup(
           }),
         ]);
         result = {
-          Answer: (caa as { critical: number; issue?: string; issuewild?: string; iodef?: string }[]).map((r) => ({ data: `${r.critical} ${r.issue || r.issuewild || r.iodef}` })),
+          Answer: (caa as { critical: number; issue?: string; issuewild?: string; iodef?: string }[]).map((r) => ({
+            data: `${r.critical} ${r.issue || r.issuewild || r.iodef}`,
+          })),
         };
         break;
       }
@@ -359,7 +373,11 @@ function createReverseZone(ip: string): string {
   }
 }
 
-async function parseSPFRecord(domain: string, visited = new Set<string>(), lookupCount = { count: 0 }): Promise<unknown> {
+async function parseSPFRecord(
+  domain: string,
+  visited = new Set<string>(),
+  lookupCount = { count: 0 },
+): Promise<unknown> {
   if (visited.has(domain) || lookupCount.count > 10) {
     return { error: 'SPF lookup limit exceeded or circular reference' };
   }
@@ -513,7 +531,11 @@ async function checkNSandSOA(domain: string): Promise<unknown> {
   }
 }
 
-async function checkDNSSECADFlag(name: string, type: keyof typeof DNS_TYPES, opts: ResolverOpts = {}): Promise<unknown> {
+async function checkDNSSECADFlag(
+  name: string,
+  type: keyof typeof DNS_TYPES,
+  opts: ResolverOpts = {},
+): Promise<unknown> {
   const { doh = 'cloudflare', timeoutMs = 3500 } = opts;
 
   try {
@@ -688,7 +710,13 @@ function formatDuration(seconds: number): string {
   return `${Math.floor(seconds / 86400)}d ${Math.floor((seconds % 86400) / 3600)}h`;
 }
 
-function getSOARecommendations(refresh: number, retry: number, expire: number, minimum: number, ttl: number): unknown[] {
+function getSOARecommendations(
+  refresh: number,
+  retry: number,
+  expire: number,
+  minimum: number,
+  ttl: number,
+): unknown[] {
   const recommendations = [];
 
   if (refresh < 3600) {

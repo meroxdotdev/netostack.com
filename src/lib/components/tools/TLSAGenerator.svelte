@@ -194,7 +194,17 @@
     },
   ];
 
-  function loadExample(example: { name: string; description: string; domain: string; port: number; protocol: string; usage: number; selector: number; matchingType: number; hash: string }) {
+  function loadExample(example: {
+    name: string;
+    description: string;
+    domain: string;
+    port: number;
+    protocol: string;
+    usage: number;
+    selector: number;
+    matchingType: number;
+    hash: string;
+  }) {
     domain = example.domain;
     port = example.port;
     protocol = example.protocol;

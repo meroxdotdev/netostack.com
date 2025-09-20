@@ -92,9 +92,10 @@
 
   function getConsistencyStatus(): { status: string; color: string; message: string } {
     if (!results) return { status: 'unknown', color: 'secondary', message: 'No check performed' };
-    if ((results as {error?: string}).error) return { status: 'error', color: 'error', message: (results as {error: string}).error };
+    if ((results as { error?: string }).error)
+      return { status: 'error', color: 'error', message: (results as { error: string }).error };
 
-    const resultsObj = results as {nameserverChecks?: Array<{resolved?: boolean}>};
+    const resultsObj = results as { nameserverChecks?: Array<{ resolved?: boolean }> };
     const resolvedCount = resultsObj.nameserverChecks?.filter((ns) => ns.resolved)?.length || 0;
     const totalCount = resultsObj.nameserverChecks?.length || 0;
 
@@ -129,7 +130,9 @@
       text += `SOA Record:\n${results.soa}\n\n`;
     }
 
-    const nsChecks = (results as {nameserverChecks?: Array<{nameserver: string; resolved: boolean; addresses?: string[]}>}).nameserverChecks;
+    const nsChecks = (
+      results as { nameserverChecks?: Array<{ nameserver: string; resolved: boolean; addresses?: string[] }> }
+    ).nameserverChecks;
     if (nsChecks?.length > 0) {
       text += `Nameserver Resolution Check:\n`;
       nsChecks.forEach((check) => {
@@ -274,9 +277,9 @@
                     <span class="nameserver-name">{check.nameserver}</span>
                   </div>
 
-                  {#if check.resolved && (check as {addresses?: string[]}).addresses?.length > 0}
+                  {#if check.resolved && (check as { addresses?: string[] }).addresses?.length > 0}
                     <div class="nameserver-addresses">
-                      {#each (check as {addresses: string[]}).addresses as address, addressIndex (addressIndex)}
+                      {#each (check as { addresses: string[] }).addresses as address, addressIndex (addressIndex)}
                         <span class="address-badge">{address}</span>
                       {/each}
                     </div>

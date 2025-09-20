@@ -181,14 +181,14 @@ export function splitCIDRByCount(cidr: string, count: number): SplitResult {
           childPrefix: 0,
           addressesPerChild: '0',
           totalAddressesCovered: '0',
-          utilizationPercent: 0
+          utilizationPercent: 0,
         },
         visualization: {
           parentStart: 0n,
           parentEnd: 0n,
-          childRanges: []
+          childRanges: [],
         },
-        error: 'Count must be positive'
+        error: 'Count must be positive',
       };
     }
 
@@ -205,12 +205,12 @@ export function splitCIDRByCount(cidr: string, count: number): SplitResult {
           childPrefix: 0,
           addressesPerChild: '0',
           totalAddressesCovered: '0',
-          utilizationPercent: 0
+          utilizationPercent: 0,
         },
         visualization: {
           parentStart: 0n,
           parentEnd: 0n,
-          childRanges: []
+          childRanges: [],
         },
         error: `Cannot create ${count} subnets: would require /${childPrefix} (max is /${input.maxPrefix})`,
       };
@@ -263,12 +263,12 @@ export function splitCIDRByCount(cidr: string, count: number): SplitResult {
         childPrefix: 0,
         addressesPerChild: '0',
         totalAddressesCovered: '0',
-        utilizationPercent: 0
+        utilizationPercent: 0,
       },
       visualization: {
         parentStart: 0n,
         parentEnd: 0n,
-        childRanges: []
+        childRanges: [],
       },
       error: error instanceof Error ? error.message : 'Unknown error',
     };
@@ -289,12 +289,12 @@ export function splitCIDRByPrefix(cidr: string, targetPrefix: number): SplitResu
           childPrefix: 0,
           addressesPerChild: '0',
           totalAddressesCovered: '0',
-          utilizationPercent: 0
+          utilizationPercent: 0,
         },
         visualization: {
           parentStart: 0n,
           parentEnd: 0n,
-          childRanges: []
+          childRanges: [],
         },
         error: `Target prefix /${targetPrefix} must be greater than parent /${input.prefix}`,
       };
@@ -309,12 +309,12 @@ export function splitCIDRByPrefix(cidr: string, targetPrefix: number): SplitResu
           childPrefix: 0,
           addressesPerChild: '0',
           totalAddressesCovered: '0',
-          utilizationPercent: 0
+          utilizationPercent: 0,
         },
         visualization: {
           parentStart: 0n,
           parentEnd: 0n,
-          childRanges: []
+          childRanges: [],
         },
         error: `Target prefix /${targetPrefix} exceeds maximum /${input.maxPrefix} for IPv${input.version}`,
       };
@@ -367,12 +367,12 @@ export function splitCIDRByPrefix(cidr: string, targetPrefix: number): SplitResu
         childPrefix: 0,
         addressesPerChild: '0',
         totalAddressesCovered: '0',
-        utilizationPercent: 0
+        utilizationPercent: 0,
       },
       visualization: {
         parentStart: 0n,
         parentEnd: 0n,
-        childRanges: []
+        childRanges: [],
       },
       error: error instanceof Error ? error.message : 'Unknown error',
     };

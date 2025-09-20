@@ -101,12 +101,14 @@
     });
 
     text += '\nSecurity Analysis:\n';
-    (results as { analysis: Array<{ header: string; message: string; recommendation?: string }> }).analysis.forEach((item) => {
-      text += `• ${item.header}: ${item.message}\n`;
-      if (item.recommendation) {
-        text += `  Recommendation: ${item.recommendation}\n`;
-      }
-    });
+    (results as { analysis: Array<{ header: string; message: string; recommendation?: string }> }).analysis.forEach(
+      (item) => {
+        text += `• ${item.header}: ${item.message}\n`;
+        if (item.recommendation) {
+          text += `  Recommendation: ${item.recommendation}\n`;
+        }
+      },
+    );
 
     await navigator.clipboard.writeText(text);
     copiedState = true;
@@ -143,8 +145,12 @@
     if (!results?.analysis) return { score: 0, grade: 'F', class: 'error' };
 
     const total = results.analysis.length;
-    const present = (results as { analysis: Array<{ status: string }> }).analysis.filter((a) => a.status === 'present').length;
-    const weak = (results as { analysis: Array<{ status: string }> }).analysis.filter((a) => a.status === 'weak').length;
+    const present = (results as { analysis: Array<{ status: string }> }).analysis.filter(
+      (a) => a.status === 'present',
+    ).length;
+    const weak = (results as { analysis: Array<{ status: string }> }).analysis.filter(
+      (a) => a.status === 'weak',
+    ).length;
 
     const score = Math.round(((present + weak * 0.5) / total) * 100);
 
@@ -265,7 +271,10 @@
           <div class="status-item">
             <Icon name="check-circle" size="sm" />
             <div>
-              <strong>{(results as { analysis?: Array<{ status: string }> })?.analysis?.filter((a) => a.status === 'present').length || 0}</strong>
+              <strong
+                >{(results as { analysis?: Array<{ status: string }> })?.analysis?.filter((a) => a.status === 'present')
+                  .length || 0}</strong
+              >
               <div class="status-text">Headers Present</div>
             </div>
           </div>
@@ -273,7 +282,10 @@
           <div class="status-item">
             <Icon name="alert-triangle" size="sm" />
             <div>
-              <strong>{(results as { analysis?: Array<{ status: string }> })?.analysis?.filter((a) => a.status === 'missing').length || 0}</strong>
+              <strong
+                >{(results as { analysis?: Array<{ status: string }> })?.analysis?.filter((a) => a.status === 'missing')
+                  .length || 0}</strong
+              >
               <div class="status-text">Headers Missing</div>
             </div>
           </div>

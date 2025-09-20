@@ -63,7 +63,7 @@
   }
 
   function getPortStatus(portCheck: unknown): string {
-    const check = portCheck as {open?: boolean};
+    const check = portCheck as { open?: boolean };
     return check.open ? 'success' : 'error';
   }
 
@@ -100,10 +100,10 @@
       exchange: string;
       priority: number;
       error?: string;
-      addresses?: {ipv4: string[]; ipv6: string[]};
-      portChecks?: Array<{port: number; open: boolean; latency?: number}>;
+      addresses?: { ipv4: string[]; ipv6: string[] };
+      portChecks?: Array<{ port: number; open: boolean; latency?: number }>;
     };
-    const mxRecords = (results as {mxRecords: MxRecord[]}).mxRecords;
+    const mxRecords = (results as { mxRecords: MxRecord[] }).mxRecords;
     mxRecords.forEach((mx, _index) => {
       text += `${_index + 1}. ${mx.exchange} (Priority: ${mx.priority})\n`;
       if (mx.error) {
@@ -281,7 +281,7 @@
         <div class="mx-section">
           <h4>MX Records (by priority)</h4>
           <div class="mx-list">
-            {#each (results as {mxRecords: Array<{error?: string; exchange: string; priority: number; addresses?: {ipv4: string[]; ipv6: string[]}; portChecks?: Array<{port: number; open: boolean; latency?: number}>}>}).mxRecords as mx, _index (_index)}
+            {#each (results as { mxRecords: Array<{ error?: string; exchange: string; priority: number; addresses?: { ipv4: string[]; ipv6: string[] }; portChecks?: Array<{ port: number; open: boolean; latency?: number }> }> }).mxRecords as mx, _index (_index)}
               <div class="mx-record {mx.error ? 'error' : 'success'}">
                 <div class="mx-header">
                   <div class="mx-info">

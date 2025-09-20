@@ -82,7 +82,10 @@
     }
   }
 
-  function formatContact(contact: { handle?: string; vcardArray?: [string, Array<[string, unknown, string, unknown]>] }): string {
+  function formatContact(contact: {
+    handle?: string;
+    vcardArray?: [string, Array<[string, unknown, string, unknown]>];
+  }): string {
     const vcard = contact.vcardArray;
     if (!vcard || !vcard[1]) return contact.handle || 'Unknown';
 

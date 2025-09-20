@@ -67,7 +67,7 @@
   }
 
   async function copyResults() {
-    const res = results as {raw?: unknown};
+    const res = results as { raw?: unknown };
     if (!res?.raw) return;
 
     try {
@@ -192,9 +192,17 @@
 
   <!-- Results -->
   {#if results}
-    {@const res = results as {soa?: {serial?: number}; serialAnalysis?: {format?: string}}}
-    {@const serialInfo = (results as {serialAnalysis?: {formatDescription?: string; explanation?: string}}).serialAnalysis}
-    {@const serialAnalysis = (results as {serialAnalysis?: {parsed?: {year?: number; month?: number; day?: number; revision?: number; timestamp?: number}; format?: string}}).serialAnalysis}
+    {@const res = results as { soa?: { serial?: number }; serialAnalysis?: { format?: string } }}
+    {@const serialInfo = (results as { serialAnalysis?: { formatDescription?: string; explanation?: string } })
+      .serialAnalysis}
+    {@const serialAnalysis = (
+      results as {
+        serialAnalysis?: {
+          parsed?: { year?: number; month?: number; day?: number; revision?: number; timestamp?: number };
+          format?: string;
+        };
+      }
+    ).serialAnalysis}
     <div class="card results-card">
       <div class="card-header row">
         <h3>SOA Analysis for {results.name}</h3>
@@ -224,8 +232,7 @@
             <div class="serial-analysis">
               <div class="serial-display">
                 <span class="serial-number">{res.soa?.serial || 'Not available'}</span>
-                <span class="serial-format {res.serialAnalysis?.format}"
-                  >{res.serialAnalysis?.format || 'Unknown'}</span
+                <span class="serial-format {res.serialAnalysis?.format}">{res.serialAnalysis?.format || 'Unknown'}</span
                 >
               </div>
 
@@ -264,7 +271,7 @@
           <div class="result-section">
             <h4>SOA Record Details</h4>
             <dl class="definition-list">
-              {@const soaData = (results as {soa?: {mname?: string; rname?: string; ttl?: number}}).soa}
+              {@const soaData = (results as { soa?: { mname?: string; rname?: string; ttl?: number } }).soa}
               <dt>Primary Server:</dt>
               <dd class="mono">{soaData?.mname || 'Not available'}</dd>
 
@@ -287,7 +294,9 @@
           <div class="result-section full-width">
             <h4>Zone Timing Parameters</h4>
             <div class="timing-grid">
-              {@const timingData = (results as {soa?: {refresh?: number; retry?: number; expire?: number; minimum?: number}}).soa}
+              {@const timingData = (
+                results as { soa?: { refresh?: number; retry?: number; expire?: number; minimum?: number } }
+              ).soa}
               <div class="timing-param">
                 <h5>Refresh</h5>
                 <div class="param-value">{timingData?.refresh || 0}s</div>
@@ -331,7 +340,11 @@
             <div class="result-section full-width">
               <h4>Configuration Assessment</h4>
               <div class="assessment-grid">
-                {@const assessmentData = (results as {assessment?: Array<{severity: string; aspect: string; message: string; recommendation?: string}>}).assessment}
+                {@const assessmentData = (
+                  results as {
+                    assessment?: Array<{ severity: string; aspect: string; message: string; recommendation?: string }>;
+                  }
+                ).assessment}
                 {#each assessmentData || [] as item, itemIndex (itemIndex)}
                   <div class="assessment-item {item.severity}">
                     <Icon

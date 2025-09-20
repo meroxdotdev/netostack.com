@@ -34,7 +34,12 @@
     { label: 'IPv6 too many groups', value: '2001:db8:85a3:0000:0000:8a2e:0370:7334:extra', valid: false },
   ];
 
-  function validateIPv4(ip: string): { isValid: boolean; errors: string[]; warnings: string[]; details: Record<string, unknown> } {
+  function validateIPv4(ip: string): {
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
+    details: Record<string, unknown>;
+  } {
     const errors: string[] = [];
     const warnings: string[] = [];
     const details: Record<string, unknown> = { info: [] };
@@ -158,7 +163,12 @@
     return { isValid: true, errors: [], warnings, details };
   }
 
-  function validateIPv6(ip: string): { isValid: boolean; errors: string[]; warnings: string[]; details: Record<string, unknown> } {
+  function validateIPv6(ip: string): {
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
+    details: Record<string, unknown>;
+  } {
     const errors: string[] = [];
     const warnings: string[] = [];
     const details: Record<string, unknown> = { info: [] };

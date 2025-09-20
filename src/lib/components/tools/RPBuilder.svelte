@@ -137,7 +137,7 @@
     showButtonSuccess('download');
   }
 
-  function loadRoleExample(role: { name: string; description: string; mailbox: string; tag: string; }) {
+  function loadRoleExample(role: { name: string; description: string; mailbox: string; tag: string }) {
     mailboxDname = role.mbox;
     txtDname = role.txt;
     if (!domain) domain = 'example.com';

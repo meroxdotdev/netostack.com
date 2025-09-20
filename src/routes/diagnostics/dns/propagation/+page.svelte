@@ -77,14 +77,14 @@
   }
 
   function getStatusColor(result: unknown): string {
-    const res = result as {error?: string; result?: {Answer?: unknown[]}};
+    const res = result as { error?: string; result?: { Answer?: unknown[] } };
     if (res.error) return 'error';
     if (!res.result?.Answer?.length) return 'warning';
     return 'success';
   }
 
   function getStatusIcon(result: unknown): string {
-    const res = result as {error?: string; result?: {Answer?: unknown[]}};
+    const res = result as { error?: string; result?: { Answer?: unknown[] } };
     if (res.error) return 'x-circle';
     if (!res.result?.Answer?.length) return 'alert-triangle';
     return 'check-circle';
@@ -94,7 +94,7 @@
     const resultsArray = results as unknown[];
     if (!results || resultsArray.length === 0) return false;
 
-    type DnsResult = {error?: string; result?: {Answer?: Array<{data: string}>}};
+    type DnsResult = { error?: string; result?: { Answer?: Array<{ data: string }> } };
     const successfulResults = resultsArray.filter((r: unknown) => {
       const res = r as DnsResult;
       return !res.error && (res.result?.Answer?.length || 0) > 0;
@@ -112,14 +112,14 @@
     const resultsArray = results as unknown[];
     if (!resultsArray?.length) return;
 
-    const query = lastQuery as {domain?: string; type?: string};
+    const query = lastQuery as { domain?: string; type?: string };
     let text = `DNS Propagation Check for ${query?.domain} (${query?.type})\n`;
     text += `Checked at: ${new Date().toISOString()}\n\n`;
 
     type PropagationResult = {
       resolver: string;
       error?: string;
-      result?: {Answer?: Array<{data: string; TTL?: number}>};
+      result?: { Answer?: Array<{ data: string; TTL?: number }> };
     };
 
     resultsArray.forEach((result: unknown) => {
@@ -263,11 +263,14 @@
       <div class="card-content">
         <div class="resolvers-grid">
           {#each results as result, resultIndex (resultIndex)}
-            {@const res = result as {resolver: string}}
+            {@const res = result as { resolver: string }}
             {@const info = resolverInfo[res.resolver as keyof typeof resolverInfo]}
             {@const status = getStatusColor(result)}
             {@const icon = getStatusIcon(result)}
-            {@const resultData = result as {error?: string; result?: {Answer?: Array<{data: string; TTL?: number}>}}}
+            {@const resultData = result as {
+              error?: string;
+              result?: { Answer?: Array<{ data: string; TTL?: number }> };
+            }}
 
             <div class="resolver-card card {status}">
               <div class="resolver-header">
@@ -309,7 +312,7 @@
         </div>
 
         {#if lastQuery}
-          {@const queryInfo = lastQuery as {domain: string; type: string}}
+          {@const queryInfo = lastQuery as { domain: string; type: string }}
           <div class="query-info">
             <span>Last checked: {queryInfo.domain} ({queryInfo.type}) at {new Date().toLocaleString()}</span>
           </div>

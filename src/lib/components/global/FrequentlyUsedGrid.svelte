@@ -17,7 +17,6 @@
 
 {#if $frequentlyUsedTools.length > 0}
   <div class="frequently-used-container" aria-live="polite">
-
     <div class="frequently-used-header">
       <div class="tools-grid-sub-header">
         <Icon name="clock" size="md" />
