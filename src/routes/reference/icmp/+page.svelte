@@ -1,17 +1,8 @@
 <script lang="ts">
   import { icmpContent } from '$lib/content/icmp.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{icmpContent.title} | {site.title}</title>
-  <meta name="description" content="{icmpContent.description}" />
-  <meta name="keywords" content="{site.keywords}, ICMP, ICMPv6, ping, traceroute, network troubleshooting, echo request" />
-  <meta property="og:title" content="{icmpContent.title}" />
-  <meta property="og:description" content="{icmpContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/icmp" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

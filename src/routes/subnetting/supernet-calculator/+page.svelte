@@ -1,18 +1,9 @@
 <script lang="ts">
   import SupernetCalculator from '$lib/components/tools/SupernetCalculator.svelte';
-  import { site } from '$lib/constants/site';
+  
   import '$lib/../styles/pages.scss';
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>Supernet Calculator - Route Aggregation & Summarization Tool | {site.name}</title>
-  <meta name="description" content="Calculate supernets and aggregate multiple networks into summary routes. Optimize routing tables with CIDR route summarization and supernetting." />
-  <meta name="keywords" content="{site.keywords}, supernet, route aggregation, route summarization, CIDR supernetting, routing table optimization" />
-  <meta property="og:title" content="Supernet Calculator - Route Aggregation & Summarization Tool" />
-  <meta property="og:description" content="Calculate supernets and aggregate multiple networks into summary routes. Optimize routing tables with CIDR route summarization and supernetting." />
-  <meta property="og:url" content="{site.url}/subnetting/supernet-calculator" />
-</svelte:head>
 
 <div class="page-container">
   

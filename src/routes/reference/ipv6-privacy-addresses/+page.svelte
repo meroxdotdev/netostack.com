@@ -1,17 +1,8 @@
 <script lang="ts">
   import { ipv6PrivacyContent } from '$lib/content/ipv6-privacy-addresses.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{ipv6PrivacyContent.title} | {site.title}</title>
-  <meta name="description" content="{ipv6PrivacyContent.description}" />
-  <meta name="keywords" content="{site.keywords}, IPv6 privacy, temporary addresses, RFC 4941, RFC 8981, SLAAC privacy extensions" />
-  <meta property="og:title" content="{ipv6PrivacyContent.title}" />
-  <meta property="og:description" content="{ipv6PrivacyContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/ipv6-privacy-addresses" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

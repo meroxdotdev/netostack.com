@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { site } from '$lib/constants/site';
+  
   import { SUB_NAV } from '$lib/constants/nav';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import type { NavItem, NavGroup } from '$lib/constants/nav';
@@ -19,15 +19,6 @@
 
   const dnsGenerators = extractNavItems((SUB_NAV['/dns']?.find(section => 'title' in section && section.title === 'Record Generators') as any)?.items || []);
 </script>
-
-<svelte:head>
-  <title>DNS Record Generators | {site.title}</title>
-  <meta name="description" content="Professional DNS record generators for A/AAAA bulk creation, CNAME building with validation, and MX record planning with fallback guidance." />
-  <meta name="keywords" content="{site.keywords}, DNS generators, A records, AAAA records, CNAME, MX records, bulk DNS, record builder" />
-  <meta property="og:title" content="DNS Record Generators" />
-  <meta property="og:description" content="Generate DNS records efficiently with validation and best practices built-in." />
-  <meta property="og:url" content="{site.url}/dns/generators" />
-</svelte:head>
 
 <div class="page-container">
   <header class="page-header">

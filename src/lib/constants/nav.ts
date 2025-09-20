@@ -10,12 +10,10 @@ export type NavItem = {
 
 export type NavGroup = {
   title: string;
+  description?: string;
   items: NavItem[];
 };
 
-export const aboutPages: NavItem[] = [
-  { href: '/about', label: 'About', description: `About and its mission` },
-];
 
 // Individual standalone pages
 export const STANDALONE_PAGES: NavItem[] = [];
@@ -995,6 +993,51 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
     }
   ],
 };
+
+export const aboutPages: NavItem[] = [
+  {
+    href: '/about',
+    label: 'About',
+    description: `About and its mission`,
+    keywords: ['about', 'mission', 'team', 'project', 'information'],
+  },
+  {
+    href: '/about/api',
+    label: 'API Usage',
+    description: 'Using our free public REST API for network calculations and IP tools',
+    keywords: ['api', 'networking', 'ipv4', 'ipv6', 'network', 'tools', 'dns', 'cidr', 'subnet'],
+  },
+  {
+    href: '/about/attributions',
+    label: 'Attributions',
+    description: 'Shout outs to sponsors, contributors and other authors who made Networking Toolbox possible',
+    keywords: ['attributions', 'credits', 'thanks', 'sponsors', 'contributors', 'libraries'],
+  },
+  {
+    href: '/about/author',
+    label: 'Author',
+    description: 'About Alicia Sykes, and how and why she built Networking Toolbox',
+    keywords: ['author', 'about', 'bio', 'Alicia Sykes', 'github'],
+  },
+  {
+    href: '/about/building',
+    label: 'Building',
+    description: 'Build Networking Toolbox from source, self-host, edit, or contribute to the project',
+    keywords: ['building', 'sveltekit', 'github', 'npm', 'svelte', 'typescript', 'developing documentation'],
+  },
+  {
+    href: '/about/license',
+    label: 'MIT License',
+    description: `Networking Toolbox's MIT license, summary, and what it means for you`,
+    keywords: ['license', 'mit', 'opensource', 'permissions', 'limitations', 'conditions'],
+  },
+  {
+    href: '/about/self-hosting',
+    label: 'Self-Hosting',
+    description: 'Guide to self-hosting Networking Toolbox on your own server or infrastructure',
+    keywords: ['self-hosting', 'deployment', 'docker', 'portainer', 'vercel', 'node', 'nginx'],
+  },
+];
 
 export const footerLinks: NavItem[] = [
   { href: '/about', label: 'About' },

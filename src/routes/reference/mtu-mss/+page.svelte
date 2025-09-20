@@ -1,17 +1,8 @@
 <script lang="ts">
   import { mtuMssContent } from '$lib/content/mtu-mss.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{mtuMssContent.title} | {site.title}</title>
-  <meta name="description" content="{mtuMssContent.description}" />
-  <meta name="keywords" content="{site.keywords}, MTU, MSS, maximum transmission unit, maximum segment size, network overhead" />
-  <meta property="og:title" content="{mtuMssContent.title}" />
-  <meta property="og:description" content="{mtuMssContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/mtu-mss" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

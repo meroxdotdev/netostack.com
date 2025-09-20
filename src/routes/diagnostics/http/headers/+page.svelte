@@ -410,6 +410,5 @@
     margin-top: var(--spacing-xs);
   }
 
-
   // Page-specific styles only (common utilities moved to diagnostics-pages.scss)
 </style>

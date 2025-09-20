@@ -1,17 +1,8 @@
 <script lang="ts">
   import { reverseDnsContent } from '$lib/content/reverse-dns.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{reverseDnsContent.title} | {site.title}</title>
-  <meta name="description" content="{reverseDnsContent.description}" />
-  <meta name="keywords" content="{site.keywords}, reverse DNS, PTR records, in-addr.arpa, ip6.arpa, rDNS" />
-  <meta property="og:title" content="{reverseDnsContent.title}" />
-  <meta property="og:description" content="{reverseDnsContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/reverse-dns" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

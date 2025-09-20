@@ -1,17 +1,8 @@
 <script lang="ts">
   import { specialIPv4Content } from '$lib/content/special-use-ipv4.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{specialIPv4Content.title} | {site.title}</title>
-  <meta name="description" content="{specialIPv4Content.description}" />
-  <meta name="keywords" content="{site.keywords}, special use IPv4, reserved IP ranges, RFC 6890, private addresses" />
-  <meta property="og:title" content="{specialIPv4Content.title}" />
-  <meta property="og:description" content="{specialIPv4Content.description}" />
-  <meta property="og:url" content="{site.url}/reference/special-use-ipv4" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

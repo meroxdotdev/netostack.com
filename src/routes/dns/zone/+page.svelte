@@ -10,11 +10,6 @@
   })();
 </script>
 
-<svelte:head>
-  <title>DNS Zone File Tools - IP Calculator</title>
-  <meta name="description" content="Comprehensive DNS zone file analysis and management tools. Lint, compare, analyze, and validate BIND zone files." />
-</svelte:head>
-
 <div class="zone-tools-page">
   <div class="hero-section">
     <div class="hero-content">

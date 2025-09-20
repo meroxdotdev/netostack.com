@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { site } from '$lib/constants/site';
+  
   import { SUB_NAV } from '$lib/constants/nav';
   import { cidrContent } from '$lib/content/cidr';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';

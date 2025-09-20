@@ -33,8 +33,6 @@
   }
 </script>
 
-
-
 <div class="page-container">
   <header class="page-header">
     <h1>Subnetting Tools</h1>

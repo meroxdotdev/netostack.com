@@ -1,17 +1,8 @@
 <script lang="ts">
   import { privateVsPublicContent } from '$lib/content/private-vs-public-ip.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{privateVsPublicContent.title} | {site.title}</title>
-  <meta name="description" content="{privateVsPublicContent.description}" />
-  <meta name="keywords" content="{site.keywords}, private IP, public IP, NAT, RFC 1918, IP addressing, network security" />
-  <meta property="og:title" content="{privateVsPublicContent.title}" />
-  <meta property="og:description" content="{privateVsPublicContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/private-vs-public-ip" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

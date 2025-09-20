@@ -365,7 +365,6 @@
 <style lang="scss">
   // Page-specific styles not covered by shared diagnostics-pages.scss
 
-
 .resolvers-grid {
   gap: var(--spacing-md);
   display: grid;
@@ -375,8 +374,6 @@
     padding: var(--spacing-sm);
   }
 }
-
-
 
   .form-group {
     label {
@@ -517,8 +514,6 @@
     border-top: 1px solid var(--border-color);
   }
 
-
-
   .legend-item {
     display: flex;
     align-items: flex-start;
@@ -553,6 +548,5 @@
   .mono {
     font-family: var(--font-mono);
   }
-
 
 </style>

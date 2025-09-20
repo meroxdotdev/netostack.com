@@ -1,17 +1,8 @@
 <script lang="ts">
   import { multicastContent } from '$lib/content/multicast.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{multicastContent.title} | {site.title}</title>
-  <meta name="description" content="{multicastContent.description}" />
-  <meta name="keywords" content="{site.keywords}, multicast, IPv4 multicast, IPv6 multicast, IGMP, MLD, multicast scope" />
-  <meta property="og:title" content="{multicastContent.title}" />
-  <meta property="og:description" content="{multicastContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/multicast" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

@@ -1,17 +1,8 @@
 <script lang="ts">
   import { ipv6EmbeddedIPv4Content } from '$lib/content/ipv6-embedded-ipv4.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{ipv6EmbeddedIPv4Content.title} | {site.title}</title>
-  <meta name="description" content="{ipv6EmbeddedIPv4Content.description}" />
-  <meta name="keywords" content="{site.keywords}, IPv4-mapped, 6to4, Teredo, ISATAP, IPv6 transition, dual-stack" />
-  <meta property="og:title" content="{ipv6EmbeddedIPv4Content.title}" />
-  <meta property="og:description" content="{ipv6EmbeddedIPv4Content.description}" />
-  <meta property="og:url" content="{site.url}/reference/ipv6-embedded-ipv4" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

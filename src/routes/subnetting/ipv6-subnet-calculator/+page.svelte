@@ -1,18 +1,9 @@
 <script lang="ts">
   import IPv6SubnetCalculator from '$lib/components/tools/IPv6SubnetCalculator.svelte';
-  import { site } from '$lib/constants/site';
+  
   import '$lib/../styles/pages.scss';
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>IPv6 Subnet Calculator - 128-bit Network Planning Tool | {site.name}</title>
-  <meta name="description" content="Calculate IPv6 subnets with 128-bit addressing. Plan modern networks with IPv6 prefix lengths, address compression, and visualizations." />
-  <meta name="keywords" content="{site.keywords}, IPv6, subnet calculator, 128-bit addressing, IPv6 prefix, network planning, modern networking" />
-  <meta property="og:title" content="IPv6 Subnet Calculator - 128-bit Network Planning Tool" />
-  <meta property="og:description" content="Calculate IPv6 subnets with 128-bit addressing. Plan modern networks with IPv6 prefix lengths, address compression, and visualizations." />
-  <meta property="og:url" content="{site.url}/subnetting/ipv6-subnet-calculator" />
-</svelte:head>
 
 <div class="page-container">
   

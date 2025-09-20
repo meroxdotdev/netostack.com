@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { site, pages } from '$lib/constants/site';
+
 import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
 import BookmarksGrid from '$lib/components/global/BookmarksGrid.svelte';
 import { bookmarks } from '$lib/stores/bookmarks';
@@ -12,18 +12,7 @@ onMount(() => {
 $: bookmarkCount = $bookmarks.length;
 $: showAll = false;
 
-
 </script>
-
-<svelte:head>
-  <title>{pages.home.title}</title>
-  <meta name="description" content="{pages.home.description}" />
-  <meta name="keywords" content="{site.keywords}" />
-  <meta property="og:title" content="{pages.home.title}" />
-  <meta property="og:description" content="{pages.home.ogDescription}" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="{site.url}" />
-</svelte:head>
 
 <BookmarksGrid />
 
@@ -42,7 +31,6 @@ $: showAll = false;
 {/if}
 
 <style lang="scss">
-
 
 .toggle-container {
   display: flex;

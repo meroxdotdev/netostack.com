@@ -1,17 +1,8 @@
 <script lang="ts">
   import { arpVsNdpContent } from '$lib/content/arp-vs-ndp.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{arpVsNdpContent.title} | {site.title}</title>
-  <meta name="description" content="{arpVsNdpContent.description}" />
-  <meta name="keywords" content="{site.keywords}, ARP, NDP, neighbor discovery, address resolution, IPv4, IPv6" />
-  <meta property="og:title" content="{arpVsNdpContent.title}" />
-  <meta property="og:description" content="{arpVsNdpContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/arp-vs-ndp" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

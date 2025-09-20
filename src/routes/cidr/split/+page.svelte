@@ -1,17 +1,8 @@
 <script lang="ts">
   import CIDRSplitter from '$lib/components/tools/CIDRSplitter.svelte';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>CIDR Subnet Splitter - Split Networks into Child Subnets | {site.name}</title>
-  <meta name="description" content="Split CIDR networks into equal child subnets by count or target prefix length. Supports IPv4 and IPv6 with address space visualization." />
-  <meta name="keywords" content="{site.keywords}, CIDR split, subnet splitter, network division, VLSM, subnetting calculator, IP subnet splitting" />
-  <meta property="og:title" content="CIDR Subnet Splitter - Split Networks into Child Subnets" />
-  <meta property="og:description" content="Split parent networks into equal child subnets with detailed subnet information and visualization." />
-  <meta property="og:url" content="{site.url}/cidr/split" />
-</svelte:head>
 
 <div class="page-container">
   <CIDRSplitter />

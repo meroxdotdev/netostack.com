@@ -239,7 +239,6 @@
     </div>
   </div>
 
-
   <!-- Results -->
   {#if results && results.hasRecord}
     <div class="card results-card">
@@ -704,7 +703,6 @@
     gap: var(--spacing-sm);
   }
 
-
   .issue-content {
     display: flex;
     flex-direction: column;
@@ -722,7 +720,6 @@
     line-height: 1.4;
   }
 
-
   .policy-explanations, .alignment-explanations {
     display: flex;
     flex-direction: column;
@@ -738,7 +735,6 @@
       font-family: var(--font-mono);
     }
   }
-
 
   // Page-specific styles (shared styles moved to diagnostics-pages.scss)
 </style>

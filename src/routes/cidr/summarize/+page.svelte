@@ -1,17 +1,8 @@
 <script lang="ts">
   import CIDRSummarizer from '$lib/components/tools/CIDRSummarizer.svelte';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>CIDR Summarization Tool - Optimize Network Prefixes | {site.name}</title>
-  <meta name="description" content="Summarize mixed IPv4/IPv6 addresses, CIDR blocks, and ranges into optimized minimal CIDR prefixes. Route aggregation and network optimization tool." />
-  <meta name="keywords" content="{site.keywords}, CIDR summarization, route aggregation, network optimization, IP prefix optimization, CIDR blocks merger" />
-  <meta property="og:title" content="CIDR Summarization Tool - Optimize Network Prefixes" />
-  <meta property="og:description" content="Convert mixed IP inputs into optimized CIDR blocks with exact merge and minimal cover modes." />
-  <meta property="og:url" content="{site.url}/cidr/summarize" />
-</svelte:head>
 
 <div class="page-container">
   <CIDRSummarizer />

@@ -1,17 +1,8 @@
 <script lang="ts">
   import { wildcardMasksContent } from '$lib/content/wildcard-masks.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{wildcardMasksContent.title} | {site.title}</title>
-  <meta name="description" content="{wildcardMasksContent.description}" />
-  <meta name="keywords" content="{site.keywords}, wildcard masks, ACL, access control lists, Cisco ACL, subnet mask conversion" />
-  <meta property="og:title" content="{wildcardMasksContent.title}" />
-  <meta property="og:description" content="{wildcardMasksContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/wildcard-masks" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

@@ -507,7 +507,6 @@
   // Page-specific styles - shared styles removed
   // Use shared .lookup-btn instead of .check-btn
 
-
   .action-section {
     display: flex;
     justify-content: center;
@@ -697,7 +696,6 @@
   .mono {
     font-family: var(--font-mono);
   }
-
 
   // Page-specific styles only (common utilities moved to diagnostics-pages.scss)
 </style>

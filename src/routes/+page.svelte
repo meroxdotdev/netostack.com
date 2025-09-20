@@ -1,6 +1,6 @@
 <script lang="ts">
   import '../styles/pages.scss';
-  import { site, pages, about } from '$lib/constants/site';
+  import { site, about } from '$lib/constants/site';
   import { ALL_PAGES, SUB_NAV, type NavItem, type NavGroup } from '$lib/constants/nav';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import SearchFilter from '$lib/components/furniture/SearchFilter.svelte';
@@ -47,17 +47,6 @@
     }
   });
 </script>
-
-<svelte:head>
-  <title>{pages.home.title}</title>
-  <meta name="description" content="{pages.home.description}" />
-  <meta name="keywords" content="{site.keywords}" />
-  <meta property="og:title" content="{pages.home.title}" />
-  <meta property="og:description" content="{pages.home.ogDescription}" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="{site.url}" />
-</svelte:head>
-
 
 <!-- Hero Section -->
 <section class="hero">

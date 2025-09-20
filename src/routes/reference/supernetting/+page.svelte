@@ -1,17 +1,8 @@
 <script lang="ts">
   import { supernetContent } from '$lib/content/supernetting.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{supernetContent.title} | {site.title}</title>
-  <meta name="description" content="{supernetContent.description}" />
-  <meta name="keywords" content="{site.keywords}, supernetting, route aggregation, route summarization, CIDR, routing" />
-  <meta property="og:title" content="{supernetContent.title}" />
-  <meta property="og:description" content="{supernetContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/supernetting" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

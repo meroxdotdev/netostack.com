@@ -1,17 +1,8 @@
 <script lang="ts">
   import { asnContent } from '$lib/content/asn.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{asnContent.title} | {site.title}</title>
-  <meta name="description" content="{asnContent.description}" />
-  <meta name="keywords" content="{site.keywords}, ASN, autonomous system, BGP, internet routing, AS number" />
-  <meta property="og:title" content="{asnContent.title}" />
-  <meta property="og:description" content="{asnContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/asn" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

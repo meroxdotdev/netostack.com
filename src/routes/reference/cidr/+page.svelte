@@ -1,17 +1,8 @@
 <script lang="ts">
   import { cidrContent } from '$lib/content/cidr.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{cidrContent.title} | {site.title}</title>
-  <meta name="description" content="{cidrContent.description}" />
-  <meta name="keywords" content="{site.keywords}, CIDR, classless routing, IP networks, subnet mask, prefix length" />
-  <meta property="og:title" content="{cidrContent.title}" />
-  <meta property="og:description" content="{cidrContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/cidr" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">

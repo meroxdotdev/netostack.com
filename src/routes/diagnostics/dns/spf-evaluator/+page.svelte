@@ -436,8 +436,6 @@
     margin-top: var(--spacing-xl);
   }
 
-
-
   // SPF-specific mechanism styles
   .mechanisms-section {
     margin-bottom: var(--spacing-lg);

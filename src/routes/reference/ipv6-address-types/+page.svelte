@@ -1,17 +1,8 @@
 <script lang="ts">
   import { ipv6AddressTypesContent } from '$lib/content/ipv6-address-types.js';
-  import { site } from '$lib/constants/site';
+  
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
-
-<svelte:head>
-  <title>{ipv6AddressTypesContent.title} | {site.title}</title>
-  <meta name="description" content="{ipv6AddressTypesContent.description}" />
-  <meta name="keywords" content="{site.keywords}, IPv6, address types, unicast, multicast, anycast, global unicast, link local" />
-  <meta property="og:title" content="{ipv6AddressTypesContent.title}" />
-  <meta property="og:description" content="{ipv6AddressTypesContent.description}" />
-  <meta property="og:url" content="{site.url}/reference/ipv6-address-types" />
-</svelte:head>
 
 <div class="page-container">
   <div class="ref-page">
