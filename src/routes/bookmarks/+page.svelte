@@ -10,7 +10,7 @@
   });
 
   $: bookmarkCount = $bookmarks.length;
-  $: showAll = false;
+  let showAll = false;
 </script>
 
 <BookmarksGrid />

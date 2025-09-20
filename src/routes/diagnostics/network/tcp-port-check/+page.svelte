@@ -6,7 +6,7 @@
   let targets = $state('google.com:443\ngithub.com:443\nstackoverflow.com:443');
   let timeout = $state(5000);
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -91,14 +91,14 @@
         try {
           const errorData = JSON.parse(errorText);
           throw new Error(errorData.message || `Port check failed (${response.status})`);
-        } catch (parseError) {
+        } catch {
           // If JSON parsing fails, use the raw error text or status
           throw new Error(errorText || `Port check failed (${response.status})`);
         }
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = err.message;
     } finally {
       loading = false;
@@ -123,7 +123,7 @@
     clearExampleSelection();
   }
 
-  function getPortStatus(result: any): { icon: string; class: string; text: string } {
+  function getPortStatus(result: { open: boolean; latency?: number; error?: string }): { icon: string; class: string; text: string } {
     if (result.open) {
       return {
         icon: 'check-circle',
@@ -153,7 +153,7 @@
     }
     text += `\nResults:\n`;
 
-    results.results.forEach((result: any) => {
+    (results as { results: Array<{ host: string; port: number; open: boolean; latency?: number; error?: string }> }).results.forEach((result) => {
       const status = result.open ? `OPEN (${result.latency}ms)` : `CLOSED${result.error ? ` - ${result.error}` : ''}`;
       text += `  ${result.host}:${result.port} - ${status}\n`;
     });
@@ -181,7 +181,7 @@
         <h4>Port Check Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -190,7 +190,7 @@
           >
             <h5>{example.description}</h5>
             <div class="example-targets">
-              {#each example.targets.split('\n').slice(0, 3) as target}
+              {#each example.targets.split('\n').slice(0, 3) as target, index (index)}
                 <span class="target-item mono">{target}</span>
               {/each}
               {#if example.targets.split('\n').length > 3}
@@ -239,7 +239,7 @@
         <div class="form-group">
           <h3>Common Ports</h3>
           <div class="port-shortcuts">
-            {#each commonPorts as port}
+            {#each commonPorts as port, index (index)}
               <button
                 type="button"
                 class="port-btn"
@@ -329,7 +329,7 @@
         <div class="ports-section">
           <h4>Port Status ({results.results.length} targets)</h4>
           <div class="ports-list">
-            {#each results.results as result}
+            {#each results.results as result, index (index)}
               {@const status = getPortStatus(result)}
               <div class="port-result {status.class}">
                 <div class="port-header">

@@ -7,7 +7,7 @@
   let url = $state('https://www.google.com');
   let method = $state('GET');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
 
@@ -71,13 +71,15 @@
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch {
+          // Intentionally empty
+        }
 
         throw new Error(errorMessage);
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = formatDNSError(err);
     } finally {
       loading = false;
@@ -164,7 +166,7 @@
         <h4>Performance Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example, exampleIndex (exampleIndex)}
           <button class="example-card" onclick={() => loadExample(example)}>
             <h5>{example.url}</h5>
             <p>{example.description}</p>
@@ -210,7 +212,7 @@
                 if (isInputValid()) measurePerformance();
               }}
             >
-              {#each methods as methodOption}
+              {#each methods as methodOption, methodIndex (methodIndex)}
                 <option value={methodOption}>{methodOption}</option>
               {/each}
             </select>

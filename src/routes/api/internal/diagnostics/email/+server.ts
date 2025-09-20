@@ -57,16 +57,16 @@ async function resolveMXRecords(domain: string): Promise<MXRecord[]> {
           ipv4: ipv4.status === 'fulfilled' ? ipv4.value : [],
           ipv6: ipv6.status === 'fulfilled' ? ipv6.value : [],
         };
-      } catch (err: any) {
-        record.error = `Failed to resolve addresses: ${err.message}`;
+      } catch (err: unknown) {
+        record.error = `Failed to resolve addresses: ${err instanceof Error ? err.message : 'Unknown error'}`;
       }
 
       results.push(record);
     }
 
     return results.sort((a, b) => a.priority - b.priority);
-  } catch (err: any) {
-    throw new Error(`Failed to resolve MX records: ${err.message}`);
+  } catch (err: unknown) {
+    throw new Error(`Failed to resolve MX records: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
 }
 
@@ -102,7 +102,7 @@ async function checkTCPPort(
   });
 }
 
-async function checkMXHealth(domain: string, checkPorts: boolean = false): Promise<any> {
+async function checkMXHealth(domain: string, checkPorts: boolean = false): Promise<unknown> {
   const mxRecords = await resolveMXRecords(domain);
 
   if (checkPorts) {
@@ -145,7 +145,7 @@ async function checkMXHealth(domain: string, checkPorts: boolean = false): Promi
 }
 
 // Re-use DNS functions for SPF and DMARC
-async function checkSPF(domain: string): Promise<any> {
+async function checkSPF(domain: string): Promise<unknown> {
   // Call the DNS endpoint internally
   const response = await fetch('http://localhost:5174/api/internal/diagnostics/dns', {
     method: 'POST',
@@ -171,7 +171,7 @@ async function checkSPF(domain: string): Promise<any> {
   };
 }
 
-async function checkDMARC(domain: string): Promise<any> {
+async function checkDMARC(domain: string): Promise<unknown> {
   // Call the DNS endpoint internally
   const response = await fetch('http://localhost:5174/api/internal/diagnostics/dns', {
     method: 'POST',
@@ -197,7 +197,7 @@ async function checkDMARC(domain: string): Promise<any> {
             none: 'No impact on delivery - monitoring only',
             quarantine: 'Failed messages may go to spam/junk folder',
             reject: 'Failed messages will be rejected outright',
-          } as any
+          } as unknown
         )[policy] || 'Unknown policy impact',
 
       alignmentComplexity: {
@@ -244,9 +244,9 @@ export const POST: RequestHandler = async ({ request }) => {
       }
 
       default:
-        throw error(400, `Unknown action: ${(body as any).action}`);
+        throw error(400, `Unknown action: ${(body as unknown).action}`);
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Email diagnostics error:', err);
     throw error(500, `Email diagnostics failed: ${err.message}`);
   }

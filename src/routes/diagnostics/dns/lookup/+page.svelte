@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  import { validateDNSLookupInput, formatDNSError, type SimpleValidationResult } from '$lib/utils/dns-validation.js';
+  import { validateDNSLookupInput, formatDNSError } from '$lib/utils/dns-validation.js';
   import '../../../../styles/diagnostics-pages.scss';
 
   let domainName = $state('example.com');
@@ -10,7 +10,7 @@
   let customResolver = $state('');
   let useCustomResolver = $state(false);
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -103,7 +103,7 @@
           if (responseData.message) {
             throw new Error(responseData.message);
           }
-        } catch (parseError) {
+        } catch {
           // If not JSON, use status-based message
           if (response.status === 400) {
             throw new Error('Invalid request. Please check your input values.');
@@ -116,7 +116,7 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Enhanced error handling using utility
       error = formatDNSError(err);
     } finally {
@@ -138,7 +138,7 @@
   async function copyResults() {
     if (!results?.Answer?.length) return;
 
-    const text = results.Answer.map((r: any) => r.data).join('\n');
+    const text = results.Answer.map((r: unknown) => (r as { data: string }).data).join('\n');
     await navigator.clipboard.writeText(text);
     copiedState = true;
     setTimeout(() => (copiedState = false), 1500);
@@ -162,7 +162,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -212,7 +212,7 @@
               if (domainName) performLookup();
             }}
           >
-            {#each recordTypes as type}
+            {#each recordTypes as type, index (index)}
               <option value={type.value} title={type.description}>{type.label}</option>
             {/each}
           </select>
@@ -229,7 +229,7 @@
                 if (domainName) performLookup();
               }}
             >
-              {#each resolvers as res}
+              {#each resolvers as res, index (index)}
                 <option value={res.value}>{res.label}</option>
               {/each}
             </select>
@@ -280,7 +280,7 @@
         <div class="warning-content">
           <Icon name="alert-triangle" size="sm" />
           <div class="warning-messages">
-            {#each results.warnings as warning}
+            {#each results.warnings as warning, index (index)}
               <p>{warning}</p>
             {/each}
           </div>
@@ -322,7 +322,7 @@
       <div class="card-content">
         {#if results.Answer?.length > 0}
           <div class="records-list">
-            {#each results.Answer as record, i}
+            {#each results.Answer as record, i (i)}
               <div class="record-item">
                 <div class="record-data mono">{record.data}</div>
                 {#if record.TTL}

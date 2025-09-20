@@ -63,7 +63,7 @@ const DNS_SERVERS = {
 };
 
 function getDNSServerForResolver(resolver: string): string {
-  return (DNS_SERVERS as any)[resolver] || DNS_SERVERS.cloudflare;
+  return (DNS_SERVERS as Record<string, string>)[resolver] || DNS_SERVERS.cloudflare;
 }
 
 interface LookupReq extends BaseReq {
@@ -129,7 +129,7 @@ type RequestBody =
   | DNSSECADFlagReq
   | SOASerialReq;
 
-async function doHQuery(endpoint: string, name: string, type: number, timeout: number = 3500): Promise<any> {
+async function doHQuery(endpoint: string, name: string, type: number, timeout: number = 3500): Promise<unknown> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -152,7 +152,7 @@ async function doHQuery(endpoint: string, name: string, type: number, timeout: n
   }
 }
 
-async function performDNSLookup(name: string, type: keyof typeof DNS_TYPES, opts: ResolverOpts = {}): Promise<any> {
+async function performDNSLookup(name: string, type: keyof typeof DNS_TYPES, opts: ResolverOpts = {}): Promise<unknown> {
   const { doh = 'cloudflare', preferDoH = true, timeoutMs = 3500 } = opts;
   const warnings: string[] = [];
   const originalResolver = opts.server
@@ -199,7 +199,7 @@ async function performNativeDNSLookup(
   type: keyof typeof DNS_TYPES,
   customServer?: string,
   timeoutMs: number = 2000,
-): Promise<any> {
+): Promise<unknown> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -211,10 +211,10 @@ async function performNativeDNSLookup(
     // Set DNS preferences for better performance
     dns.setDefaultResultOrder('ipv4first');
 
-    let result: any;
+    let result: unknown;
 
     switch (type) {
-      case 'A':
+      case 'A': {
         const a4 = await Promise.race([
           dns.resolve4(name, { ttl: true }),
           new Promise((_, reject) => {
@@ -223,7 +223,8 @@ async function performNativeDNSLookup(
         ]);
         result = { Answer: (a4 as IndividualRecord[]).map((r) => ({ data: r.address, TTL: r.ttl })) };
         break;
-      case 'AAAA':
+      }
+      case 'AAAA': {
         const a6 = await Promise.race([
           dns.resolve6(name, { ttl: true }),
           new Promise((_, reject) => {
@@ -232,7 +233,8 @@ async function performNativeDNSLookup(
         ]);
         result = { Answer: (a6 as IndividualRecord[]).map((r) => ({ data: r.address, TTL: r.ttl })) };
         break;
-      case 'CNAME':
+      }
+      case 'CNAME': {
         const cname = await Promise.race([
           dns.resolveCname(name),
           new Promise((_, reject) => {
@@ -241,16 +243,18 @@ async function performNativeDNSLookup(
         ]);
         result = { Answer: (cname as string[]).map((r) => ({ data: r })) };
         break;
-      case 'MX':
+      }
+      case 'MX': {
         const mx = await Promise.race([
           dns.resolveMx(name),
           new Promise((_, reject) => {
             controller.signal.addEventListener('abort', () => reject(new Error('DNS timeout')));
           }),
         ]);
-        result = { Answer: (mx as any[]).map((r) => ({ data: `${r.priority} ${r.exchange}` })) };
+        result = { Answer: (mx as { priority: number; exchange: string }[]).map((r) => ({ data: `${r.priority} ${r.exchange}` })) };
         break;
-      case 'TXT':
+      }
+      case 'TXT': {
         const txt = await Promise.race([
           dns.resolveTxt(name),
           new Promise((_, reject) => {
@@ -259,7 +263,8 @@ async function performNativeDNSLookup(
         ]);
         result = { Answer: (txt as string[][]).map((r) => ({ data: r.join('') })) };
         break;
-      case 'NS':
+      }
+      case 'NS': {
         const ns = await Promise.race([
           dns.resolveNs(name),
           new Promise((_, reject) => {
@@ -268,22 +273,25 @@ async function performNativeDNSLookup(
         ]);
         result = { Answer: (ns as string[]).map((r) => ({ data: r })) };
         break;
-      case 'SOA':
+      }
+      case 'SOA': {
         const soa = await Promise.race([
           dns.resolveSoa(name),
           new Promise((_, reject) => {
             controller.signal.addEventListener('abort', () => reject(new Error('DNS timeout')));
           }),
         ]);
+        const soaRecord = soa as { nsname: string; hostmaster: string; serial: number; refresh: number; retry: number; expire: number; minttl: number };
         result = {
           Answer: [
             {
-              data: `${(soa as any).nsname} ${(soa as any).hostmaster} ${(soa as any).serial} ${(soa as any).refresh} ${(soa as any).retry} ${(soa as any).expire} ${(soa as any).minttl}`,
+              data: `${soaRecord.nsname} ${soaRecord.hostmaster} ${soaRecord.serial} ${soaRecord.refresh} ${soaRecord.retry} ${soaRecord.expire} ${soaRecord.minttl}`,
             },
           ],
         };
         break;
-      case 'CAA':
+      }
+      case 'CAA': {
         const caa = await Promise.race([
           dns.resolveCaa(name),
           new Promise((_, reject) => {
@@ -291,10 +299,11 @@ async function performNativeDNSLookup(
           }),
         ]);
         result = {
-          Answer: (caa as any[]).map((r) => ({ data: `${r.critical} ${r.issue || r.issuewild || r.iodef}` })),
+          Answer: (caa as { critical: number; issue?: string; issuewild?: string; iodef?: string }[]).map((r) => ({ data: `${r.critical} ${r.issue || r.issuewild || r.iodef}` })),
         };
         break;
-      case 'PTR':
+      }
+      case 'PTR': {
         const ptr = await Promise.race([
           dns.resolvePtr(name),
           new Promise((_, reject) => {
@@ -303,23 +312,24 @@ async function performNativeDNSLookup(
         ]);
         result = { Answer: (ptr as string[]).map((r) => ({ data: r })) };
         break;
+      }
       default:
         throw new Error(`Unsupported record type: ${type}`);
     }
 
     clearTimeout(timeoutId);
     return result;
-  } catch (err: any) {
+  } catch (err: unknown) {
     clearTimeout(timeoutId);
 
     // Provide better error messages
-    if (err.message === 'DNS timeout') {
+    if ((err as Error).message === 'DNS timeout') {
       throw new Error(`DNS query timed out after ${timeoutMs}ms`);
     }
-    if (err.code === 'ENOTFOUND') {
+    if ((err as { code?: string }).code === 'ENOTFOUND') {
       throw new Error(`Domain not found: ${name}`);
     }
-    if (err.code === 'ENODATA') {
+    if ((err as { code?: string }).code === 'ENODATA') {
       // Return structured response for no records found (will be handled as 404)
       return {
         noRecords: true,
@@ -349,7 +359,7 @@ function createReverseZone(ip: string): string {
   }
 }
 
-async function parseSPFRecord(domain: string, visited = new Set<string>(), lookupCount = { count: 0 }): Promise<any> {
+async function parseSPFRecord(domain: string, visited = new Set<string>(), lookupCount = { count: 0 }): Promise<unknown> {
   if (visited.has(domain) || lookupCount.count > 10) {
     return { error: 'SPF lookup limit exceeded or circular reference' };
   }
@@ -359,7 +369,7 @@ async function parseSPFRecord(domain: string, visited = new Set<string>(), looku
 
   try {
     const result = await performDNSLookup(domain, 'TXT');
-    const spfRecord = result.Answer?.find((record: any) => {
+    const spfRecord = result.Answer?.find((record: unknown) => {
       const cleanData = record.data.replace(/^"(.*)"$/, '$1'); // Remove surrounding quotes
       return cleanData.startsWith('v=spf1');
     });
@@ -373,8 +383,8 @@ async function parseSPFRecord(domain: string, visited = new Set<string>(), looku
     const mechanisms = cleanSpfData.split(' ');
     const expanded = {
       mechanisms: [] as string[],
-      includes: [] as Array<{ domain: string; result: any }>,
-      redirects: [] as Array<{ domain: string; result: any }>,
+      includes: [] as Array<{ domain: string; result: unknown }>,
+      redirects: [] as Array<{ domain: string; result: unknown }>,
     };
 
     for (const mechanism of mechanisms) {
@@ -392,16 +402,16 @@ async function parseSPFRecord(domain: string, visited = new Set<string>(), looku
     }
 
     return { record: cleanSpfData, expanded, lookupCount: lookupCount.count };
-  } catch (err: any) {
+  } catch (err: unknown) {
     return { error: err.message };
   }
 }
 
-async function checkDMARC(domain: string): Promise<any> {
+async function checkDMARC(domain: string): Promise<unknown> {
   try {
     const dmarcDomain = `_dmarc.${domain}`;
     const result = await performDNSLookup(dmarcDomain, 'TXT');
-    const dmarcRecord = result.Answer?.find((record: any) => {
+    const dmarcRecord = result.Answer?.find((record: unknown) => {
       const cleanData = record.data.replace(/^"(.*)"$/, '$1'); // Remove surrounding quotes
       return cleanData.startsWith('v=DMARC1');
     });
@@ -441,7 +451,7 @@ async function checkDMARC(domain: string): Promise<any> {
       parsed,
       issues,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     return {
       error: `Error determining DMARC records: ${err.message}`,
       domain: `_dmarc.${domain}`,
@@ -449,7 +459,7 @@ async function checkDMARC(domain: string): Promise<any> {
   }
 }
 
-async function findEffectiveCAA(name: string): Promise<any> {
+async function findEffectiveCAA(name: string): Promise<unknown> {
   const labels = name.split('.');
   const results = [];
 
@@ -460,7 +470,7 @@ async function findEffectiveCAA(name: string): Promise<any> {
       if (result.Answer?.length > 0) {
         results.push({
           domain: testName,
-          records: result.Answer.map((r: any) => r.data),
+          records: result.Answer.map((r: unknown) => r.data),
         });
       }
     } catch {
@@ -471,11 +481,11 @@ async function findEffectiveCAA(name: string): Promise<any> {
   return { chain: results, effective: results[0] || null };
 }
 
-async function checkNSandSOA(domain: string): Promise<any> {
+async function checkNSandSOA(domain: string): Promise<unknown> {
   try {
     const [nsResult, soaResult] = await Promise.all([performDNSLookup(domain, 'NS'), performDNSLookup(domain, 'SOA')]);
 
-    const nameservers = nsResult.Answer?.map((r: any) => r.data) || [];
+    const nameservers = nsResult.Answer?.map((r: unknown) => r.data) || [];
     const soa = soaResult.Answer?.[0]?.data;
 
     const nsChecks = [];
@@ -485,7 +495,7 @@ async function checkNSandSOA(domain: string): Promise<any> {
         nsChecks.push({
           nameserver: ns,
           resolved: true,
-          addresses: aResult.Answer?.map((r: any) => r.data) || [],
+          addresses: aResult.Answer?.map((r: unknown) => r.data) || [],
         });
       } catch {
         nsChecks.push({ nameserver: ns, resolved: false });
@@ -498,12 +508,12 @@ async function checkNSandSOA(domain: string): Promise<any> {
       nameserverChecks: nsChecks,
       consistency: nsChecks.every((check) => check.resolved),
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     return { error: err.message };
   }
 }
 
-async function checkDNSSECADFlag(name: string, type: keyof typeof DNS_TYPES, opts: ResolverOpts = {}): Promise<any> {
+async function checkDNSSECADFlag(name: string, type: keyof typeof DNS_TYPES, opts: ResolverOpts = {}): Promise<unknown> {
   const { doh = 'cloudflare', timeoutMs = 3500 } = opts;
 
   try {
@@ -529,7 +539,7 @@ async function checkDNSSECADFlag(name: string, type: keyof typeof DNS_TYPES, opt
       additional: result.Additional || [],
       raw: result,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     return {
       error: err.message,
       name,
@@ -539,7 +549,7 @@ async function checkDNSSECADFlag(name: string, type: keyof typeof DNS_TYPES, opt
   }
 }
 
-async function analyzeSOASerial(domain: string, opts: ResolverOpts = {}): Promise<any> {
+async function analyzeSOASerial(domain: string, opts: ResolverOpts = {}): Promise<unknown> {
   try {
     const result = await performDNSLookup(domain, 'SOA', opts);
 
@@ -592,7 +602,7 @@ async function analyzeSOASerial(domain: string, opts: ResolverOpts = {}): Promis
       recommendations: getSOARecommendations(refresh, retry, expire, minimum, ttl),
       raw: result,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     return {
       error: err.message,
       domain,
@@ -628,7 +638,7 @@ function getDNSSECExplanation(adFlag: boolean, rcode: number): string {
   }
 }
 
-function analyzeSerialNumber(serial: number): any {
+function analyzeSerialNumber(serial: number): unknown {
   const serialStr = serial.toString();
 
   // Check if it looks like YYYYMMDDNN format
@@ -678,7 +688,7 @@ function formatDuration(seconds: number): string {
   return `${Math.floor(seconds / 86400)}d ${Math.floor((seconds % 86400) / 3600)}h`;
 }
 
-function getSOARecommendations(refresh: number, retry: number, expire: number, minimum: number, ttl: number): any[] {
+function getSOARecommendations(refresh: number, retry: number, expire: number, minimum: number, ttl: number): unknown[] {
   const recommendations = [];
 
   if (refresh < 3600) {
@@ -815,9 +825,9 @@ export const POST: RequestHandler = async ({ request }) => {
       }
 
       default:
-        throw error(400, `Unknown action: ${(body as any).action}`);
+        throw error(400, `Unknown action: ${(body as unknown).action}`);
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('DNS API error:', err);
     throw error(500, `DNS operation failed: ${err.message}`);
   }

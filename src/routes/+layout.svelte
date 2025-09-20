@@ -39,7 +39,7 @@
 
   // Dynamic favicon based on page icon
   const dynamicFavicon = $derived.by(() => {
-    faviconTrigger; // Include in order to force updates when theme changes
+    void faviconTrigger; // Include in order to force updates when theme changes
     const currentPath = $page.url.pathname;
     const pageDetailsWithIcon = getPageDetailsWithIcon(currentPath);
     if (pageDetailsWithIcon?.icon) {
@@ -106,7 +106,7 @@
     if (!data) return '';
     const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/-->/g, '--\\>');
     const nonceAttr = nonce ? ` nonce="${nonce}"` : '';
-    return `<script type="${type}"${nonceAttr}>${json} <\/script>`;
+    return `<script type="${type}"${nonceAttr}>${json} <${'/'}>script>`;
   }
 </script>
 
@@ -140,6 +140,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Structured Data -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html jsonLdTag(data.breadcrumbJsonLd)}
 </svelte:head>
 

@@ -7,7 +7,9 @@ const SUPPORTED_FLAGS = (() => {
     try {
       new RegExp('', f);
       out += f;
-    } catch {}
+    } catch {
+      // Flag not supported, skip it
+    }
   return out;
 })();
 const supportsLookbehind = (() => {
@@ -33,7 +35,13 @@ const splitRegexLiteral = (src: string): { pattern: string; flags: string } | nu
 const dups = (s: string): string => {
   const seen = new Set<string>(),
     dup = new Set<string>();
-  for (const c of s) seen.has(c) ? dup.add(c) : seen.add(c);
+  for (const c of s) {
+    if (seen.has(c)) {
+      dup.add(c);
+    } else {
+      seen.add(c);
+    }
+  }
   return [...dup].join('');
 };
 

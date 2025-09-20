@@ -1,4 +1,4 @@
-import { computeCIDRDifference, type IPRange, type ParsedInput } from './cidr-diff.js';
+import { computeCIDRDifference, type IPRange, type ParsedInput as _ParsedInput } from './cidr-diff.js';
 
 export type AllocationPolicy = 'first-fit' | 'best-fit';
 
@@ -67,7 +67,7 @@ function detectIPVersion(ip: string): 4 | 6 {
   throw new Error(`Cannot determine IP version: ${ip}`);
 }
 
-function isValidIPv4(ip: string): boolean {
+function _isValidIPv4(ip: string): boolean {
   try {
     ipv4ToBigInt(ip);
     return true;
@@ -76,7 +76,7 @@ function isValidIPv4(ip: string): boolean {
   }
 }
 
-function isValidIPv6(ip: string): boolean {
+function _isValidIPv6(ip: string): boolean {
   try {
     ipv6ToBigInt(ip);
     return true;
@@ -141,7 +141,7 @@ function parseIPInput(input: string): Array<{
         // Single IP
         results.push({ start_ip: trimmed, end_ip: trimmed });
       }
-    } catch (error) {
+    } catch {
       // Skip invalid entries
     }
   }
@@ -420,7 +420,7 @@ export function findNextAvailableSubnet(input: NextAvailableInput): NextAvailabl
             const parsed = parseIPInput(freeCidr);
             const converted = convertToIPRanges(parsed);
             freeBlocks.push(...converted);
-          } catch (e) {
+          } catch {
             // Skip invalid blocks
           }
         }
@@ -609,7 +609,7 @@ function generateVisualization(
       version,
       totalRange: { start: minAddr, end: maxAddr },
     };
-  } catch (error) {
+  } catch {
     return undefined;
   }
 }

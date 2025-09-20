@@ -3,7 +3,7 @@
   import DNSMXPlanner from '$lib/components/tools/DNSMXPlanner.svelte';
   import '../../../../styles/pages.scss';
 
-  const pageDetails = getPageDetails('/dns/generators/mx-planner');
+  const _pageDetails = getPageDetails('/dns/generators/mx-planner');
 </script>
 
 <DNSMXPlanner />

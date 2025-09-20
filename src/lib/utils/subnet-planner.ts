@@ -388,7 +388,7 @@ export function planSubnets(
         name: subnet.name,
         id: subnet.id,
       })),
-      leftover: leftover.map((block, i) => {
+      leftover: leftover.map((block, _i) => {
         const [startStr, endStr] = block.cidr.split('-');
         return {
           start: ipToNumber(startStr, parent.version),

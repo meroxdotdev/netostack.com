@@ -82,7 +82,7 @@ async function checkTcpPort(
       });
     });
 
-    socket.on('error', (err: any) => {
+    socket.on('error', (err: unknown) => {
       clearTimeout(timeoutHandle);
       cleanup();
       resolve({
@@ -152,7 +152,7 @@ async function httpPing(
       if (method.toLowerCase() !== 'head') {
         await response.text();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       errors.push(err.message);
     }
 
@@ -224,7 +224,7 @@ export const POST: RequestHandler = async ({ request }) => {
             try {
               const { host, port } = parseHostPort(target.trim());
               return await checkTcpPort(host, port, timeout);
-            } catch (err: any) {
+            } catch (err: unknown) {
               return {
                 host: target,
                 port: 0,
@@ -285,9 +285,9 @@ export const POST: RequestHandler = async ({ request }) => {
       }
 
       default:
-        throw error(400, `Unknown action: ${(body as any).action}`);
+        throw error(400, `Unknown action: ${(body as unknown).action}`);
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Network diagnostics API error:', err);
     throw error(500, `Network diagnostic failed: ${err.message}`);
   }

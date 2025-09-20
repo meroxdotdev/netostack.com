@@ -5,7 +5,7 @@
 
   let domain = $state('google.com');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -39,8 +39,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -56,7 +56,7 @@
     selectedExampleIndex = null;
   }
 
-  function parseSOA(soaString: string): any {
+  function parseSOA(soaString: string): unknown {
     // SOA format: primary-ns admin serial refresh retry expire minimum
     const parts = soaString.trim().split(/\s+/);
     if (parts.length >= 7) {
@@ -92,10 +92,11 @@
 
   function getConsistencyStatus(): { status: string; color: string; message: string } {
     if (!results) return { status: 'unknown', color: 'secondary', message: 'No check performed' };
-    if (results.error) return { status: 'error', color: 'error', message: results.error };
+    if ((results as {error?: string}).error) return { status: 'error', color: 'error', message: (results as {error: string}).error };
 
-    const resolvedCount = results.nameserverChecks?.filter((ns: any) => ns.resolved)?.length || 0;
-    const totalCount = results.nameserverChecks?.length || 0;
+    const resultsObj = results as {nameserverChecks?: Array<{resolved?: boolean}>};
+    const resolvedCount = resultsObj.nameserverChecks?.filter((ns) => ns.resolved)?.length || 0;
+    const totalCount = resultsObj.nameserverChecks?.length || 0;
 
     if (resolvedCount === totalCount && totalCount > 0) {
       return { status: 'good', color: 'success', message: `All ${totalCount} nameservers resolve correctly` };
@@ -128,12 +129,13 @@
       text += `SOA Record:\n${results.soa}\n\n`;
     }
 
-    if (results.nameserverChecks?.length > 0) {
+    const nsChecks = (results as {nameserverChecks?: Array<{nameserver: string; resolved: boolean; addresses?: string[]}>}).nameserverChecks;
+    if (nsChecks?.length > 0) {
       text += `Nameserver Resolution Check:\n`;
-      results.nameserverChecks.forEach((check: any) => {
+      nsChecks.forEach((check) => {
         text += `  ${check.nameserver}: `;
         if (check.resolved) {
-          text += `✓ (${check.addresses.join(', ')})\n`;
+          text += `✓ (${check.addresses?.join(', ') || 'No addresses'})\n`;
         } else {
           text += `✗ Failed to resolve\n`;
         }
@@ -167,7 +169,7 @@
         <h4>NS/SOA Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -265,16 +267,16 @@
           <div class="nameservers-section">
             <h4>Nameservers ({results.nameservers.length})</h4>
             <div class="nameserver-grid">
-              {#each results.nameserverChecks as check, index}
+              {#each results.nameserverChecks as check, _index (_index)}
                 <div class="nameserver-item {check.resolved ? 'success' : 'error'}">
                   <div class="nameserver-header">
                     <Icon name={check.resolved ? 'check-circle' : 'x-circle'} size="sm" />
                     <span class="nameserver-name">{check.nameserver}</span>
                   </div>
 
-                  {#if check.resolved && check.addresses?.length > 0}
+                  {#if check.resolved && (check as {addresses?: string[]}).addresses?.length > 0}
                     <div class="nameserver-addresses">
-                      {#each check.addresses as address}
+                      {#each (check as {addresses: string[]}).addresses as address, addressIndex (addressIndex)}
                         <span class="address-badge">{address}</span>
                       {/each}
                     </div>

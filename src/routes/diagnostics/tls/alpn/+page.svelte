@@ -8,7 +8,7 @@
   let useCustomServername = $state(false);
   let protocols = $state('h2,http/1.1');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -71,8 +71,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -185,7 +185,7 @@
         <h4>ALPN Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -247,7 +247,7 @@
           </label>
           <div class="protocol-presets">
             <span class="preset-label">Quick select:</span>
-            {#each commonProtocols as preset}
+            {#each commonProtocols as preset, index (index)}
               <button
                 type="button"
                 class="preset-btn"
@@ -345,7 +345,7 @@
             <div class="detail-section">
               <h5>Requested Protocols</h5>
               <div class="protocol-list">
-                {#each results.requestedProtocols as protocol, i}
+                {#each results.requestedProtocols as protocol, i (i)}
                   {@const protocolInfo = getProtocolInfo(protocol)}
                   <div class="protocol-item requested">
                     <div class="protocol-header">

@@ -3,7 +3,7 @@
   import DNSSRVBuilder from '$lib/components/tools/DNSSRVBuilder.svelte';
   import '../../../../styles/pages.scss';
 
-  const pageDetails = getPageDetails('/dns/generators/srv-builder');
+  const _pageDetails = getPageDetails('/dns/generators/srv-builder');
 </script>
 
 <DNSSRVBuilder />

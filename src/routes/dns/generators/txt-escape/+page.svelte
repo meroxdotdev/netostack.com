@@ -3,7 +3,7 @@
   import DNSTXTEscape from '$lib/components/tools/DNSTXTEscape.svelte';
   import '../../../../styles/pages.scss';
 
-  const pageDetails = getPageDetails('/dns/generators/txt-escape');
+  const _pageDetails = getPageDetails('/dns/generators/txt-escape');
 </script>
 
 <DNSTXTEscape />

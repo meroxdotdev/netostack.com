@@ -6,7 +6,7 @@
   let domain = $state('example.com');
   let resolver = $state('cloudflare');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -49,8 +49,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -67,10 +67,11 @@
   }
 
   async function copyResults() {
-    if (!results?.raw) return;
+    const res = results as {raw?: unknown};
+    if (!res?.raw) return;
 
     try {
-      await navigator.clipboard.writeText(JSON.stringify(results.raw, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(res.raw, null, 2));
       copiedState = true;
       setTimeout(() => (copiedState = false), 1500);
     } catch (err) {
@@ -119,7 +120,7 @@
         <h4>Domain Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -167,7 +168,7 @@
                 if (domain.trim()) analyzeSOA();
               }}
             >
-              {#each resolvers as res}
+              {#each resolvers as res, resIndex (resIndex)}
                 <option value={res.value}>{res.label}</option>
               {/each}
             </select>
@@ -191,6 +192,9 @@
 
   <!-- Results -->
   {#if results}
+    {@const res = results as {soa?: {serial?: number}; serialAnalysis?: {format?: string}}}
+    {@const serialInfo = (results as {serialAnalysis?: {formatDescription?: string; explanation?: string}}).serialAnalysis}
+    {@const serialAnalysis = (results as {serialAnalysis?: {parsed?: {year?: number; month?: number; day?: number; revision?: number; timestamp?: number}; format?: string}}).serialAnalysis}
     <div class="card results-card">
       <div class="card-header row">
         <h3>SOA Analysis for {results.name}</h3>
@@ -219,39 +223,38 @@
             <h4>Serial Number Analysis</h4>
             <div class="serial-analysis">
               <div class="serial-display">
-                <span class="serial-number">{results.soa?.serial || 'Not available'}</span>
-                <span class="serial-format {results.serialAnalysis?.format}"
-                  >{results.serialAnalysis?.format || 'Unknown'}</span
+                <span class="serial-number">{res.soa?.serial || 'Not available'}</span>
+                <span class="serial-format {res.serialAnalysis?.format}"
+                  >{res.serialAnalysis?.format || 'Unknown'}</span
                 >
               </div>
 
               <dl class="definition-list">
                 <dt>Format:</dt>
                 <dd>
-                  <strong>{results.serialAnalysis?.formatDescription || 'Unknown'}</strong>
-                  <p class="format-explanation">{results.serialAnalysis?.explanation || 'No analysis available'}</p>
+                  <strong>{serialInfo?.formatDescription || 'Unknown'}</strong>
+                  <p class="format-explanation">{serialInfo?.explanation || 'No analysis available'}</p>
                 </dd>
-
-                {#if results.serialAnalysis?.parsed}
+                {#if serialAnalysis?.parsed}
                   <dt>Parsed Date:</dt>
                   <dd>
-                    {#if results.serialAnalysis.format === 'YYYYMMDDNN'}
+                    {#if serialAnalysis.format === 'YYYYMMDDNN'}
                       <div class="parsed-date">
-                        <span class="date-part">Year: {results.serialAnalysis.parsed.year}</span>
-                        <span class="date-part">Month: {results.serialAnalysis.parsed.month}</span>
-                        <span class="date-part">Day: {results.serialAnalysis.parsed.day}</span>
-                        <span class="date-part">Revision: {results.serialAnalysis.parsed.revision}</span>
+                        <span class="date-part">Year: {serialAnalysis.parsed.year}</span>
+                        <span class="date-part">Month: {serialAnalysis.parsed.month}</span>
+                        <span class="date-part">Day: {serialAnalysis.parsed.day}</span>
+                        <span class="date-part">Revision: {serialAnalysis.parsed.revision}</span>
                       </div>
-                    {:else if results.serialAnalysis.format === 'Unix Timestamp'}
-                      <span class="unix-date">{formatDate(results.serialAnalysis.parsed.timestamp)}</span>
+                    {:else if serialAnalysis.format === 'Unix Timestamp'}
+                      <span class="unix-date">{formatDate(serialAnalysis.parsed.timestamp)}</span>
                     {/if}
                   </dd>
                 {/if}
 
                 <dt>Validity:</dt>
-                <dd class="validity {results.serialAnalysis?.valid ? 'valid' : 'invalid'}">
-                  <Icon name={results.serialAnalysis?.valid ? 'check-circle' : 'x-circle'} size="sm" />
-                  {results.serialAnalysis?.valid ? 'Valid format' : 'Invalid or unusual format'}
+                <dd class="validity {serialAnalysis?.valid ? 'valid' : 'invalid'}">
+                  <Icon name={serialAnalysis?.valid ? 'check-circle' : 'x-circle'} size="sm" />
+                  {serialAnalysis?.valid ? 'Valid format' : 'Invalid or unusual format'}
                 </dd>
               </dl>
             </div>
@@ -261,17 +264,18 @@
           <div class="result-section">
             <h4>SOA Record Details</h4>
             <dl class="definition-list">
+              {@const soaData = (results as {soa?: {mname?: string; rname?: string; ttl?: number}}).soa}
               <dt>Primary Server:</dt>
-              <dd class="mono">{results.soa?.mname || 'Not available'}</dd>
+              <dd class="mono">{soaData?.mname || 'Not available'}</dd>
 
               <dt>Contact Email:</dt>
-              <dd class="mono">{results.soa?.rname || 'Not available'}</dd>
+              <dd class="mono">{soaData?.rname || 'Not available'}</dd>
 
               <dt>TTL:</dt>
               <dd>
-                {#if results.soa?.ttl}
-                  <span class="ttl-value">{results.soa.ttl}s</span>
-                  <small>({formatDuration(results.soa.ttl)})</small>
+                {#if soaData?.ttl}
+                  <span class="ttl-value">{soaData.ttl}s</span>
+                  <small>({formatDuration(soaData.ttl)})</small>
                 {:else}
                   Not available
                 {/if}
@@ -283,38 +287,39 @@
           <div class="result-section full-width">
             <h4>Zone Timing Parameters</h4>
             <div class="timing-grid">
+              {@const timingData = (results as {soa?: {refresh?: number; retry?: number; expire?: number; minimum?: number}}).soa}
               <div class="timing-param">
                 <h5>Refresh</h5>
-                <div class="param-value">{results.soa?.refresh || 0}s</div>
+                <div class="param-value">{timingData?.refresh || 0}s</div>
                 <div class="param-description">
-                  <small>{formatDuration(results.soa?.refresh || 0)}</small>
+                  <small>{formatDuration(timingData?.refresh || 0)}</small>
                   <p>How often secondary servers check for updates</p>
                 </div>
               </div>
 
               <div class="timing-param">
                 <h5>Retry</h5>
-                <div class="param-value">{results.soa?.retry || 0}s</div>
+                <div class="param-value">{timingData?.retry || 0}s</div>
                 <div class="param-description">
-                  <small>{formatDuration(results.soa?.retry || 0)}</small>
+                  <small>{formatDuration(timingData?.retry || 0)}</small>
                   <p>Retry interval after failed refresh attempts</p>
                 </div>
               </div>
 
               <div class="timing-param">
                 <h5>Expire</h5>
-                <div class="param-value">{results.soa?.expire || 0}s</div>
+                <div class="param-value">{timingData?.expire || 0}s</div>
                 <div class="param-description">
-                  <small>{formatDuration(results.soa?.expire || 0)}</small>
+                  <small>{formatDuration(timingData?.expire || 0)}</small>
                   <p>When secondary servers stop serving the zone</p>
                 </div>
               </div>
 
               <div class="timing-param">
                 <h5>Minimum</h5>
-                <div class="param-value">{results.soa?.minimum || 0}s</div>
+                <div class="param-value">{timingData?.minimum || 0}s</div>
                 <div class="param-description">
-                  <small>{formatDuration(results.soa?.minimum || 0)}</small>
+                  <small>{formatDuration(timingData?.minimum || 0)}</small>
                   <p>Minimum TTL for negative responses</p>
                 </div>
               </div>
@@ -326,7 +331,8 @@
             <div class="result-section full-width">
               <h4>Configuration Assessment</h4>
               <div class="assessment-grid">
-                {#each results.assessment as item}
+                {@const assessmentData = (results as {assessment?: Array<{severity: string; aspect: string; message: string; recommendation?: string}>}).assessment}
+                {#each assessmentData || [] as item, itemIndex (itemIndex)}
                   <div class="assessment-item {item.severity}">
                     <Icon
                       name={item.severity === 'good'

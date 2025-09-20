@@ -7,7 +7,7 @@
   let servername = $state('');
   let useCustomServername = $state(false);
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -62,8 +62,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -178,7 +178,7 @@
         <h4>TLS Version Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -301,7 +301,7 @@
           <div class="versions-section">
             <h4>TLS Version Support</h4>
             <div class="versions-grid">
-              {#each tlsVersions as tlsVer}
+              {#each tlsVersions as tlsVer (tlsVer.version)}
                 {@const supported = results.supported[tlsVer.version]}
                 {@const status = getVersionStatus(tlsVer.version, supported, tlsVer.deprecated)}
 

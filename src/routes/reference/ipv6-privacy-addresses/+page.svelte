@@ -2,6 +2,15 @@
   import { ipv6PrivacyContent } from '$lib/content/ipv6-privacy-addresses.js';
 
   import Icon from '$lib/components/global/Icon.svelte';
+
+  interface OSImplementation {
+    os: string;
+    defaultBehavior: string;
+    configuration: string[];
+    commands: string[];
+    values?: string[];
+    behavior?: string;
+  }
 </script>
 
 <div class="page-container">
@@ -116,22 +125,22 @@
                 <code class="example-input">{config}</code>
               {/each}
 
-              {#if (os as any).values}
+              {#if (os as OSImplementation).values}
                 <h4>Values:</h4>
                 <ul>
-                  {#each (os as any).values as value, index (`value-${index}`)}
+                  {#each (os as OSImplementation).values as value, index (`value-${index}`)}
                     <li><code>{value}</code></li>
                   {/each}
                 </ul>
               {/if}
 
               <h4>Useful Commands:</h4>
-              {#each (os as any).commands as command, index (`command-${index}`)}
+              {#each (os as OSImplementation).commands as command, index (`command-${index}`)}
                 <code class="example-input">{command}</code>
               {/each}
 
-              {#if (os as any).behavior}
-                <div><strong>Behavior:</strong> {(os as any).behavior}</div>
+              {#if (os as OSImplementation).behavior}
+                <div><strong>Behavior:</strong> {(os as OSImplementation).behavior}</div>
               {/if}
             </div>
           </div>

@@ -100,7 +100,7 @@ function getNetworkAddress(ip: string, cidr: number): string {
 }
 
 /* Check if networks are contiguous and can be aggregated */
-function areNetworksContiguous(networks: NetworkInput[]): boolean {
+function _areNetworksContiguous(networks: NetworkInput[]): boolean {
   if (networks.length < 2) return true;
 
   // Sort networks by their network address

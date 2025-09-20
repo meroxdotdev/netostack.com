@@ -30,7 +30,18 @@ interface DetailedValidationResponse {
   isValid: boolean;
   errors: string[];
   warnings: string[];
-  details: any;
+  details: {
+    info: string[];
+    normalizedForm?: string;
+    addressType?: string;
+    scope?: string;
+    isPrivate?: boolean;
+    isReserved?: boolean;
+    compressedForm?: string;
+    embeddedIPv4?: string;
+    zoneId?: string;
+    hasEmbeddedIPv4?: boolean;
+  };
 }
 
 export const DEFAULT_TEST_CASES: IPTestCase[] = [
@@ -83,7 +94,7 @@ export function validateIPv4(ip: string): ValidationResult {
 export function validateIPv4Detailed(ip: string): DetailedValidationResponse {
   const errors: string[] = [];
   const warnings: string[] = [];
-  const details: any = { info: [] };
+  const details: DetailedValidationResponse['details'] = { info: [] };
 
   // Check basic format
   if (!ip.includes('.')) {
@@ -210,7 +221,7 @@ export function validateIPv4Detailed(ip: string): DetailedValidationResponse {
 export function validateIPv6Detailed(ip: string): DetailedValidationResponse {
   const errors: string[] = [];
   const warnings: string[] = [];
-  const details: any = { info: [] };
+  const details: DetailedValidationResponse['details'] = { info: [] };
 
   // Check for zone ID (remove it for validation but note it)
   let cleanIP = ip;

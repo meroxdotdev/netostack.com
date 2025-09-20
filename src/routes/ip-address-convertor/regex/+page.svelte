@@ -21,6 +21,7 @@
     <div class="ref-section">
       <h3>{ipAddressValidationContent.sections.ipv4.title}</h3>
       <p>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html ipAddressValidationContent.sections.ipv4.content
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/•/g, '&bull;')}
@@ -30,6 +31,7 @@
     <div class="ref-section">
       <h3>{ipAddressValidationContent.sections.ipv6.title}</h3>
       <p>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html ipAddressValidationContent.sections.ipv6.content
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/•/g, '&bull;')}
@@ -39,6 +41,7 @@
     <div class="ref-section">
       <h3>{ipAddressValidationContent.sections.regexValidation.title}</h3>
       <p>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html ipAddressValidationContent.sections.regexValidation.content
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/•/g, '&bull;')}
@@ -48,7 +51,7 @@
     <div class="ref-section">
       <h3>Example Patterns</h3>
       <div class="examples-grid">
-        {#each Object.values(ipAddressValidationContent.examples) as example}
+        {#each Object.values(ipAddressValidationContent.examples) as example (example.pattern)}
           <div class="example-card">
             <h4>{example.title}</h4>
             <div class="pattern-code">
@@ -77,6 +80,7 @@
     <div class="ref-section">
       <h3>{ipAddressValidationContent.sections.practicalTips.title}</h3>
       <p>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html ipAddressValidationContent.sections.practicalTips.content
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/•/g, '&bull;')}
@@ -86,7 +90,7 @@
     <div class="ref-section">
       <h3>Key Recommendations</h3>
       <div class="recommendations-grid">
-        {#each ipAddressValidationContent.recommendations as rec}
+        {#each ipAddressValidationContent.recommendations as rec (rec.title)}
           <div class="recommendation-card">
             <div class="rec-icon" style="color: {rec.color}">
               <Icon name={rec.icon} size="md" />

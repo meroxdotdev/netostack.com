@@ -22,7 +22,7 @@
   </div>
 
   <div class="tools-grid">
-    {#each zoneTools as tool}
+    {#each zoneTools as tool (tool.href)}
       <a href={tool.href} class="tool-card">
         <div class="tool-icon">
           <Icon name="file-text" size="lg" />

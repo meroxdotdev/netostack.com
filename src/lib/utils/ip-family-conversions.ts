@@ -7,7 +7,7 @@ export interface ConversionResult {
   result?: string;
   error?: string;
   type?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -92,7 +92,7 @@ export function validateIPv6(ip: string): { valid: boolean; error?: string } {
     }
 
     return { valid: true };
-  } catch (error) {
+  } catch {
     return { valid: false, error: 'Invalid IPv6 format' };
   }
 }
@@ -193,13 +193,21 @@ export function ipv6ToIPv4(ipv6: string): ConversionResult {
   };
 }
 
+interface IPv6Info {
+  original: string;
+  cleaned: string;
+  types: string[];
+  description?: string;
+  [key: string]: unknown;
+}
+
 /**
  * Get IPv6 address information and types
  */
-export function getIPv6Info(ipv6: string): Record<string, any> {
+export function getIPv6Info(ipv6: string): IPv6Info {
   const cleanIp = ipv6.replace(/^\[|\]$/g, '').toLowerCase();
 
-  const info: Record<string, any> = {
+  const info: IPv6Info = {
     original: ipv6,
     cleaned: cleanIp,
     types: [],

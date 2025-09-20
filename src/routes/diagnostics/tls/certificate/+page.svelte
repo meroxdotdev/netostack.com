@@ -7,10 +7,15 @@
   let servername = $state('');
   let useCustomServername = $state(false);
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
+
+  interface Certificate {
+    isExpired: boolean;
+    daysUntilExpiry: number;
+  }
 
   const examples = [
     { host: 'google.com:443', description: 'Google TLS certificate' },
@@ -56,8 +61,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -75,7 +80,7 @@
     selectedExampleIndex = null;
   }
 
-  function getExpiryStatus(cert: any): { status: string; icon: string; class: string } {
+  function getExpiryStatus(cert: Certificate): { status: string; icon: string; class: string } {
     if (cert.isExpired) {
       return { status: 'Expired', icon: 'x-circle', class: 'error' };
     }
@@ -133,7 +138,7 @@
         <h4>Certificate Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -283,7 +288,7 @@
                 <div class="detail-section">
                   <h4>Subject Alternative Names</h4>
                   <div class="san-list">
-                    {#each cert.subjectAltNames as san}
+                    {#each cert.subjectAltNames as san, index (index)}
                       <span class="san-item mono">{san}</span>
                     {/each}
                   </div>
@@ -313,7 +318,7 @@
           <div class="chain-section">
             <h4>Certificate Chain ({results.chain.length} certificates)</h4>
             <div class="chain-list">
-              {#each results.chain as chainCert, i}
+              {#each results.chain as chainCert, i (i)}
                 <div class="chain-item">
                   <div class="chain-header">
                     <span class="chain-level">Level {i}</span>

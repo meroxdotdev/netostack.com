@@ -3,7 +3,7 @@
   import DNSSPFBuilder from '$lib/components/tools/DNSSPFBuilder.svelte';
   import '../../../../styles/pages.scss';
 
-  const pageDetails = getPageDetails('/dns/generators/spf-builder');
+  const _pageDetails = getPageDetails('/dns/generators/spf-builder');
 </script>
 
 <DNSSPFBuilder />

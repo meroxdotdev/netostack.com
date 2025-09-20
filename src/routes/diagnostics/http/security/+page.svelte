@@ -6,7 +6,7 @@
 
   let url = $state('https://github.com');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
 
@@ -70,13 +70,15 @@
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch {
+          // Ignore JSON parse errors, use default message
+        }
 
         throw new Error(errorMessage);
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = formatDNSError(err);
     } finally {
       loading = false;
@@ -99,7 +101,7 @@
     });
 
     text += '\nSecurity Analysis:\n';
-    results.analysis.forEach((item: any) => {
+    (results as { analysis: Array<{ header: string; message: string; recommendation?: string }> }).analysis.forEach((item) => {
       text += `• ${item.header}: ${item.message}\n`;
       if (item.recommendation) {
         text += `  Recommendation: ${item.recommendation}\n`;
@@ -141,8 +143,8 @@
     if (!results?.analysis) return { score: 0, grade: 'F', class: 'error' };
 
     const total = results.analysis.length;
-    const present = results.analysis.filter((a: any) => a.status === 'present').length;
-    const weak = results.analysis.filter((a: any) => a.status === 'weak').length;
+    const present = (results as { analysis: Array<{ status: string }> }).analysis.filter((a) => a.status === 'present').length;
+    const weak = (results as { analysis: Array<{ status: string }> }).analysis.filter((a) => a.status === 'weak').length;
 
     const score = Math.round(((present + weak * 0.5) / total) * 100);
 
@@ -187,7 +189,7 @@
         <h4>Security Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example, index (index)}
           <button class="example-card" onclick={() => loadExample(example)}>
             <h5>{example.url}</h5>
             <p>{example.description}</p>
@@ -263,7 +265,7 @@
           <div class="status-item">
             <Icon name="check-circle" size="sm" />
             <div>
-              <strong>{results.analysis?.filter((a: any) => a.status === 'present').length || 0}</strong>
+              <strong>{(results as { analysis?: Array<{ status: string }> })?.analysis?.filter((a) => a.status === 'present').length || 0}</strong>
               <div class="status-text">Headers Present</div>
             </div>
           </div>
@@ -271,7 +273,7 @@
           <div class="status-item">
             <Icon name="alert-triangle" size="sm" />
             <div>
-              <strong>{results.analysis?.filter((a: any) => a.status === 'missing').length || 0}</strong>
+              <strong>{(results as { analysis?: Array<{ status: string }> })?.analysis?.filter((a) => a.status === 'missing').length || 0}</strong>
               <div class="status-text">Headers Missing</div>
             </div>
           </div>
@@ -281,7 +283,7 @@
         <div class="record-section">
           <h4>Security Header Analysis</h4>
           <div class="security-analysis">
-            {#each results.analysis as analysis}
+            {#each results.analysis as analysis, index (index)}
               <div class="analysis-item {getAnalysisClass(analysis.status)}">
                 <div class="analysis-header">
                   <div class="analysis-status">
@@ -309,7 +311,7 @@
           <div class="record-section">
             <h4>Security Headers Found</h4>
             <div class="records-list">
-              {#each Object.entries(results.headers) as [name, value]}
+              {#each Object.entries(results.headers) as [name, value], index (index)}
                 <div class="record-item">
                   <div class="record-data">
                     <strong>{name}:</strong>

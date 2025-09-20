@@ -1,6 +1,6 @@
 <script lang="ts">
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
-  import { SUB_NAV, type NavGroup, type NavItem } from '$lib/constants/nav';
+  import { SUB_NAV, type NavGroup } from '$lib/constants/nav';
 
   // Extract set operations tools from the CIDR section
   const cidrNav = SUB_NAV['/cidr'] || [];

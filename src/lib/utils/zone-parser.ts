@@ -128,7 +128,7 @@ function isValidIPv6(ip: string): boolean {
   return ipv6Regex.test(ip) || ip === '::' || /^::1$/.test(ip);
 }
 
-function validateRData(type: string, rdata: string, owner: string): void {
+function validateRData(type: string, rdata: string, _owner: string): void {
   switch (type) {
     case 'A':
       if (!isValidIPv4(rdata)) {
@@ -153,7 +153,7 @@ function validateRData(type: string, rdata: string, owner: string): void {
       }
       break;
 
-    case 'MX':
+    case 'MX': {
       const mxParts = rdata.trim().split(/\s+/);
       if (mxParts.length !== 2) {
         throw new Error('MX record must have format "priority target"');
@@ -166,8 +166,9 @@ function validateRData(type: string, rdata: string, owner: string): void {
         throw new Error(`Invalid MX target: "${mxParts[1]}"`);
       }
       break;
+    }
 
-    case 'SOA':
+    case 'SOA': {
       const soaParts = rdata.trim().split(/\s+/);
       if (soaParts.length < 7) {
         throw new Error('SOA record must have 7 fields: mname rname serial refresh retry expire minimum');
@@ -186,8 +187,9 @@ function validateRData(type: string, rdata: string, owner: string): void {
         }
       }
       break;
+    }
 
-    case 'SRV':
+    case 'SRV': {
       const srvParts = rdata.trim().split(/\s+/);
       if (srvParts.length !== 4) {
         throw new Error('SRV record must have format "priority weight port target"');
@@ -209,6 +211,7 @@ function validateRData(type: string, rdata: string, owner: string): void {
         throw new Error(`Invalid SRV target: "${srvParts[3]}"`);
       }
       break;
+    }
 
     case 'TXT':
       // TXT records can contain any text, but should be properly quoted if containing spaces
@@ -217,7 +220,7 @@ function validateRData(type: string, rdata: string, owner: string): void {
       }
       break;
 
-    case 'CAA':
+    case 'CAA': {
       const caaParts = rdata.trim().split(/\s+/);
       if (caaParts.length < 3) {
         throw new Error('CAA record must have format "flags tag value"');
@@ -227,6 +230,7 @@ function validateRData(type: string, rdata: string, owner: string): void {
         throw new Error(`Invalid CAA flags: ${caaParts[0]} (must be 0-255)`);
       }
       break;
+    }
 
     default:
       // For other record types, just ensure RDATA is not empty
@@ -349,8 +353,6 @@ function parseResourceRecord(
   let owner = parts[0];
   let ttl: number | undefined;
   let recordClass = DEFAULT_CLASS;
-  let type: string;
-  let rdata: string;
   let partIndex = 1;
 
   // Handle implicit owner (blank or continuation)
@@ -384,7 +386,7 @@ function parseResourceRecord(
   if (partIndex >= parts.length) {
     throw new Error('Missing record type');
   }
-  type = parts[partIndex].toUpperCase();
+  const type = parts[partIndex].toUpperCase();
   partIndex++;
 
   // Validate record type
@@ -417,7 +419,7 @@ function parseResourceRecord(
   if (partIndex >= parts.length) {
     throw new Error(`Missing RDATA for ${type} record`);
   }
-  rdata = parts.slice(partIndex).join(' ');
+  const rdata = parts.slice(partIndex).join(' ');
 
   // Validate RDATA based on record type
   validateRData(type, rdata, owner);

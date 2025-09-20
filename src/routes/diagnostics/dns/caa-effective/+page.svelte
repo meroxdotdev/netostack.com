@@ -6,7 +6,7 @@
 
   let domainName = $state('github.com');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -77,7 +77,7 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = formatDNSError(err);
     } finally {
       loading = false;
@@ -166,7 +166,7 @@
 
     if (results.chain?.length > 0) {
       text += `CAA Chain (walked up from ${domainName}):\n`;
-      results.chain.forEach((item: any, index: number) => {
+      results.chain.forEach((item: unknown, index: number) => {
         text += `${index + 1}. ${item.domain}:\n`;
         item.records.forEach((record: string) => {
           text += `   ${record}\n`;
@@ -203,7 +203,7 @@
         <h4>CAA Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -285,7 +285,7 @@
               </div>
 
               <div class="caa-records">
-                {#each results.effective.records as record}
+                {#each results.effective.records as record, index (index)}
                   {@const parsed = parseCAA(record)}
                   {#if parsed}
                     <div class="caa-record {getTagColor(parsed.tag)}">
@@ -355,7 +355,7 @@
             </p>
 
             <div class="domain-chain">
-              {#each results.chain as item, index}
+              {#each results.chain as item, index (index)}
                 {@const isEffective = item.domain === results.effective?.domain}
                 <div class="chain-item {isEffective ? 'effective' : 'empty'}">
                   <div class="chain-connector">
@@ -393,7 +393,7 @@
 
                     {#if item.records?.length > 0}
                       <div class="chain-records">
-                        {#each item.records as record}
+                        {#each item.records as record, index (index)}
                           <div class="chain-record">
                             <code>{record}</code>
                           </div>

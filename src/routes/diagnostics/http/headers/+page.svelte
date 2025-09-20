@@ -1,14 +1,14 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  import { isValidDomainName, formatDNSError } from '$lib/utils/dns-validation.js';
+  import { formatDNSError } from '$lib/utils/dns-validation.js';
   import '../../../../styles/diagnostics-pages.scss';
 
   let url = $state('https://example.com');
   let method = $state('GET');
   let customHeadersText = $state('');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -99,13 +99,15 @@
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch {
+          // Ignore JSON parse errors, use default message
+        }
 
         throw new Error(errorMessage);
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = formatDNSError(err);
     } finally {
       loading = false;
@@ -174,7 +176,7 @@
         <h4>Header Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -227,7 +229,7 @@
                 if (isInputValid()) checkHeaders();
               }}
             >
-              {#each methods as methodOption}
+              {#each methods as methodOption (methodOption)}
                 <option value={methodOption}>{methodOption}</option>
               {/each}
             </select>
@@ -313,7 +315,7 @@
         <div class="record-section card">
           <h4>Response Headers</h4>
           <div class="records-list">
-            {#each Object.entries(results.headers) as [name, value]}
+            {#each Object.entries(results.headers) as [name, value] (name)}
               <div class="record-item">
                 <div class="record-data">
                   <strong>{name}:</strong>

@@ -5,7 +5,7 @@
 
   let domain = $state('google.com');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -39,7 +39,7 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = err.message;
     } finally {
       loading = false;
@@ -205,7 +205,7 @@
         <h4>DMARC Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -463,7 +463,7 @@
             <div class="issues-section">
               <h4>Issues & Recommendations</h4>
               <div class="issues-list">
-                {#each issues as issue}
+                {#each issues as issue, index (index)}
                   <div class="issue-item {getSeverityColor(issue.severity)}">
                     <Icon
                       name={issue.severity === 'high'

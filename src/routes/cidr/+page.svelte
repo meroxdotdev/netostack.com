@@ -38,7 +38,7 @@
   <section class="concepts-section">
     <h2>Essential CIDR Concepts</h2>
     <div class="concepts-grid">
-      {#each cidrContent.coreConcepts as concept}
+      {#each cidrContent.coreConcepts as concept, index (index)}
         <div class="concept-card" style="--accent-color: {concept.color}">
           <div class="concept-header">
             <Icon name={concept.icon} size="md" />
@@ -56,7 +56,7 @@
     <h2>What is CIDR?</h2>
     <div class="about-grid">
       <div class="about-content">
-        {#each cidrContent.aboutSection.content as paragraph, i}
+        {#each cidrContent.aboutSection.content as paragraph, i (i)}
           <p>
             {#if i === 0}
               <strong>CIDR (Classless Inter-Domain Routing)</strong>
@@ -69,7 +69,7 @@
       </div>
       <div class="benefits-list">
         <h3>Why CIDR Matters</h3>
-        {#each cidrContent.aboutSection.advantages as advantage}
+        {#each cidrContent.aboutSection.advantages as advantage, index (index)}
           <div class="benefit-item">
             <strong>{advantage.title}:</strong>
             {advantage.description}
@@ -93,7 +93,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each cidrContent.commonSizes as size}
+          {#each cidrContent.commonSizes as size, index (index)}
             <tr class="size-row" style="--row-color: {size.color}">
               <td class="cidr-cell"><strong>{size.cidr}</strong></td>
               <td class="mask-cell"><code>{size.mask}</code></td>
@@ -114,7 +114,7 @@
   <section class="how-it-works">
     <h2>How CIDR Works</h2>
     <div class="explanation-grid">
-      {#each cidrContent.howItWorks as item}
+      {#each cidrContent.howItWorks as item, index (index)}
         <div class="explanation-item {item.type}">
           <h3>{item.title}</h3>
           <p>{item.content}</p>
@@ -133,7 +133,7 @@
               {#if item.example.before}
                 <div class="before">
                   <strong>{item.example.before.title}</strong><br />
-                  {#each item.example.before.content as line}
+                  {#each item.example.before.content as line, index (index)}
                     {line}<br />
                   {/each}
                 </div>
@@ -142,7 +142,7 @@
               {#if item.example.after}
                 <div class="after">
                   <strong>{item.example.after.title}</strong><br />
-                  {#each item.example.after.content as line}
+                  {#each item.example.after.content as line, index (index)}
                     {line}<br />
                   {/each}
                 </div>
@@ -163,11 +163,11 @@
   <section class="quick-reference">
     <h2>Quick Reference</h2>
     <div class="reference-grid">
-      {#each cidrContent.quickReference as card}
+      {#each cidrContent.quickReference as card, index (index)}
         <div class="reference-card no-hover">
           <h3>{card.title}</h3>
           <ul>
-            {#each card.items as item}
+            {#each card.items as item, index (index)}
               <li>{item}</li>
             {/each}
           </ul>

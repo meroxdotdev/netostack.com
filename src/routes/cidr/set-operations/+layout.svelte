@@ -10,7 +10,7 @@
   <p>{setOperationsContent.description}</p>
 
   <div class="operations-grid">
-    {#each setOperationsContent.operations as operation}
+    {#each setOperationsContent.operations as operation, index (index)}
       <div class="operation-card">
         <div class="operation-header">
           <div class="operation-symbol">{operation.symbol}</div>
@@ -27,11 +27,11 @@
   <div class="patterns-section">
     <h4>Common Network Patterns</h4>
     <div class="patterns-grid">
-      {#each setOperationsContent.patterns as pattern}
+      {#each setOperationsContent.patterns as pattern, index (index)}
         <div class="pattern-card">
           <h5><Icon name={pattern.icon} size="sm" /> {pattern.title}</h5>
           <ul>
-            {#each pattern.items as item}
+            {#each pattern.items as item, index (index)}
               <li><strong>{item.term}:</strong> {item.description}</li>
             {/each}
           </ul>
@@ -43,7 +43,7 @@
   <div class="notes-section">
     <h4>Implementation Notes</h4>
     <div class="notes-grid">
-      {#each setOperationsContent.notes as note}
+      {#each setOperationsContent.notes as note, index (index)}
         <div class="note-item">
           <h5>{note.title}</h5>
           <p>{note.content}</p>
@@ -55,7 +55,7 @@
   <div class="best-practices info-panel info">
     <h4>Best Practices</h4>
     <ul>
-      {#each setOperationsContent.bestPractices as practice}
+      {#each setOperationsContent.bestPractices as practice, index (index)}
         <li><strong>{practice.term}:</strong> {practice.description}</li>
       {/each}
     </ul>

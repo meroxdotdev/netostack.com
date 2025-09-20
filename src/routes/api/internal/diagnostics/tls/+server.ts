@@ -1,6 +1,5 @@
 import { json, error } from '@sveltejs/kit';
 import * as tls from 'node:tls';
-import * as net from 'node:net';
 import type { RequestHandler } from './$types';
 
 type Action = 'certificate' | 'versions' | 'alpn';
@@ -43,7 +42,7 @@ function parseHost(hostPort: string): { host: string; port: number } {
   return { host: hostPort, port: 443 };
 }
 
-function formatCertificate(cert: any): any {
+function formatCertificate(cert: unknown): unknown {
   const now = Date.now();
   const validFrom = new Date(cert.valid_from).getTime();
   const validTo = new Date(cert.valid_to).getTime();
@@ -77,13 +76,13 @@ function formatCertificate(cert: any): any {
   };
 }
 
-async function getCertificateInfo(host: string, port: number, servername?: string): Promise<any> {
+async function getCertificateInfo(host: string, port: number, servername?: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       reject(new Error('Connection timeout'));
     }, 10000);
 
-    const options: any = {
+    const options: unknown = {
       host,
       port,
       servername: servername || host,
@@ -91,7 +90,7 @@ async function getCertificateInfo(host: string, port: number, servername?: strin
       timeout: 10000,
     };
 
-    const socket = (tls as any).connect(options, () => {
+    const socket = (tls as unknown).connect(options, () => {
       clearTimeout(timeout);
 
       const cert = socket.getPeerCertificate(true);
@@ -105,18 +104,18 @@ async function getCertificateInfo(host: string, port: number, servername?: strin
       } else {
         // Fallback: Check if ALPN was negotiated by accessing internal properties
         try {
-          const tlsSocket = socket as any;
+          const tlsSocket = socket as unknown;
           if (tlsSocket.alpnProtocol) {
             alpnProtocol = tlsSocket.alpnProtocol;
           } else if (tlsSocket._handle && tlsSocket._handle.getALPNProtocol) {
             alpnProtocol = tlsSocket._handle.getALPNProtocol();
           }
-        } catch (e) {
+        } catch {
           // Ignore errors from accessing internal properties
         }
       }
 
-      const chain: any[] = [];
+      const chain: unknown[] = [];
       let currentCert = cert;
 
       while (currentCert && Object.keys(currentCert).length > 0) {
@@ -145,7 +144,7 @@ async function getCertificateInfo(host: string, port: number, servername?: strin
       resolve(result);
     });
 
-    socket.on('error', (err: any) => {
+    socket.on('error', (err: unknown) => {
       clearTimeout(timeout);
       reject(err);
     });
@@ -158,7 +157,7 @@ async function getCertificateInfo(host: string, port: number, servername?: strin
   });
 }
 
-async function probeTLSVersions(host: string, port: number, servername?: string): Promise<any> {
+async function probeTLSVersions(host: string, port: number, servername?: string): Promise<unknown> {
   const results: { [key: string]: boolean } = {};
   const errors: { [key: string]: string } = {};
 
@@ -169,7 +168,7 @@ async function probeTLSVersions(host: string, port: number, servername?: string)
           reject(new Error('Timeout'));
         }, 5000);
 
-        const options: any = {
+        const options: unknown = {
           host,
           port,
           servername: servername || host,
@@ -179,14 +178,14 @@ async function probeTLSVersions(host: string, port: number, servername?: string)
           timeout: 5000,
         };
 
-        const socket = (tls as any).connect(options, () => {
+        const socket = (tls as unknown).connect(options, () => {
           clearTimeout(timeout);
           results[version] = true;
           socket.end();
           resolve();
         });
 
-        socket.on('error', (err: any) => {
+        socket.on('error', (err: unknown) => {
           clearTimeout(timeout);
           results[version] = false;
           errors[version] = err.message;
@@ -201,7 +200,7 @@ async function probeTLSVersions(host: string, port: number, servername?: string)
           resolve();
         });
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       results[version] = false;
       errors[version] = err.message;
     }
@@ -221,13 +220,13 @@ async function probeTLSVersions(host: string, port: number, servername?: string)
   };
 }
 
-async function probeALPN(host: string, port: number, protocols: string[], servername?: string): Promise<any> {
+async function probeALPN(host: string, port: number, protocols: string[], servername?: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       reject(new Error('Connection timeout'));
     }, 10000);
 
-    const options: any = {
+    const options: unknown = {
       host,
       port,
       servername: servername || host,
@@ -236,7 +235,7 @@ async function probeALPN(host: string, port: number, protocols: string[], server
       timeout: 10000,
     };
 
-    const socket = (tls as any).connect(options, () => {
+    const socket = (tls as unknown).connect(options, () => {
       clearTimeout(timeout);
 
       let negotiatedProtocol = null;
@@ -248,13 +247,13 @@ async function probeALPN(host: string, port: number, protocols: string[], server
         // Fallback: Check if ALPN was negotiated by accessing internal properties
         // This is a workaround for older Node.js versions
         try {
-          const tlsSocket = socket as any;
+          const tlsSocket = socket as unknown;
           if (tlsSocket.alpnProtocol) {
             negotiatedProtocol = tlsSocket.alpnProtocol;
           } else if (tlsSocket._handle && tlsSocket._handle.getALPNProtocol) {
             negotiatedProtocol = tlsSocket._handle.getALPNProtocol();
           }
-        } catch (e) {
+        } catch {
           // Ignore errors from accessing internal properties
         }
       }
@@ -273,7 +272,7 @@ async function probeALPN(host: string, port: number, protocols: string[], server
       resolve(result);
     });
 
-    socket.on('error', (err: any) => {
+    socket.on('error', (err: unknown) => {
       clearTimeout(timeout);
       reject(err);
     });
@@ -313,9 +312,9 @@ export const POST: RequestHandler = async ({ request }) => {
       }
 
       default:
-        throw error(400, `Unknown action: ${(body as any).action}`);
+        throw error(400, `Unknown action: ${(body as unknown).action}`);
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('TLS API error:', err);
     throw error(500, `TLS operation failed: ${err.message}`);
   }

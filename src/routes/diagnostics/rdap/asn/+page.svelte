@@ -5,7 +5,7 @@
 
   let asn = $state('AS15169');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -40,7 +40,7 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = err.message;
     } finally {
       loading = false;
@@ -82,13 +82,13 @@
     }
   }
 
-  function formatContact(contact: any): string {
+  function formatContact(contact: { handle?: string; vcardArray?: [string, Array<[string, unknown, string, unknown]>] }): string {
     const vcard = contact.vcardArray;
     if (!vcard || !vcard[1]) return contact.handle || 'Unknown';
 
     const properties = vcard[1];
-    const name = properties.find((p: any) => p[0] === 'fn')?.[3] || contact.handle;
-    const org = properties.find((p: any) => p[0] === 'org')?.[3]?.[0];
+    const name = properties.find((p) => p[0] === 'fn')?.[3] || contact.handle;
+    const org = properties.find((p) => p[0] === 'org')?.[3]?.[0];
 
     return org ? `${name} (${org})` : name;
   }
@@ -115,7 +115,7 @@
         <h4>Common ASN Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -229,7 +229,7 @@
               <dd>
                 {#if results.data.status?.length}
                   <div class="status-list">
-                    {#each results.data.status as status}
+                    {#each results.data.status as status, index (index)}
                       <span class="status-badge">{status}</span>
                     {/each}
                   </div>
@@ -251,7 +251,7 @@
             <div class="result-section full-width">
               <h4>Contact Information</h4>
               <div class="contacts-grid">
-                {#each results.data.contacts as contact}
+                {#each results.data.contacts as contact, index (index)}
                   <div class="contact-card">
                     <h5>
                       {#if contact.roles?.includes('registrant')}
@@ -272,7 +272,7 @@
                     {/if}
                     {#if contact.roles}
                       <div class="roles-list">
-                        {#each contact.roles as role}
+                        {#each contact.roles as role, index (index)}
                           <span class="role-badge">{role}</span>
                         {/each}
                       </div>

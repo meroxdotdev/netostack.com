@@ -69,10 +69,12 @@ declare module 'perf_hooks' {
 }
 
 declare global {
-  function setImmediate(callback: (...args: any[]) => void, ...args: any[]): NodeJS.Immediate;
+  function setImmediate(callback: (...args: unknown[]) => void, ...args: unknown[]): NodeJS.Immediate;
   function clearImmediate(immediate: NodeJS.Immediate): void;
 
   namespace NodeJS {
-    interface Immediate {}
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface Immediate {
+    }
   }
 }

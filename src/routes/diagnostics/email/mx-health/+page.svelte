@@ -5,7 +5,7 @@
 
   let domain = $state('gmail.com');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -41,8 +41,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -62,8 +62,9 @@
     return isHealthy ? 'success' : 'error';
   }
 
-  function getPortStatus(portCheck: any): string {
-    return portCheck.open ? 'success' : 'error';
+  function getPortStatus(portCheck: unknown): string {
+    const check = portCheck as {open?: boolean};
+    return check.open ? 'success' : 'error';
   }
 
   function getPortDescription(port: number): string {
@@ -95,8 +96,16 @@
     text += `  Redundancy: ${results.summary.hasRedundancy ? 'Yes' : 'No'}\n\n`;
 
     text += `MX Records (by priority):\n`;
-    results.mxRecords.forEach((mx: any, index: number) => {
-      text += `${index + 1}. ${mx.exchange} (Priority: ${mx.priority})\n`;
+    type MxRecord = {
+      exchange: string;
+      priority: number;
+      error?: string;
+      addresses?: {ipv4: string[]; ipv6: string[]};
+      portChecks?: Array<{port: number; open: boolean; latency?: number}>;
+    };
+    const mxRecords = (results as {mxRecords: MxRecord[]}).mxRecords;
+    mxRecords.forEach((mx, _index) => {
+      text += `${_index + 1}. ${mx.exchange} (Priority: ${mx.priority})\n`;
       if (mx.error) {
         text += `   Error: ${mx.error}\n`;
       } else if (mx.addresses) {
@@ -104,7 +113,7 @@
         text += `   IPv6: ${mx.addresses.ipv6.join(', ') || 'None'}\n`;
         if (mx.portChecks) {
           text += `   Port checks:\n`;
-          mx.portChecks.forEach((port: any) => {
+          mx.portChecks.forEach((port) => {
             text += `     ${port.port}: ${port.open ? 'Open' : 'Closed'}`;
             if (port.latency) text += ` (${port.latency}ms)`;
             text += `\n`;
@@ -137,7 +146,7 @@
         <h4>MX Health Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -272,7 +281,7 @@
         <div class="mx-section">
           <h4>MX Records (by priority)</h4>
           <div class="mx-list">
-            {#each results.mxRecords as mx, index}
+            {#each (results as {mxRecords: Array<{error?: string; exchange: string; priority: number; addresses?: {ipv4: string[]; ipv6: string[]}; portChecks?: Array<{port: number; open: boolean; latency?: number}>}>}).mxRecords as mx, _index (_index)}
               <div class="mx-record {mx.error ? 'error' : 'success'}">
                 <div class="mx-header">
                   <div class="mx-info">
@@ -307,7 +316,7 @@
                         </div>
                         <div class="address-list">
                           {#if mx.addresses.ipv4.length > 0}
-                            {#each mx.addresses.ipv4 as ip}
+                            {#each mx.addresses.ipv4 as ip, ipIndex (ipIndex)}
                               <code class="ip-address">{ip}</code>
                             {/each}
                           {:else}
@@ -323,7 +332,7 @@
                         </div>
                         <div class="address-list">
                           {#if mx.addresses.ipv6.length > 0}
-                            {#each mx.addresses.ipv6 as ip}
+                            {#each mx.addresses.ipv6 as ip, ipIndex (ipIndex)}
                               <code class="ip-address">{ip}</code>
                             {/each}
                           {:else}
@@ -341,7 +350,7 @@
                           <span>SMTP Port Connectivity</span>
                         </div>
                         <div class="port-checks">
-                          {#each mx.portChecks as portCheck}
+                          {#each mx.portChecks || [] as portCheck, portIndex (portIndex)}
                             <div class="port-check {getPortStatus(portCheck)}">
                               <div class="port-info">
                                 <span class="port-number">{portCheck.port}</span>

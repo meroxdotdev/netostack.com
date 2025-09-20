@@ -5,7 +5,7 @@
 
   let domain = $state('gmail.com');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -39,8 +39,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -100,12 +100,13 @@
       text += `  Allows All (+all): ${results.emailAnalysis.allowsAll ? 'Yes' : 'No'}\n\n`;
     }
 
-    if (results.expanded) {
+    const expandedResults = results as {expanded?: {mechanisms: string[]; includes: Array<{domain: string}>}; lookupCount?: number};
+    if (expandedResults.expanded) {
       text += `Expanded SPF Analysis:\n`;
-      text += `  Total DNS lookups: ${results.lookupCount || 0}\n`;
-      text += `  Mechanisms: ${results.expanded.mechanisms.join(', ')}\n`;
-      if (results.expanded.includes.length > 0) {
-        text += `  Includes: ${results.expanded.includes.map((inc: any) => inc.domain).join(', ')}\n`;
+      text += `  Total DNS lookups: ${expandedResults.lookupCount || 0}\n`;
+      text += `  Mechanisms: ${expandedResults.expanded.mechanisms.join(', ')}\n`;
+      if (expandedResults.expanded.includes.length > 0) {
+        text += `  Includes: ${expandedResults.expanded.includes.map((inc) => inc.domain).join(', ')}\n`;
       }
     }
 
@@ -132,7 +133,7 @@
         <h4>SPF Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -314,7 +315,8 @@
                 <div class="mechanisms-section">
                   <h5>Direct Mechanisms</h5>
                   <div class="mechanism-list">
-                    {#each results.expanded.mechanisms as mechanism}
+                    {@const spfExpanded = (results as {expanded: {mechanisms: string[]}}).expanded}
+                    {#each spfExpanded.mechanisms as mechanism, mechanismIndex (mechanismIndex)}
                       <div class="mechanism-item">
                         <code>{mechanism}</code>
                         <span class="mechanism-description">
@@ -357,7 +359,8 @@
                 <div class="includes-section">
                   <h5>Included SPF Policies</h5>
                   <div class="include-list">
-                    {#each results.expanded.includes as include}
+                    {@const spfIncludes = (results as {expanded: {includes: Array<{domain: string; result: {record?: string}}>}}).expanded}
+                    {#each spfIncludes.includes as include, includeIndex (includeIndex)}
                       <div class="include-item">
                         <div class="include-header">
                           <Icon name="external-link" size="xs" />

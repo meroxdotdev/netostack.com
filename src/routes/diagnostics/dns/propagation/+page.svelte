@@ -6,7 +6,7 @@
   let domainName = $state('example.com');
   let recordType = $state('A');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let lastQuery = $state<{ domain: string; type: string } | null>(null);
@@ -58,8 +58,8 @@
 
       const data = await response.json();
       results = data.results;
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -76,45 +76,61 @@
     selectedExampleIndex = null;
   }
 
-  function getStatusColor(result: any): string {
-    if (result.error) return 'error';
-    if (!result.result?.Answer?.length) return 'warning';
+  function getStatusColor(result: unknown): string {
+    const res = result as {error?: string; result?: {Answer?: unknown[]}};
+    if (res.error) return 'error';
+    if (!res.result?.Answer?.length) return 'warning';
     return 'success';
   }
 
-  function getStatusIcon(result: any): string {
-    if (result.error) return 'x-circle';
-    if (!result.result?.Answer?.length) return 'alert-triangle';
+  function getStatusIcon(result: unknown): string {
+    const res = result as {error?: string; result?: {Answer?: unknown[]}};
+    if (res.error) return 'x-circle';
+    if (!res.result?.Answer?.length) return 'alert-triangle';
     return 'check-circle';
   }
 
   function areResultsConsistent(): boolean {
-    if (!results || results.length === 0) return false;
+    const resultsArray = results as unknown[];
+    if (!results || resultsArray.length === 0) return false;
 
-    const successfulResults = results.filter((r: any) => !r.error && r.result?.Answer?.length > 0);
+    type DnsResult = {error?: string; result?: {Answer?: Array<{data: string}>}};
+    const successfulResults = resultsArray.filter((r: unknown) => {
+      const res = r as DnsResult;
+      return !res.error && (res.result?.Answer?.length || 0) > 0;
+    }) as DnsResult[];
     if (successfulResults.length === 0) return false;
 
-    const firstAnswer = successfulResults[0].result.Answer.map((a: any) => a.data).sort();
-    return successfulResults.every((r: any) => {
-      const answers = r.result.Answer.map((a: any) => a.data).sort();
+    const firstAnswer = successfulResults[0].result!.Answer!.map((a) => a.data).sort();
+    return successfulResults.every((r) => {
+      const answers = r.result!.Answer!.map((a) => a.data).sort();
       return JSON.stringify(answers) === JSON.stringify(firstAnswer);
     });
   }
 
   async function copyAllResults() {
-    if (!results?.length) return;
+    const resultsArray = results as unknown[];
+    if (!resultsArray?.length) return;
 
-    let text = `DNS Propagation Check for ${lastQuery?.domain} (${lastQuery?.type})\n`;
+    const query = lastQuery as {domain?: string; type?: string};
+    let text = `DNS Propagation Check for ${query?.domain} (${query?.type})\n`;
     text += `Checked at: ${new Date().toISOString()}\n\n`;
 
-    results.forEach((result: any) => {
-      const info = resolverInfo[result.resolver as keyof typeof resolverInfo];
-      text += `${info?.name || result.resolver} (${info?.ip || 'N/A'}):\n`;
+    type PropagationResult = {
+      resolver: string;
+      error?: string;
+      result?: {Answer?: Array<{data: string; TTL?: number}>};
+    };
 
-      if (result.error) {
-        text += `  Error: ${result.error}\n`;
-      } else if (result.result?.Answer?.length > 0) {
-        result.result.Answer.forEach((answer: any) => {
+    resultsArray.forEach((result: unknown) => {
+      const res = result as PropagationResult;
+      const info = resolverInfo[res.resolver as keyof typeof resolverInfo];
+      text += `${info?.name || res.resolver} (${info?.ip || 'N/A'}):\n`;
+
+      if (res.error) {
+        text += `  Error: ${res.error}\n`;
+      } else if (res.result?.Answer?.length) {
+        res.result.Answer.forEach((answer) => {
           text += `  ${answer.data}${answer.TTL ? ` (TTL: ${answer.TTL}s)` : ''}\n`;
         });
       } else {
@@ -146,7 +162,7 @@
         <h4>Propagation Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -195,7 +211,7 @@
                 if (domainName) checkPropagation();
               }}
             >
-              {#each recordTypes as type}
+              {#each recordTypes as type (type.value)}
                 <option value={type.value} title={type.description}>{type.label}</option>
               {/each}
             </select>
@@ -246,31 +262,33 @@
       </div>
       <div class="card-content">
         <div class="resolvers-grid">
-          {#each results as result}
-            {@const info = resolverInfo[result.resolver as keyof typeof resolverInfo]}
+          {#each results as result, resultIndex (resultIndex)}
+            {@const res = result as {resolver: string}}
+            {@const info = resolverInfo[res.resolver as keyof typeof resolverInfo]}
             {@const status = getStatusColor(result)}
             {@const icon = getStatusIcon(result)}
+            {@const resultData = result as {error?: string; result?: {Answer?: Array<{data: string; TTL?: number}>}}}
 
             <div class="resolver-card card {status}">
               <div class="resolver-header">
                 <div class="resolver-info">
                   <Icon name={icon} size="sm" />
                   <div>
-                    <h4>{info?.name || result.resolver}</h4>
+                    <h4>{info?.name || res.resolver}</h4>
                     <p>{info?.ip || 'Custom'} • {info?.location || 'Unknown'}</p>
                   </div>
                 </div>
               </div>
 
               <div class="resolver-content">
-                {#if result.error}
+                {#if resultData.error}
                   <div class="error-message">
                     <Icon name="alert-triangle" size="xs" />
-                    <span>Error: {result.error}</span>
+                    <span>Error: {resultData.error}</span>
                   </div>
-                {:else if result.result?.Answer?.length > 0}
+                {:else if resultData.result?.Answer?.length}
                   <div class="records">
-                    {#each result.result.Answer as record}
+                    {#each resultData.result.Answer as record, recordIndex (recordIndex)}
                       <div class="record">
                         <span class="record-data mono">{record.data}</span>
                         {#if record.TTL}
@@ -291,8 +309,9 @@
         </div>
 
         {#if lastQuery}
+          {@const queryInfo = lastQuery as {domain: string; type: string}}
           <div class="query-info">
-            <span>Last checked: {lastQuery.domain} ({lastQuery.type}) at {new Date().toLocaleString()}</span>
+            <span>Last checked: {queryInfo.domain} ({queryInfo.type}) at {new Date().toLocaleString()}</span>
           </div>
         {/if}
       </div>
@@ -365,7 +384,7 @@
         <div class="info-section">
           <h4>DNS Resolvers Tested</h4>
           <div class="resolvers-info">
-            {#each Object.entries(resolverInfo) as [key, info]}
+            {#each Object.entries(resolverInfo) as [_key, info] (_key)}
               <div class="resolver-info-item">
                 <strong>{info.name}</strong> ({info.ip})
                 <span>{info.location}</span>

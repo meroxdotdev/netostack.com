@@ -8,7 +8,7 @@
   let origin = $state('https://example.com');
   let method = $state('GET');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
 
@@ -96,13 +96,15 @@
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch {
+          // Intentionally empty
+        }
 
         throw new Error(errorMessage);
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = formatDNSError(err);
     } finally {
       loading = false;
@@ -192,7 +194,7 @@
         <h4>CORS Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example}
+        {#each examples as example, index (index)}
           <button class="example-card" onclick={() => loadExample(example)}>
             <h5>{example.url}</h5>
             <p>{example.description}</p>
@@ -257,7 +259,7 @@
                 if (isInputValid()) checkCORS();
               }}
             >
-              {#each methods as methodOption}
+              {#each methods as methodOption (methodOption)}
                 <option value={methodOption}>{methodOption}</option>
               {/each}
             </select>
@@ -370,7 +372,7 @@
           <div class="record-section">
             <h4>Allowed Methods</h4>
             <div class="method-list">
-              {#each results.analysis.allowedMethods as allowedMethod}
+              {#each results.analysis.allowedMethods as allowedMethod, index (index)}
                 <span class="method-badge {method === allowedMethod ? 'active' : ''}">{allowedMethod}</span>
               {/each}
             </div>
@@ -382,7 +384,7 @@
           <div class="record-section">
             <h4>Allowed Headers</h4>
             <div class="header-list">
-              {#each results.analysis.allowedHeaders as header}
+              {#each results.analysis.allowedHeaders as header, index (index)}
                 <span class="header-badge">{header}</span>
               {/each}
             </div>
@@ -394,7 +396,7 @@
           <div class="record-section">
             <h4>CORS Headers</h4>
             <div class="records-list">
-              {#each Object.entries(results.preflight.headers) as [name, value]}
+              {#each Object.entries(results.preflight.headers) as [name, value] (name)}
                 <div class="record-item">
                   <div class="record-data">
                     <strong>{name}:</strong>

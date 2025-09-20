@@ -7,10 +7,10 @@
   let url = $state('https://bit.ly/3example');
   let maxRedirects = $state(10);
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
-  let selectedExampleIndex = $state<number | null>(null);
+  let _selectedExampleIndex = $state<number | null>(null);
 
   const examples = [
     { url: 'https://httpbin.org/redirect/3', description: '3-hop redirect chain' },
@@ -78,13 +78,15 @@
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch {
+          // Ignore JSON parse errors, use default message
+        }
 
         throw new Error(errorMessage);
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = formatDNSError(err);
     } finally {
       loading = false;
@@ -93,12 +95,12 @@
 
   function loadExample(example: (typeof examples)[0], index: number) {
     url = example.url;
-    selectedExampleIndex = index;
+    _selectedExampleIndex = index;
     traceRedirects();
   }
 
-  function clearExampleSelection() {
-    selectedExampleIndex = null;
+  function _clearExampleSelection() {
+    _selectedExampleIndex = null;
   }
 
   async function copyResults() {
@@ -106,7 +108,7 @@
 
     let text = `Redirect Chain Analysis\nOriginal URL: ${url}\nTotal Redirects: ${results.totalRedirects}\n\n`;
 
-    results.redirectChain.forEach((step: any, i: number) => {
+    (results as { redirectChain: Array<{ url: string; status: number; location?: string; duration: number }> }).redirectChain.forEach((step, i: number) => {
       text += `${i + 1}. ${step.url}\n`;
       text += `   Status: ${step.status}\n`;
       if (step.location) {
@@ -168,7 +170,7 @@
         <h4>Redirect Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index}
+        {#each examples as example, index (index)}
           <button class="example-card" onclick={() => loadExample(example, index)}>
             <h5>{example.url}</h5>
             <p>{example.description}</p>
@@ -282,7 +284,7 @@
           <div class="record-section">
             <h4>Redirect Chain</h4>
             <div class="redirect-chain">
-              {#each results.redirectChain as step, i}
+              {#each results.redirectChain as step, i (i)}
                 <div class="redirect-step">
                   <div class="step-number">{i + 1}</div>
                   <div class="step-content">

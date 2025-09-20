@@ -350,7 +350,7 @@ export function suggestRRSIGWindows(options: RRSIGPlanningOptions): RRSIGWindow[
   const windows: RRSIGWindow[] = [];
 
   // Convert TTL to hours for easier calculation
-  const ttlHours = options.ttl / 3600;
+  const _ttlHours = options.ttl / 3600;
 
   // Calculate signature validity in hours
   const validityHours = options.signatureValidityDays * 24;

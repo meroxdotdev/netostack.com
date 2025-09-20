@@ -67,7 +67,7 @@
     <div class="error-suggestions">
       <h3>What can you do?</h3>
       <ul>
-        {#each errorInfo.suggestions as suggestion}
+        {#each errorInfo.suggestions as suggestion, index (index)}
           <li>{suggestion}</li>
         {/each}
       </ul>

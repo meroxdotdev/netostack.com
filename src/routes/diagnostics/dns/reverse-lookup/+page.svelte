@@ -8,7 +8,7 @@
   let customResolver = $state('');
   let useCustomResolver = $state(false);
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -105,8 +105,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -123,9 +123,10 @@
   }
 
   async function copyResults() {
-    if (!results?.Answer?.length) return;
+    const res = results as {Answer?: Array<{data: string}>};
+    if (!res?.Answer?.length) return;
 
-    const text = results.Answer.map((r: any) => r.data).join('\n');
+    const text = res.Answer.map((r) => r.data).join('\n');
     await navigator.clipboard.writeText(text);
     copiedState = true;
     setTimeout(() => (copiedState = false), 1500);
@@ -149,7 +150,7 @@
         <h4>Common IP Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -212,7 +213,7 @@
                     if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup();
                   }}
                 >
-                  {#each resolvers as res}
+                  {#each resolvers as res, resIndex (resIndex)}
                     <option value={res.value}>{res.label}</option>
                   {/each}
                 </select>
@@ -253,12 +254,13 @@
 
   <!-- Warnings -->
   {#if results?.warnings?.length > 0}
+    {@const res = results as {warnings?: string[]}}
     <div class="card warning-card">
       <div class="card-content">
         <div class="warning-content">
           <Icon name="alert-triangle" size="sm" />
           <div class="warning-messages">
-            {#each results.warnings as warning}
+            {#each res.warnings || [] as warning, warningIndex (warningIndex)}
               <p>{warning}</p>
             {/each}
           </div>
@@ -296,9 +298,10 @@
         </div>
 
         {#if results.Answer?.length > 0}
+          {@const resData = results as {Answer: Array<{data: string; TTL?: number}>}}
           <div class="records-list">
             <h4>PTR Records Found:</h4>
-            {#each results.Answer as record, i}
+            {#each resData.Answer as record, _i (_i)}
               <div class="record-item">
                 <div class="record-data mono">{record.data}</div>
                 {#if record.TTL}

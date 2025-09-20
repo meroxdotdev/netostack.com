@@ -5,7 +5,7 @@
 
   let domain = $state('google.com');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -39,8 +39,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -74,8 +74,8 @@
     return { type: 'other', color: 'secondary', icon: 'help-circle' };
   }
 
-  function renderIncludeTree(includes: any[], level = 0): any[] {
-    const items: any[] = [];
+  function renderIncludeTree(includes: unknown[], level = 0): unknown[] {
+    const items: unknown[] = [];
 
     includes.forEach((include) => {
       items.push({
@@ -90,7 +90,8 @@
       }
 
       if (include.result?.expanded?.redirects) {
-        include.result.expanded.redirects.forEach((redirect: any) => {
+        const includeData = include as {result: {expanded: {redirects: Array<{domain: string; result: unknown}>}}};
+        includeData.result.expanded.redirects.forEach((redirect) => {
           items.push({
             type: 'redirect',
             domain: redirect.domain,
@@ -124,17 +125,18 @@
       text += `Original SPF Record:\n${results.record}\n\n`;
     }
 
-    if (results.expanded?.mechanisms) {
+    const expandedData = (results as {expanded?: {mechanisms?: string[]; includes?: unknown[]}}).expanded;
+    if (expandedData?.mechanisms) {
       text += `Mechanisms:\n`;
-      results.expanded.mechanisms.forEach((mech: string) => {
+      expandedData.mechanisms.forEach((mech: string) => {
         text += `  ${mech}\n`;
       });
       text += '\n';
     }
 
-    if (results.expanded?.includes) {
+    if (expandedData?.includes) {
       text += `Includes:\n`;
-      const includeTree = renderIncludeTree(results.expanded.includes);
+      const includeTree = renderIncludeTree(expandedData.includes);
       includeTree.forEach((item) => {
         const indent = '  '.repeat(item.level + 1);
         text += `${indent}${item.type}: ${item.domain}`;
@@ -171,7 +173,7 @@
         <h4>SPF Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -262,12 +264,13 @@
         {/if}
 
         <!-- Mechanisms -->
-        {#if results.expanded?.mechanisms?.length > 0}
+        {#if (results as {expanded?: {mechanisms?: string[]}}).expanded?.mechanisms?.length}
+          {@const resultsExpanded = (results as {expanded?: {mechanisms?: string[]}}).expanded}
           <div class="mechanisms-section">
             <h4>Direct Mechanisms</h4>
             <div class="mechanisms-grid">
-              {#each results.expanded.mechanisms as mechanism}
-                {@const mechInfo = getMechanismType(mechanism)}
+              {#each resultsExpanded.mechanisms as mechanism, mechanismIndex (mechanismIndex)}
+                {@const mechInfo = getMechanismType(mechanism as string)}
                 <div class="mechanism-item {mechInfo.color}">
                   <Icon name={mechInfo.icon} size="xs" />
                   <div class="mechanism-content">
@@ -285,7 +288,8 @@
           <div class="includes-section">
             <h4>Include Chain</h4>
             <div class="include-tree">
-              {#each renderIncludeTree(results.expanded.includes) as item}
+              {@const includesData = (results as {expanded: {includes: unknown[]}}).expanded.includes}
+              {#each renderIncludeTree(includesData) as item, itemIndex (itemIndex)}
                 <div class="include-item level-{item.level}">
                   <div class="include-header">
                     <Icon name={item.type === 'include' ? 'arrow-right' : 'corner-down-right'} size="xs" />
@@ -319,7 +323,8 @@
           <div class="redirects-section">
             <h4>Redirects</h4>
             <div class="redirects-list">
-              {#each results.expanded.redirects as redirect}
+              {@const redirectsData = (results as {expanded: {redirects: Array<{domain: string; result?: {error?: string; record?: string}}>}}).expanded.redirects}
+              {#each redirectsData as redirect, redirectIndex (redirectIndex)}
                 <div class="redirect-item">
                   <div class="redirect-header">
                     <Icon name="external-link" size="xs" />

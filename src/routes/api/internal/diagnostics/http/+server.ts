@@ -380,7 +380,7 @@ export const POST: RequestHandler = async ({ request }) => {
               maxAge: corsHeaders['access-control-max-age'] ? parseInt(corsHeaders['access-control-max-age']) : null,
             },
           });
-        } catch (err: any) {
+        } catch (err: unknown) {
           return json({
             preflight: {
               status: 0,
@@ -430,7 +430,7 @@ export const POST: RequestHandler = async ({ request }) => {
       default:
         throw error(400, `Unknown action: ${action}`);
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('HTTP API error:', err);
 
     if (err.status) {

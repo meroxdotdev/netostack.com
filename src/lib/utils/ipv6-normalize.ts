@@ -128,7 +128,7 @@ function expandIPv6(ip: string): string {
   const right = parts[1] ? parts[1].split(':') : [];
 
   // Handle IPv4-mapped addresses
-  let ipv4Groups = 0;
+  let _ipv4Groups = 0;
   const lastGroup = right[right.length - 1];
   if (lastGroup && lastGroup.includes('.')) {
     const ipv4Parts = lastGroup.split('.').map(Number);
@@ -136,7 +136,7 @@ function expandIPv6(ip: string): string {
     const low = ((ipv4Parts[2] << 8) | ipv4Parts[3]).toString(16).padStart(4, '0');
     right[right.length - 1] = high;
     right.push(low);
-    ipv4Groups = 2;
+    _ipv4Groups = 2;
   }
 
   const missing = 8 - left.length - right.length;
@@ -219,7 +219,7 @@ function normalizeIPv6(input: string): IPv6Normalization {
     }
 
     // Step 2: Expand to full form
-    const [cleanIP, zone] = current.split('%');
+    const [_cleanIP, _zone] = current.split('%');
     const expanded = expandIPv6(current);
 
     if (expanded !== current) {

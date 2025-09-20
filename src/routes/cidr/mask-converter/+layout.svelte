@@ -132,7 +132,7 @@
   <section class="common-subnets-section">
     <h3>Common Subnets</h3>
     <div class="subnets-grid">
-      {#each COMMON_SUBNETS as subnet}
+      {#each COMMON_SUBNETS as subnet, index (index)}
         <Tooltip text="Click to select this common subnet configuration" position="top">
           <button
             type="button"

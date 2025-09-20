@@ -7,7 +7,7 @@
   let recordType = $state('A');
   let resolver = $state('cloudflare');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -60,7 +60,7 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = err.message;
     } finally {
       loading = false;
@@ -108,7 +108,7 @@
         <h4>Example DNSSEC Tests</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -158,7 +158,7 @@
                 if (domain.trim()) checkDNSSEC();
               }}
             >
-              {#each recordTypes as type}
+              {#each recordTypes as type, index (index)}
                 <option value={type.value}>{type.label} - {type.description}</option>
               {/each}
             </select>
@@ -175,7 +175,7 @@
                 if (domain.trim()) checkDNSSEC();
               }}
             >
-              {#each resolvers as res}
+              {#each resolvers as res, index (index)}
                 <option value={res.value}>{res.label}</option>
               {/each}
             </select>
@@ -265,7 +265,7 @@
           <div class="result-section">
             <h4>DNS Records ({results.records.length})</h4>
             <div class="records-list">
-              {#each results.records as record}
+              {#each results.records as record, index (index)}
                 <div class="record-item">
                   <div class="record-data mono">{record.data}</div>
                   {#if record.TTL}
@@ -282,7 +282,7 @@
           <div class="result-section">
             <h4>Authority Section ({results.authority.length})</h4>
             <div class="records-list">
-              {#each results.authority as record}
+              {#each results.authority as record, index (index)}
                 <div class="record-item">
                   <div class="record-data mono">{record.name} {record.type} {record.data}</div>
                   {#if record.TTL}

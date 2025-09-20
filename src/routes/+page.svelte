@@ -132,17 +132,6 @@
     }
   }
 
-  .all-tools-section {
-    margin: var(--spacing-xl) 0 var(--spacing-lg);
-    text-align: center;
-
-    h2 {
-      font-size: var(--font-size-xl);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0;
-    }
-  }
 
   .reference-section {
     margin-top: var(--spacing-xl);

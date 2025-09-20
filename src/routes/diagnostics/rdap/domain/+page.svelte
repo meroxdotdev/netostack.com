@@ -5,7 +5,7 @@
 
   let domain = $state('example.com');
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -40,8 +40,8 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
-      error = err.message;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Unknown error occurred';
     } finally {
       loading = false;
     }
@@ -82,13 +82,13 @@
     }
   }
 
-  function formatContact(contact: any): string {
+  function formatContact(contact: unknown): string {
     const vcard = contact.vcardArray;
     if (!vcard || !vcard[1]) return contact.handle || 'Unknown';
 
     const properties = vcard[1];
-    const name = properties.find((p: any) => p[0] === 'fn')?.[3] || contact.handle;
-    const org = properties.find((p: any) => p[0] === 'org')?.[3]?.[0];
+    const name = properties.find((p: unknown[]) => p[0] === 'fn')?.[3] || (contact as { handle?: string }).handle;
+    const org = properties.find((p: unknown[]) => p[0] === 'org')?.[3]?.[0];
 
     return org ? `${name} (${org})` : name;
   }
@@ -111,7 +111,7 @@
         <h4>Common Domain Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -200,7 +200,7 @@
               <dd>
                 {#if results.data.status?.length}
                   <div class="status-list">
-                    {#each results.data.status as status}
+                    {#each results.data.status as status, index (index)}
                       <span class="status-badge">{status}</span>
                     {/each}
                   </div>
@@ -242,7 +242,7 @@
             <div class="result-section">
               <h4>Nameservers ({results.data.nameservers.length})</h4>
               <ul class="nameserver-list">
-                {#each results.data.nameservers as ns}
+                {#each results.data.nameservers as ns, index (index)}
                   <li><code>{ns}</code></li>
                 {/each}
               </ul>
@@ -254,7 +254,7 @@
             <div class="result-section full-width">
               <h4>Contact Information</h4>
               <div class="contacts-grid">
-                {#each results.data.contacts as contact}
+                {#each results.data.contacts as contact, index (index)}
                   <div class="contact-card">
                     <h5>
                       {#if contact.roles?.includes('registrant')}

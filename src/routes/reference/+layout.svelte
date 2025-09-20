@@ -22,7 +22,7 @@
 {#if isRef}
   <nav class="ref-nav card">
     <div class="nav-buttons">
-      {#each nav as { item, side, icon }}
+      {#each nav as { item, side, icon }, index (index)}
         {#if item}
           <a href={item.href} class="nav-btn" class:next={side === 'Next'}>
             <Icon name={icon} />

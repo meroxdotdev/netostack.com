@@ -8,7 +8,7 @@
   let count = $state(5);
   let timeout = $state(10000);
   let loading = $state(false);
-  let results = $state<any>(null);
+  let results = $state<unknown>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -71,7 +71,7 @@
       }
 
       results = await response.json();
-    } catch (err: any) {
+    } catch (err: unknown) {
       error = err.message;
     } finally {
       loading = false;
@@ -171,7 +171,7 @@
         <h4>HTTP Ping Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i}
+        {#each examples as example, i (i)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i}
@@ -222,7 +222,7 @@
         <div class="form-group">
           <h3>HTTP Method</h3>
           <div class="method-options">
-            {#each httpMethods as methodOption}
+            {#each httpMethods as methodOption, index (index)}
               <button
                 type="button"
                 class="method-btn"
@@ -364,7 +364,7 @@
             <div class="results-section">
               <h4>Individual Request Results</h4>
               <div class="requests-list">
-                {#each results.latencies as latency, i}
+                {#each results.latencies as latency, i (i)}
                   <div class="request-item {getLatencyClass(latency)}">
                     <span class="request-number">#{i + 1}</span>
                     <span class="request-latency">{latency}ms</span>
@@ -381,7 +381,7 @@
           <div class="errors-section">
             <h4>Request Errors ({results.errors.length})</h4>
             <div class="errors-list">
-              {#each results.errors as error, i}
+              {#each results.errors as error, i (i)}
                 <div class="error-item">
                   <span class="error-number">#{i + results.successful + 1}</span>
                   <span class="error-message">{error}</span>

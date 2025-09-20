@@ -101,7 +101,7 @@ export function validateAAAARecord(value: string): ValidationResult {
       warnings,
       normalized,
     };
-  } catch (error) {
+  } catch {
     errors.push('Invalid IPv6 address format');
     return {
       valid: false,
@@ -390,14 +390,17 @@ function estimateEDNSSizeFromRecords(records: DNSRecord[]): EDNSEstimate {
 }
 
 // Public function that matches test expectations
-export function estimateEDNSSize(name: string, type: string, records: any[]): EDNSEstimate {
+export function estimateEDNSSize(name: string, type: string, records: unknown[]): EDNSEstimate {
   // Convert parameters to DNSRecord format
-  const dnsRecords: DNSRecord[] = records.map((record) => ({
-    name: record.name || name,
-    type: record.type || type,
-    value: record.value || '',
-    ttl: record.ttl || 300,
-  }));
+  const dnsRecords: DNSRecord[] = records.map((record) => {
+    const r = record as Record<string, unknown>;
+    return {
+      name: (r.name as string) || name,
+      type: (r.type as string) || type,
+      value: (r.value as string) || '',
+      ttl: (r.ttl as number) || 300,
+    };
+  });
 
   return estimateEDNSSizeFromRecords(dnsRecords);
 }
@@ -418,19 +421,19 @@ export function normalizeLabel(label: string): LabelAnalysis {
   }
 
   // Check for IDN
-  if (normalized.includes('xn--') || /[^\x00-\x7F]/.test(normalized)) {
+  if (normalized.includes('xn--') || /[^\u0020-\u007F]/.test(normalized)) {
     isIDN = true;
     try {
       // Basic IDN normalization would go here
       // For now, just detect it
-    } catch (error) {
+    } catch {
       errors.push('Invalid IDN encoding');
     }
   }
 
   // Check for mixed scripts
   const scriptRanges = [
-    { name: 'Latin', regex: /[\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F]/ },
+    { name: 'Latin', regex: /[\u0020-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F]/ },
     { name: 'Cyrillic', regex: /[\u0400-\u04FF\u0500-\u052F]/ },
     { name: 'Arabic', regex: /[\u0600-\u06FF\u0750-\u077F]/ },
     { name: 'Chinese', regex: /[\u4E00-\u9FFF]/ },
@@ -667,16 +670,17 @@ export function validateReverseLookupInput(
   return { isValid: true };
 }
 
-export function formatDNSError(error: any): string {
+export function formatDNSError(error: unknown): string {
   if (typeof error === 'string') return error;
 
-  if (error?.name === 'TypeError' && error.message.includes('fetch')) {
+  const errorObj = error as Record<string, unknown>;
+  if (errorObj?.name === 'TypeError' && typeof errorObj.message === 'string' && errorObj.message.includes('fetch')) {
     return 'Network error. Please check your connection and try again.';
   }
 
-  if (error?.message) {
+  if (errorObj?.message && typeof errorObj.message === 'string') {
     // Clean up common DNS error messages
-    const message = error.message;
+    const message = errorObj.message;
 
     if (message.includes('ENOTFOUND')) {
       return 'Domain not found. Please check the domain name and try again.';
@@ -755,23 +759,26 @@ export function validateDNSRecord(
   }
 
   switch (type.toUpperCase()) {
-    case 'A':
+    case 'A': {
       const aResult = validateARecord(value);
       return { valid: aResult.valid, errors: aResult.valid ? [] : ['Invalid IPv4 address'] };
+    }
 
-    case 'AAAA':
+    case 'AAAA': {
       const aaaaResult = validateAAAARecord(value);
       return { valid: aaaaResult.valid, errors: aaaaResult.valid ? [] : ['Invalid IPv6 address'] };
+    }
 
-    case 'CNAME':
+    case 'CNAME': {
       if (name.split('.').length === 2) {
         // apex domain
         warnings.push('CNAME at zone apex');
       }
       const cnameResult = validateCNAMERecord(value);
       return { valid: cnameResult.valid, errors: cnameResult.valid ? [] : ['Invalid CNAME record'], warnings };
+    }
 
-    case 'MX':
+    case 'MX': {
       const parts = value.split(' ');
       if (parts.length !== 2 || isNaN(Number(parts[0]))) {
         return { valid: false, errors: ['Invalid MX priority'] };
@@ -780,15 +787,17 @@ export function validateDNSRecord(
       const domain = parts[1];
       const mxResult = validateMXRecord(domain, priority);
       return { valid: mxResult.valid, errors: mxResult.errors, warnings: mxResult.warnings };
+    }
 
-    case 'TXT':
+    case 'TXT': {
       if (value.length > 255) {
         return { valid: false, errors: ['TXT record string too long'] };
       }
       const txtResult = validateTXTRecord(value);
       return { valid: txtResult.valid, errors: txtResult.valid ? [] : ['Invalid TXT record'] };
+    }
 
-    case 'SRV':
+    case 'SRV': {
       const srvParts = value.split(' ');
       if (srvParts.length !== 4) {
         return { valid: false, errors: ['SRV record must have 4 parts: priority weight port target'] };
@@ -814,6 +823,7 @@ export function validateDNSRecord(
 
       const srvResult = validateSRVRecord(service, protocol, srvPriority, srvWeight, srvPort, srvTarget);
       return { valid: srvResult.valid, errors: srvResult.errors, warnings: srvResult.warnings };
+    }
 
     default:
       return { valid: true, errors: [] }; // Unknown types pass through
