@@ -25,15 +25,15 @@
 
   const chunks = $derived.by(() => {
     if (!rawText.trim()) return [];
-    
+
     const text = rawText.trim();
     const chunkList: TXTChunk[] = [];
     let remaining = text;
-    
+
     while (remaining.length > 0) {
       let chunkSize = Math.min(remaining.length, maxChunkLength);
       let chunk = remaining.substring(0, chunkSize);
-      
+
       // Escape the chunk
       let escaped = chunk;
       if (escapeBackslashes) {
@@ -45,7 +45,7 @@
       if (!preserveSpaces) {
         escaped = escaped.replace(/\s+/g, ' ');
       }
-      
+
       // If escaped version is too long, reduce chunk size
       while (escaped.length > maxChunkLength && chunkSize > 1) {
         chunkSize--;
@@ -61,17 +61,17 @@
           escaped = escaped.replace(/\s+/g, ' ');
         }
       }
-      
+
       chunkList.push({
         chunk,
         length: chunk.length,
         escaped,
-        escapedLength: escaped.length
+        escapedLength: escaped.length,
       });
-      
+
       remaining = remaining.substring(chunkSize);
     }
-    
+
     return chunkList;
   });
 
@@ -80,7 +80,7 @@
       return {
         isValid: false,
         message: 'Please enter text to escape',
-        type: 'error'
+        type: 'error',
       };
     }
 
@@ -88,16 +88,16 @@
       return {
         isValid: false,
         message: 'Chunk length must be between 1 and 255 characters',
-        type: 'error'
+        type: 'error',
       };
     }
 
-    const oversizedChunks = chunks.filter(chunk => chunk.escapedLength > maxChunkLength);
+    const oversizedChunks = chunks.filter((chunk) => chunk.escapedLength > maxChunkLength);
     if (oversizedChunks.length > 0) {
       return {
         isValid: false,
         message: `${oversizedChunks.length} chunk(s) exceed the maximum length after escaping`,
-        type: 'error'
+        type: 'error',
       };
     }
 
@@ -105,23 +105,23 @@
       return {
         isValid: true,
         message: `Text split into ${chunks.length} chunks (consider splitting across multiple TXT records)`,
-        type: 'warning'
+        type: 'warning',
       };
     }
 
     return {
       isValid: true,
       message: `Text successfully split into ${chunks.length} chunk(s)`,
-      type: 'success'
+      type: 'success',
     };
   });
 
   const totalLength = $derived(chunks.reduce((sum, chunk) => sum + chunk.escapedLength, 0));
-  const dnsRecord = $derived(chunks.map(chunk => `"${chunk.escaped}"`).join(' '));
+  const dnsRecord = $derived(chunks.map((chunk) => `"${chunk.escaped}"`).join(' '));
   const zoneFileFormat = $derived(() => {
     if (chunks.length === 0) return '';
     if (chunks.length === 1) return `example.com. IN TXT "${chunks[0].escaped}"`;
-    return `example.com. IN TXT (\n${chunks.map(chunk => `    "${chunk.escaped}"`).join('\n')}\n)`;
+    return `example.com. IN TXT (\n${chunks.map((chunk) => `    "${chunk.escaped}"`).join('\n')}\n)`;
   });
 
   function copyToClipboard(text: string) {
@@ -151,23 +151,25 @@
     {
       name: 'SPF Record',
       description: 'Sender Policy Framework record for email authentication',
-      value: 'v=spf1 include:_spf.google.com include:mailgun.org include:servers.mcsv.net ~all'
+      value: 'v=spf1 include:_spf.google.com include:mailgun.org include:servers.mcsv.net ~all',
     },
     {
       name: 'DKIM Key',
       description: 'DomainKeys Identified Mail public key record',
-      value: 'k=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6'
+      value:
+        'k=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6+nQKQ5R7fPqqJLmPjGYGqwVF6',
     },
     {
       name: 'Domain Verification',
       description: 'Google domain ownership verification token',
-      value: 'google-site-verification=rXOxyZounnZasA8Z7oaD3c14JdjS9aKSWvsR1EbUSIQ'
+      value: 'google-site-verification=rXOxyZounnZasA8Z7oaD3c14JdjS9aKSWvsR1EbUSIQ',
     },
     {
       name: 'Long Text Sample',
       description: 'Text that will need to be split into multiple chunks',
-      value: 'This is a very long text string that will definitely exceed the 255 character limit for DNS TXT records and will need to be properly escaped and split into multiple chunks. The escaping tool should handle this automatically and show you exactly how many chunks are created and what the final DNS record format will look like when you publish it to your DNS provider.'
-    }
+      value:
+        'This is a very long text string that will definitely exceed the 255 character limit for DNS TXT records and will need to be properly escaped and split into multiple chunks. The escaping tool should handle this automatically and show you exactly how many chunks are created and what the final DNS record format will look like when you publish it to your DNS provider.',
+    },
   ];
 </script>
 
@@ -183,35 +185,27 @@
     <div class="input-section">
       <div class="text-input-config">
         <div class="input-group">
-          <label for="rawText" use:tooltip={"The original text that will be escaped and split into chunks"}>
+          <label for="rawText" use:tooltip={'The original text that will be escaped and split into chunks'}>
             <Icon name="edit" size="sm" />
             Text to Escape
           </label>
-          <textarea
-            id="rawText"
-            bind:value={rawText}
-            placeholder="Enter your raw text here..."
-            rows="6"
-          ></textarea>
+          <textarea id="rawText" bind:value={rawText} placeholder="Enter your raw text here..." rows="6"></textarea>
         </div>
 
         <div class="config-row">
           <div class="input-group">
-            <label for="maxChunkLength" use:tooltip={"Maximum length for each chunk (DNS TXT record limit is 255 characters)"}>
+            <label
+              for="maxChunkLength"
+              use:tooltip={'Maximum length for each chunk (DNS TXT record limit is 255 characters)'}
+            >
               <Icon name="ruler" size="sm" />
               Max Chunk Length
             </label>
-            <input
-              id="maxChunkLength"
-              type="number"
-              bind:value={maxChunkLength}
-              min="1"
-              max="255"
-            />
+            <input id="maxChunkLength" type="number" bind:value={maxChunkLength} min="1" max="255" />
           </div>
 
           <div class="escape-options">
-            <h4 use:tooltip={"Configure how the text should be escaped for DNS compatibility"}>
+            <h4 use:tooltip={'Configure how the text should be escaped for DNS compatibility'}>
               <Icon name="settings" size="sm" />
               Escape Options
             </h4>
@@ -219,17 +213,19 @@
               <label class="checkbox-label">
                 <input type="checkbox" bind:checked={escapeQuotes} />
                 <span>Escape Quotes (")</span>
-                <span use:tooltip={"Escape double quote characters as \\\ "}><Icon name="help" size="sm" /></span>
+                <span use:tooltip={'Escape double quote characters as \\\ '}><Icon name="help" size="sm" /></span>
               </label>
               <label class="checkbox-label">
                 <input type="checkbox" bind:checked={escapeBackslashes} />
                 <span>Escape Backslashes (\\)</span>
-                <span  use:tooltip={"Escape backslash characters as \\\\"} ><Icon name="help" size="sm" /></span>
+                <span use:tooltip={'Escape backslash characters as \\\\'}><Icon name="help" size="sm" /></span>
               </label>
               <label class="checkbox-label">
                 <input type="checkbox" bind:checked={preserveSpaces} />
                 <span>Preserve Spacing</span>
-                <span use:tooltip={"Keep original whitespace formatting instead of normalizing spaces"} ><Icon name="help" size="sm" /></span>
+                <span use:tooltip={'Keep original whitespace formatting instead of normalizing spaces'}
+                  ><Icon name="help" size="sm" /></span
+                >
               </label>
             </div>
           </div>
@@ -238,7 +234,10 @@
 
       <div class="validation-section">
         <div class="validation-status {validation.type}">
-          <Icon name={validation.type === 'error' ? 'error' : validation.type === 'warning' ? 'warning' : 'check-circle'} size="sm" />
+          <Icon
+            name={validation.type === 'error' ? 'error' : validation.type === 'warning' ? 'warning' : 'check-circle'}
+            size="sm"
+          />
           {validation.message}
         </div>
       </div>
@@ -250,12 +249,12 @@
           <div class="section-header">
             <h3>Escaped Chunks ({chunks.length})</h3>
             <div class="stats">
-              <span class="stat" use:tooltip={"Total length after escaping"}>
+              <span class="stat" use:tooltip={'Total length after escaping'}>
                 {totalLength} chars
               </span>
             </div>
           </div>
-          
+
           <div class="chunks-list">
             {#each chunks as chunk, index}
               <div class="chunk-item">
@@ -269,7 +268,7 @@
                     type="button"
                     class="copy-btn"
                     onclick={() => copyToClipboard(`"${chunk.escaped}"`)}
-                    use:tooltip={"Copy this chunk to clipboard"}
+                    use:tooltip={'Copy this chunk to clipboard'}
                   >
                     <Icon name="copy" size="sm" />
                   </button>
@@ -287,23 +286,18 @@
                 type="button"
                 class="copy-btn"
                 onclick={() => copyToClipboard(dnsRecord)}
-                use:tooltip={"Copy single-line DNS record format"}
+                use:tooltip={'Copy single-line DNS record format'}
               >
                 <Icon name="copy" size="sm" />
                 Copy
               </button>
-              <button
-                type="button"
-                class="export-btn"
-                onclick={exportAsZoneFile}
-                use:tooltip={"Download as zone file"}
-              >
+              <button type="button" class="export-btn" onclick={exportAsZoneFile} use:tooltip={'Download as zone file'}>
                 <Icon name="download" size="sm" />
                 Export
               </button>
             </div>
           </div>
-          
+
           <div class="output-formats">
             <div class="format-section">
               <h4>Single Line Format:</h4>
@@ -400,7 +394,7 @@
       color: var(--color-primary);
     }
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       margin: 0;
       width: 16px;
       height: 16px;
@@ -448,7 +442,8 @@
     }
   }
 
-  .chunks-section, .output-section {
+  .chunks-section,
+  .output-section {
     margin-bottom: var(--spacing-lg);
   }
 
@@ -515,7 +510,7 @@
 
   .chunk-content {
     position: relative;
-    
+
     code {
       display: block;
       padding: var(--spacing-xs);
@@ -556,7 +551,8 @@
     border-radius: var(--radius-md);
     padding: var(--spacing-sm);
 
-    code, pre {
+    code,
+    pre {
       font-family: var(--font-mono);
       font-size: var(--font-size-sm);
       margin: 0;
@@ -577,7 +573,7 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
-      cursor: pointer;      
+      cursor: pointer;
       border: 1px solid var(--color-border);
       &:hover {
         background: var(--color-surface-variant);
@@ -645,7 +641,8 @@
     }
   }
 
-  .copy-btn, .export-btn {
+  .copy-btn,
+  .export-btn {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);

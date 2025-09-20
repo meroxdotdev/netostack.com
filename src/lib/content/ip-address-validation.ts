@@ -1,17 +1,18 @@
 export const ipAddressValidationContent = {
-  title: "IP Address Format & RegEx Validation",
-  description: "Understanding IPv4 and IPv6 address formats and how to validate them properly using regular expressions.",
+  title: 'IP Address Format & RegEx Validation',
+  description:
+    'Understanding IPv4 and IPv6 address formats and how to validate them properly using regular expressions.',
 
   sections: {
     overview: {
-      title: "Understanding IP Address Formats",
+      title: 'Understanding IP Address Formats',
       content: `IP addresses come in two versions: IPv4 (32-bit) and IPv6 (128-bit). Each has specific formatting rules that programmers need to understand for proper validation.
 
-The key to validation is understanding the structure, not just pattern matching. RegEx can help with basic format checking, but proper IP validation often requires additional logic.`
+The key to validation is understanding the structure, not just pattern matching. RegEx can help with basic format checking, but proper IP validation often requires additional logic.`,
     },
 
     ipv4: {
-      title: "IPv4 Address Format",
+      title: 'IPv4 Address Format',
       content: `IPv4 addresses consist of four decimal numbers (0-255) separated by dots.
 
 **Structure:** X.X.X.X where each X is 0-255
@@ -25,11 +26,11 @@ The key to validation is understanding the structure, not just pattern matching.
 **Common Validation Mistakes:**
 • Allowing values > 255 (like 256.1.1.1)
 • Missing boundary checks
-• Not handling edge cases like 0.0.0.0`
+• Not handling edge cases like 0.0.0.0`,
     },
 
     ipv6: {
-      title: "IPv6 Address Format",
+      title: 'IPv6 Address Format',
       content: `IPv6 addresses are 128-bit addresses written as eight groups of four hexadecimal digits, separated by colons.
 
 **Full Format:** 2001:0db8:85a3:0000:0000:8a2e:0370:7334
@@ -44,11 +45,11 @@ The key to validation is understanding the structure, not just pattern matching.
 **Special Cases:**
 • :: (all zeros address)
 • ::1 (loopback)
-• IPv4-mapped: ::ffff:192.168.1.1`
+• IPv4-mapped: ::ffff:192.168.1.1`,
     },
 
     regexValidation: {
-      title: "RegEx Validation Approach",
+      title: 'RegEx Validation Approach',
       content: `Regular expressions can handle basic format validation, but IP validation has nuances that make pure RegEx challenging.
 
 **IPv4 RegEx Challenges:**
@@ -62,11 +63,11 @@ The key to validation is understanding the structure, not just pattern matching.
 • Mixed IPv4/IPv6 notation support
 
 **Best Practice:**
-Use RegEx for initial format checking, then validate with programming logic for range checks and special cases. Most languages have built-in IP parsing functions that handle edge cases correctly.`
+Use RegEx for initial format checking, then validate with programming logic for range checks and special cases. Most languages have built-in IP parsing functions that handle edge cases correctly.`,
     },
 
     practicalTips: {
-      title: "Practical Validation Tips",
+      title: 'Practical Validation Tips',
       content: `**For Production Code:**
 1. Use language built-ins (inet_aton, IPAddress.parse, etc.)
 2. RegEx for quick format checks only
@@ -84,63 +85,64 @@ Use RegEx for initial format checking, then validate with programming logic for 
 • 192.168.1 (missing octets)
 • 192.168.1.1.1 (extra octets)
 • Case sensitivity in IPv6
-• Multiple :: in IPv6`
-    }
+• Multiple :: in IPv6`,
+    },
   },
 
   examples: {
     ipv4Basic: {
-      title: "Basic IPv4 Pattern",
-      pattern: "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$",
+      title: 'Basic IPv4 Pattern',
+      pattern: '^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$',
       description: "Matches basic dot-decimal format, but doesn't validate ranges",
-      matches: ["192.168.1.1", "10.0.0.1"],
-      fails: ["192.168.1", "192.168.1.1.1"],
-      limitation: "Allows invalid ranges like 999.999.999.999"
+      matches: ['192.168.1.1', '10.0.0.1'],
+      fails: ['192.168.1', '192.168.1.1.1'],
+      limitation: 'Allows invalid ranges like 999.999.999.999',
     },
 
     ipv4Proper: {
-      title: "Range-Validated IPv4",
-      pattern: "^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$",
-      description: "Validates each octet is 0-255",
-      matches: ["192.168.1.1", "255.255.255.255", "0.0.0.0"],
-      fails: ["256.1.1.1", "192.168.1", "192.168.01.1"],
-      limitation: "Complex and hard to maintain"
+      title: 'Range-Validated IPv4',
+      pattern:
+        '^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$',
+      description: 'Validates each octet is 0-255',
+      matches: ['192.168.1.1', '255.255.255.255', '0.0.0.0'],
+      fails: ['256.1.1.1', '192.168.1', '192.168.01.1'],
+      limitation: 'Complex and hard to maintain',
     },
 
     ipv6Basic: {
-      title: "Basic IPv6 Pattern",
-      pattern: "^[0-9a-fA-F:]+$",
-      description: "Very basic check for hex digits and colons",
-      matches: ["2001:db8::1", "::1"],
-      fails: ["192.168.1.1", "hello"],
-      limitation: "Doesn't validate structure or compression rules"
-    }
+      title: 'Basic IPv6 Pattern',
+      pattern: '^[0-9a-fA-F:]+$',
+      description: 'Very basic check for hex digits and colons',
+      matches: ['2001:db8::1', '::1'],
+      fails: ['192.168.1.1', 'hello'],
+      limitation: "Doesn't validate structure or compression rules",
+    },
   },
 
   recommendations: [
     {
-      icon: "code",
-      title: "Use Built-in Functions",
-      description: "Most languages have reliable IP parsing libraries. Use them instead of rolling your own RegEx.",
-      color: "var(--color-success)"
+      icon: 'code',
+      title: 'Use Built-in Functions',
+      description: 'Most languages have reliable IP parsing libraries. Use them instead of rolling your own RegEx.',
+      color: 'var(--color-success)',
     },
     {
-      icon: "test",
-      title: "Test Edge Cases",
-      description: "Test boundary values, malformed inputs, and different valid representations.",
-      color: "var(--color-info)"
+      icon: 'test',
+      title: 'Test Edge Cases',
+      description: 'Test boundary values, malformed inputs, and different valid representations.',
+      color: 'var(--color-info)',
     },
     {
-      icon: "performance",
-      title: "Consider Performance",
-      description: "Complex RegEx patterns can be slow. Profile your validation code with realistic data.",
-      color: "var(--color-warning)"
+      icon: 'performance',
+      title: 'Consider Performance',
+      description: 'Complex RegEx patterns can be slow. Profile your validation code with realistic data.',
+      color: 'var(--color-warning)',
     },
     {
-      icon: "security",
-      title: "Validate Context",
+      icon: 'security',
+      title: 'Validate Context',
       description: "Consider what you're doing with the IP. Some contexts require stricter validation than others.",
-      color: "var(--color-primary)"
-    }
-  ]
+      color: 'var(--color-primary)',
+    },
+  ],
 };

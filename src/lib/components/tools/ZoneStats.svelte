@@ -27,7 +27,7 @@ $TTL 86400
 www	300	IN	A	192.0.2.1
 mail	IN	A	192.0.2.10
 ftp	IN	CNAME	www.example.com.`,
-      description: 'Basic zone with common record types'
+      description: 'Basic zone with common record types',
     },
     {
       name: 'Complex Zone',
@@ -53,7 +53,7 @@ _sip._tcp	IN	SRV	10 60 5060 sip.example.com.
 
 blog	IN	CNAME	www.example.com.
 shop	IN	CNAME	www.example.com.`,
-      description: 'Comprehensive zone with diverse record types and TTLs'
+      description: 'Comprehensive zone with diverse record types and TTLs',
     },
     {
       name: 'Large Organization',
@@ -97,11 +97,11 @@ dns4	IN	A	203.0.113.113
 london	IN	A	203.0.113.200
 tokyo	IN	A	203.0.113.201
 sydney	IN	A	203.0.113.202`,
-      description: 'Large organization with multiple services and locations'
-    }
+      description: 'Large organization with multiple services and locations',
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     zoneInput = example.content;
     activeExampleIndex = index;
     analyzeZone();
@@ -135,7 +135,7 @@ sydney	IN	A	203.0.113.202`,
     if (!results) return;
 
     const statsText = formatStatsForCopy(results);
-    
+
     try {
       await navigator.clipboard.writeText(statsText);
       copiedState = true;
@@ -149,20 +149,20 @@ sydney	IN	A	203.0.113.202`,
 
   function formatStatsForCopy(stats: ZoneStats): string {
     const lines: string[] = [];
-    
+
     lines.push(`DNS Zone Statistics Report`);
     lines.push(`========================\n`);
-    
+
     lines.push(`Total Records: ${stats.totalRecords}\n`);
-    
+
     lines.push(`Records by Type:`);
     Object.entries(stats.recordsByType)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .forEach(([type, count]) => {
         lines.push(`  ${type}: ${count}`);
       });
     lines.push('');
-    
+
     lines.push(`TTL Distribution:`);
     Object.entries(stats.ttlDistribution)
       .sort(([a], [b]) => parseInt(a) - parseInt(b))
@@ -170,17 +170,17 @@ sydney	IN	A	203.0.113.202`,
         lines.push(`  ${ttl}s: ${count} record${count !== 1 ? 's' : ''}`);
       });
     lines.push('');
-    
+
     lines.push(`Name Statistics:`);
     lines.push(`  Shortest name: ${stats.nameDepths.min} characters`);
     lines.push(`  Longest name: ${stats.nameDepths.max} characters`);
     lines.push(`  Average length: ${stats.nameDepths.average.toFixed(1)} characters`);
     lines.push('');
-    
+
     lines.push(`Largest Record: ${stats.largestRecord.size} bytes`);
     lines.push(`  ${stats.largestRecord.record.owner} ${stats.largestRecord.record.type}`);
     lines.push('');
-    
+
     lines.push(`Zone Health:`);
     lines.push(`  Has SOA: ${stats.sanityChecks.hasSoa ? 'Yes' : 'No'}`);
     lines.push(`  Has NS records: ${stats.sanityChecks.hasNs ? 'Yes' : 'No'}`);
@@ -264,7 +264,7 @@ sydney	IN	A	203.0.113.202`,
   <!-- Input Section -->
   <div class="card input-card">
     <div class="input-group">
-      <label for="zone-input" use:tooltip={"Paste your DNS zone file for comprehensive statistical analysis"}>
+      <label for="zone-input" use:tooltip={'Paste your DNS zone file for comprehensive statistical analysis'}>
         <Icon name="file" size="sm" />
         Zone File Content
       </label>
@@ -296,10 +296,7 @@ www	IN	A	192.0.2.1"
     <section class="results-section">
       <div class="results-header">
         <h3>Zone Analysis Report</h3>
-        <button
-          class="copy-button {copiedState ? 'copied' : ''}"
-          onclick={copyStats}
-        >
+        <button class="copy-button {copiedState ? 'copied' : ''}" onclick={copyStats}>
           <Icon name={copiedState ? 'check' : 'copy'} size="sm" />
           {copiedState ? 'Copied!' : 'Copy Report'}
         </button>
@@ -356,17 +353,14 @@ www	IN	A	192.0.2.1"
             Record Type Distribution
           </h4>
           <div class="record-types-chart">
-            {#each Object.entries(results.recordsByType).sort(([,a], [,b]) => b - a) as [type, count]}
+            {#each Object.entries(results.recordsByType).sort(([, a], [, b]) => b - a) as [type, count]}
               <div class="type-row">
                 <div class="type-info">
                   <span class="type-name">{type}</span>
                   <span class="type-count">{count} record{count !== 1 ? 's' : ''}</span>
                 </div>
                 <div class="type-bar-container">
-                  <div 
-                    class="type-bar" 
-                    style="width: {(count / results.totalRecords * 100)}%"
-                  ></div>
+                  <div class="type-bar" style="width: {(count / results.totalRecords) * 100}%"></div>
                 </div>
                 <div class="type-percentage">
                   {((count / results.totalRecords) * 100).toFixed(1)}%
@@ -431,7 +425,8 @@ www	IN	A	192.0.2.1"
             <div class="record-details">
               <div class="record-owner">{results.largestRecord.record.owner}</div>
               <div class="record-type-data">
-                {results.largestRecord.record.type} {results.largestRecord.record.rdata}
+                {results.largestRecord.record.type}
+                {results.largestRecord.record.rdata}
               </div>
             </div>
           </div>
@@ -448,23 +443,30 @@ www	IN	A	192.0.2.1"
               <Icon name={results.sanityChecks.hasSoa ? 'check-circle' : 'x-circle'} size="sm" />
               <span>SOA Record Present</span>
             </div>
-            
+
             <div class="health-check {results.sanityChecks.hasNs ? 'pass' : 'fail'}">
               <Icon name={results.sanityChecks.hasNs ? 'check-circle' : 'x-circle'} size="sm" />
               <span>NS Records Present</span>
             </div>
-            
+
             <div class="health-check {results.sanityChecks.duplicates.length === 0 ? 'pass' : 'warn'}">
               <Icon name={results.sanityChecks.duplicates.length === 0 ? 'check-circle' : 'alert-triangle'} size="sm" />
               <span>
-                {results.sanityChecks.duplicates.length === 0 ? 'No Duplicate Records' : `${results.sanityChecks.duplicates.length} Duplicate Record${results.sanityChecks.duplicates.length !== 1 ? 's' : ''}`}
+                {results.sanityChecks.duplicates.length === 0
+                  ? 'No Duplicate Records'
+                  : `${results.sanityChecks.duplicates.length} Duplicate Record${results.sanityChecks.duplicates.length !== 1 ? 's' : ''}`}
               </span>
             </div>
-            
+
             <div class="health-check {results.sanityChecks.orphanedGlue.length === 0 ? 'pass' : 'warn'}">
-              <Icon name={results.sanityChecks.orphanedGlue.length === 0 ? 'check-circle' : 'alert-triangle'} size="sm" />
+              <Icon
+                name={results.sanityChecks.orphanedGlue.length === 0 ? 'check-circle' : 'alert-triangle'}
+                size="sm"
+              />
               <span>
-                {results.sanityChecks.orphanedGlue.length === 0 ? 'No Orphaned Glue Records' : `${results.sanityChecks.orphanedGlue.length} Orphaned Glue Record${results.sanityChecks.orphanedGlue.length !== 1 ? 's' : ''}`}
+                {results.sanityChecks.orphanedGlue.length === 0
+                  ? 'No Orphaned Glue Records'
+                  : `${results.sanityChecks.orphanedGlue.length} Orphaned Glue Record${results.sanityChecks.orphanedGlue.length !== 1 ? 's' : ''}`}
               </span>
             </div>
           </div>
@@ -479,36 +481,32 @@ www	IN	A	192.0.2.1"
       <div class="education-item info-panel">
         <h4>Zone Statistics</h4>
         <p>
-          Zone statistics help understand DNS structure, identify optimization opportunities,
-          and spot potential issues. Analyze record distribution, TTL patterns, and naming
-          conventions for better zone management.
+          Zone statistics help understand DNS structure, identify optimization opportunities, and spot potential issues.
+          Analyze record distribution, TTL patterns, and naming conventions for better zone management.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>TTL Strategy</h4>
         <p>
-          TTL distribution reveals caching patterns. Short TTLs enable quick changes but
-          increase DNS load. Long TTLs reduce queries but slow propagation. Balance based
-          on change frequency and traffic patterns.
+          TTL distribution reveals caching patterns. Short TTLs enable quick changes but increase DNS load. Long TTLs
+          reduce queries but slow propagation. Balance based on change frequency and traffic patterns.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Record Analysis</h4>
         <p>
-          Record type distribution shows zone complexity. Heavy A/AAAA records suggest
-          web services, many MX records indicate mail infrastructure, and diverse types
-          show comprehensive DNS usage.
+          Record type distribution shows zone complexity. Heavy A/AAAA records suggest web services, many MX records
+          indicate mail infrastructure, and diverse types show comprehensive DNS usage.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Health Monitoring</h4>
         <p>
-          Regular zone analysis catches configuration drift, identifies duplicates, and
-          ensures essential records exist. Use statistics to track zone growth and
-          optimize DNS performance over time.
+          Regular zone analysis catches configuration drift, identifies duplicates, and ensures essential records exist.
+          Use statistics to track zone growth and optimize DNS performance over time.
         </p>
       </div>
     </div>
@@ -545,7 +543,7 @@ www	IN	A	192.0.2.1"
   .examples-details {
     border: none;
     background: var(--bg-tertiary);
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -751,7 +749,7 @@ www	IN	A	192.0.2.1"
 
     .stat-info {
       flex: 1;
-      
+
       .stat-value {
         font-size: var(--font-size-2xl);
         font-weight: 700;
@@ -802,7 +800,7 @@ www	IN	A	192.0.2.1"
     display: flex;
     flex-direction: column;
     gap: 2px;
-    
+
     .type-name {
       font-family: var(--font-mono);
       font-weight: 600;
@@ -857,7 +855,7 @@ www	IN	A	192.0.2.1"
       display: flex;
       align-items: center;
       gap: var(--spacing-sm);
-      
+
       .ttl-value {
         font-family: var(--font-mono);
         font-weight: 600;
@@ -901,7 +899,7 @@ www	IN	A	192.0.2.1"
 
   .name-stat {
     text-align: center;
-    
+
     .name-stat-label {
       font-size: var(--font-size-sm);
       color: var(--text-secondary);
@@ -938,7 +936,7 @@ www	IN	A	192.0.2.1"
 
     .record-details {
       flex: 1;
-      
+
       .record-owner {
         font-family: var(--font-mono);
         font-weight: 600;

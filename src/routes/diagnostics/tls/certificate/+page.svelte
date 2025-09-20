@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let host = $state('google.com:443');
   let servername = $state('');
   let useCustomServername = $state(false);
@@ -11,16 +11,16 @@
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { host: 'google.com:443', description: 'Google TLS certificate' },
     { host: 'github.com:443', description: 'GitHub certificate chain' },
     { host: 'cloudflare.com:443', description: 'Cloudflare certificate' },
     { host: 'wikipedia.org:443', description: 'Wikipedia certificate' },
     { host: 'stackoverflow.com:443', description: 'Stack Overflow certificate' },
-    { host: 'microsoft.com:443', description: 'Microsoft certificate' }
+    { host: 'microsoft.com:443', description: 'Microsoft certificate' },
   ];
-  
+
   // Reactive validation
   const isInputValid = $derived(() => {
     const trimmedHost = host.trim();
@@ -28,12 +28,12 @@
     // Basic host:port validation
     return /^[a-zA-Z0-9.-]+(?::\d+)?$/.test(trimmedHost);
   });
-  
+
   async function analyzeCertificate() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/tls', {
         method: 'POST',
@@ -41,10 +41,10 @@
         body: JSON.stringify({
           action: 'certificate',
           host: host.trim(),
-          servername: useCustomServername && servername ? servername.trim() : undefined
-        })
+          servername: useCustomServername && servername ? servername.trim() : undefined,
+        }),
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         try {
@@ -54,7 +54,7 @@
           throw new Error(`Certificate analysis failed (${response.status})`);
         }
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -62,20 +62,20 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     host = example.host;
     servername = '';
     useCustomServername = false;
     selectedExampleIndex = index;
     analyzeCertificate();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
-  function getExpiryStatus(cert: any): { status: string, icon: string, class: string } {
+
+  function getExpiryStatus(cert: any): { status: string; icon: string; class: string } {
     if (cert.isExpired) {
       return { status: 'Expired', icon: 'x-circle', class: 'error' };
     }
@@ -87,10 +87,10 @@
     }
     return { status: `Valid for ${cert.daysUntilExpiry} days`, icon: 'check-circle', class: 'success' };
   }
-  
+
   async function copyCertificateInfo() {
     if (!results?.peerCertificate) return;
-    
+
     const cert = results.peerCertificate;
     let text = `TLS Certificate Analysis for ${host}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
@@ -102,24 +102,27 @@
     text += `Serial Number: ${cert.serialNumber}\n`;
     text += `Fingerprint (SHA1): ${cert.fingerprint}\n`;
     text += `Fingerprint (SHA256): ${cert.fingerprint256}\n`;
-    
+
     if (cert.subjectAltNames.length > 0) {
       text += `\nSubject Alternative Names:\n`;
       cert.subjectAltNames.forEach((san: string) => {
         text += `  ${san}\n`;
       });
     }
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>TLS Certificate Analyzer</h1>
-    <p>Analyze TLS certificates, view certificate chains, check expiration dates, and examine Subject Alternative Names (SANs). Supports custom SNI servername for multi-domain certificates.</p>
+    <p>
+      Analyze TLS certificates, view certificate chains, check expiration dates, and examine Subject Alternative Names
+      (SANs). Supports custom SNI servername for multi-domain certificates.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -131,8 +134,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Analyze certificate for ${example.host} (${example.description})`}
@@ -153,15 +156,18 @@
     <div class="card-content">
       <div class="form-row">
         <div class="form-group">
-          <label for="host" use:tooltip={"Enter hostname:port (e.g., google.com:443)"}>
+          <label for="host" use:tooltip={'Enter hostname:port (e.g., google.com:443)'}>
             Host:Port
-            <input 
-              id="host" 
-              type="text" 
-              bind:value={host} 
+            <input
+              id="host"
+              type="text"
+              bind:value={host}
               placeholder="google.com:443"
               class:invalid={host && !isInputValid}
-              onchange={() => { clearExampleSelection(); if (isInputValid()) analyzeCertificate(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) analyzeCertificate();
+              }}
             />
             {#if host && !isInputValid}
               <span class="error-text">Invalid host:port format</span>
@@ -169,29 +175,35 @@
           </label>
         </div>
       </div>
-      
+
       <div class="form-row">
         <div class="form-group">
           <label class="checkbox-group">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               bind:checked={useCustomServername}
-              onchange={() => { clearExampleSelection(); if (isInputValid()) analyzeCertificate(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) analyzeCertificate();
+              }}
             />
             Use custom SNI servername
           </label>
           {#if useCustomServername}
-            <input 
-              type="text" 
-              bind:value={servername} 
+            <input
+              type="text"
+              bind:value={servername}
               placeholder="example.com"
-              use:tooltip={"Custom servername for SNI (Server Name Indication)"}
-              onchange={() => { clearExampleSelection(); if (isInputValid()) analyzeCertificate(); }}
+              use:tooltip={'Custom servername for SNI (Server Name Indication)'}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) analyzeCertificate();
+              }}
             />
           {/if}
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={analyzeCertificate} disabled={loading || !isInputValid}>
           {#if loading}
@@ -212,17 +224,16 @@
       <div class="card-header row">
         <h3>Certificate Analysis Results</h3>
         <button class="copy-btn" onclick={copyCertificateInfo} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" />
-          {copiedState ? "Copied!" : "Copy Certificate Info"}
+          <Icon name={copiedState ? 'check' : 'copy'} size="xs" />
+          {copiedState ? 'Copied!' : 'Copy Certificate Info'}
         </button>
       </div>
       <div class="card-content">
-        
         <!-- Certificate Overview -->
         {#if results.peerCertificate}
           {@const cert = results.peerCertificate}
           {@const expiryStatus = getExpiryStatus(cert)}
-          
+
           <div class="cert-overview">
             <div class="status-overview">
               <div class="status-item {expiryStatus.class}">
@@ -230,11 +241,11 @@
                 <span>{expiryStatus.status}</span>
               </div>
               <div class="status-item {cert.isNotYetValid ? 'warning' : 'success'}">
-                <Icon name={cert.isNotYetValid ? "clock" : "calendar"} size="sm" />
+                <Icon name={cert.isNotYetValid ? 'clock' : 'calendar'} size="sm" />
                 <span>{cert.isNotYetValid ? 'Not yet valid' : 'Currently valid'}</span>
               </div>
             </div>
-            
+
             <!-- Certificate Details -->
             <div class="cert-details">
               <div class="detail-section">
@@ -266,7 +277,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Subject Alternative Names -->
               {#if cert.subjectAltNames?.length > 0}
                 <div class="detail-section">
@@ -278,7 +289,7 @@
                   </div>
                 </div>
               {/if}
-              
+
               <!-- Fingerprints -->
               <div class="detail-section">
                 <h4>Fingerprints</h4>
@@ -406,7 +417,7 @@
   .detail-value {
     color: var(--text-primary);
     word-break: break-all;
-    
+
     &.mono {
       font-family: var(--font-mono);
     }
@@ -429,7 +440,7 @@
 
   .chain-section {
     margin-top: var(--spacing-lg);
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
@@ -482,7 +493,7 @@
 
   .connection-section {
     margin-top: var(--spacing-lg);
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;

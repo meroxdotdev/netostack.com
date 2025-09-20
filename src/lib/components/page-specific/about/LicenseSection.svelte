@@ -8,7 +8,8 @@
   <p class="license-summary">
     <a href={site.url}>{site.title}</a> is licensed under the
     <a href="https://gist.github.com/Lissy93/143d2ee01ccc5c052a17">{license.name} License</a>
-    © <a href={author.url}>{author.name}</a> {license.date}
+    © <a href={author.url}>{author.name}</a>
+    {license.date}
   </p>
 
   <h3>Conditions</h3>
@@ -39,7 +40,7 @@
 
   <h3>Full License</h3>
 
-<pre class="license-content">
+  <pre class="license-content">
 Copyright (c) 2025 Alicia Sykes [aliciasykes.com]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,11 +60,9 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 </pre>
-
 </section>
 
 <style>
-
   .license-tldr {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -90,18 +89,33 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         font-weight: bold;
       }
       &.can {
-        .item-head { background: var(--color-success); }
-        ul li:before { content: '✓'; color: var(--color-success); }
+        .item-head {
+          background: var(--color-success);
+        }
+        ul li:before {
+          content: '✓';
+          color: var(--color-success);
+        }
       }
       &.cannot {
-        .item-head { background: var(--color-error); }
-        ul li:before { content: '✕'; color: var(--color-error); }
+        .item-head {
+          background: var(--color-error);
+        }
+        ul li:before {
+          content: '✕';
+          color: var(--color-error);
+        }
       }
       &.must {
-        .item-head { background: var(--color-info); }
-        ul li:before { content: '!'; color: var(--color-info); }
+        .item-head {
+          background: var(--color-info);
+        }
+        ul li:before {
+          content: '!';
+          color: var(--color-info);
+        }
       }
-      
+
       ul {
         list-style: none;
         margin: 0;

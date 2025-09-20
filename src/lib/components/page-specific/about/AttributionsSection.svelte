@@ -16,9 +16,9 @@
   const stargazersUrl = `${apiBase}/stargazers/${user}/${repo}${optionsSmall}`;
 
   // State
-  let sponsors: Array<{login: string, name?: string, avatarUrl: string}> = [];
-  let contributors: Array<{login: string, avatar_url: string}> = [];
-  let stargazers: Array<{login: string, avatar_url: string}> = [];
+  let sponsors: Array<{ login: string; name?: string; avatarUrl: string }> = [];
+  let contributors: Array<{ login: string; avatar_url: string }> = [];
+  let stargazers: Array<{ login: string; avatar_url: string }> = [];
   let loadingSponsors = true;
   let loadingContributors = true;
   let loadingStargazers = true;
@@ -101,7 +101,8 @@
     border: none;
     width: 100%;
     max-height: 512px;
-    &.sponsors, &.contributors {
+    &.sponsors,
+    &.contributors {
       min-height: 240px;
     }
     &.stargazers {

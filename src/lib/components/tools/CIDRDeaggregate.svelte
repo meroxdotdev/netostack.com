@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../styles/diagnostics-pages.scss';
-  
+
   let input = $state(`192.168.0.0/22
 10.0.0.0-10.0.0.255`);
   let targetPrefix = $state(24);
@@ -26,41 +26,41 @@
     {
       label: 'Break /22 into /24s',
       input: '192.168.0.0/22',
-      targetPrefix: 24
+      targetPrefix: 24,
     },
     {
       label: 'Decompose Range to /28s',
       input: '10.0.0.0-10.0.0.255',
-      targetPrefix: 28
+      targetPrefix: 28,
     },
     {
       label: 'Multiple Blocks to /26s',
       input: `172.16.0.0/24
 172.16.2.0/25`,
-      targetPrefix: 26
+      targetPrefix: 26,
     },
     {
       label: 'Enterprise Campus to /25s',
       input: `10.10.0.0/16
 10.20.0.0/17`,
-      targetPrefix: 25
+      targetPrefix: 25,
     },
     {
       label: 'Data Center Racks to /29s',
       input: `192.168.100.0/24
 192.168.101.0-192.168.101.127`,
-      targetPrefix: 29
+      targetPrefix: 29,
     },
     {
       label: 'Service Provider to /30s',
       input: `203.0.113.0/26
 198.51.100.64/27
 198.51.100.96/28`,
-      targetPrefix: 30
-    }
+      targetPrefix: 30,
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     input = example.input;
     targetPrefix = example.targetPrefix;
     selectedExample = example.label;
@@ -74,12 +74,7 @@
   }
 
   function ipToString(ip: number): string {
-    return [
-      (ip >>> 24) & 0xff,
-      (ip >>> 16) & 0xff,
-      (ip >>> 8) & 0xff,
-      ip & 0xff
-    ].join('.');
+    return [(ip >>> 24) & 0xff, (ip >>> 16) & 0xff, (ip >>> 8) & 0xff, ip & 0xff].join('.');
   }
 
   function parseCIDR(cidr: string): { network: number; prefixLength: number; size: number } {
@@ -94,14 +89,14 @@
     const [startStr, endStr] = range.split('-');
     return {
       start: parseIP(startStr.trim()),
-      end: parseIP(endStr.trim())
+      end: parseIP(endStr.trim()),
     };
   }
 
   function deaggregateBlock(network: number, size: number, targetPrefix: number): string[] | { error: string } {
     const targetSize = Math.pow(2, 32 - targetPrefix);
     const subnets: string[] = [];
-    
+
     if (targetSize > size) {
       // Target prefix is larger than the block, return the block as-is if it aligns
       const currentPrefix = 32 - Math.log2(size);
@@ -113,12 +108,12 @@
 
     // Calculate how many subnets this would generate
     const subnetCount = size / targetSize;
-    
+
     // Safety limit to prevent browser crashes (max 10,000 subnets per block)
     if (subnetCount > 10000) {
       const sourcePrefix = 32 - Math.log2(size);
-      return { 
-        error: `Block ${ipToString(network)}/${sourcePrefix} would generate ${subnetCount.toLocaleString()} subnets of /${targetPrefix}. This exceeds the safety limit of 10,000 subnets per block to prevent browser crashes.` 
+      return {
+        error: `Block ${ipToString(network)}/${sourcePrefix} would generate ${subnetCount.toLocaleString()} subnets of /${targetPrefix}. This exceeds the safety limit of 10,000 subnets per block to prevent browser crashes.`,
       };
     }
 
@@ -137,7 +132,10 @@
         return;
       }
 
-      const lines = input.trim().split('\n').filter(line => line.trim());
+      const lines = input
+        .trim()
+        .split('\n')
+        .filter((line) => line.trim());
       const allSubnets: string[] = [];
       let totalInputAddresses = 0;
       const seenSubnets = new Set<string>();
@@ -183,12 +181,12 @@
 
         // Deaggregate this block
         const blockResult = deaggregateBlock(network, size, targetPrefix);
-        
+
         // Check if it returned an error
         if ('error' in blockResult) {
           throw new Error(blockResult.error);
         }
-        
+
         // Add unique subnets
         for (const subnet of blockResult) {
           if (!seenSubnets.has(subnet)) {
@@ -200,7 +198,9 @@
 
       // Overall safety check for total subnets
       if (allSubnets.length > 25000) {
-        throw new Error(`Total would generate ${allSubnets.length.toLocaleString()} subnets. This exceeds the safety limit of 25,000 total subnets to prevent browser performance issues.`);
+        throw new Error(
+          `Total would generate ${allSubnets.length.toLocaleString()} subnets. This exceeds the safety limit of 25,000 total subnets to prevent browser performance issues.`,
+        );
       }
 
       // Sort subnets by network address
@@ -220,8 +220,8 @@
         totalAddresses: totalAddresses,
         inputSummary: {
           totalInputs: lines.length,
-          totalInputAddresses: totalInputAddresses
-        }
+          totalInputAddresses: totalInputAddresses,
+        },
       };
     } catch (error) {
       result = {
@@ -232,8 +232,8 @@
         totalAddresses: 0,
         inputSummary: {
           totalInputs: 0,
-          totalInputAddresses: 0
-        }
+          totalInputAddresses: 0,
+        },
       };
     }
   }
@@ -259,7 +259,7 @@
 
   async function copyAllSubnets() {
     if (!result?.subnets.length) return;
-    
+
     const allText = result.subnets.join('\n');
     await copyToClipboard(allText, 'all-subnets');
   }
@@ -302,10 +302,7 @@
   <section class="input-section">
     <div class="input-grid">
       <div class="input-group">
-        <label 
-          for="input"
-          use:tooltip="{"Enter CIDR blocks, IP ranges, or individual IPs - one per line"}"
-        >
+        <label for="input" use:tooltip={'Enter CIDR blocks, IP ranges, or individual IPs - one per line'}>
           Input Networks/Ranges
         </label>
         <textarea
@@ -319,9 +316,9 @@
       </div>
 
       <div class="input-group">
-        <label 
+        <label
           for="target-prefix"
-          use:tooltip={"Target prefix length for uniform decomposition (e.g., 24 for /24 subnets)"}
+          use:tooltip={'Target prefix length for uniform decomposition (e.g., 24 for /24 subnets)'}
         >
           Target Prefix Length
         </label>
@@ -352,7 +349,7 @@
     <section class="results-section">
       {#if result.success}
         <div class="results-header">
-          <h3 use:tooltip={"Generated uniform subnets from input networks and ranges"}>Deaggregated Subnets</h3>
+          <h3 use:tooltip={'Generated uniform subnets from input networks and ranges'}>Deaggregated Subnets</h3>
           <div class="results-actions">
             <div class="results-summary">
               <span class="metric">
@@ -365,10 +362,7 @@
               </span>
             </div>
             {#if result.subnets.length > 0}
-              <button
-                class="copy-all-button {copiedStates['all-subnets'] ? 'copied' : ''}"
-                onclick={copyAllSubnets}
-              >
+              <button class="copy-all-button {copiedStates['all-subnets'] ? 'copied' : ''}" onclick={copyAllSubnets}>
                 <Icon name={copiedStates['all-subnets'] ? 'check' : 'copy'} size="sm" />
                 {copiedStates['all-subnets'] ? 'Copied!' : 'Copy All'}
               </button>
@@ -379,23 +373,26 @@
         <!-- Input Summary -->
         <div class="input-summary">
           <div class="summary-item">
-            <span class="summary-label" use:tooltip={"Original networks, ranges, and addresses provided"}>Input:</span>
+            <span class="summary-label" use:tooltip={'Original networks, ranges, and addresses provided'}>Input:</span>
             <span class="summary-value">
               {result.inputSummary.totalInputs} items, {result.inputSummary.totalInputAddresses.toLocaleString()} addresses
             </span>
           </div>
           <div class="summary-item">
-            <span class="summary-label" use:tooltip={"Uniform subnets generated from input"}>Output:</span>
+            <span class="summary-label" use:tooltip={'Uniform subnets generated from input'}>Output:</span>
             <span class="summary-value">
               {result.totalSubnets} /{targetPrefix} subnets, {result.totalAddresses.toLocaleString()} addresses
             </span>
           </div>
           {#if result.totalAddresses !== result.inputSummary.totalInputAddresses}
             <div class="summary-item">
-              <span class="summary-label" use:tooltip={"Address count difference due to subnet boundary alignment"}>Note:</span>
+              <span class="summary-label" use:tooltip={'Address count difference due to subnet boundary alignment'}
+                >Note:</span
+              >
               <span class="summary-value address-diff">
-                {result.totalAddresses > result.inputSummary.totalInputAddresses ? 'Expanded' : 'Reduced'} by {Math.abs(result.totalAddresses - result.inputSummary.totalInputAddresses).toLocaleString()} addresses
-                (due to alignment to /{targetPrefix} boundaries)
+                {result.totalAddresses > result.inputSummary.totalInputAddresses ? 'Expanded' : 'Reduced'} by {Math.abs(
+                  result.totalAddresses - result.inputSummary.totalInputAddresses,
+                ).toLocaleString()} addresses (due to alignment to /{targetPrefix} boundaries)
               </span>
             </div>
           {/if}
@@ -422,8 +419,11 @@
                   </span>
                   {#if subnetSize >= 256}
                     <span class="subnet-size">
-                      {subnetSize >= 65536 ? `${(subnetSize / 65536).toFixed(0)}×/16` : 
-                       subnetSize >= 256 ? `${(subnetSize / 256).toFixed(0)}×/24` : ''}
+                      {subnetSize >= 65536
+                        ? `${(subnetSize / 65536).toFixed(0)}×/16`
+                        : subnetSize >= 256
+                          ? `${(subnetSize / 256).toFixed(0)}×/24`
+                          : ''}
                     </span>
                   {/if}
                 </div>
@@ -437,7 +437,6 @@
             <p>The target prefix length may be too large for the input networks, or the input is empty.</p>
           </div>
         {/if}
-
       {:else}
         <div class="error-message">
           <Icon name="alert-triangle" />
@@ -450,7 +449,6 @@
 </div>
 
 <style lang="scss">
-
   .input-section {
     margin-bottom: var(--spacing-lg);
   }

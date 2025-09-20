@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import '../styles/base.scss';
-	import '../styles/variables.scss';
-	import '../styles/components.scss';
-	import '../styles/ref-pages.scss';
-	import '../styles/diagnostics-pages.scss';
-	import '../styles/pages.scss';
+  import { onMount } from 'svelte';
+  import { page } from '$app/stores';
+  import '../styles/base.scss';
+  import '../styles/variables.scss';
+  import '../styles/components.scss';
+  import '../styles/ref-pages.scss';
+  import '../styles/diagnostics-pages.scss';
+  import '../styles/pages.scss';
 
   import favicon from '$lib/assets/favicon.svg';
   import { getPageDetails } from '$lib/constants/nav.js';
@@ -30,7 +30,7 @@
       description: pageDetails?.description || site.description,
       keywords: pageDetails?.keywords?.length ? pageDetails.keywords.join(', ') : site.keywords,
       url: `${site.url}${currentPath}`,
-      image: site.image
+      image: site.image,
     };
   });
 
@@ -64,9 +64,7 @@
   /* Uses the server-generated breadcrumb data, to build a JSON-LD breadcrumb object */
   function jsonLdTag(data: unknown, type = 'application/ld+json', nonce?: string) {
     if (!data) return '';
-    const json = JSON.stringify(data)
-      .replace(/</g, '\\u003c')
-      .replace(/-->/g, '--\\>');
+    const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/-->/g, '--\\>');
     const nonceAttr = nonce ? ` nonce="${nonce}"` : '';
     return `<script type="${type}"${nonceAttr}>${json} <\/script>`;
   }
@@ -113,14 +111,13 @@
 <Footer />
 
 <style>
-main {
-  max-width: 1200px;
-  min-height: 76vh;
-  margin: 1.5rem auto 1rem;
-  padding: 0 var(--spacing-md);
-  margin: 1rem auto;
-  background: var(--bg-primary);
-  padding: var(--spacing-lg) var(--spacing-md);
-}
+  main {
+    max-width: 1200px;
+    min-height: 76vh;
+    margin: 1.5rem auto 1rem;
+    padding: 0 var(--spacing-md);
+    margin: 1rem auto;
+    background: var(--bg-primary);
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
 </style>
-

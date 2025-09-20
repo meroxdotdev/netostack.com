@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cgnatContent } from '$lib/content/cgnat.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -100,8 +100,13 @@
           <div class="examples-title">{method.method}</div>
           <div class="example-item">
             <div><strong>Description:</strong> {method.description}</div>
-            <div><strong>CGNAT Indicator:</strong> <span style="color: var(--color-error)">{method.cgnatIndicator}</span></div>
-            <div><strong>Normal Indicator:</strong> <span style="color: var(--color-success)">{method.normalIndicator}</span></div>
+            <div>
+              <strong>CGNAT Indicator:</strong> <span style="color: var(--color-error)">{method.cgnatIndicator}</span>
+            </div>
+            <div>
+              <strong>Normal Indicator:</strong>
+              <span style="color: var(--color-success)">{method.normalIndicator}</span>
+            </div>
           </div>
         </div>
       {/each}
@@ -109,7 +114,7 @@
 
     <div class="ref-section">
       <h2>Impact on Services</h2>
-      
+
       <h3>Negative Impacts</h3>
       {#each cgnatContent.impacts.negative as impact}
         <div class="ref-warning">
@@ -166,7 +171,7 @@
 
     <div class="ref-section">
       <h2>Quick CGNAT Check</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Steps to Check</div>
@@ -176,7 +181,7 @@
             {/each}
           </ol>
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">What to Do Next</div>
           <ul>
@@ -207,14 +212,15 @@
           </div>
         {/each}
       </div>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="info" size="sm" />
           Understanding the Trade-off
         </div>
         <div class="highlight-content">
-          CGNAT is a necessary compromise. It allows ISPs to provide affordable internet service during IPv4 exhaustion, but at the cost of some functionality. The long-term solution is IPv6 adoption.
+          CGNAT is a necessary compromise. It allows ISPs to provide affordable internet service during IPv4 exhaustion,
+          but at the cost of some functionality. The long-term solution is IPv6 adoption.
         </div>
       </div>
     </div>

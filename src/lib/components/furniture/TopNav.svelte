@@ -58,7 +58,7 @@
       const aIsGroup = isNavGroup(a);
       const bIsGroup = isNavGroup(b);
       if (aIsGroup && !bIsGroup) return -1; // Groups first
-      if (!aIsGroup && bIsGroup) return 1;  // Items second
+      if (!aIsGroup && bIsGroup) return 1; // Items second
       return 0; // Keep original order within same type
     });
   }
@@ -66,7 +66,6 @@
   function isNavGroup(item: NavItem | NavGroup): item is NavGroup {
     return 'title' in item && 'items' in item;
   }
-
 </script>
 
 <nav class="top-nav" aria-label="Primary navigation">
@@ -88,7 +87,13 @@
         {item.label}
         {#if hasSubPages(item.href)}
           <svg class="dropdown-icon" width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path
+              d="M3 4.5L6 7.5L9 4.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         {/if}
       </a>
@@ -133,7 +138,13 @@
                       {subItem.title}
                       {#if subItem.items.length > 0}
                         <svg class="secondary-icon" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                          <path d="M4.5 3L7.5 6L4.5 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path
+                            d="M4.5 3L7.5 6L4.5 9"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
                         </svg>
                       {/if}
                     </div>
@@ -222,7 +233,7 @@
     transition: transform 0.2s ease;
   }
 
-  .has-dropdown .nav-link[aria-expanded="true"] .dropdown-icon {
+  .has-dropdown .nav-link[aria-expanded='true'] .dropdown-icon {
     transform: rotate(180deg);
     opacity: 1;
   }

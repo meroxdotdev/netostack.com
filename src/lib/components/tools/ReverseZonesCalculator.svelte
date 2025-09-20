@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import { calculateReverseZones, type ReverseZoneInfo } from '$lib/utils/reverse-dns.js';
-  
+
   let cidrInput = $state('192.168.1.0/24');
   let results = $state<{
     success: boolean;
@@ -15,7 +15,7 @@
       delegationType: string;
     };
   } | null>(null);
-  
+
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
   let userModified = $state(false);
@@ -24,36 +24,36 @@
     {
       label: 'IPv4 /24 Network',
       cidr: '192.168.1.0/24',
-      description: 'Single class C zone delegation'
+      description: 'Single class C zone delegation',
     },
     {
       label: 'IPv4 /16 Network',
       cidr: '10.0.0.0/16',
-      description: 'Class B with multiple /24 zones'
+      description: 'Class B with multiple /24 zones',
     },
     {
       label: 'IPv4 /20 Block',
       cidr: '172.16.32.0/20',
-      description: '16 class C zones needed'
+      description: '16 class C zones needed',
     },
     {
       label: 'IPv4 /28 Subnet',
       cidr: '192.168.1.16/28',
-      description: 'Small subnet within /24 zone'
+      description: 'Small subnet within /24 zone',
     },
     {
       label: 'IPv6 /64 Network',
       cidr: '2001:db8:1000::/64',
-      description: 'IPv6 nibble boundary delegation'
+      description: 'IPv6 nibble boundary delegation',
     },
     {
       label: 'IPv6 /48 Prefix',
       cidr: '2001:db8::/48',
-      description: 'IPv6 /48 delegation zone'
-    }
+      description: 'IPv6 /48 delegation zone',
+    },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     cidrInput = example.cidr;
     selectedExample = example.label;
     userModified = false;
@@ -69,15 +69,15 @@
     try {
       const trimmed = cidrInput.trim();
       const zones = calculateReverseZones(trimmed);
-      
+
       if (zones.length === 0) {
         throw new Error('No reverse zones could be calculated for this CIDR');
       }
 
       // Analyze the results
-      const ipv4Zones = zones.filter(z => z.type === 'IPv4').length;
-      const ipv6Zones = zones.filter(z => z.type === 'IPv6').length;
-      
+      const ipv4Zones = zones.filter((z) => z.type === 'IPv4').length;
+      const ipv6Zones = zones.filter((z) => z.type === 'IPv6').length;
+
       let delegationType = '';
       if (ipv4Zones > 0) {
         if (ipv4Zones === 1) {
@@ -97,16 +97,15 @@
           totalZones: zones.length,
           ipv4Zones,
           ipv6Zones,
-          delegationType
-        }
+          delegationType,
+        },
       };
-
     } catch (error) {
       results = {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
         zones: [],
-        analysis: { totalZones: 0, ipv4Zones: 0, ipv6Zones: 0, delegationType: '' }
+        analysis: { totalZones: 0, ipv4Zones: 0, ipv6Zones: 0, delegationType: '' },
       };
     }
   }
@@ -130,22 +129,27 @@
   }
 
   function generateBindConfig(zones: ReverseZoneInfo[]): string {
-    return zones.map(zone => 
-      `zone "${zone.zone}" {
+    return zones
+      .map(
+        (zone) =>
+          `zone "${zone.zone}" {
     type master;
     file "/etc/bind/zones/${zone.zone}";
-};`
-    ).join('\n\n');
+};`,
+      )
+      .join('\n\n');
   }
 
   function generateDelegationCommands(zones: ReverseZoneInfo[]): string {
-    return zones.map(zone => {
-      const zoneFile = zone.zone.replace(/\./g, '_');
-      return `# Create zone file for ${zone.zone}
+    return zones
+      .map((zone) => {
+        const zoneFile = zone.zone.replace(/\./g, '_');
+        return `# Create zone file for ${zone.zone}
 touch /etc/bind/zones/${zone.zone}
 chown bind:bind /etc/bind/zones/${zone.zone}
 chmod 644 /etc/bind/zones/${zone.zone}`;
-    }).join('\n\n');
+      })
+      .join('\n\n');
   }
 
   // Calculate on component load
@@ -164,7 +168,8 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
       <div class="overview-item">
         <Icon name="layers" size="sm" />
         <div>
-          <strong>Zone Boundaries:</strong> IPv4 uses octet boundaries (/8, /16, /24) and IPv6 uses nibble boundaries (4-bit increments).
+          <strong>Zone Boundaries:</strong> IPv4 uses octet boundaries (/8, /16, /24) and IPv6 uses nibble boundaries (4-bit
+          increments).
         </div>
       </div>
       <div class="overview-item">
@@ -209,7 +214,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
   <!-- Input Card -->
   <div class="card input-card">
     <div class="input-group">
-      <label for="cidr-input" use:tooltip={"Enter a CIDR block to calculate reverse zones for"}>
+      <label for="cidr-input" use:tooltip={'Enter a CIDR block to calculate reverse zones for'}>
         <Icon name="network" size="sm" />
         CIDR Block
       </label>
@@ -270,7 +275,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
                     <Icon name={copiedStates[`zone-${index}`] ? 'check' : 'copy'} size="sm" />
                   </button>
                 </div>
-                
+
                 <div class="zone-description">
                   {#if zone.type === 'IPv4'}
                     {#if zone.delegation === '/24'}
@@ -283,7 +288,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
                       Custom IPv4 reverse zone for {zone.delegation} prefix
                     {/if}
                   {:else}
-                    IPv6 reverse zone using {zone.nibbleDepth} nibble{zone.nibbleDepth !== 1 ? 's' : ''} 
+                    IPv6 reverse zone using {zone.nibbleDepth} nibble{zone.nibbleDepth !== 1 ? 's' : ''}
                     ({zone.delegation} prefix)
                   {/if}
                 </div>
@@ -298,7 +303,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
             <Icon name="settings" size="sm" />
             Configuration Examples
           </h4>
-          
+
           <div class="config-examples">
             <!-- BIND Configuration -->
             <div class="config-example">
@@ -321,7 +326,8 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
                 <h5>Zone File Setup Commands</h5>
                 <button
                   class="copy-button {copiedStates['setup-commands'] ? 'copied' : ''}"
-                  onclick={() => results && copyToClipboard(generateDelegationCommands(results.zones), 'setup-commands')}
+                  onclick={() =>
+                    results && copyToClipboard(generateDelegationCommands(results.zones), 'setup-commands')}
                 >
                   <Icon name={copiedStates['setup-commands'] ? 'check' : 'copy'} size="sm" />
                   Copy Commands
@@ -331,7 +337,6 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
             </div>
           </div>
         </div>
-
       {:else}
         <div class="error-result">
           <Icon name="alert-triangle" size="lg" />
@@ -355,36 +360,35 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
       <div class="education-item info-panel">
         <h4>Zone Delegation Basics</h4>
         <p>
-          Reverse DNS zones must be delegated at natural boundaries. IPv4 uses octet boundaries
-          (/8, /16, /24) while IPv6 uses nibble boundaries (every 4 bits). Delegation happens
-          from your ISP or hosting provider.
+          Reverse DNS zones must be delegated at natural boundaries. IPv4 uses octet boundaries (/8, /16, /24) while
+          IPv6 uses nibble boundaries (every 4 bits). Delegation happens from your ISP or hosting provider.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>IPv4 Boundaries</h4>
         <p>
-          IPv4 reverse zones align with classful network boundaries: /8 creates single zones
-          like <code>10.in-addr.arpa</code>, /16 creates zones like <code>0.10.in-addr.arpa</code>,
-          and /24 creates zones like <code>1.0.10.in-addr.arpa</code>.
+          IPv4 reverse zones align with classful network boundaries: /8 creates single zones like <code
+            >10.in-addr.arpa</code
+          >, /16 creates zones like <code>0.10.in-addr.arpa</code>, and /24 creates zones like
+          <code>1.0.10.in-addr.arpa</code>.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>IPv6 Nibbles</h4>
         <p>
-          IPv6 reverse zones use nibble boundaries (4-bit increments). Each hex digit becomes
-          a separate label in the <code>ip6.arpa</code> domain. A /48 prefix typically requires
-          12 nibbles of delegation.
+          IPv6 reverse zones use nibble boundaries (4-bit increments). Each hex digit becomes a separate label in the <code
+            >ip6.arpa</code
+          > domain. A /48 prefix typically requires 12 nibbles of delegation.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Practical Considerations</h4>
         <p>
-          Most organizations receive /24 (IPv4) or /48 to /64 (IPv6) delegations from their ISP.
-          Smaller subnets like /28 still require the full /24 zone to be delegated to you
-          for proper reverse DNS operation.
+          Most organizations receive /24 (IPv4) or /48 to /64 (IPv6) delegations from their ISP. Smaller subnets like
+          /28 still require the full /24 zone to be delegated to you for proper reverse DNS operation.
         </p>
       </div>
     </div>
@@ -421,7 +425,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -562,7 +566,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
-    
+
     @media (max-width: 768px) {
       flex-direction: column;
       gap: var(--spacing-md);
@@ -576,7 +580,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
   .summary-stats {
     display: flex;
     gap: var(--spacing-lg);
-    
+
     @media (max-width: 768px) {
       flex-direction: column;
       gap: var(--spacing-sm);
@@ -588,7 +592,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
     flex-direction: column;
     align-items: center;
     gap: var(--spacing-xs);
-    
+
     @media (max-width: 768px) {
       flex-direction: row;
       align-items: center;
@@ -660,19 +664,20 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
     font-weight: 600;
-    
+
     &.ipv4 {
       background-color: rgba(34, 197, 94, 0.1);
       color: var(--color-success);
     }
-    
+
     &.ipv6 {
       background-color: rgba(147, 51, 234, 0.1);
       color: var(--color-accent);
     }
   }
 
-  .delegation-info, .nibble-info {
+  .delegation-info,
+  .nibble-info {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
     background-color: var(--bg-tertiary);
@@ -768,7 +773,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
     color: var(--text-secondary);
     margin: 0;
     overflow-x: auto;
-    
+
     code {
       background: none;
     }
@@ -843,7 +848,7 @@ chmod 644 /etc/bind/zones/${zone.zone}`;
       line-height: 1.6;
       margin: 0;
     }
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);

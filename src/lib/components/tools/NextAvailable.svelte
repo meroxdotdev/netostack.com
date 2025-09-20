@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { findNextAvailableSubnet, type NextAvailableInput, type NextAvailableResult, type AllocationPolicy } from '$lib/utils/next-available.js';
+  import {
+    findNextAvailableSubnet,
+    type NextAvailableInput,
+    type NextAvailableResult,
+    type AllocationPolicy,
+  } from '$lib/utils/next-available.js';
   import { tooltip } from '$lib/actions/tooltip.js';
   import Tooltip from '$lib/components/global/Tooltip.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
@@ -30,7 +35,7 @@
 192.168.100.0/24`,
       mode: 'prefix' as const,
       prefix: 24,
-      policy: 'first-fit' as AllocationPolicy
+      policy: 'first-fit' as AllocationPolicy,
     },
     {
       label: 'Host-based Search',
@@ -39,7 +44,7 @@
 10.1.0.0/16`,
       mode: 'hosts' as const,
       hosts: 1000,
-      policy: 'best-fit' as AllocationPolicy
+      policy: 'best-fit' as AllocationPolicy,
     },
     {
       label: 'Multiple Pools',
@@ -49,7 +54,7 @@
 192.168.100.0/24`,
       mode: 'prefix' as const,
       prefix: 22,
-      policy: 'first-fit' as AllocationPolicy
+      policy: 'first-fit' as AllocationPolicy,
     },
     {
       label: 'IPv6 Example',
@@ -58,23 +63,23 @@
 2001:db8:10::/48`,
       mode: 'prefix' as const,
       prefix: 48,
-      policy: 'first-fit' as AllocationPolicy
-    }
+      policy: 'first-fit' as AllocationPolicy,
+    },
   ];
 
   /* Set example */
-  function setExample(example: typeof examples[0]) {
+  function setExample(example: (typeof examples)[0]) {
     pools = example.pools;
     allocations = example.allocations;
     searchMode = example.mode;
     policy = example.policy;
-    
+
     if (example.mode === 'prefix') {
       desiredPrefix = example.prefix!;
     } else {
       desiredHostCount = example.hosts!;
     }
-    
+
     selectedExample = example.label;
     userModified = false;
     performSearch();
@@ -85,7 +90,7 @@
     try {
       await navigator.clipboard.writeText(text);
       copiedStates[id] = true;
-      setTimeout(() => copiedStates[id] = false, 3000);
+      setTimeout(() => (copiedStates[id] = false), 3000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -94,15 +99,19 @@
   /* Export results */
   function exportResults(format: 'csv' | 'json') {
     if (!result || result.candidates.length === 0) return;
-    
+
     let content = '';
     if (format === 'json') {
-      content = JSON.stringify({
-        candidates: result.candidates,
-        stats: result.stats,
-        freeSpace: result.freeSpaceBlocks,
-        timestamp: new Date().toISOString()
-      }, null, 2);
+      content = JSON.stringify(
+        {
+          candidates: result.candidates,
+          stats: result.stats,
+          freeSpace: result.freeSpaceBlocks,
+          timestamp: new Date().toISOString(),
+        },
+        null,
+        2,
+      );
     } else {
       const headers = ['Rank', 'CIDR', 'Network', 'Broadcast', 'Size', 'Usable Hosts', 'Parent Pool', 'Gap Size'];
       const rows = result.candidates.map((candidate, i) => [
@@ -113,12 +122,12 @@
         candidate.size,
         candidate.usableHosts,
         `"${candidate.parentPool}"`,
-        candidate.gapSize
+        candidate.gapSize,
       ]);
-      
-      content = [headers, ...rows].map(row => row.join(',')).join('\n');
+
+      content = [headers, ...rows].map((row) => row.join(',')).join('\n');
     }
-    
+
     copyToClipboard(content, `export-${format}`);
   }
 
@@ -143,7 +152,7 @@
       desiredHostCount: searchMode === 'hosts' ? desiredHostCount : undefined,
       ipv4UsableHosts,
       policy,
-      maxCandidates
+      maxCandidates,
     };
 
     result = findNextAvailableSubnet(input);
@@ -166,14 +175,17 @@
   }
 
   /* Generate tooltip text for visualization segments */
-  function getSegmentTooltip(range: { cidr: string; start?: bigint; end?: bigint }, type: 'pool' | 'allocation' | 'free' | 'candidate'): string {
+  function getSegmentTooltip(
+    range: { cidr: string; start?: bigint; end?: bigint },
+    type: 'pool' | 'allocation' | 'free' | 'candidate',
+  ): string {
     const labels = {
       pool: 'Pool',
       allocation: 'Allocation',
       free: 'Free Space',
-      candidate: 'Candidate'
+      candidate: 'Candidate',
     };
-    
+
     const size = range.start && range.end ? (range.end - range.start + 1n).toLocaleString() : 'Unknown';
     return `${labels[type]}\n${range.cidr}\nSize: ${size} addresses`;
   }
@@ -195,9 +207,10 @@
   // Auto-hide visualization for complex results
   $effect(() => {
     if (result?.visualization) {
-      const totalSegments = result.visualization.pools.length + 
-                          result.visualization.allocations.length + 
-                          result.visualization.freeSpace.length;
+      const totalSegments =
+        result.visualization.pools.length +
+        result.visualization.allocations.length +
+        result.visualization.freeSpace.length;
       showVisualization = totalSegments <= 50;
     }
   });
@@ -206,27 +219,35 @@
 <div class="card">
   <header class="card-header">
     <h2>Next Available Subnet Finder</h2>
-    <p>Find available subnets from pool CIDRs minus existing allocations with first-fit or best-fit allocation policies.</p>
+    <p>
+      Find available subnets from pool CIDRs minus existing allocations with first-fit or best-fit allocation policies.
+    </p>
   </header>
 
   <!-- Search Mode -->
   <div class="mode-section">
     <h3>Search Criteria</h3>
     <div class="tabs">
-      <button 
+      <button
         type="button"
         class="tab"
         class:active={searchMode === 'prefix'}
-        onclick={() => { searchMode = 'prefix'; userModified = true; }}
+        onclick={() => {
+          searchMode = 'prefix';
+          userModified = true;
+        }}
         use:tooltip={{ text: 'Search for subnets with specific prefix length (e.g., /24)', position: 'top' }}
       >
         By Prefix
       </button>
-      <button 
+      <button
         type="button"
         class="tab"
         class:active={searchMode === 'hosts'}
-        onclick={() => { searchMode = 'hosts'; userModified = true; }}
+        onclick={() => {
+          searchMode = 'hosts';
+          userModified = true;
+        }}
         use:tooltip={{ text: 'Search for subnets that can accommodate N hosts', position: 'top' }}
       >
         By Host Count
@@ -244,7 +265,7 @@
         <textarea
           id="pools"
           bind:value={pools}
-          oninput={() => userModified = true}
+          oninput={() => (userModified = true)}
           placeholder="192.168.0.0/16&#10;10.0.0.0/8"
           class="input-textarea pools"
           rows="4"
@@ -252,13 +273,16 @@
       </div>
 
       <div class="input-group">
-        <label for="allocations" use:tooltip={{ text: 'Already allocated subnets/ranges (optional, one per line)', position: 'top' }}>
+        <label
+          for="allocations"
+          use:tooltip={{ text: 'Already allocated subnets/ranges (optional, one per line)', position: 'top' }}
+        >
           Existing Allocations
         </label>
         <textarea
           id="allocations"
           bind:value={allocations}
-          oninput={() => userModified = true}
+          oninput={() => (userModified = true)}
           placeholder="192.168.1.0/24&#10;10.0.0.0/16"
           class="input-textarea allocations"
           rows="4"
@@ -270,14 +294,17 @@
     <div class="params-grid">
       {#if searchMode === 'prefix'}
         <div class="input-group">
-          <label for="desired-prefix" use:tooltip={{ text: 'Desired subnet prefix (e.g., 24 for /24 subnets)', position: 'top' }}>
+          <label
+            for="desired-prefix"
+            use:tooltip={{ text: 'Desired subnet prefix (e.g., 24 for /24 subnets)', position: 'top' }}
+          >
             Target Prefix Length
           </label>
           <input
             id="desired-prefix"
             type="number"
             bind:value={desiredPrefix}
-            oninput={() => userModified = true}
+            oninput={() => (userModified = true)}
             min="1"
             max="128"
             class="input-field"
@@ -285,14 +312,17 @@
         </div>
       {:else}
         <div class="input-group">
-          <label for="desired-hosts" use:tooltip={{ text: 'Minimum number of hosts the subnet must accommodate', position: 'top' }}>
+          <label
+            for="desired-hosts"
+            use:tooltip={{ text: 'Minimum number of hosts the subnet must accommodate', position: 'top' }}
+          >
             Required Host Count
           </label>
           <input
             id="desired-hosts"
             type="number"
             bind:value={desiredHostCount}
-            oninput={() => userModified = true}
+            oninput={() => (userModified = true)}
             min="1"
             class="input-field"
           />
@@ -300,29 +330,30 @@
       {/if}
 
       <div class="input-group">
-        <label for="policy" use:tooltip={{ text: 'First-fit: lowest address. Best-fit: smallest gap.', position: 'top' }}>
+        <label
+          for="policy"
+          use:tooltip={{ text: 'First-fit: lowest address. Best-fit: smallest gap.', position: 'top' }}
+        >
           Allocation Policy
         </label>
-        <select
-          id="policy"
-          bind:value={policy}
-          onchange={() => userModified = true}
-          class="input-field"
-        >
+        <select id="policy" bind:value={policy} onchange={() => (userModified = true)} class="input-field">
           <option value="first-fit">First Fit (Lowest)</option>
           <option value="best-fit">Best Fit (Smallest Gap)</option>
         </select>
       </div>
 
       <div class="input-group">
-        <label for="max-candidates" use:tooltip={{ text: 'Maximum number of subnet suggestions to return', position: 'top' }}>
+        <label
+          for="max-candidates"
+          use:tooltip={{ text: 'Maximum number of subnet suggestions to return', position: 'top' }}
+        >
           Max Candidates
         </label>
         <input
           id="max-candidates"
           type="number"
           bind:value={maxCandidates}
-          oninput={() => userModified = true}
+          oninput={() => (userModified = true)}
           min="1"
           max="20"
           class="input-field"
@@ -332,21 +363,18 @@
 
     <!-- Options -->
     <div class="options-section">
-      <label class="checkbox-label" use:tooltip={{ text: 'For IPv4, treat network and broadcast addresses as unusable', position: 'top' }}>
-        <input 
-          type="checkbox" 
-          bind:checked={ipv4UsableHosts} 
-          onchange={() => userModified = true}
-        />
-        <span class="checkbox-text">
-          IPv4 usable hosts (exclude network/broadcast)
-        </span>
+      <label
+        class="checkbox-label"
+        use:tooltip={{ text: 'For IPv4, treat network and broadcast addresses as unusable', position: 'top' }}
+      >
+        <input type="checkbox" bind:checked={ipv4UsableHosts} onchange={() => (userModified = true)} />
+        <span class="checkbox-text"> IPv4 usable hosts (exclude network/broadcast) </span>
       </label>
     </div>
 
     <div class="input-actions">
-      <button 
-        type="button" 
+      <button
+        type="button"
         class="btn btn-secondary btn-sm"
         onclick={clearInputs}
         use:tooltip={{ text: 'Clear all inputs', position: 'top' }}
@@ -360,7 +388,7 @@
       <h4>Quick Examples</h4>
       <div class="examples-grid">
         {#each examples as example}
-          <button 
+          <button
             type="button"
             class="example-btn"
             class:selected={selectedExample === example.label}
@@ -406,7 +434,7 @@
           <div class="summary-header">
             <h3>Available Subnets</h3>
             <div class="export-buttons">
-              <button 
+              <button
                 type="button"
                 class="btn btn-primary btn-sm"
                 class:copied={copiedStates['export-csv']}
@@ -415,7 +443,7 @@
                 <Icon name={copiedStates['export-csv'] ? 'check' : 'download'} size="sm" />
                 CSV
               </button>
-              <button 
+              <button
                 type="button"
                 class="btn btn-secondary btn-sm"
                 class:copied={copiedStates['export-json']}
@@ -459,20 +487,20 @@
               <button
                 type="button"
                 class="btn btn-secondary btn-xs"
-                onclick={() => showVisualization = !showVisualization}
+                onclick={() => (showVisualization = !showVisualization)}
               >
                 <Icon name="eye-off" size="sm" />
                 Hide
               </button>
             </div>
-            
+
             <div class="visualization-stack">
               <!-- Pools (background) -->
               <div class="viz-bar pools-bar">
                 <div class="bar-label">Pools</div>
                 <div class="bar-segments">
                   {#each result.visualization.pools as pool}
-                    <div 
+                    <div
                       class="viz-segment pool-segment"
                       style="width: {getBarWidth(pool)}%; left: {getBarOffset(pool)}%"
                       use:tooltip={{ text: getSegmentTooltip(pool, 'pool'), position: 'top' }}
@@ -480,13 +508,13 @@
                   {/each}
                 </div>
               </div>
-              
+
               <!-- Allocations (overlay) -->
               <div class="viz-bar allocations-bar">
                 <div class="bar-label">Allocated</div>
                 <div class="bar-segments">
                   {#each result.visualization.allocations as allocation}
-                    <div 
+                    <div
                       class="viz-segment allocation-segment"
                       style="width: {getBarWidth(allocation)}%; left: {getBarOffset(allocation)}%"
                       use:tooltip={{ text: getSegmentTooltip(allocation, 'allocation'), position: 'top' }}
@@ -494,13 +522,13 @@
                   {/each}
                 </div>
               </div>
-              
+
               <!-- Free space -->
               <div class="viz-bar free-bar">
                 <div class="bar-label">Free</div>
                 <div class="bar-segments">
                   {#each result.visualization.freeSpace as free}
-                    <div 
+                    <div
                       class="viz-segment free-segment"
                       style="width: {getBarWidth(free)}%; left: {getBarOffset(free)}%"
                       use:tooltip={{ text: getSegmentTooltip(free, 'free'), position: 'top' }}
@@ -508,13 +536,13 @@
                   {/each}
                 </div>
               </div>
-              
+
               <!-- Candidates (highlights) -->
               <div class="viz-bar candidates-bar">
                 <div class="bar-label">Candidates</div>
                 <div class="bar-segments">
                   {#each result.visualization.candidates as candidate, i}
-                    <div 
+                    <div
                       class="viz-segment candidate-segment"
                       class:primary={i === 0}
                       style="width: {getBarWidth(candidate)}%; left: {getBarOffset(candidate)}%"
@@ -524,7 +552,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="viz-legend">
               <div class="legend-item">
                 <div class="legend-color pool-color"></div>
@@ -555,7 +583,7 @@
                 <div class="candidate-header">
                   <div class="candidate-rank">#{i + 1}</div>
                   <code class="candidate-cidr">{candidate.cidr}</code>
-                  <button 
+                  <button
                     type="button"
                     class="btn btn-icon btn-xs"
                     class:copied={copiedStates[candidate.cidr]}
@@ -640,20 +668,22 @@
   /* Mode section */
   .mode-section {
     margin-bottom: var(--spacing-lg);
-    
-    h3 { @extend %section-title; }
-    
+
+    h3 {
+      @extend %section-title;
+    }
+
     .tabs {
       display: flex;
       gap: var(--spacing-sm);
       margin-bottom: var(--spacing-md);
-      
+
       .tab {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
         max-width: 12rem;
-        
+
         &.active {
           outline: 2px solid var(--color-primary);
           outline-offset: -2px;
@@ -665,21 +695,21 @@
   /* Input section */
   .input-section {
     margin-bottom: var(--spacing-lg);
-    
+
     .input-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--spacing-lg);
       margin-bottom: var(--spacing-md);
     }
-    
+
     .params-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: var(--spacing-md);
       margin-bottom: var(--spacing-md);
     }
-    
+
     .input-group {
       label {
         display: block;
@@ -689,15 +719,19 @@
         cursor: pointer;
       }
     }
-    
+
     .input-textarea {
-      &.pools { border-left: 4px solid var(--color-primary); }
-      &.allocations { border-left: 4px solid var(--color-primary); }
+      &.pools {
+        border-left: 4px solid var(--color-primary);
+      }
+      &.allocations {
+        border-left: 4px solid var(--color-primary);
+      }
     }
-    
+
     .options-section {
       margin: var(--spacing-md) 0;
-      
+
       .checkbox-label {
         display: flex;
         align-items: center;
@@ -708,19 +742,19 @@
         border-radius: var(--radius-sm);
         transition: all var(--transition-fast);
         width: fit-content;
-        
+
         &:hover {
           background-color: var(--surface-hover);
         }
-        
-        input[type="checkbox"] {
+
+        input[type='checkbox'] {
           width: 18px;
           height: 18px;
           flex-shrink: 0;
           cursor: pointer;
           accent-color: var(--color-primary);
         }
-        
+
         .checkbox-text {
           color: var(--text-primary);
           font-size: var(--font-size-sm);
@@ -728,7 +762,7 @@
         }
       }
     }
-    
+
     .input-actions {
       display: flex;
       justify-content: end;
@@ -738,15 +772,17 @@
   /* Examples */
   .examples-section {
     margin-top: var(--spacing-lg);
-    
-    h4 { @extend %section-title; }
-    
+
+    h4 {
+      @extend %section-title;
+    }
+
     .examples-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: var(--spacing-sm);
     }
-    
+
     .example-btn {
       padding: var(--spacing-sm);
       background-color: var(--bg-tertiary);
@@ -754,13 +790,13 @@
       border-radius: var(--radius-sm);
       font-size: var(--font-size-sm);
       transition: all var(--transition-fast);
-      
+
       &.selected {
         outline: 2px solid var(--color-primary);
         outline-offset: -2px;
         background-color: var(--surface-hover);
       }
-      
+
       &:hover {
         background-color: var(--surface-hover);
         border-color: var(--color-primary);
@@ -780,12 +816,12 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
-    
+
     h3 {
       color: var(--color-primary);
       margin: 0;
     }
-    
+
     .export-buttons {
       display: flex;
       gap: var(--spacing-sm);
@@ -835,14 +871,14 @@
   /* Visualization */
   .visualization-section {
     margin-bottom: var(--spacing-lg);
-    
+
     .viz-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: var(--spacing-md);
-      
-      h4 { 
+
+      h4 {
         @extend %section-title;
         margin: 0;
       }
@@ -864,7 +900,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    
+
     .bar-label {
       font-size: var(--font-size-sm);
       font-weight: 600;
@@ -872,7 +908,7 @@
       width: 80px;
       text-align: right;
     }
-    
+
     .bar-segments {
       flex: 1;
       position: relative;
@@ -888,35 +924,35 @@
     height: 100%;
     cursor: pointer;
     transition: all var(--transition-fast);
-    
+
     &.pool-segment {
       background-color: var(--color-info);
       opacity: 0.6;
     }
-    
+
     &.allocation-segment {
       background-color: var(--color-error);
       opacity: 0.8;
       top: 10%;
       height: 80%;
     }
-    
+
     &.free-segment {
       background-color: var(--color-success);
       opacity: 0.7;
     }
-    
+
     &.candidate-segment {
       background-color: var(--color-warning);
       opacity: 0.9;
       border: 1px solid var(--bg-primary);
-      
+
       &.primary {
         background-color: var(--color-primary);
         opacity: 1;
       }
     }
-    
+
     &:hover {
       filter: brightness(1.1);
       z-index: 10;
@@ -927,22 +963,33 @@
     display: flex;
     justify-content: center;
     gap: var(--spacing-lg);
-    
+
     .legend-item {
       display: flex;
       align-items: center;
       gap: var(--spacing-sm);
       font-size: var(--font-size-sm);
-      
+
       .legend-color {
         width: 16px;
         height: 16px;
         border-radius: var(--radius-xs);
-        
-        &.pool-color { background-color: var(--color-info); opacity: 0.6; }
-        &.allocation-color { background-color: var(--color-error); opacity: 0.8; }
-        &.free-color { background-color: var(--color-success); opacity: 0.7; }
-        &.candidate-color { background-color: var(--color-primary); }
+
+        &.pool-color {
+          background-color: var(--color-info);
+          opacity: 0.6;
+        }
+        &.allocation-color {
+          background-color: var(--color-error);
+          opacity: 0.8;
+        }
+        &.free-color {
+          background-color: var(--color-success);
+          opacity: 0.7;
+        }
+        &.candidate-color {
+          background-color: var(--color-primary);
+        }
       }
     }
   }
@@ -950,8 +997,10 @@
   /* Candidates */
   .candidates-section {
     margin-bottom: var(--spacing-lg);
-    
-    h4 { @extend %section-title; }
+
+    h4 {
+      @extend %section-title;
+    }
   }
 
   .candidates-grid {
@@ -965,23 +1014,23 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border-primary);
     padding: var(--spacing-md);
-    
+
     &.primary {
       border-color: var(--color-primary);
       border-width: 2px;
-      
+
       .candidate-rank {
         background-color: var(--color-primary);
         color: var(--bg-primary);
       }
     }
-    
+
     .candidate-header {
       display: flex;
       align-items: center;
       gap: var(--spacing-sm);
       margin-bottom: var(--spacing-sm);
-      
+
       .candidate-rank {
         background-color: var(--bg-tertiary);
         color: var(--text-secondary);
@@ -992,7 +1041,7 @@
         min-width: 28px;
         text-align: center;
       }
-      
+
       .candidate-cidr {
         font-family: var(--font-mono);
         font-size: var(--font-size-md);
@@ -1001,26 +1050,26 @@
         flex: 1;
       }
     }
-    
+
     .candidate-details {
       font-size: var(--font-size-sm);
-      
+
       .detail-row {
         display: flex;
         justify-content: space-between;
         margin-bottom: var(--spacing-xs);
-        
+
         .detail-label {
           font-weight: 600;
           color: var(--text-secondary);
           min-width: 50px;
         }
-        
+
         .detail-value {
           font-family: var(--font-mono);
           color: var(--text-primary);
           text-align: right;
-          
+
           &.pool-name {
             font-family: var(--font-mono);
             font-size: var(--font-size-xs);
@@ -1033,8 +1082,10 @@
   /* Free Space */
   .free-space-section {
     margin-bottom: var(--spacing-lg);
-    
-    h4 { @extend %section-title; }
+
+    h4 {
+      @extend %section-title;
+    }
   }
 
   .free-blocks-grid {
@@ -1049,25 +1100,25 @@
     padding: var(--spacing-sm);
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-secondary);
-    
+
     .block-cidr {
       font-family: var(--font-mono);
       font-size: var(--font-size-sm);
       color: var(--color-success);
       font-weight: 600;
     }
-    
+
     .block-info {
       display: flex;
       justify-content: space-between;
       margin-top: var(--spacing-xs);
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
-      
+
       .block-size {
         font-family: var(--font-mono);
       }
-      
+
       .block-pool {
         text-align: right;
       }
@@ -1081,7 +1132,7 @@
     justify-content: center;
     font-size: var(--font-size-sm);
     color: var(--text-secondary);
-    
+
     :global(.icon) {
       color: var(--color-info);
     }
@@ -1101,39 +1152,41 @@
     .input-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .params-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .stats-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .examples-grid {
       grid-template-columns: 1fr;
     }
-    
-    .summary-header, .viz-header {
+
+    .summary-header,
+    .viz-header {
       flex-direction: column;
       gap: var(--spacing-sm);
       align-items: stretch;
     }
-    
-    .candidates-grid, .free-blocks-grid {
+
+    .candidates-grid,
+    .free-blocks-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .viz-bar {
       flex-direction: column;
       gap: var(--spacing-xs);
-      
+
       .bar-label {
         width: auto;
         text-align: left;
       }
     }
-    
+
     .viz-legend {
       flex-direction: column;
       align-items: flex-start;

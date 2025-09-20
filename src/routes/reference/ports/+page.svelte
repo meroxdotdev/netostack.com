@@ -1,6 +1,6 @@
 <script lang="ts">
   import { commonPortsContent } from '$lib/content/common-ports.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -83,13 +83,16 @@
 
     <div class="ref-section">
       <h2>Common Service Categories</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Web Services</div>
           {#each commonPortsContent.categories.web as service}
             <div class="item-code">{service.ports} - {service.service}</div>
-            <div class="item-description" style="color: {service.secure ? 'var(--color-success)' : 'var(--color-error)'}">
+            <div
+              class="item-description"
+              style="color: {service.secure ? 'var(--color-success)' : 'var(--color-error)'}"
+            >
               {service.secure ? 'Secure' : 'Not secure'}
             </div>
           {/each}
@@ -99,7 +102,10 @@
           <div class="item-title">Email Services</div>
           {#each commonPortsContent.categories.email as service}
             <div class="item-code">{service.ports} - {service.service}</div>
-            <div class="item-description" style="color: {service.secure ? 'var(--color-success)' : 'var(--color-error)'}">
+            <div
+              class="item-description"
+              style="color: {service.secure ? 'var(--color-success)' : 'var(--color-error)'}"
+            >
               {service.secure ? 'Secure' : 'Not secure'}
             </div>
           {/each}
@@ -109,7 +115,10 @@
           <div class="item-title">Remote Access</div>
           {#each commonPortsContent.categories.remote as service}
             <div class="item-code">{service.ports} - {service.service}</div>
-            <div class="item-description" style="color: {service.secure ? 'var(--color-success)' : 'var(--color-error)'}">
+            <div
+              class="item-description"
+              style="color: {service.secure ? 'var(--color-success)' : 'var(--color-error)'}"
+            >
               {service.secure ? 'Secure' : 'Not secure'}
             </div>
           {/each}
@@ -119,7 +128,10 @@
           <div class="item-title">Database Services</div>
           {#each commonPortsContent.categories.database as service}
             <div class="item-code">{service.ports} - {service.service}</div>
-            <div class="item-description" style="color: {service.secure ? 'var(--color-success)' : 'var(--color-error)'}">
+            <div
+              class="item-description"
+              style="color: {service.secure ? 'var(--color-success)' : 'var(--color-error)'}"
+            >
               {service.secure ? 'Secure' : 'Not secure'}
             </div>
           {/each}
@@ -137,17 +149,17 @@
           </div>
         {/each}
       </div>
-      
+
       <div class="ref-warning">
         <div class="warning-title">
           <Icon name="shield" size="sm" />
           Security Note
         </div>
         <div class="warning-content">
-          Many services have both secure and insecure versions. Always use the secure versions (HTTPS, SSH, FTPS, etc.) when possible, especially over untrusted networks.
+          Many services have both secure and insecure versions. Always use the secure versions (HTTPS, SSH, FTPS, etc.)
+          when possible, especially over untrusted networks.
         </div>
       </div>
     </div>
   </div>
 </div>
-

@@ -16,22 +16,22 @@
   const examples = [
     {
       input: '192.168.1.1 -> 192.168.1.10',
-      description: 'Basic IPv4 range counting'
+      description: 'Basic IPv4 range counting',
     },
     {
       input: '2001:db8::1 -> 2001:db8::100\nfe80::1 -> fe80::ffff',
-      description: 'IPv6 address distances'
+      description: 'IPv6 address distances',
     },
     {
       input: '10.0.0.1 -> 10.255.255.254\n172.16.0.1 -> 172.31.255.254',
-      description: 'Large private network ranges'
+      description: 'Large private network ranges',
     },
     {
       input: '192.168.1.1 -> 192.168.1.2\n192.168.1.2 -> 192.168.1.1',
-      description: 'Adjacent IPs and reverse counting'
-    }
+      description: 'Adjacent IPs and reverse counting',
+    },
   ];
-  
+
   function calculateDistances() {
     if (!inputText.trim()) {
       result = null;
@@ -41,12 +41,18 @@
     isLoading = true;
 
     try {
-      const inputs = inputText.split('\n').filter(line => line.trim());
+      const inputs = inputText.split('\n').filter((line) => line.trim());
       if (inputs.length === 0) {
         result = {
           calculations: [],
-          summary: { totalCalculations: 0, validCalculations: 0, invalidCalculations: 0, totalDistance: '0', averageDistance: '0' },
-          errors: ['No valid input lines found']
+          summary: {
+            totalCalculations: 0,
+            validCalculations: 0,
+            invalidCalculations: 0,
+            totalDistance: '0',
+            averageDistance: '0',
+          },
+          errors: ['No valid input lines found'],
         };
         return;
       }
@@ -55,25 +61,32 @@
     } catch (error) {
       result = {
         calculations: [],
-        summary: { totalCalculations: 0, validCalculations: 0, invalidCalculations: 0, totalDistance: '0', averageDistance: '0' },
-        errors: [error instanceof Error ? error.message : 'Unknown error occurred while calculating distances']
+        summary: {
+          totalCalculations: 0,
+          validCalculations: 0,
+          invalidCalculations: 0,
+          totalDistance: '0',
+          averageDistance: '0',
+        },
+        errors: [error instanceof Error ? error.message : 'Unknown error occurred while calculating distances'],
       };
     } finally {
       isLoading = false;
     }
   }
-  
+
   function exportResults(format: 'csv' | 'json') {
     if (!result) return;
-    
+
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
     let content = '';
     let filename = '';
-    
+
     if (format === 'csv') {
       const headers = 'Start IP,End IP,Distance,Version,Inclusive,Direction,Valid,Error';
-      const rows = result.calculations.map(calc => 
-        `"${calc.startIP}","${calc.endIP}","${calc.distance}","IPv${calc.version}","${calc.inclusive}","${calc.direction}","${calc.isValid}","${calc.error || ''}"`
+      const rows = result.calculations.map(
+        (calc) =>
+          `"${calc.startIP}","${calc.endIP}","${calc.distance}","IPv${calc.version}","${calc.inclusive}","${calc.direction}","${calc.isValid}","${calc.error || ''}"`,
       );
       content = [headers, ...rows].join('\n');
       filename = `ip-distances-${timestamp}.csv`;
@@ -81,7 +94,7 @@
       content = JSON.stringify(result, null, 2);
       filename = `ip-distances-${timestamp}.json`;
     }
-    
+
     const blob = new Blob([content], { type: format === 'csv' ? 'text/csv' : 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -90,8 +103,8 @@
     a.click();
     URL.revokeObjectURL(url);
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     inputText = example.input;
     selectedExampleIndex = index;
     userModified = false;
@@ -114,15 +127,15 @@
       console.error('Failed to copy to clipboard:', error);
     }
   }
-  
+
   function formatDirection(direction: 'forward' | 'backward'): string {
     return direction === 'forward' ? '→' : '←';
   }
-  
+
   function getDirectionColor(direction: 'forward' | 'backward'): string {
     return direction === 'forward' ? '#059669' : '#d97706';
   }
-  
+
   // Auto-calculate when inputs change
   $effect(() => {
     if (inputText.trim()) {
@@ -137,7 +150,10 @@
 <div class="card">
   <header class="card-header">
     <h1>IP Distance Calculator</h1>
-    <p>Calculate the number of addresses between two IP addresses with inclusive/exclusive counting and detailed analysis.</p>
+    <p>
+      Calculate the number of addresses between two IP addresses with inclusive/exclusive counting and detailed
+      analysis.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -171,7 +187,10 @@
     <div class="card-content">
       <div class="form-row">
         <div class="form-group textarea-group">
-          <label for="inputs" use:tooltip={"Enter IP address pairs, one per line. Supports formats: start → end, start -> end, start end, start - end"}>
+          <label
+            for="inputs"
+            use:tooltip={'Enter IP address pairs, one per line. Supports formats: start → end, start -> end, start end, start - end'}
+          >
             IP Address Pairs
           </label>
           <textarea
@@ -189,14 +208,12 @@
         <div class="checkbox-section">
           <div class="checkbox-group">
             <label class="checkbox-label">
-              <input
-                type="checkbox"
-                bind:checked={inclusive}
-                onchange={handleInputChange}
-              />
+              <input type="checkbox" bind:checked={inclusive} onchange={handleInputChange} />
               <div class="checkbox-text">
                 <span>Inclusive Counting</span>
-                <span use:tooltip={"Include both start and end addresses in the count. Exclusive counting only counts addresses between the endpoints."}>
+                <span
+                  use:tooltip={'Include both start and end addresses in the count. Exclusive counting only counts addresses between the endpoints.'}
+                >
                   <Icon name="help-circle" size="xs" />
                 </span>
               </div>
@@ -205,14 +222,10 @@
 
           <div class="checkbox-group">
             <label class="checkbox-label">
-              <input
-                type="checkbox"
-                bind:checked={showIntermediates}
-                onchange={handleInputChange}
-              />
+              <input type="checkbox" bind:checked={showIntermediates} onchange={handleInputChange} />
               <div class="checkbox-text">
                 <span>Show Intermediate IPs</span>
-                <span use:tooltip={"Display sample addresses between start and end (maximum 10 addresses shown)"}>
+                <span use:tooltip={'Display sample addresses between start and end (maximum 10 addresses shown)'}>
                   <Icon name="help-circle" size="xs" />
                 </span>
               </div>
@@ -234,7 +247,7 @@
     </div>
   {/if}
 
-    {#if result}
+  {#if result}
     <div class="results">
       {#if result.errors.length > 0}
         <div class="card error-card">
@@ -259,8 +272,13 @@
             <button
               class="copy-btn"
               class:copied={copiedStates['summary']}
-              onclick={() => result && copyToClipboard(`Total Pairs: ${result.summary.totalCalculations}\nValid: ${result.summary.validCalculations}\nInvalid: ${result.summary.invalidCalculations}\nTotal Distance: ${result.summary.totalDistance}\nAverage Distance: ${result.summary.averageDistance}`, 'summary')}
-              use:tooltip={"Copy summary to clipboard"}
+              onclick={() =>
+                result &&
+                copyToClipboard(
+                  `Total Pairs: ${result.summary.totalCalculations}\nValid: ${result.summary.validCalculations}\nInvalid: ${result.summary.invalidCalculations}\nTotal Distance: ${result.summary.totalDistance}\nAverage Distance: ${result.summary.averageDistance}`,
+                  'summary',
+                )}
+              use:tooltip={'Copy summary to clipboard'}
             >
               <Icon name={copiedStates['summary'] ? 'check' : 'copy'} size="xs" />
               {copiedStates['summary'] ? 'Copied!' : 'Copy'}
@@ -278,7 +296,9 @@
               </div>
               <div class="info-card">
                 <div class="info-label">Invalid</div>
-                <div class="metric-value" class:error={result.summary.invalidCalculations > 0}>{result.summary.invalidCalculations}</div>
+                <div class="metric-value" class:error={result.summary.invalidCalculations > 0}>
+                  {result.summary.invalidCalculations}
+                </div>
               </div>
               <div class="info-card">
                 <div class="info-label">Total Distance</div>
@@ -296,11 +316,11 @@
           <div class="card-header">
             <h3>Distance Calculations</h3>
             <div class="export-buttons">
-              <button onclick={() => exportResults('csv')} use:tooltip={"Export results as CSV file"}>
+              <button onclick={() => exportResults('csv')} use:tooltip={'Export results as CSV file'}>
                 <Icon name="csv-file" size="xs" />
                 Export CSV
               </button>
-              <button onclick={() => exportResults('json')} use:tooltip={"Export results as JSON file"}>
+              <button onclick={() => exportResults('json')} use:tooltip={'Export results as JSON file'}>
                 <Icon name="json-file" size="xs" />
                 Export JSON
               </button>
@@ -313,33 +333,37 @@
                   <div class="calc-header">
                     <div class="ip-pair">
                       <div class="ip-address">
-                        <span class="ip-label" use:tooltip={"Starting IP address"}>Start</span>
+                        <span class="ip-label" use:tooltip={'Starting IP address'}>Start</span>
                         <div class="value-copy">
                           <span class="ip-value">{calculation.startIP}</span>
                           <button
                             class="copy-btn"
                             class:copied={copiedStates[`start-${index}`]}
                             onclick={() => copyToClipboard(calculation.startIP, `start-${index}`)}
-                            use:tooltip={"Copy start IP"}
+                            use:tooltip={'Copy start IP'}
                           >
                             <Icon name={copiedStates[`start-${index}`] ? 'check' : 'copy'} size="xs" />
                           </button>
                         </div>
                       </div>
 
-                      <div class="direction-arrow" style="color: {getDirectionColor(calculation.direction)}" use:tooltip={`Direction: ${calculation.direction}`}>
+                      <div
+                        class="direction-arrow"
+                        style="color: {getDirectionColor(calculation.direction)}"
+                        use:tooltip={`Direction: ${calculation.direction}`}
+                      >
                         {formatDirection(calculation.direction)}
                       </div>
 
                       <div class="ip-address">
-                        <span class="ip-label" use:tooltip={"Ending IP address"}>End</span>
+                        <span class="ip-label" use:tooltip={'Ending IP address'}>End</span>
                         <div class="value-copy">
                           <span class="ip-value">{calculation.endIP}</span>
                           <button
                             class="copy-btn"
                             class:copied={copiedStates[`end-${index}`]}
                             onclick={() => copyToClipboard(calculation.endIP, `end-${index}`)}
-                            use:tooltip={"Copy end IP"}
+                            use:tooltip={'Copy end IP'}
                           >
                             <Icon name={copiedStates[`end-${index}`] ? 'check' : 'copy'} size="xs" />
                           </button>
@@ -366,7 +390,7 @@
                               class="copy-btn"
                               class:copied={copiedStates[`distance-${index}`]}
                               onclick={() => copyToClipboard(calculation.distance, `distance-${index}`)}
-                              use:tooltip={"Copy distance value"}
+                              use:tooltip={'Copy distance value'}
                             >
                               <Icon name={copiedStates[`distance-${index}`] ? 'check' : 'copy'} size="xs" />
                             </button>
@@ -382,7 +406,11 @@
                             <Icon name="globe" size="xs" />
                             IPv{calculation.version}
                           </span>
-                          <span class="meta-item" style="color: {getDirectionColor(calculation.direction)}" use:tooltip={`Calculation direction: ${calculation.direction}`}>
+                          <span
+                            class="meta-item"
+                            style="color: {getDirectionColor(calculation.direction)}"
+                            use:tooltip={`Calculation direction: ${calculation.direction}`}
+                          >
                             <Icon name="arrow-right" size="xs" />
                             {calculation.direction}
                           </span>
@@ -396,8 +424,9 @@
                             <button
                               class="copy-btn"
                               class:copied={copiedStates[`intermediates-${index}`]}
-                              onclick={() => copyToClipboard(calculation.intermediateAddresses.join('\n'), `intermediates-${index}`)}
-                              use:tooltip={"Copy all intermediate addresses"}
+                              onclick={() =>
+                                copyToClipboard(calculation.intermediateAddresses.join('\n'), `intermediates-${index}`)}
+                              use:tooltip={'Copy all intermediate addresses'}
                             >
                               <Icon name={copiedStates[`intermediates-${index}`] ? 'check' : 'copy'} size="xs" />
                               Copy All
@@ -411,15 +440,20 @@
                                   class="copy-btn"
                                   class:copied={copiedStates[`intermediate-${index}-${ipIndex}`]}
                                   onclick={() => copyToClipboard(ip, `intermediate-${index}-${ipIndex}`)}
-                                  use:tooltip={"Copy this IP address"}
+                                  use:tooltip={'Copy this IP address'}
                                 >
-                                  <Icon name={copiedStates[`intermediate-${index}-${ipIndex}`] ? 'check' : 'copy'} size="xs" />
+                                  <Icon
+                                    name={copiedStates[`intermediate-${index}-${ipIndex}`] ? 'check' : 'copy'}
+                                    size="xs"
+                                  />
                                 </button>
                               </div>
                             {/each}
                             {#if calculation.distanceNumber > BigInt(calculation.intermediateAddresses.length + 2)}
                               <span class="more-indicator">
-                                ... and {(calculation.distanceNumber - BigInt(calculation.intermediateAddresses.length + 2)).toLocaleString()} more
+                                ... and {(
+                                  calculation.distanceNumber - BigInt(calculation.intermediateAddresses.length + 2)
+                                ).toLocaleString()} more
                               </span>
                             {/if}
                           </div>

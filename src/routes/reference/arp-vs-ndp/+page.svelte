@@ -1,6 +1,6 @@
 <script lang="ts">
   import { arpVsNdpContent } from '$lib/content/arp-vs-ndp.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -40,7 +40,7 @@
 
     <div class="ref-section">
       <h2>{arpVsNdpContent.arpDetails.title}</h2>
-      
+
       <h3>ARP Message Types</h3>
       {#each arpVsNdpContent.arpDetails.messageTypes as type}
         <div class="ref-examples">
@@ -70,7 +70,7 @@
 
     <div class="ref-section">
       <h2>{arpVsNdpContent.ndpDetails.title}</h2>
-      
+
       <h3>NDP Message Types</h3>
       {#each arpVsNdpContent.ndpDetails.messageTypes as type}
         <div class="ref-examples">
@@ -175,7 +175,7 @@
             <div class="item-code">{point}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">NDP Key Points</div>
           {#each arpVsNdpContent.quickReference.ndp as point}
@@ -195,14 +195,15 @@
           </div>
         {/each}
       </div>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="arrow-right" size="sm" />
           Key Takeaway
         </div>
         <div class="highlight-content">
-          While NDP is more complex than ARP, it's also much more capable and efficient. Understanding both protocols is essential for mixed IPv4/IPv6 environments.
+          While NDP is more complex than ARP, it's also much more capable and efficient. Understanding both protocols is
+          essential for mixed IPv4/IPv6 environments.
         </div>
       </div>
     </div>

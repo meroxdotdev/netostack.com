@@ -10,7 +10,7 @@
   let activeExampleIndex = $state<number | null>(null);
   let isActiveExample = $state(true);
   let copiedStates = $state<Record<string, boolean>>({});
-  
+
   const examples = [
     {
       title: 'Standard Configuration',
@@ -18,7 +18,7 @@
       salt: 'AABBCCDD',
       iterations: 10,
       algorithm: 1,
-      description: 'Typical NSEC3 setup with moderate iterations'
+      description: 'Typical NSEC3 setup with moderate iterations',
     },
     {
       title: 'High Iteration Count',
@@ -26,7 +26,7 @@
       salt: '1234567890ABCDEF',
       iterations: 100,
       algorithm: 1,
-      description: 'High security configuration with more iterations'
+      description: 'High security configuration with more iterations',
     },
     {
       title: 'No Salt (Empty)',
@@ -34,7 +34,7 @@
       salt: '',
       iterations: 5,
       algorithm: 1,
-      description: 'Minimal configuration without salt'
+      description: 'Minimal configuration without salt',
     },
     {
       title: 'Subdomain Example',
@@ -42,8 +42,8 @@
       salt: 'DEADBEEF',
       iterations: 50,
       algorithm: 1,
-      description: 'Complex domain name with standard settings'
-    }
+      description: 'Complex domain name with standard settings',
+    },
   ];
 
   let calculating = $state(false);
@@ -73,9 +73,9 @@
 
       const normalizedName = domainName.trim().toLowerCase();
       const normalizedSalt = salt.toUpperCase();
-      
+
       const hash = await calculateNSEC3Hash(normalizedName, normalizedSalt, iterations, algorithm);
-      
+
       if (!hash) {
         error = 'Failed to calculate NSEC3 hash';
         return;
@@ -83,7 +83,7 @@
 
       result = {
         hash,
-        originalName: normalizedName
+        originalName: normalizedName,
       };
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to calculate hash';
@@ -93,9 +93,7 @@
   }
 
   const isValid = $derived(() => {
-    return domainName.trim() && 
-           iterations >= 0 && iterations <= 2500 &&
-           (salt === '' || /^[0-9A-Fa-f]*$/.test(salt));
+    return domainName.trim() && iterations >= 0 && iterations <= 2500 && (salt === '' || /^[0-9A-Fa-f]*$/.test(salt));
   });
 
   // Auto-calculate on mount with default values
@@ -113,7 +111,7 @@
     algorithm = example.algorithm;
     activeExampleIndex = index;
     isActiveExample = false;
-    
+
     // Auto-calculate after loading example
     if (isValid()) {
       calculateHash();
@@ -127,7 +125,7 @@
     activeExampleIndex = null;
     error = null;
     result = null;
-    
+
     // Auto-calculate if inputs are valid
     if (isValid()) {
       calculateHash();
@@ -173,7 +171,10 @@
 <div class="card">
   <header class="card-header">
     <h1>NSEC3 Hash Calculator</h1>
-    <p>Calculate NSEC3 owner hashes for a name given salt, iterations, and algorithm, showing the hashed owner FQDN for DNSSEC authenticated denial of existence.</p>
+    <p>
+      Calculate NSEC3 owner hashes for a name given salt, iterations, and algorithm, showing the hashed owner FQDN for
+      DNSSEC authenticated denial of existence.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -214,7 +215,10 @@
   <!-- Input Form -->
   <div class="card input-card">
     <div class="form-group">
-      <label for="domain-name" use:tooltip={"Enter the fully qualified domain name to generate NSEC3 hash for. Must end with a dot (e.g., 'www.example.com.')"}>
+      <label
+        for="domain-name"
+        use:tooltip={"Enter the fully qualified domain name to generate NSEC3 hash for. Must end with a dot (e.g., 'www.example.com.')"}
+      >
         <Icon name="globe" size="sm" />
         Domain Name (FQDN)
       </label>
@@ -232,7 +236,10 @@
     </div>
 
     <div class="form-group">
-      <label for="salt-input" use:tooltip={"Optional salt value in hexadecimal format (e.g., 'AABBCCDD'). Salt adds randomness to prevent dictionary attacks. Leave empty for no salt."}>
+      <label
+        for="salt-input"
+        use:tooltip={"Optional salt value in hexadecimal format (e.g., 'AABBCCDD'). Salt adds randomness to prevent dictionary attacks. Leave empty for no salt."}
+      >
         <Icon name="key" size="sm" />
         Salt (Hexadecimal)
         <button class="generate-salt-btn" onclick={generateRandomSalt} type="button">
@@ -252,7 +259,10 @@
 
     <div class="input-row">
       <div class="form-group">
-        <label for="iterations" use:tooltip={"Number of additional hashing iterations to perform. Higher values increase security but also increase CPU cost. Typical values: 0-10 for most zones."}>
+        <label
+          for="iterations"
+          use:tooltip={'Number of additional hashing iterations to perform. Higher values increase security but also increase CPU cost. Typical values: 0-10 for most zones.'}
+        >
           <Icon name="repeat" size="sm" />
           Iterations (0-2500)
         </label>
@@ -268,7 +278,10 @@
       </div>
 
       <div class="form-group">
-        <label for="algorithm" use:tooltip={"Cryptographic hash algorithm used for NSEC3. Algorithm 1 (SHA-1) is the most commonly supported option."}>
+        <label
+          for="algorithm"
+          use:tooltip={'Cryptographic hash algorithm used for NSEC3. Algorithm 1 (SHA-1) is the most commonly supported option.'}
+        >
           <Icon name="hash" size="sm" />
           Hash Algorithm
         </label>
@@ -281,8 +294,8 @@
     </div>
 
     <div class="action-section">
-      <button 
-        class="calculate-btn" 
+      <button
+        class="calculate-btn"
         class:loading={calculating}
         disabled={!isValid || calculating}
         onclick={calculateHash}
@@ -306,7 +319,8 @@
       <div class="error-content">
         <Icon name="alert-triangle" size="sm" />
         <div>
-          <strong>Calculation Error:</strong> {error}
+          <strong>Calculation Error:</strong>
+          {error}
         </div>
       </div>
     </div>
@@ -318,55 +332,73 @@
       <div class="results-header">
         <h3>NSEC3 Hash Result</h3>
         <div class="header-actions">
-          <button
-            class="copy-button {copiedStates.hash ? 'copied' : ''}"
-            onclick={copyHash}
-          >
+          <button class="copy-button {copiedStates.hash ? 'copied' : ''}" onclick={copyHash}>
             <Icon name={copiedStates.hash ? 'check' : 'copy'} size="sm" />
             Copy Hash
           </button>
-          <button
-            class="copy-button {copiedStates.record ? 'copied' : ''}"
-            onclick={copyNSEC3Record}
-          >
+          <button class="copy-button {copiedStates.record ? 'copied' : ''}" onclick={copyNSEC3Record}>
             <Icon name={copiedStates.record ? 'check' : 'copy'} size="sm" />
             Copy Record
           </button>
         </div>
       </div>
-      
+
       <!-- Hash Display -->
       <div class="hash-display">
-        <div class="hash-label" use:tooltip={"The calculated NSEC3 hash value that becomes the owner name for the NSEC3 record in the zone"}>NSEC3 Hash</div>
+        <div
+          class="hash-label"
+          use:tooltip={'The calculated NSEC3 hash value that becomes the owner name for the NSEC3 record in the zone'}
+        >
+          NSEC3 Hash
+        </div>
         <div class="hash-value">{result.hash}</div>
       </div>
-      
+
       <!-- Calculation Details -->
       <div class="details-section">
         <h4>Calculation Parameters</h4>
         <div class="details-grid">
           <div class="detail-item">
-            <span class="detail-label" use:tooltip={"The original domain name that was hashed to produce the NSEC3 hash"}>Original Name</span>
+            <span
+              class="detail-label"
+              use:tooltip={'The original domain name that was hashed to produce the NSEC3 hash'}>Original Name</span
+            >
             <span class="detail-value mono">{result.originalName}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label" use:tooltip={"The hexadecimal salt value used in the hash calculation. Helps prevent dictionary attacks against zone contents."}>Salt</span>
+            <span
+              class="detail-label"
+              use:tooltip={'The hexadecimal salt value used in the hash calculation. Helps prevent dictionary attacks against zone contents.'}
+              >Salt</span
+            >
             <span class="detail-value mono">{salt || '(none)'}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label" use:tooltip={"Number of additional hash iterations performed. Higher values make brute-force attacks more difficult but increase computational cost."}>Iterations</span>
+            <span
+              class="detail-label"
+              use:tooltip={'Number of additional hash iterations performed. Higher values make brute-force attacks more difficult but increase computational cost.'}
+              >Iterations</span
+            >
             <span class="detail-value mono">{iterations}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label" use:tooltip={"The cryptographic hash algorithm used. Algorithm 1 (SHA-1) is the standard and most widely supported."}>Algorithm</span>
-            <span class="detail-value mono">{algorithm} ({NSEC3_HASH_ALGORITHMS[algorithm as keyof typeof NSEC3_HASH_ALGORITHMS]})</span>
+            <span
+              class="detail-label"
+              use:tooltip={'The cryptographic hash algorithm used. Algorithm 1 (SHA-1) is the standard and most widely supported.'}
+              >Algorithm</span
+            >
+            <span class="detail-value mono"
+              >{algorithm} ({NSEC3_HASH_ALGORITHMS[algorithm as keyof typeof NSEC3_HASH_ALGORITHMS]})</span
+            >
           </div>
         </div>
       </div>
 
       <!-- Sample NSEC3 Record -->
       <div class="record-section">
-        <h4 use:tooltip={"Example of how this hash would appear as an NSEC3 record in a DNS zone file"}>Sample NSEC3 Record</h4>
+        <h4 use:tooltip={'Example of how this hash would appear as an NSEC3 record in a DNS zone file'}>
+          Sample NSEC3 Record
+        </h4>
         <div class="record-display">
           <code>{result.hash}.example.com. IN NSEC3 1 0 {iterations} {salt || '-'} {result.hash} A RRSIG</code>
         </div>
@@ -380,36 +412,36 @@
       <div class="education-item info-panel">
         <h4>NSEC3 Purpose</h4>
         <p>
-          NSEC3 provides authenticated denial of existence for DNS records while preventing zone enumeration. 
-          The hash function obscures the actual domain names in the zone, making it difficult for attackers 
-          to discover all records through zone walking.
+          NSEC3 provides authenticated denial of existence for DNS records while preventing zone enumeration. The hash
+          function obscures the actual domain names in the zone, making it difficult for attackers to discover all
+          records through zone walking.
         </p>
       </div>
 
       <div class="education-item info-panel warning">
         <h4>Security Considerations</h4>
         <p>
-          Use sufficient iterations (10-100) and a random salt to resist offline dictionary attacks. 
-          Higher iteration counts increase CPU usage during validation. The salt should be randomly generated 
-          and periodically changed during zone re-signing.
+          Use sufficient iterations (10-100) and a random salt to resist offline dictionary attacks. Higher iteration
+          counts increase CPU usage during validation. The salt should be randomly generated and periodically changed
+          during zone re-signing.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Implementation Notes</h4>
         <p>
-          NSEC3 hashes are calculated by iteratively applying SHA-1 to the concatenation of the domain name 
-          (in wire format) and salt. The resulting hash is encoded in Base32 without padding and used as 
-          the owner name for NSEC3 records.
+          NSEC3 hashes are calculated by iteratively applying SHA-1 to the concatenation of the domain name (in wire
+          format) and salt. The resulting hash is encoded in Base32 without padding and used as the owner name for NSEC3
+          records.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Performance Impact</h4>
         <p>
-          Higher iteration counts provide better security but increase validation time. Consider server 
-          capacity and client timeout requirements when choosing iteration values. Typical values range 
-          from 5-150 iterations depending on security needs.
+          Higher iteration counts provide better security but increase validation time. Consider server capacity and
+          client timeout requirements when choosing iteration values. Typical values range from 5-150 iterations
+          depending on security needs.
         </p>
       </div>
     </div>
@@ -417,7 +449,6 @@
 </div>
 
 <style lang="scss">
-
   .examples-card {
     margin-bottom: var(--spacing-md);
     background: var(--bg-tertiary);
@@ -427,7 +458,7 @@
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -575,7 +606,8 @@
     }
   }
 
-  .domain-input, .salt-input {
+  .domain-input,
+  .salt-input {
     width: 100%;
     padding: var(--spacing-md);
     font-family: var(--font-mono);
@@ -679,9 +711,11 @@
   .error-card {
     margin-bottom: var(--spacing-lg);
     border-color: var(--color-error);
-    background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--color-error), transparent 95%), 
-      color-mix(in srgb, var(--color-error), transparent 98%));
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-error), transparent 95%),
+      color-mix(in srgb, var(--color-error), transparent 98%)
+    );
   }
 
   .error-content {
@@ -761,9 +795,11 @@
     justify-content: center;
     gap: var(--spacing-lg);
     padding: var(--spacing-xl);
-    background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--color-success), transparent 95%), 
-      color-mix(in srgb, var(--color-success), transparent 98%));
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-success), transparent 95%),
+      color-mix(in srgb, var(--color-success), transparent 98%)
+    );
     border: 1px solid color-mix(in srgb, var(--color-success), transparent 80%);
     border-radius: var(--radius-lg);
     margin-bottom: var(--spacing-lg);
@@ -877,9 +913,11 @@
 
     &.warning {
       border-color: var(--color-warning);
-      background: linear-gradient(135deg, 
-        color-mix(in srgb, var(--color-warning), transparent 95%), 
-        color-mix(in srgb, var(--color-warning), transparent 98%));
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-warning), transparent 95%),
+        color-mix(in srgb, var(--color-warning), transparent 98%)
+      );
     }
 
     h4 {
@@ -896,8 +934,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   @media (max-width: 768px) {

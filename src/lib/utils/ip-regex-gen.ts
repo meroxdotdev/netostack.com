@@ -64,7 +64,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Use anchors (^...$) for validation vs find-in-text',
     ipClass: 'Both',
     optionsObject: 'crossOptions',
-    showForType: ['ipv4', 'ipv6', 'both']
+    showForType: ['ipv4', 'ipv6', 'both'],
   },
   {
     key: 'engineSafeBoundaries',
@@ -72,7 +72,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Use portable boundaries instead of \\b (more reliable)',
     ipClass: 'Both',
     optionsObject: 'crossOptions',
-    showForType: ['ipv4', 'ipv6', 'both']
+    showForType: ['ipv4', 'ipv6', 'both'],
   },
   {
     key: 'allowPort',
@@ -80,7 +80,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Accept :port suffix (e.g., 192.168.1.1:8080)',
     ipClass: 'Both',
     optionsObject: 'crossOptions',
-    showForType: ['ipv4', 'ipv6', 'both']
+    showForType: ['ipv4', 'ipv6', 'both'],
   },
   {
     key: 'allowCIDR',
@@ -88,7 +88,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Accept /prefix suffix (e.g., 192.168.1.0/24)',
     ipClass: 'Both',
     optionsObject: 'crossOptions',
-    showForType: ['ipv4', 'ipv6', 'both']
+    showForType: ['ipv4', 'ipv6', 'both'],
   },
   {
     key: 'namedCaptures',
@@ -96,7 +96,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Use named groups for easier extraction',
     ipClass: 'Both',
     optionsObject: 'crossOptions',
-    showForType: ['ipv4', 'ipv6', 'both']
+    showForType: ['ipv4', 'ipv6', 'both'],
   },
   // IPv4 options
   {
@@ -105,7 +105,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Accept 001.002.003.004 format',
     ipClass: 'IPv4',
     optionsObject: 'ipv4Options',
-    showForType: ['ipv4', 'both']
+    showForType: ['ipv4', 'both'],
   },
   {
     key: 'wordBoundaries',
@@ -113,7 +113,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Prevent partial matches in text',
     ipClass: 'IPv4',
     optionsObject: 'ipv4Options',
-    showForType: ['ipv4', 'both']
+    showForType: ['ipv4', 'both'],
   },
   {
     key: 'allowPrivateOnly',
@@ -121,15 +121,15 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: '10.x.x.x, 172.16-31.x.x, 192.168.x.x',
     ipClass: 'IPv4',
     optionsObject: 'ipv4Options',
-    showForType: ['ipv4', 'both']
+    showForType: ['ipv4', 'both'],
   },
   {
     key: 'caseInsensitive',
     label: 'Case Insensitive',
-    description: 'Add \'i\' flag for case insensitive matching',
+    description: "Add 'i' flag for case insensitive matching",
     ipClass: 'IPv4',
     optionsObject: 'ipv4Options',
-    showForType: ['ipv4', 'both']
+    showForType: ['ipv4', 'both'],
   },
   // IPv6 options
   {
@@ -138,7 +138,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Support :: notation (2001:db8::1)',
     ipClass: 'IPv6',
     optionsObject: 'ipv6Options',
-    showForType: ['ipv6', 'both']
+    showForType: ['ipv6', 'both'],
   },
   {
     key: 'allowFullForm',
@@ -146,7 +146,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Support full 8-group format',
     ipClass: 'IPv6',
     optionsObject: 'ipv6Options',
-    showForType: ['ipv6', 'both']
+    showForType: ['ipv6', 'both'],
   },
   {
     key: 'allowZoneId',
@@ -154,7 +154,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Support %eth0 suffixes',
     ipClass: 'IPv6',
     optionsObject: 'ipv6Options',
-    showForType: ['ipv6', 'both']
+    showForType: ['ipv6', 'both'],
   },
   {
     key: 'allowEmbeddedIPv4',
@@ -162,7 +162,7 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Support ::ffff:192.168.1.1',
     ipClass: 'IPv6',
     optionsObject: 'ipv6Options',
-    showForType: ['ipv6', 'both']
+    showForType: ['ipv6', 'both'],
   },
   {
     key: 'wordBoundaries',
@@ -170,15 +170,15 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Prevent partial matches in text',
     ipClass: 'IPv6',
     optionsObject: 'ipv6Options',
-    showForType: ['ipv6', 'both']
+    showForType: ['ipv6', 'both'],
   },
   {
     key: 'caseInsensitive',
     label: 'Case Insensitive',
-    description: 'Add \'i\' flag (recommended for IPv6)',
+    description: "Add 'i' flag (recommended for IPv6)",
     ipClass: 'IPv6',
     optionsObject: 'ipv6Options',
-    showForType: ['ipv6', 'both']
+    showForType: ['ipv6', 'both'],
   },
   {
     key: 'allowBrackets',
@@ -186,8 +186,8 @@ export const ADVANCED_OPTIONS: AdvancedOption[] = [
     description: 'Accept [IPv6] literal format (required for URLs with ports)',
     ipClass: 'IPv6',
     optionsObject: 'ipv6Options',
-    showForType: ['ipv6', 'both']
-  }
+    showForType: ['ipv6', 'both'],
+  },
 ];
 
 export function getLanguageExamples(pattern: string, flags: string): LanguageExample[] {
@@ -196,7 +196,7 @@ export function getLanguageExamples(pattern: string, flags: string): LanguageExa
       name: 'JavaScript',
       icon: 'javascript',
       code: `const ipRegex = /${pattern}/${flags};
-const isValid = ipRegex.test(ipAddress);`
+const isValid = ipRegex.test(ipAddress);`,
     },
     {
       name: 'Python',
@@ -204,13 +204,13 @@ const isValid = ipRegex.test(ipAddress);`
       code: `import re
 pattern = r'${pattern}'
 is_valid = bool(re.match(pattern, ip_address${flags ? ', re.IGNORECASE' : ''}))`,
-      note: flags ? 'Use re.IGNORECASE flag for case-insensitive matching' : undefined
+      note: flags ? 'Use re.IGNORECASE flag for case-insensitive matching' : undefined,
     },
     {
       name: 'PHP',
       icon: 'php',
       code: `$pattern = '/${pattern}/${flags}';
-$isValid = preg_match($pattern, $ipAddress);`
+$isValid = preg_match($pattern, $ipAddress);`,
     },
     {
       name: 'Rust',
@@ -218,27 +218,27 @@ $isValid = preg_match($pattern, $ipAddress);`
       code: `use regex::Regex;
 let re = Regex::new(r"${pattern}").unwrap();
 let is_valid = re.is_match(&ip_address);`,
-      note: 'Add regex = "1.0" to Cargo.toml dependencies'
+      note: 'Add regex = "1.0" to Cargo.toml dependencies',
     },
     {
       name: 'Go',
       icon: 'go',
       code: `import "regexp"
 re := regexp.MustCompile(\`${pattern}\`)
-isValid := re.MatchString(ipAddress)`
+isValid := re.MatchString(ipAddress)`,
     },
     {
       name: 'Java',
       icon: 'openjdk',
       code: `import java.util.regex.Pattern;
 Pattern pattern = Pattern.compile("${pattern}"${flags ? ', Pattern.CASE_INSENSITIVE' : ''});
-boolean isValid = pattern.matcher(ipAddress).matches();`
+boolean isValid = pattern.matcher(ipAddress).matches();`,
     },
     {
       name: 'Ruby',
       icon: 'ruby',
       code: `pattern = /${pattern}/${flags === 'i' ? 'i' : ''}
-is_valid = !!(ip_address =~ pattern)`
+is_valid = !!(ip_address =~ pattern)`,
     },
     {
       name: 'Bash',
@@ -246,19 +246,15 @@ is_valid = !!(ip_address =~ pattern)`
       code: `if [[ "$ip_address" =~ ${pattern} ]]; then
   echo "Valid IP"
 fi`,
-      note: 'Bash regex is case-sensitive by default'
-    }
+      note: 'Bash regex is case-sensitive by default',
+    },
   ];
 }
 
-export function generateIPv4Regex(
-  mode: Mode,
-  ipv4Options: IPv4Options,
-  crossOptions: CrossOptions
-): RegexResult {
+export function generateIPv4Regex(mode: Mode, ipv4Options: IPv4Options, crossOptions: CrossOptions): RegexResult {
   let pattern: string;
-  let tradeoffs: string[] = [];
-  let limitations: string[] = [];
+  const tradeoffs: string[] = [];
+  const limitations: string[] = [];
 
   // Core octet pattern - shortest possible
   let octetPattern: string;
@@ -280,9 +276,9 @@ export function generateIPv4Regex(
 
   // Handle private/public IP restrictions
   if (ipv4Options.allowPrivateOnly && mode === 'advanced') {
-    const privateOctet = ipv4Options.allowLeadingZeros ?
-      '(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' :
-      '(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])';
+    const privateOctet = ipv4Options.allowLeadingZeros
+      ? '(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
+      : '(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])';
     basePattern = `(${ipCapture}(?:10\\.${privateOctet}\\.${privateOctet}\\.${privateOctet}|172\\.(?:1[6-9]|2[0-9]|3[01])\\.${privateOctet}\\.${privateOctet}|192\\.168\\.${privateOctet}\\.${privateOctet}))`;
     tradeoffs.push('Only matches private IP ranges (10.x.x.x, 172.16-31.x.x, 192.168.x.x)');
     limitations.push('Complex pattern - harder to read and maintain');
@@ -328,14 +324,9 @@ export function generateIPv4Regex(
     '10.0.0.1',
     '255.255.255.255',
     '0.0.0.0',
-    '172.16.254.1'  // Private IP in 172.16.x.x range
+    '172.16.254.1', // Private IP in 172.16.x.x range
   ];
-  const invalidCases = [
-    '256.256.256.256',
-    '192.168.1',
-    '192.168.1.1.1',
-    'not.an.ip.address'
-  ];
+  const invalidCases = ['256.256.256.256', '192.168.1', '192.168.1.1.1', 'not.an.ip.address'];
 
   // Leading zeros are only valid when explicitly enabled in advanced mode
   if (ipv4Options.allowLeadingZeros && mode === 'advanced') {
@@ -362,8 +353,8 @@ export function generateIPv4Regex(
     limitations,
     testCases: {
       valid: validCases,
-      invalid: invalidCases
-    }
+      invalid: invalidCases,
+    },
   };
 }
 
@@ -371,14 +362,14 @@ export function generateIPv6Regex(
   mode: Mode,
   ipv4Options: IPv4Options,
   ipv6Options: IPv6Options,
-  crossOptions: CrossOptions
+  crossOptions: CrossOptions,
 ): RegexResult {
   let pattern: string;
-  let tradeoffs: string[] = [];
-  let limitations: string[] = [];
+  const tradeoffs: string[] = [];
+  const limitations: string[] = [];
 
   // Build core IPv6 patterns with better validation
-  let parts: string[] = [];
+  const parts: string[] = [];
 
   // Shortest hex pattern for IPv6
   const hexPattern = '[\\da-f]{1,4}';
@@ -399,16 +390,16 @@ export function generateIPv6Regex(
       // Ending with ::
       `${hexPattern}(?::${hexPattern})*::`,
       // Just ::
-      '::'
+      '::',
     );
     tradeoffs.push('Supports IPv6 compression with :: notation');
     limitations.push('Simplified pattern optimized for common cases');
   }
 
   if ((mode === 'simple' || ipv6Options.allowEmbeddedIPv4) && mode !== 'simple') {
-    const ipv4Pattern = ipv4Options.allowLeadingZeros ?
-      '(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' :
-      '(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])';
+    const ipv4Pattern = ipv4Options.allowLeadingZeros
+      ? '(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
+      : '(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])';
     parts.push(`(?:${hexPattern}:){6}${ipv4Pattern}(?:\\.${ipv4Pattern}){3}`);
     parts.push(`::${ipv4Pattern}(?:\\.${ipv4Pattern}){3}`);
     tradeoffs.push('Supports IPv4-mapped IPv6 addresses');
@@ -479,7 +470,7 @@ export function generateIPv6Regex(
     '2001:db8:85a3::8a2e:370:7334',
     '::1',
     '::',
-    'fe80::1',  // Link-local address
+    'fe80::1', // Link-local address
     '::c0de:bad:beef',
     '1234:face:feed:dead:beef:c0de:abba:1',
   ];
@@ -523,12 +514,12 @@ export function generateIPv6Regex(
     limitations: [
       ...limitations,
       'IPv6 regex is inherently complex - consider using dedicated parsing libraries',
-      'Full RFC compliance requires more sophisticated validation'
+      'Full RFC compliance requires more sophisticated validation',
     ],
     testCases: {
       valid: validCases,
-      invalid: invalidCases
-    }
+      invalid: invalidCases,
+    },
   };
 }
 
@@ -536,11 +527,11 @@ export function generateBothRegex(
   mode: Mode,
   ipv4Options: IPv4Options,
   ipv6Options: IPv6Options,
-  crossOptions: CrossOptions
+  crossOptions: CrossOptions,
 ): RegexResult {
   // Generate individual patterns, but modify them to work together
-  let tradeoffs: string[] = [];
-  let limitations: string[] = [];
+  const tradeoffs: string[] = [];
+  const limitations: string[] = [];
 
   // Get base patterns without boundaries/anchors
   const originalExactMatch = crossOptions.exactMatch;
@@ -593,14 +584,14 @@ export function generateBothRegex(
 
   return {
     pattern: combinedPattern,
-    flags: (ipv4Options.caseInsensitive || ipv6Options.caseInsensitive) ? 'i' : '',
+    flags: ipv4Options.caseInsensitive || ipv6Options.caseInsensitive ? 'i' : '',
     description: 'Combined pattern matching both IPv4 and IPv6 addresses with unified options',
     tradeoffs: allTradeoffs,
     limitations: allLimitations,
     testCases: {
       valid: [...ipv4Result.testCases.valid, ...ipv6Result.testCases.valid],
-      invalid: [...ipv4Result.testCases.invalid, ...ipv6Result.testCases.invalid]
-    }
+      invalid: [...ipv4Result.testCases.invalid, ...ipv6Result.testCases.invalid],
+    },
   };
 }
 
@@ -609,7 +600,7 @@ export function generateRegex(
   mode: Mode,
   ipv4Options: IPv4Options,
   ipv6Options: IPv6Options,
-  crossOptions: CrossOptions
+  crossOptions: CrossOptions,
 ): RegexResult {
   switch (regexType) {
     case 'ipv4':

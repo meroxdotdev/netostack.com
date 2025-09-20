@@ -9,7 +9,7 @@
     keyConcepts,
     subnettingTechniques,
     practicalTips,
-    commonMistakes
+    commonMistakes,
   } from '$lib/content/subnetting';
   import '../../styles/pages.scss';
 
@@ -37,7 +37,8 @@
   <header class="page-header">
     <h1>Subnetting Tools</h1>
     <p class="page-description">
-      Divide networks efficiently, optimize address allocation, and master network design with our comprehensive subnetting toolkit.
+      Divide networks efficiently, optimize address allocation, and master network design with our comprehensive
+      subnetting toolkit.
     </p>
   </header>
 
@@ -46,13 +47,17 @@
   <hr class="section-divider" />
 
   <!-- Quick Intro -->
-   <h2>What's Subnetting?</h2>
+  <h2>What's Subnetting?</h2>
   <section class="intro-card">
     <p>
-      Subnetting is the process of splitting a large network into smaller, easier-to-manage pieces. Each subnet has its own network address and range of IPs, which helps organize devices, improve security, and reduce wasted addresses. It's core to network planning (both small home labs, or managing a large office or campus).
+      Subnetting is the process of splitting a large network into smaller, easier-to-manage pieces. Each subnet has its
+      own network address and range of IPs, which helps organize devices, improve security, and reduce wasted addresses.
+      It's core to network planning (both small home labs, or managing a large office or campus).
     </p>
     <p class="tools-intro">
-      These tools aim to make this easier for you, handling the math and planning for you. They calculate network and broadcast addresses, host ranges, and help design or summarize networks so you can focus on building, not IP crunching.
+      These tools aim to make this easier for you, handling the math and planning for you. They calculate network and
+      broadcast addresses, host ranges, and help design or summarize networks so you can focus on building, not IP
+      crunching.
     </p>
   </section>
 
@@ -87,7 +92,8 @@
           </div>
           <p class="technique-description">{technique.description}</p>
           <div class="technique-use-case">
-            <strong>Best for:</strong> {technique.useCase}
+            <strong>Best for:</strong>
+            {technique.useCase}
           </div>
         </div>
       {/each}
@@ -101,10 +107,10 @@
       <table class="masks-table">
         <thead>
           <tr>
-            <th use:tooltip={"CIDR notation - number of network bits"}>CIDR</th>
-            <th use:tooltip={"Decimal representation of the subnet mask"}>Subnet Mask</th>
-            <th use:tooltip={"Number of usable host addresses per subnet"}>Hosts</th>
-            <th use:tooltip={"Number of possible subnets in a Class C"}>Subnets</th>
+            <th use:tooltip={'CIDR notation - number of network bits'}>CIDR</th>
+            <th use:tooltip={'Decimal representation of the subnet mask'}>Subnet Mask</th>
+            <th use:tooltip={'Number of usable host addresses per subnet'}>Hosts</th>
+            <th use:tooltip={'Number of possible subnets in a Class C'}>Subnets</th>
           </tr>
         </thead>
         <tbody>
@@ -167,7 +173,6 @@
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-lg);
     padding: var(--spacing-xl);
-
 
     p {
       color: var(--text-secondary);
@@ -404,9 +409,11 @@
   }
 
   .tips-card {
-    background: linear-gradient(135deg,
+    background: linear-gradient(
+      135deg,
       color-mix(in srgb, var(--color-success), transparent 90%),
-      color-mix(in srgb, var(--color-success), transparent 95%));
+      color-mix(in srgb, var(--color-success), transparent 95%)
+    );
 
     li::before {
       color: var(--color-success);
@@ -414,9 +421,11 @@
   }
 
   .mistakes-card {
-    background: linear-gradient(135deg,
+    background: linear-gradient(
+      135deg,
       color-mix(in srgb, var(--color-warning), transparent 90%),
-      color-mix(in srgb, var(--color-warning), transparent 95%));
+      color-mix(in srgb, var(--color-warning), transparent 95%)
+    );
 
     li::before {
       color: var(--color-warning);

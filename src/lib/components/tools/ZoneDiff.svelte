@@ -24,7 +24,7 @@ example.com.	IN	NS	ns2.example.com.
 www.example.com.	IN	A	192.0.2.2
 ftp.example.com.	IN	A	192.0.2.3
 mail.example.com.	IN	A	192.0.2.10`,
-      description: 'Changed IP address and added new record'
+      description: 'Changed IP address and added new record',
     },
     {
       name: 'Record Type Changes',
@@ -34,7 +34,7 @@ blog.example.com.	IN	A	192.0.2.2`,
       newZone: `example.com.	IN	SOA	ns1.example.com. admin.example.com. 2023010101 3600 1800 1209600 86400
 www.example.com.	IN	A	192.0.2.1
 blog.example.com.	IN	CNAME	www.example.com.`,
-      description: 'Changed A record to CNAME'
+      description: 'Changed A record to CNAME',
     },
     {
       name: 'Complex Migration',
@@ -56,11 +56,11 @@ www	300	IN	A	203.0.113.1
 api	IN	A	203.0.113.2
 mail	IN	A	203.0.113.10
 	IN	MX	10	mail.example.com.`,
-      description: 'Zone migration with IP changes and additions'
-    }
+      description: 'Zone migration with IP changes and additions',
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     oldZoneInput = example.oldZone;
     newZoneInput = example.newZone;
     activeExampleIndex = index;
@@ -70,9 +70,7 @@ mail	IN	A	203.0.113.10
   function clearActiveIfChanged() {
     if (activeExampleIndex !== null) {
       const activeExample = examples[activeExampleIndex];
-      if (!activeExample || 
-          oldZoneInput !== activeExample.oldZone || 
-          newZoneInput !== activeExample.newZone) {
+      if (!activeExample || oldZoneInput !== activeExample.oldZone || newZoneInput !== activeExample.newZone) {
         activeExampleIndex = null;
       }
     }
@@ -101,17 +99,17 @@ mail	IN	A	203.0.113.10
     lines.push('--- Old Zone');
     lines.push('+++ New Zone');
     lines.push(`@@ -1,${oldZoneInput.split('\n').length} +1,${newZoneInput.split('\n').length} @@`);
-    
+
     // Show removed records
     for (const record of results.removed) {
       lines.push(`-${formatRecord(record)}`);
     }
-    
-    // Show added records  
+
+    // Show added records
     for (const record of results.added) {
       lines.push(`+${formatRecord(record)}`);
     }
-    
+
     // Show changed records
     for (const change of results.changed) {
       lines.push(`-${formatRecord(change.before)}`);
@@ -123,16 +121,14 @@ mail	IN	A	203.0.113.10
 
   function formatRecord(record: ResourceRecord): string {
     const ttl = record.ttl ? record.ttl.toString() : '';
-    return [record.owner, ttl, record.class, record.type, record.rdata]
-      .filter(Boolean)
-      .join('\t');
+    return [record.owner, ttl, record.class, record.type, record.rdata].filter(Boolean).join('\t');
   }
 
   async function copyDiff() {
     if (!results) return;
-    
+
     const content = showUnified ? generateUnifiedDiff() : formatStructuredDiff();
-    
+
     try {
       await navigator.clipboard.writeText(content);
       copiedState = true;
@@ -148,7 +144,7 @@ mail	IN	A	203.0.113.10
     if (!results) return '';
 
     const lines: string[] = [];
-    
+
     if (results.added.length > 0) {
       lines.push(`Added Records (${results.added.length}):`);
       for (const record of results.added) {
@@ -156,7 +152,7 @@ mail	IN	A	203.0.113.10
       }
       lines.push('');
     }
-    
+
     if (results.removed.length > 0) {
       lines.push(`Removed Records (${results.removed.length}):`);
       for (const record of results.removed) {
@@ -164,7 +160,7 @@ mail	IN	A	203.0.113.10
       }
       lines.push('');
     }
-    
+
     if (results.changed.length > 0) {
       lines.push(`Changed Records (${results.changed.length}):`);
       for (const change of results.changed) {
@@ -237,7 +233,7 @@ mail	IN	A	203.0.113.10
   <div class="card input-card">
     <div class="input-layout">
       <div class="zone-input-group">
-        <label for="old-zone" use:tooltip={"Original zone file content for comparison"}>
+        <label for="old-zone" use:tooltip={'Original zone file content for comparison'}>
           <Icon name="file" size="sm" />
           Original Zone
         </label>
@@ -252,7 +248,7 @@ mail	IN	A	203.0.113.10
       </div>
 
       <div class="zone-input-group">
-        <label for="new-zone" use:tooltip={"Updated zone file content to compare against"}>
+        <label for="new-zone" use:tooltip={'Updated zone file content to compare against'}>
           <Icon name="file-tick" size="sm" />
           Updated Zone
         </label>
@@ -275,17 +271,10 @@ mail	IN	A	203.0.113.10
         <h3>Zone Comparison Results</h3>
         <div class="results-controls">
           <label class="diff-format-toggle">
-            <input
-              type="checkbox"
-              class="styled-checkbox"
-              bind:checked={showUnified}
-            />
+            <input type="checkbox" class="styled-checkbox" bind:checked={showUnified} />
             <span class="checkbox-text">Unified diff format</span>
           </label>
-          <button
-            class="copy-button {copiedState ? 'copied' : ''}"
-            onclick={copyDiff}
-          >
+          <button class="copy-button {copiedState ? 'copied' : ''}" onclick={copyDiff}>
             <Icon name={copiedState ? 'check' : 'copy'} size="sm" />
             {copiedState ? 'Copied!' : 'Copy Diff'}
           </button>
@@ -403,36 +392,32 @@ mail	IN	A	203.0.113.10
       <div class="education-item info-panel">
         <h4>Zone File Comparison</h4>
         <p>
-          Comparing zone files helps track DNS changes during migrations, updates, or
-          troubleshooting. It identifies exactly what records were added, removed, or modified
-          between two zone versions.
+          Comparing zone files helps track DNS changes during migrations, updates, or troubleshooting. It identifies
+          exactly what records were added, removed, or modified between two zone versions.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Change Types</h4>
         <p>
-          Added records are new entries in the updated zone. Removed records exist in the
-          original but not the updated zone. Changed records have the same owner and type
-          but different data or TTL values.
+          Added records are new entries in the updated zone. Removed records exist in the original but not the updated
+          zone. Changed records have the same owner and type but different data or TTL values.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Diff Formats</h4>
         <p>
-          Structured format groups changes by type for easy review. Unified diff format
-          follows standard patch conventions, useful for version control systems and
-          automated processing.
+          Structured format groups changes by type for easy review. Unified diff format follows standard patch
+          conventions, useful for version control systems and automated processing.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Migration Planning</h4>
         <p>
-          Use zone diffs to plan DNS migrations, verify changes before deployment, and
-          audit modifications. Consider TTL impact on propagation when planning record
-          updates or deletions.
+          Use zone diffs to plan DNS migrations, verify changes before deployment, and audit modifications. Consider TTL
+          impact on propagation when planning record updates or deletions.
         </p>
       </div>
     </div>
@@ -469,7 +454,7 @@ mail	IN	A	203.0.113.10
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -745,22 +730,22 @@ mail	IN	A	203.0.113.10
     text-align: center;
     padding: var(--spacing-sm);
     border-radius: var(--radius-sm);
-    
+
     &.added {
       background-color: color-mix(in srgb, var(--color-success), transparent 90%);
       border: 1px solid var(--color-success);
     }
-    
+
     &.removed {
       background-color: color-mix(in srgb, var(--color-error), transparent 90%);
       border: 1px solid var(--color-error);
     }
-    
+
     &.changed {
       background-color: color-mix(in srgb, var(--color-warning), transparent 90%);
       border: 1px solid var(--color-warning);
     }
-    
+
     &.unchanged {
       background-color: color-mix(in srgb, var(--color-info), transparent 90%);
       border: 1px solid var(--color-info);
@@ -781,17 +766,17 @@ mail	IN	A	203.0.113.10
     &.added .stat-label {
       color: var(--color-success);
     }
-    
+
     &.removed .stat-value,
     &.removed .stat-label {
       color: var(--color-error);
     }
-    
+
     &.changed .stat-value,
     &.changed .stat-label {
       color: var(--color-warning);
     }
-    
+
     &.unchanged .stat-value,
     &.unchanged .stat-label {
       color: var(--color-info);

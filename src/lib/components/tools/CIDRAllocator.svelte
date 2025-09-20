@@ -63,7 +63,7 @@
 /25 - Guest Network
 /26 - Servers
 /27 - Management`,
-      algorithm: 'best-fit' as const
+      algorithm: 'best-fit' as const,
     },
     {
       label: 'Multi-Pool Allocation',
@@ -73,7 +73,7 @@
 /26 - Office A
 /27 - Office B
 /28 - Point-to-Point`,
-      algorithm: 'first-fit' as const
+      algorithm: 'first-fit' as const,
     },
     {
       label: 'Dense Packing Challenge',
@@ -84,7 +84,7 @@
 /28 - Subnet D
 /28 - Subnet E
 /28 - Subnet F`,
-      algorithm: 'best-fit' as const
+      algorithm: 'best-fit' as const,
     },
     {
       label: 'Campus VLAN Allocation',
@@ -96,7 +96,7 @@
 /25 - Library Systems
 /26 - Lab Networks
 /28 - Printer VLANs`,
-      algorithm: 'best-fit' as const
+      algorithm: 'best-fit' as const,
     },
     {
       label: 'Cloud Infrastructure',
@@ -110,7 +110,7 @@
 /25 - Database Tier
 /26 - Load Balancers
 /27 - Monitoring Stack`,
-      algorithm: 'first-fit' as const
+      algorithm: 'first-fit' as const,
     },
     {
       label: 'ISP Customer Allocation',
@@ -124,11 +124,11 @@
 /28 - Enterprise Customer D
 /29 - Remote Branch E
 /30 - Backup Connections`,
-      algorithm: 'best-fit' as const
-    }
+      algorithm: 'best-fit' as const,
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     pools = example.pools;
     requests = example.requests;
     algorithm = example.algorithm;
@@ -143,12 +143,7 @@
   }
 
   function ipToString(ip: number): string {
-    return [
-      (ip >>> 24) & 0xff,
-      (ip >>> 16) & 0xff,
-      (ip >>> 8) & 0xff,
-      ip & 0xff
-    ].join('.');
+    return [(ip >>> 24) & 0xff, (ip >>> 16) & 0xff, (ip >>> 8) & 0xff, ip & 0xff].join('.');
   }
 
   function parseCIDR(cidr: string): { network: number; prefixLength: number; size: number } {
@@ -160,7 +155,10 @@
   }
 
   function parseRequests(input: string): Array<{ prefixLength: number; description: string; size: number }> {
-    const lines = input.trim().split('\n').filter(line => line.trim());
+    const lines = input
+      .trim()
+      .split('\n')
+      .filter((line) => line.trim());
     const requests: Array<{ prefixLength: number; description: string; size: number }> = [];
 
     for (const line of lines) {
@@ -175,7 +173,7 @@
 
       const prefixLength = parseInt(match[1]);
       const description = match[2]?.trim() || `/${prefixLength} subnet`;
-      
+
       if (prefixLength < 1 || prefixLength > 32) {
         throw new Error(`Invalid prefix length: /${prefixLength}`);
       }
@@ -187,7 +185,10 @@
     return requests;
   }
 
-  function findFreeBlocks(pool: { network: number; size: number }, allocated: Array<{ start: number; size: number }>): Array<{ start: number; size: number }> {
+  function findFreeBlocks(
+    pool: { network: number; size: number },
+    allocated: Array<{ start: number; size: number }>,
+  ): Array<{ start: number; size: number }> {
     if (allocated.length === 0) {
       return [{ start: pool.network, size: pool.size }];
     }
@@ -204,7 +205,7 @@
       if (currentPos < block.start) {
         freeBlocks.push({
           start: currentPos,
-          size: block.start - currentPos
+          size: block.start - currentPos,
         });
       }
       currentPos = block.start + block.size;
@@ -214,18 +215,22 @@
     if (currentPos < poolEnd) {
       freeBlocks.push({
         start: currentPos,
-        size: poolEnd - currentPos
+        size: poolEnd - currentPos,
       });
     }
 
     return freeBlocks;
   }
 
-  function findBestFitBlock(freeBlocks: Array<{ start: number; size: number }>, requiredSize: number, prefixLength: number): { start: number; size: number } | null {
+  function findBestFitBlock(
+    freeBlocks: Array<{ start: number; size: number }>,
+    requiredSize: number,
+    prefixLength: number,
+  ): { start: number; size: number } | null {
     // Filter blocks that can fit the required size and are properly aligned
-    const viableBlocks = freeBlocks.filter(block => {
+    const viableBlocks = freeBlocks.filter((block) => {
       if (block.size < requiredSize) return false;
-      
+
       // Check if we can find a properly aligned address within this block
       const alignmentMask = requiredSize - 1;
       const alignedStart = (block.start + alignmentMask) & ~alignmentMask;
@@ -236,9 +241,7 @@
 
     if (algorithm === 'best-fit') {
       // Best-fit: smallest block that fits
-      return viableBlocks.reduce((best, current) => 
-        current.size < best.size ? current : best
-      );
+      return viableBlocks.reduce((best, current) => (current.size < best.size ? current : best));
     } else {
       // First-fit: first block that fits
       return viableBlocks[0];
@@ -252,16 +255,19 @@
         return;
       }
 
-      const poolLines = pools.trim().split('\n').filter(line => line.trim());
+      const poolLines = pools
+        .trim()
+        .split('\n')
+        .filter((line) => line.trim());
       const requestList = parseRequests(requests);
 
       // Parse pools
-      const parsedPools = poolLines.map(line => {
+      const parsedPools = poolLines.map((line) => {
         const trimmed = line.trim();
         if (!trimmed.includes('/')) {
           throw new Error(`Invalid pool format: ${trimmed}. Expected CIDR notation.`);
         }
-        
+
         const { network, prefixLength, size } = parseCIDR(trimmed);
         return {
           original: trimmed,
@@ -269,7 +275,7 @@
           size,
           allocated: [] as Array<{ cidr: string; start: number; size: number; description: string }>,
           remaining: [] as Array<{ start: number; size: number; cidr: string }>,
-          utilization: 0
+          utilization: 0,
         };
       });
 
@@ -294,33 +300,30 @@
 
         // Try each pool in order
         for (const pool of parsedPools) {
-          const freeBlocks = findFreeBlocks(
-            { network: pool.network, size: pool.size },
-            pool.allocated
-          );
+          const freeBlocks = findFreeBlocks({ network: pool.network, size: pool.size }, pool.allocated);
 
           const bestBlock = findBestFitBlock(freeBlocks, request.size, request.prefixLength);
-          
+
           if (bestBlock) {
             // Find properly aligned address within the block
             const alignmentMask = request.size - 1;
             const alignedStart = (bestBlock.start + alignmentMask) & ~alignmentMask;
-            
+
             if (alignedStart + request.size <= bestBlock.start + bestBlock.size) {
               const cidr = `${ipToString(alignedStart)}/${request.prefixLength}`;
-              
+
               pool.allocated.push({
                 cidr,
                 start: alignedStart,
                 size: request.size,
-                description: request.description
+                description: request.description,
               });
 
               allocationResult = {
                 cidr,
-                pool: pool.original
+                pool: pool.original,
               };
-              
+
               allocated = true;
               break;
             }
@@ -335,22 +338,21 @@
           allocated,
           cidr: allocationResult?.cidr,
           pool: allocationResult?.pool,
-          reason: allocated ? undefined : 'No suitable block found with proper alignment'
+          reason: allocated ? undefined : 'No suitable block found with proper alignment',
         });
       }
 
       // Calculate remaining space and utilization for each pool
       for (const pool of parsedPools) {
-        const freeBlocks = findFreeBlocks(
-          { network: pool.network, size: pool.size },
-          pool.allocated
-        );
+        const freeBlocks = findFreeBlocks({ network: pool.network, size: pool.size }, pool.allocated);
 
-        pool.remaining = freeBlocks.map(block => ({
-          start: block.start,
-          size: block.size,
-          cidr: block.size > 0 ? `${ipToString(block.start)}/${32 - Math.log2(block.size)}` : ''
-        })).filter(block => block.size > 0);
+        pool.remaining = freeBlocks
+          .map((block) => ({
+            start: block.start,
+            size: block.size,
+            cidr: block.size > 0 ? `${ipToString(block.start)}/${32 - Math.log2(block.size)}` : '',
+          }))
+          .filter((block) => block.size > 0);
 
         const allocatedSize = pool.allocated.reduce((sum, alloc) => sum + alloc.size, 0);
         pool.utilization = (allocatedSize / pool.size) * 100;
@@ -358,27 +360,29 @@
 
       // Calculate summary statistics
       const totalRequests = allocations.length;
-      const successfulAllocations = allocations.filter(a => a.allocated).length;
+      const successfulAllocations = allocations.filter((a) => a.allocated).length;
       const failedAllocations = totalRequests - successfulAllocations;
       const totalPoolSpace = parsedPools.reduce((sum, pool) => sum + pool.size, 0);
-      const allocatedSpace = parsedPools.reduce((sum, pool) => 
-        sum + pool.allocated.reduce((poolSum, alloc) => poolSum + alloc.size, 0), 0);
-      
+      const allocatedSpace = parsedPools.reduce(
+        (sum, pool) => sum + pool.allocated.reduce((poolSum, alloc) => poolSum + alloc.size, 0),
+        0,
+      );
+
       // Calculate wasted space (internal fragmentation)
       const wastedSpace = parsedPools.reduce((sum, pool) => {
         const freeBlocks = pool.remaining;
         const unusableSpace = freeBlocks.reduce((blockSum, block) => {
           // Space is "wasted" if it's too small for the smallest failed allocation
-          const failedRequests = allocations.filter(a => !a.allocated);
+          const failedRequests = allocations.filter((a) => !a.allocated);
           if (failedRequests.length === 0) return blockSum;
-          
-          const smallestFailed = Math.min(...failedRequests.map(a => a.size));
+
+          const smallestFailed = Math.min(...failedRequests.map((a) => a.size));
           return blockSum + (block.size < smallestFailed ? block.size : 0);
         }, 0);
         return sum + unusableSpace;
       }, 0);
 
-      const efficiency = totalPoolSpace > 0 ? ((allocatedSpace / totalPoolSpace) * 100) : 0;
+      const efficiency = totalPoolSpace > 0 ? (allocatedSpace / totalPoolSpace) * 100 : 0;
 
       result = {
         success: true,
@@ -391,10 +395,9 @@
           totalPoolSpace,
           allocatedSpace,
           wastedSpace,
-          efficiency
-        }
+          efficiency,
+        },
       };
-
     } catch (error) {
       result = {
         success: false,
@@ -408,8 +411,8 @@
           totalPoolSpace: 0,
           allocatedSpace: 0,
           wastedSpace: 0,
-          efficiency: 0
-        }
+          efficiency: 0,
+        },
       };
     }
   }
@@ -435,11 +438,11 @@
 
   async function copyAllAllocations() {
     if (!result?.allocations) return;
-    
-    const successful = result.allocations.filter(a => a.allocated);
+
+    const successful = result.allocations.filter((a) => a.allocated);
     if (successful.length === 0) return;
-    
-    const text = successful.map(a => `${a.cidr} - ${a.description}`).join('\n');
+
+    const text = successful.map((a) => `${a.cidr} - ${a.description}`).join('\n');
     await copyToClipboard(text, 'all-allocations');
   }
 
@@ -479,15 +482,12 @@
 
   <!-- Algorithm Selection -->
   <section class="algorithm-section">
-    <h4 use:tooltip={"Choose between first-fit (faster) and best-fit (more efficient packing) algorithms"}>Allocation Algorithm</h4>
+    <h4 use:tooltip={'Choose between first-fit (faster) and best-fit (more efficient packing) algorithms'}>
+      Allocation Algorithm
+    </h4>
     <div class="algorithm-options">
       <label class="algorithm-option">
-        <input
-          type="radio"
-          bind:group={algorithm}
-          value="first-fit"
-          onchange={handleInputChange}
-        />
+        <input type="radio" bind:group={algorithm} value="first-fit" onchange={handleInputChange} />
         <div class="option-content">
           <div class="option-title">
             <Icon name="zap" size="sm" />
@@ -500,12 +500,7 @@
       </label>
 
       <label class="algorithm-option">
-        <input
-          type="radio"
-          bind:group={algorithm}
-          value="best-fit"
-          onchange={handleInputChange}
-        />
+        <input type="radio" bind:group={algorithm} value="best-fit" onchange={handleInputChange} />
         <div class="option-content">
           <div class="option-title">
             <Icon name="target" size="sm" />
@@ -523,10 +518,7 @@
   <section class="input-section">
     <div class="input-grid">
       <div class="input-group">
-        <label 
-          for="pools"
-          use:tooltip={"Available network pools - one CIDR block per line"}
-        >
+        <label for="pools" use:tooltip={'Available network pools - one CIDR block per line'}>
           <Icon name="database" size="sm" />
           Available Pools
         </label>
@@ -541,10 +533,7 @@
       </div>
 
       <div class="input-group">
-        <label 
-          for="requests"
-          use:tooltip={"Subnet requests in format '/24 - Description' - one per line"}
-        >
+        <label for="requests" use:tooltip={"Subnet requests in format '/24 - Description' - one per line"}>
           <Icon name="list-check" size="sm" />
           Subnet Requests
         </label>
@@ -567,7 +556,7 @@
         <!-- Summary -->
         <div class="allocation-summary">
           <div class="summary-header">
-            <h3 use:tooltip={"Summary of subnet allocation requests and pool utilization"}>Allocation Results</h3>
+            <h3 use:tooltip={'Summary of subnet allocation requests and pool utilization'}>Allocation Results</h3>
             {#if result.summary.successfulAllocations > 0}
               <button
                 class="copy-all-button {copiedStates['all-allocations'] ? 'copied' : ''}"
@@ -589,7 +578,7 @@
                 <div class="summary-label">Allocated</div>
               </div>
             </div>
-            
+
             <div class="summary-card error">
               <div class="summary-icon">
                 <Icon name={result.summary.failedAllocations > 0 ? 'x-circle' : 'check-circle'} />
@@ -599,7 +588,7 @@
                 <div class="summary-label">Failed</div>
               </div>
             </div>
-            
+
             <div class="summary-card info">
               <div class="summary-icon">
                 <Icon name="pie-chart" />
@@ -635,7 +624,7 @@
 
         <!-- Allocations -->
         <div class="allocations-section">
-          <h4 use:tooltip={"Individual subnet allocation results with assigned CIDR blocks"}>Subnet Allocations</h4>
+          <h4 use:tooltip={'Individual subnet allocation results with assigned CIDR blocks'}>Subnet Allocations</h4>
           <div class="allocations-list">
             {#each result.allocations as allocation}
               <div class="allocation-item {allocation.allocated ? 'success' : 'failed'}">
@@ -654,7 +643,7 @@
                     {/if}
                   </div>
                 </div>
-                
+
                 {#if allocation.allocated && allocation.cidr}
                   <div class="allocation-result">
                     <div class="result-info">
@@ -684,22 +673,24 @@
 
         <!-- Pool Utilization -->
         <div class="pools-section">
-          <h4 use:tooltip={"Detailed breakdown of how address space was used in each pool"}>Pool Utilization</h4>
+          <h4 use:tooltip={'Detailed breakdown of how address space was used in each pool'}>Pool Utilization</h4>
           <div class="pools-grid">
             {#each result.pools as pool}
               <div class="pool-card">
                 <div class="pool-header">
                   <code class="pool-cidr">{pool.original}</code>
                   <div class="pool-stats">
-                    <span class="pool-utilization" 
-                          class:high={pool.utilization >= 80}
-                          class:medium={pool.utilization >= 50 && pool.utilization < 80}
-                          class:low={pool.utilization < 50}>
+                    <span
+                      class="pool-utilization"
+                      class:high={pool.utilization >= 80}
+                      class:medium={pool.utilization >= 50 && pool.utilization < 80}
+                      class:low={pool.utilization < 50}
+                    >
                       {pool.utilization.toFixed(1)}% used
                     </span>
                   </div>
                 </div>
-                
+
                 <!-- Utilization Bar -->
                 <div class="utilization-bar">
                   <div class="utilization-fill" style="width: {pool.utilization}%"></div>
@@ -747,7 +738,6 @@
             {/each}
           </div>
         </div>
-
       {:else}
         <div class="error-message">
           <Icon name="alert-triangle" />
@@ -770,12 +760,12 @@
 
   .card-header {
     margin-bottom: var(--spacing-lg);
-    
+
     h2 {
       margin-bottom: var(--spacing-sm);
       font-size: var(--font-size-xl);
     }
-    
+
     p {
       color: var(--text-secondary);
       margin: 0;
@@ -818,10 +808,9 @@
     }
   }
 
-
   .algorithm-section {
     margin-bottom: var(--spacing-lg);
-    
+
     h4 {
       margin-bottom: var(--spacing-md);
       color: var(--text-primary);
@@ -832,7 +821,9 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: var(--spacing-md);
-    input { display: none; }
+    input {
+      display: none;
+    }
   }
 
   .algorithm-option {
@@ -855,7 +846,7 @@
       background-color: var(--surface-hover);
     }
 
-    input[type="radio"] {
+    input[type='radio'] {
       margin-top: 2px;
     }
   }
@@ -967,7 +958,7 @@
     }
 
     &.info {
-      border-color: var(--color-info); 
+      border-color: var(--color-info);
       .summary-icon {
         background-color: var(--color-info);
         color: var(--bg-primary);
@@ -976,13 +967,12 @@
 
     &.error {
       border-color: var(--color-error);
-      
+
       .summary-icon {
         background-color: var(--color-error);
         color: var(--bg-primary);
       }
     }
-
   }
 
   .summary-icon {
@@ -1034,14 +1024,15 @@
 
   .breakdown-value {
     color: var(--text-primary);
-    
+
     &.allocated {
       color: var(--color-success-light);
       font-weight: 600;
     }
   }
 
-  .allocations-section, .pools-section {
+  .allocations-section,
+  .pools-section {
     margin-bottom: var(--spacing-xl);
 
     h4 {
@@ -1104,11 +1095,11 @@
   .status-text {
     font-size: var(--font-size-sm);
     font-weight: 600;
-    
+
     &.success {
       color: var(--color-success-light);
     }
-    
+
     &.failed {
       color: var(--color-error-light);
     }
@@ -1136,7 +1127,8 @@
     color: var(--color-success-light);
   }
 
-  .result-pool, .result-size {
+  .result-pool,
+  .result-size {
     color: var(--text-secondary);
   }
 
@@ -1154,7 +1146,7 @@
       border-radius: var(--radius-sm);
       padding: var(--spacing-xs) var(--spacing-sm);
       color: var(--color-error);
-      
+
       :global(.icon) {
         color: var(--color-error);
       }
@@ -1212,17 +1204,17 @@
     font-weight: 600;
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
-    
+
     &.high {
       background-color: var(--color-error);
       color: var(--bg-primary);
     }
-    
+
     &.medium {
       background-color: var(--color-warning);
       color: var(--bg-primary);
     }
-    
+
     &.low {
       background-color: var(--color-success);
       color: var(--bg-primary);
@@ -1244,9 +1236,10 @@
     transition: width var(--transition-fast);
   }
 
-  .pool-allocations, .pool-remaining {
+  .pool-allocations,
+  .pool-remaining {
     margin-bottom: var(--spacing-md);
-    
+
     &:last-child {
       margin-bottom: 0;
     }
@@ -1260,7 +1253,8 @@
     }
   }
 
-  .allocated-list, .remaining-list {
+  .allocated-list,
+  .remaining-list {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -1343,7 +1337,6 @@
     .algorithm-options {
       grid-template-columns: 1fr;
     }
-
 
     .summary-grid {
       grid-template-columns: 1fr;

@@ -1,5 +1,4 @@
 <script lang="ts">
-  
   import { SUB_NAV } from '$lib/constants/nav';
   import { cidrContent } from '$lib/content/cidr';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
@@ -28,8 +27,8 @@
   <header class="page-header">
     <h1>CIDR Tools & Converters</h1>
     <p class="page-description">
-      Comprehensive CIDR tools for network analysis, conversion, and optimization.
-      Convert between notation formats, summarize networks, split subnets, and perform set operations on IP ranges.
+      Comprehensive CIDR tools for network analysis, conversion, and optimization. Convert between notation formats,
+      summarize networks, split subnets, and perform set operations on IP ranges.
     </p>
   </header>
 
@@ -60,7 +59,8 @@
         {#each cidrContent.aboutSection.content as paragraph, i}
           <p>
             {#if i === 0}
-              <strong>CIDR (Classless Inter-Domain Routing)</strong> {paragraph.replace('CIDR (Classless Inter-Domain Routing) ', '')}
+              <strong>CIDR (Classless Inter-Domain Routing)</strong>
+              {paragraph.replace('CIDR (Classless Inter-Domain Routing) ', '')}
             {:else}
               {paragraph}
             {/if}
@@ -71,7 +71,8 @@
         <h3>Why CIDR Matters</h3>
         {#each cidrContent.aboutSection.advantages as advantage}
           <div class="benefit-item">
-            <strong>{advantage.title}:</strong> {advantage.description}
+            <strong>{advantage.title}:</strong>
+            {advantage.description}
           </div>
         {/each}
       </div>
@@ -85,10 +86,10 @@
       <table class="sizes-table">
         <thead>
           <tr>
-            <th use:tooltip={"CIDR prefix length notation"}>CIDR</th>
-            <th use:tooltip={"Traditional subnet mask notation"}>Subnet Mask</th>
-            <th use:tooltip={"Number of usable host addresses"}>Hosts</th>
-            <th use:tooltip={"Typical use cases for this network size"}>Common Use</th>
+            <th use:tooltip={'CIDR prefix length notation'}>CIDR</th>
+            <th use:tooltip={'Traditional subnet mask notation'}>Subnet Mask</th>
+            <th use:tooltip={'Number of usable host addresses'}>Hosts</th>
+            <th use:tooltip={'Typical use cases for this network size'}>Common Use</th>
           </tr>
         </thead>
         <tbody>
@@ -104,8 +105,8 @@
       </table>
     </div>
     <p class="table-note">
-      <strong>*</strong> /31 networks use special point-to-point addressing (RFC 3021)
-      where both addresses are usable without network/broadcast addresses.
+      <strong>*</strong> /31 networks use special point-to-point addressing (RFC 3021) where both addresses are usable without
+      network/broadcast addresses.
     </p>
   </section>
 
@@ -131,25 +132,26 @@
             <div class="summary-example">
               {#if item.example.before}
                 <div class="before">
-                  <strong>{item.example.before.title}</strong><br>
+                  <strong>{item.example.before.title}</strong><br />
                   {#each item.example.before.content as line}
-                    {line}<br>
+                    {line}<br />
                   {/each}
                 </div>
               {/if}
               <div class="arrow">→</div>
               {#if item.example.after}
                 <div class="after">
-                  <strong>{item.example.after.title}</strong><br>
+                  <strong>{item.example.after.title}</strong><br />
                   {#each item.example.after.content as line}
-                    {line}<br>
+                    {line}<br />
                   {/each}
                 </div>
               {/if}
             </div>
           {:else if item.example.type === 'tip'}
             <div class="planning-tip">
-              <strong>{item.example.title}</strong> {item.example.content}
+              <strong>{item.example.title}</strong>
+              {item.example.content}
             </div>
           {/if}
         </div>
@@ -416,7 +418,8 @@
         border-radius: var(--radius-sm);
         font-size: var(--font-size-sm);
 
-        .before, .after {
+        .before,
+        .after {
           text-align: center;
         }
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { wildcardMasksContent } from '$lib/content/wildcard-masks.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -19,14 +19,15 @@
     <div class="ref-section">
       <h2>{wildcardMasksContent.sections.difference.title}</h2>
       <p>{wildcardMasksContent.sections.difference.content}</p>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="eye" size="sm" />
           Key Difference
         </div>
         <div class="highlight-content">
-          Wildcard masks are the bitwise inverse of subnet masks. If you know one, you can calculate the other by subtracting from 255.255.255.255.
+          Wildcard masks are the bitwise inverse of subnet masks. If you know one, you can calculate the other by
+          subtracting from 255.255.255.255.
         </div>
       </div>
     </div>
@@ -49,7 +50,7 @@
     <div class="ref-section">
       <h2>{wildcardMasksContent.quickConversion.title}</h2>
       <p><strong>Formula:</strong> <code>{wildcardMasksContent.quickConversion.formula}</code></p>
-      
+
       <h3>Steps:</h3>
       <ol>
         {#each wildcardMasksContent.quickConversion.steps as step}
@@ -102,8 +103,10 @@
             <div class="item-title">{specialCase.case}</div>
             <div class="item-code">Wildcard: {specialCase.wildcard}</div>
             <div class="item-description">
-              <strong>Meaning:</strong> {specialCase.meaning}<br>
-              <strong>Usage:</strong> {specialCase.usage}
+              <strong>Meaning:</strong>
+              {specialCase.meaning}<br />
+              <strong>Usage:</strong>
+              {specialCase.usage}
             </div>
           </div>
         {/each}
@@ -184,14 +187,15 @@
           </div>
         {/each}
       </div>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="calculator" size="sm" />
           Quick Memory Aid
         </div>
         <div class="highlight-content">
-          Wildcard 0 = "must match exactly", Wildcard 1 = "don't care". Think of it as a mask where 0 blocks changes and 1 allows anything.
+          Wildcard 0 = "must match exactly", Wildcard 1 = "don't care". Think of it as a mask where 0 blocks changes and
+          1 allows anything.
         </div>
       </div>
     </div>

@@ -1,5 +1,4 @@
 <script lang="ts">
-  
   import { SUB_NAV } from '$lib/constants/nav';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import type { NavItem, NavGroup } from '$lib/constants/nav';
@@ -25,16 +24,13 @@
   <header class="page-header">
     <h1>IP Address Tools & Converters</h1>
     <p class="page-description">
-      Comprehensive IP address manipulation tools for IPv4 and IPv6. 
-      Convert between formats, calculate distances, generate addresses, and work with advanced IPv6 features.
+      Comprehensive IP address manipulation tools for IPv4 and IPv6. Convert between formats, calculate distances,
+      generate addresses, and work with advanced IPv6 features.
     </p>
   </header>
 
   <ToolsGrid tools={ipTools} />
-
 </div>
 
 <style>
-
 </style>
-

@@ -1,45 +1,53 @@
 <script lang="ts">
   import { processIPv6ZoneIdentifiers, type IPv6ZoneResult } from '$lib/utils/ipv6-zone-id.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
+
   let inputText = $state('fe80::1\nfe80::1%eth0\nfe80::1234:5678:90ab:cdef%wlan0\n::1\n2001:db8::1\nff02::1%eth0');
   let result = $state<IPv6ZoneResult | null>(null);
   let isLoading = $state(false);
   let copiedStates = $state<Record<string, boolean>>({});
-  
+
   function processAddresses() {
     if (!inputText.trim()) {
       result = null;
       return;
     }
-    
+
     isLoading = true;
-    
+
     try {
-      const inputs = inputText.split('\n').filter(line => line.trim());
+      const inputs = inputText.split('\n').filter((line) => line.trim());
       result = processIPv6ZoneIdentifiers(inputs);
     } catch (error) {
       result = {
         processings: [],
-        summary: { totalInputs: 0, validInputs: 0, invalidInputs: 0, addressesWithZones: 0, addressesRequiringZones: 0 },
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        summary: {
+          totalInputs: 0,
+          validInputs: 0,
+          invalidInputs: 0,
+          addressesWithZones: 0,
+          addressesRequiringZones: 0,
+        },
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
       };
     } finally {
       isLoading = false;
     }
   }
-  
+
   function exportResults(format: 'csv' | 'json') {
     if (!result) return;
-    
+
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
     let content = '';
     let filename = '';
-    
+
     if (format === 'csv') {
-      const headers = 'Input,Has Zone ID,Address,Zone ID,Address Type,Requires Zone ID,With Zone,Without Zone,Valid,Error';
-      const rows = result.processings.map(proc => 
-        `"${proc.input}","${proc.hasZoneId}","${proc.address}","${proc.zoneId}","${proc.addressType}","${proc.requiresZoneId}","${proc.processing.withZone}","${proc.processing.withoutZone}","${proc.isValid}","${proc.error || ''}"`
+      const headers =
+        'Input,Has Zone ID,Address,Zone ID,Address Type,Requires Zone ID,With Zone,Without Zone,Valid,Error';
+      const rows = result.processings.map(
+        (proc) =>
+          `"${proc.input}","${proc.hasZoneId}","${proc.address}","${proc.zoneId}","${proc.addressType}","${proc.requiresZoneId}","${proc.processing.withZone}","${proc.processing.withoutZone}","${proc.isValid}","${proc.error || ''}"`,
       );
       content = [headers, ...rows].join('\n');
       filename = `ipv6-zones-${timestamp}.csv`;
@@ -47,7 +55,7 @@
       content = JSON.stringify(result, null, 2);
       filename = `ipv6-zones-${timestamp}.json`;
     }
-    
+
     const blob = new Blob([content], { type: format === 'csv' ? 'text/csv' : 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -56,7 +64,7 @@
     a.click();
     URL.revokeObjectURL(url);
   }
-  
+
   async function copyToClipboard(text: string, id?: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -70,31 +78,45 @@
       console.error('Failed to copy text: ', err);
     }
   }
-  
+
   function getAddressTypeColor(type: string): string {
     switch (type) {
-      case 'link-local': return 'var(--color-warning)';
-      case 'unique-local': return 'var(--color-purple)';  
-      case 'multicast': return 'var(--color-error)';
-      case 'global': return 'var(--color-success)';
-      case 'loopback': return 'var(--color-info)';
-      case 'unspecified': return 'var(--text-secondary)';
-      default: return 'var(--text-primary)';
+      case 'link-local':
+        return 'var(--color-warning)';
+      case 'unique-local':
+        return 'var(--color-purple)';
+      case 'multicast':
+        return 'var(--color-error)';
+      case 'global':
+        return 'var(--color-success)';
+      case 'loopback':
+        return 'var(--color-info)';
+      case 'unspecified':
+        return 'var(--text-secondary)';
+      default:
+        return 'var(--text-primary)';
     }
   }
-  
+
   function getAddressTypeDescription(type: string): string {
     switch (type) {
-      case 'link-local': return 'Link-local address (fe80::/10)';
-      case 'unique-local': return 'Unique local address (fc00::/7)';
-      case 'multicast': return 'Multicast address (ff00::/8)';
-      case 'global': return 'Global unicast address';
-      case 'loopback': return 'Loopback address (::1)';
-      case 'unspecified': return 'Unspecified address (::)';
-      default: return 'Unknown address type';
+      case 'link-local':
+        return 'Link-local address (fe80::/10)';
+      case 'unique-local':
+        return 'Unique local address (fc00::/7)';
+      case 'multicast':
+        return 'Multicast address (ff00::/8)';
+      case 'global':
+        return 'Global unicast address';
+      case 'loopback':
+        return 'Loopback address (::1)';
+      case 'unspecified':
+        return 'Unspecified address (::)';
+      default:
+        return 'Unknown address type';
     }
   }
-  
+
   // Auto-process when inputs change
   $effect(() => {
     if (inputText.trim()) {
@@ -111,7 +133,7 @@
   </header>
 
   <div class="input-section">
-      <div class="input-group">
+    <div class="input-group">
       <label for="inputs">IPv6 Addresses</label>
       <textarea
         id="inputs"
@@ -120,43 +142,44 @@
         rows="6"
       ></textarea>
       <div class="input-help">
-        Enter IPv6 addresses with or without zone identifiers (%). Zone IDs are interface names like eth0, wlan0, or numeric IDs.
+        Enter IPv6 addresses with or without zone identifiers (%). Zone IDs are interface names like eth0, wlan0, or
+        numeric IDs.
       </div>
     </div>
 
-      <div class="zone-info">
-        <h3>Zone Identifier Information</h3>
-        <div class="info-section">
-          <h4>When Zone IDs are Required:</h4>
-          <ul>
-            <li><strong>Link-local addresses</strong> (fe80::/10) - Almost always require zone IDs</li>
-            <li><strong>Multicast addresses</strong> (ff00::/8) - May require zone IDs depending on scope</li>
-          </ul>
-        </div>
-        
-        <div class="info-section">
-          <h4>Common Zone Identifiers:</h4>
-          <div class="zone-examples">
-            <code>eth0</code>
-            <code>wlan0</code>
-            <code>en0</code>
-            <code>lo</code>
-            <code>%1</code>
-            <code>%2</code>
-          </div>
+    <div class="zone-info">
+      <h3>Zone Identifier Information</h3>
+      <div class="info-section">
+        <h4>When Zone IDs are Required:</h4>
+        <ul>
+          <li><strong>Link-local addresses</strong> (fe80::/10) - Almost always require zone IDs</li>
+          <li><strong>Multicast addresses</strong> (ff00::/8) - May require zone IDs depending on scope</li>
+        </ul>
+      </div>
+
+      <div class="info-section">
+        <h4>Common Zone Identifiers:</h4>
+        <div class="zone-examples">
+          <code>eth0</code>
+          <code>wlan0</code>
+          <code>en0</code>
+          <code>lo</code>
+          <code>%1</code>
+          <code>%2</code>
         </div>
       </div>
     </div>
+  </div>
 
-    {#if isLoading}
-      <div class="loading">
-        <Icon name="loader" />
-        Processing addresses...
-      </div>
-    {/if}
+  {#if isLoading}
+    <div class="loading">
+      <Icon name="loader" />
+      Processing addresses...
+    </div>
+  {/if}
 
-    {#if result}
-      <div class="results">
+  {#if result}
+    <div class="results">
       {#if result.errors.length > 0}
         <div class="errors">
           <h3><Icon name="alert-triangle" /> Errors</h3>
@@ -211,7 +234,7 @@
           <div class="processings-list">
             {#each result?.processings || [] as processing}
               <div class="processing-card" class:valid={processing.isValid} class:invalid={!processing.isValid}>
-                <div class="card-header row ">
+                <div class="card-header row">
                   <div class="address-info">
                     <div class="original-input">
                       <span class="input-label">Input:</span>
@@ -228,7 +251,7 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="status">
                     {#if processing.isValid}
                       <Icon name="check-circle" />
@@ -255,7 +278,7 @@
                           </button>
                         </div>
                       </div>
-                      
+
                       {#if processing.hasZoneId}
                         <div class="breakdown-item">
                           <span class="breakdown-label">Zone ID:</span>
@@ -293,17 +316,23 @@
                     <div class="address-classification">
                       <div class="classification-item">
                         <span class="classification-label">Address Type:</span>
-                        <span class="address-type" 
-                              style="color: {getAddressTypeColor(processing.addressType)}"
-                              title="{getAddressTypeDescription(processing.addressType)}">
+                        <span
+                          class="address-type"
+                          style="color: {getAddressTypeColor(processing.addressType)}"
+                          title={getAddressTypeDescription(processing.addressType)}
+                        >
                           <Icon name="info" />
                           {processing.addressType.replace('-', ' ').toUpperCase()}
                         </span>
                       </div>
-                      
+
                       <div class="classification-item">
                         <span class="classification-label">Requires Zone ID:</span>
-                        <span class="zone-requirement" class:required={processing.requiresZoneId} class:optional={!processing.requiresZoneId}>
+                        <span
+                          class="zone-requirement"
+                          class:required={processing.requiresZoneId}
+                          class:optional={!processing.requiresZoneId}
+                        >
                           {processing.requiresZoneId ? 'Yes' : 'No'}
                         </span>
                       </div>
@@ -317,14 +346,21 @@
                           <button
                             type="button"
                             class:copied={copiedStates[`with-zone-${processing.processing.withZone}`]}
-                            onclick={() => copyToClipboard(processing.processing.withZone, `with-zone-${processing.processing.withZone}`)}
+                            onclick={() =>
+                              copyToClipboard(
+                                processing.processing.withZone,
+                                `with-zone-${processing.processing.withZone}`,
+                              )}
                             title="Copy with zone"
                           >
-                            <Icon name={copiedStates[`with-zone-${processing.processing.withZone}`] ? 'check' : 'copy'} size="xs" />
+                            <Icon
+                              name={copiedStates[`with-zone-${processing.processing.withZone}`] ? 'check' : 'copy'}
+                              size="xs"
+                            />
                           </button>
                         </div>
                       </div>
-                      
+
                       <div class="result-item">
                         <span class="result-label">Without Zone:</span>
                         <div class="input-with-copy">
@@ -332,10 +368,19 @@
                           <button
                             type="button"
                             class:copied={copiedStates[`without-zone-${processing.processing.withoutZone}`]}
-                            onclick={() => copyToClipboard(processing.processing.withoutZone, `without-zone-${processing.processing.withoutZone}`)}
+                            onclick={() =>
+                              copyToClipboard(
+                                processing.processing.withoutZone,
+                                `without-zone-${processing.processing.withoutZone}`,
+                              )}
                             title="Copy without zone"
                           >
-                            <Icon name={copiedStates[`without-zone-${processing.processing.withoutZone}`] ? 'check' : 'copy'} size="xs" />
+                            <Icon
+                              name={copiedStates[`without-zone-${processing.processing.withoutZone}`]
+                                ? 'check'
+                                : 'copy'}
+                              size="xs"
+                            />
                           </button>
                         </div>
                       </div>
@@ -384,7 +429,6 @@
 </div>
 
 <style>
-
   /* Card styles already defined in base.scss */
 
   .card h2 {
@@ -697,7 +741,6 @@
     gap: var(--spacing-xs);
     /* flex: 1; */
     /* max-width: 28rem; */
-    
   }
 
   @media (max-width: 767px) {
@@ -768,7 +811,6 @@
     }
   }
 
-
   .status {
     color: var(--color-success);
     margin-left: var(--spacing-sm);
@@ -784,7 +826,8 @@
     gap: var(--spacing-md);
   }
 
-  .address-breakdown, .address-info {
+  .address-breakdown,
+  .address-info {
     padding: var(--spacing-sm);
     background: var(--bg-secondary);
     border-radius: 0.25rem;
@@ -862,7 +905,8 @@
     align-items: center;
     margin-bottom: var(--spacing-sm);
 
-    .result-label, .classification-label {
+    .result-label,
+    .classification-label {
       min-width: 8rem;
     }
   }
@@ -1009,15 +1053,14 @@
   }
 
   @media (max-width: 767px) {
-    
     .summary-stats {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .export-buttons {
       justify-content: stretch;
     }
-    
+
     .export-buttons button {
       flex: 1;
       justify-content: center;

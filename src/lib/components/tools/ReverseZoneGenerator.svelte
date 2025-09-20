@@ -1,14 +1,20 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  import { generateCIDRPTRs, generateReverseZoneFile, calculateReverseZones, type PTRRecord, type ZoneFileOptions } from '$lib/utils/reverse-dns';
-  
+  import {
+    generateCIDRPTRs,
+    generateReverseZoneFile,
+    calculateReverseZones,
+    type PTRRecord,
+    type ZoneFileOptions,
+  } from '$lib/utils/reverse-dns';
+
   let cidrInput = $state('192.168.1.0/24');
   let hostnameTemplate = $state('host-{ip-dashes}.example.com.');
   let nameServers = $state('ns1.example.com.\nns2.example.com.');
   let contactEmail = $state('hostmaster.example.com.');
   let ttl = $state(86400);
-  
+
   let results = $state<{
     success: boolean;
     error?: string;
@@ -23,7 +29,7 @@
       totalRecords: number;
     };
   } | null>(null);
-  
+
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
   let userModified = $state(false);
@@ -33,35 +39,35 @@
       label: 'IPv4 /24 Network',
       cidr: '192.168.1.0/24',
       template: 'host-{ip-dashes}.example.com.',
-      description: 'Generate zone for full /24 subnet'
+      description: 'Generate zone for full /24 subnet',
     },
     {
       label: 'IPv4 /28 Block',
       cidr: '10.0.0.16/28',
       template: 'server{ip}.lan.example.com.',
-      description: 'Small block with custom naming'
+      description: 'Small block with custom naming',
     },
     {
       label: 'IPv6 /64 Network',
       cidr: '2001:db8:1000::/64',
       template: 'host-{ip-dashes}.ipv6.example.com.',
-      description: 'IPv6 reverse zone generation'
+      description: 'IPv6 reverse zone generation',
     },
     {
       label: 'Corporate Network',
       cidr: '172.16.100.0/24',
       template: 'workstation-{ip-dashes}.corp.example.com.',
-      description: 'Corporate naming convention'
-    }
+      description: 'Corporate naming convention',
+    },
   ];
 
   const templateHelp = [
     { placeholder: '{ip}', description: 'Original IP address (192.168.1.100)' },
     { placeholder: '{ip-dashes}', description: 'IP with dashes (192-168-1-100)' },
-    { placeholder: '{domain}', description: 'Base domain from settings' }
+    { placeholder: '{domain}', description: 'Base domain from settings' },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     cidrInput = example.cidr;
     hostnameTemplate = example.template;
     selectedExample = example.label;
@@ -77,61 +83,61 @@
 
     try {
       const trimmed = cidrInput.trim();
-      
+
       // Generate PTR records for the CIDR
       const ptrRecords = generateCIDRPTRs(trimmed, 5000);
-      
+
       if (ptrRecords.length === 0) {
         throw new Error('No valid PTR records could be generated from this CIDR');
       }
 
       // Get the zones that need to be created
       const zoneInfos = calculateReverseZones(trimmed);
-      
+
       // Parse name servers
-      const nsArray = nameServers.split('\n')
-        .map(ns => ns.trim())
-        .filter(ns => ns.length > 0)
-        .map(ns => ns.endsWith('.') ? ns : ns + '.');
+      const nsArray = nameServers
+        .split('\n')
+        .map((ns) => ns.trim())
+        .filter((ns) => ns.length > 0)
+        .map((ns) => (ns.endsWith('.') ? ns : ns + '.'));
 
       const domainSuffix = contactEmail.split('@')[1] || 'example.com';
-      
+
       const options: ZoneFileOptions = {
         nameServers: nsArray,
         contactEmail: contactEmail.endsWith('.') ? contactEmail : contactEmail + '.',
         domainSuffix: domainSuffix.endsWith('.') ? domainSuffix : domainSuffix + '.',
-        ttl
+        ttl,
       };
 
-      const zones = zoneInfos.map(zoneInfo => {
-        const zoneRecords = ptrRecords.filter(record => record.zone === zoneInfo.zone);
+      const zones = zoneInfos.map((zoneInfo) => {
+        const zoneRecords = ptrRecords.filter((record) => record.zone === zoneInfo.zone);
         const content = generateReverseZoneFile(zoneInfo.zone, zoneRecords, hostnameTemplate, options);
-        
+
         return {
           zone: zoneInfo.zone,
           type: zoneInfo.type,
           content,
-          recordCount: zoneRecords.length
+          recordCount: zoneRecords.length,
         };
       });
 
       const summary = {
         totalZones: zones.length,
-        totalRecords: ptrRecords.length
+        totalRecords: ptrRecords.length,
       };
 
       results = {
         success: true,
         zones,
-        summary
+        summary,
       };
-
     } catch (error) {
       results = {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
         zones: [],
-        summary: { totalZones: 0, totalRecords: 0 }
+        summary: { totalZones: 0, totalRecords: 0 },
       };
     }
   }
@@ -176,7 +182,9 @@
       <div class="overview-item">
         <Icon name="template" size="sm" />
         <div>
-          <strong>Hostname Templates:</strong> Customize hostname patterns using placeholders like <code>{'{'}{"ip"}{'}'}</code> and <code>{'{'}{"ip-dashes"}{'}'}</code>.
+          <strong>Hostname Templates:</strong> Customize hostname patterns using placeholders like
+          <code>{'{'}ip}</code>
+          and <code>{'{'}ip-dashes}</code>.
         </div>
       </div>
       <div class="overview-item">
@@ -217,7 +225,7 @@
   <div class="card input-card">
     <!-- CIDR Input -->
     <div class="input-group">
-      <label for="cidr-input" use:tooltip={"Enter a CIDR block to generate reverse zones for"}>
+      <label for="cidr-input" use:tooltip={'Enter a CIDR block to generate reverse zones for'}>
         <Icon name="network" size="sm" />
         CIDR Block
       </label>
@@ -234,7 +242,10 @@
 
     <!-- Hostname Template -->
     <div class="input-group">
-      <label for="template-input" use:tooltip={"Use placeholders like ${'{ip}'}, ${'{ip-dashes}'} to customize hostnames"}>
+      <label
+        for="template-input"
+        use:tooltip={"Use placeholders like ${'{ip}'}, ${'{ip-dashes}'} to customize hostnames"}
+      >
         <Icon name="tag" size="sm" />
         Hostname Template
       </label>
@@ -247,7 +258,7 @@
         class="template-input"
         spellcheck="false"
       />
-      
+
       <!-- Template Help -->
       <div class="template-help">
         <h4>Available Placeholders:</h4>
@@ -265,10 +276,10 @@
     <!-- Zone Configuration -->
     <div class="config-section">
       <h3>Zone Configuration</h3>
-      
+
       <div class="config-grid">
         <div class="config-group">
-          <label for="nameservers-input" use:tooltip={"One name server per line, automatically adds trailing dots"}>
+          <label for="nameservers-input" use:tooltip={'One name server per line, automatically adds trailing dots'}>
             <Icon name="server" size="sm" />
             Name Servers
           </label>
@@ -282,9 +293,9 @@
             spellcheck="false"
           ></textarea>
         </div>
-        
+
         <div class="config-group">
-          <label for="contact-input" use:tooltip={"DNS zone contact email address"}>
+          <label for="contact-input" use:tooltip={'DNS zone contact email address'}>
             <Icon name="mail" size="sm" />
             Contact Email
           </label>
@@ -298,9 +309,9 @@
             spellcheck="false"
           />
         </div>
-        
+
         <div class="config-group">
-          <label for="ttl-input" use:tooltip={"Default TTL for zone records in seconds"}>
+          <label for="ttl-input" use:tooltip={'Default TTL for zone records in seconds'}>
             <Icon name="clock" size="sm" />
             Default TTL (seconds)
           </label>
@@ -357,14 +368,13 @@
                   Copy Zone File
                 </button>
               </div>
-              
+
               <div class="zone-content-container">
                 <pre class="zone-content"><code>{zone.content}</code></pre>
               </div>
             </div>
           {/each}
         </div>
-
       {:else}
         <div class="error-result">
           <Icon name="alert-triangle" size="lg" />
@@ -388,32 +398,32 @@
       <div class="education-item info-panel">
         <h4>Zone File Structure</h4>
         <p>
-          Generated zone files include proper SOA records with serial numbers, refresh/retry/expire timers,
-          and NS records for delegation. All PTR records are automatically generated based on your template.
+          Generated zone files include proper SOA records with serial numbers, refresh/retry/expire timers, and NS
+          records for delegation. All PTR records are automatically generated based on your template.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Hostname Templates</h4>
         <p>
-          Use placeholders to create consistent naming patterns. <code>[ip-dashes]</code> is popular for
-          creating hostnames like <code>host-192-168-1-100.example.com</code> from IP addresses.
+          Use placeholders to create consistent naming patterns. <code>[ip-dashes]</code> is popular for creating
+          hostnames like <code>host-192-168-1-100.example.com</code> from IP addresses.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Zone Delegation</h4>
         <p>
-          The generated zones need to be properly delegated by your ISP or DNS provider. Ensure your
-          name servers are configured to serve these zones and are reachable from the internet.
+          The generated zones need to be properly delegated by your ISP or DNS provider. Ensure your name servers are
+          configured to serve these zones and are reachable from the internet.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Best Practices</h4>
         <p>
-          Keep TTL values reasonable (3600-86400 seconds). Use descriptive hostnames that help with
-          network troubleshooting. Ensure forward DNS (A/AAAA) records exist for consistency.
+          Keep TTL values reasonable (3600-86400 seconds). Use descriptive hostnames that help with network
+          troubleshooting. Ensure forward DNS (A/AAAA) records exist for consistency.
         </p>
       </div>
     </div>
@@ -436,7 +446,7 @@
     align-items: flex-start;
     gap: var(--spacing-sm);
     color: var(--text-secondary);
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
@@ -458,7 +468,7 @@
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -546,7 +556,7 @@
   .example-template {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    
+
     code {
       font-size: var(--font-size-xs);
       color: var(--text-primary);
@@ -576,7 +586,8 @@
     }
   }
 
-  .cidr-input, .template-input {
+  .cidr-input,
+  .template-input {
     width: 100%;
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-lg);
@@ -678,7 +689,9 @@
     }
   }
 
-  .nameservers-input, .contact-input, .ttl-input {
+  .nameservers-input,
+  .contact-input,
+  .ttl-input {
     width: 100%;
     padding: var(--spacing-md);
     font-size: var(--font-size-md);
@@ -717,7 +730,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
-    
+
     @media (max-width: 768px) {
       flex-direction: column;
       gap: var(--spacing-md);
@@ -800,12 +813,12 @@
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
     font-weight: 600;
-    
+
     &.ipv4 {
       background-color: rgba(34, 197, 94, 0.1);
       color: var(--color-success);
     }
-    
+
     &.ipv6 {
       background-color: rgba(147, 51, 234, 0.1);
       color: var(--color-accent);
@@ -855,7 +868,7 @@
     line-height: 1.6;
     color: var(--text-secondary);
     margin: 0;
-    
+
     code {
       background: none;
     }
@@ -930,7 +943,7 @@
       line-height: 1.6;
       margin: 0;
     }
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);

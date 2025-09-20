@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
+
   let input = $state('2001:0000:4136:e378:8000:63bf:3fff:fdd2');
   let result = $state<{
     success: boolean;
@@ -31,26 +31,26 @@
     {
       label: 'Microsoft Teredo',
       address: '2001:0000:4136:e378:8000:63bf:3fff:fdd2',
-      description: 'Microsoft Teredo server example'
+      description: 'Microsoft Teredo server example',
     },
     {
       label: 'Compressed Form',
       address: '2001::4136:e378:8000:63bf:3fff:fdd2',
-      description: 'Same address in compressed format'
+      description: 'Same address in compressed format',
     },
     {
       label: 'Behind NAT (Cone)',
       address: '2001:0000:5ef5:79fb:0000:5efe:c0a8:0101',
-      description: 'Client behind cone NAT'
+      description: 'Client behind cone NAT',
     },
     {
       label: 'Direct Connection',
       address: '2001:0000:4136:e378:ffff:ffff:ffff:ffff',
-      description: 'Direct connection without NAT'
-    }
+      description: 'Direct connection without NAT',
+    },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     input = example.address;
     selectedExample = example.label;
     userModified = false;
@@ -60,26 +60,26 @@
   function expandIPv6(address: string): string {
     // Remove zone ID if present
     const cleanAddress = address.split('%')[0];
-    
+
     // Handle :: compression
     let expanded = cleanAddress;
     if (cleanAddress.includes('::')) {
       const parts = cleanAddress.split('::');
       const leftParts = parts[0] ? parts[0].split(':') : [];
       const rightParts = parts[1] ? parts[1].split(':') : [];
-      
+
       const totalParts = leftParts.length + rightParts.length;
       const missingParts = 8 - totalParts;
-      
+
       const middleParts = Array(missingParts).fill('0000');
       const allParts = [...leftParts, ...middleParts, ...rightParts];
       expanded = allParts.join(':');
     }
-    
+
     // Pad each group to 4 characters
     return expanded
       .split(':')
-      .map(group => group.padStart(4, '0'))
+      .map((group) => group.padStart(4, '0'))
       .join(':');
   }
 
@@ -87,14 +87,14 @@
     try {
       const expanded = expandIPv6(address);
       const groups = expanded.split(':');
-      
+
       if (groups.length !== 8) return false;
-      
+
       for (const group of groups) {
         if (group.length !== 4) return false;
         if (!/^[0-9a-fA-F]{4}$/.test(group)) return false;
       }
-      
+
       return true;
     } catch {
       return false;
@@ -104,7 +104,7 @@
   function isTeredo(address: string): boolean {
     const expanded = expandIPv6(address);
     const groups = expanded.split(':');
-    
+
     // Teredo prefix is 2001:0000::/32
     return groups[0].toLowerCase() === '2001' && groups[1] === '0000';
   }
@@ -113,47 +113,42 @@
     // Convert 4-character hex groups to IPv4
     const group1 = hex.substring(0, 4);
     const group2 = hex.substring(4, 8);
-    
+
     const byte1 = parseInt(group1.substring(0, 2), 16);
     const byte2 = parseInt(group1.substring(2, 4), 16);
     const byte3 = parseInt(group2.substring(0, 2), 16);
     const byte4 = parseInt(group2.substring(2, 4), 16);
-    
+
     return `${byte1}.${byte2}.${byte3}.${byte4}`;
   }
 
   function parseFlags(flagsHex: string): { cone: boolean; flagsString: string } {
     const flags = parseInt(flagsHex, 16);
     const cone = (flags & 0x8000) === 0x8000; // Check if bit 15 is set
-    
+
     const flagBits = [];
     if (cone) flagBits.push('Cone NAT');
     if (flags & 0x4000) flagBits.push('Reserved bit 14');
     if (flags & 0x2000) flagBits.push('Reserved bit 13');
     if (flags & 0x1000) flagBits.push('Reserved bit 12');
-    
+
     const flagsString = flagBits.length > 0 ? flagBits.join(', ') : 'No flags set';
-    
+
     return { cone, flagsString };
   }
 
   function parsePort(portHex: string): number {
     const obfuscatedPort = parseInt(portHex, 16);
     // XOR with 0xFFFF to get the actual port
-    return obfuscatedPort ^ 0xFFFF;
+    return obfuscatedPort ^ 0xffff;
   }
 
   function parseClientIPv4(ipHex: string): string {
     // Client IPv4 is XOR'd with 0xFFFFFFFF
     const obfuscated = parseInt(ipHex, 16);
-    const actual = (obfuscated ^ 0xFFFFFFFF) >>> 0; // Unsigned 32-bit
-    
-    return [
-      (actual >>> 24) & 0xFF,
-      (actual >>> 16) & 0xFF,
-      (actual >>> 8) & 0xFF,
-      actual & 0xFF
-    ].join('.');
+    const actual = (obfuscated ^ 0xffffffff) >>> 0; // Unsigned 32-bit
+
+    return [(actual >>> 24) & 0xff, (actual >>> 16) & 0xff, (actual >>> 8) & 0xff, actual & 0xff].join('.');
   }
 
   function parseTeredo() {
@@ -164,7 +159,7 @@
 
     try {
       const trimmed = input.trim();
-      
+
       // Basic format validation
       if (!trimmed.includes(':')) {
         throw new Error('IPv6 addresses must contain colons (:)');
@@ -182,7 +177,7 @@
 
       const fullAddress = expandIPv6(trimmed);
       const groups = fullAddress.split(':');
-      
+
       // Parse Teredo components according to RFC 4380
       // Format: 2001:0000:SSSS:SSSS:FFFF:PPPP:CCCC:CCCC
       // Where:
@@ -195,13 +190,13 @@
       const prefix = `${groups[0]}:${groups[1]}`;
       const serverHex = groups[2] + groups[3];
       const serverIPv4 = hexToIPv4(serverHex);
-      
+
       const flagsHex = groups[4];
       const { cone, flagsString } = parseFlags(flagsHex);
-      
+
       const portHex = groups[5];
       const clientPort = parsePort(portHex);
-      
+
       const clientHex = groups[6] + groups[7];
       const clientIPv4 = parseClientIPv4(clientHex);
 
@@ -210,7 +205,7 @@
         `2. Server IPv4: ${groups[2]}:${groups[3]} → ${serverIPv4}`,
         `3. Flags: ${flagsHex} → ${flagsString}`,
         `4. Client port: ${portHex} XOR FFFF → ${clientPort}`,
-        `5. Client IPv4: ${groups[6]}:${groups[7]} XOR FFFFFFFF → ${clientIPv4}`
+        `5. Client IPv4: ${groups[6]}:${groups[7]} XOR FFFFFFFF → ${clientIPv4}`,
       ];
 
       result = {
@@ -224,15 +219,14 @@
           clientIPv4,
           cone,
           clientPortObfuscated: portHex,
-          clientIPv4Obfuscated: groups[6] + ':' + groups[7]
+          clientIPv4Obfuscated: groups[6] + ':' + groups[7],
         },
         details: {
           fullAddress,
           addressGroups: groups,
-          explanation
-        }
+          explanation,
+        },
       };
-
     } catch (error) {
       result = {
         success: false,
@@ -246,13 +240,13 @@
           clientIPv4: '',
           cone: false,
           clientPortObfuscated: '',
-          clientIPv4Obfuscated: ''
+          clientIPv4Obfuscated: '',
         },
         details: {
           fullAddress: '',
           addressGroups: [],
-          explanation: []
-        }
+          explanation: [],
+        },
       };
     }
   }
@@ -291,13 +285,15 @@
       <div class="overview-item">
         <Icon name="tunnel" size="sm" />
         <div>
-          <strong>Teredo Tunneling:</strong> Allows IPv6 connectivity for hosts behind IPv4 NATs by encapsulating IPv6 packets in IPv4 UDP.
+          <strong>Teredo Tunneling:</strong> Allows IPv6 connectivity for hosts behind IPv4 NATs by encapsulating IPv6 packets
+          in IPv4 UDP.
         </div>
       </div>
       <div class="overview-item">
         <Icon name="globe" size="sm" />
         <div>
-          <strong>Address Format:</strong> <code>2001:0000:SSSS:SSSS:FFFF:PPPP:CCCC:CCCC</code> where components are encoded and obfuscated.
+          <strong>Address Format:</strong> <code>2001:0000:SSSS:SSSS:FFFF:PPPP:CCCC:CCCC</code> where components are encoded
+          and obfuscated.
         </div>
       </div>
       <div class="overview-item">
@@ -334,9 +330,9 @@
   <!-- Input Section -->
   <section class="input-section">
     <div class="input-group">
-      <label 
+      <label
         for="teredo-input"
-        use:tooltip={"Enter a Teredo IPv6 address starting with 2001:0000:: (or 2001::) to parse its components"}
+        use:tooltip={'Enter a Teredo IPv6 address starting with 2001:0000:: (or 2001::) to parse its components'}
       >
         <Icon name="tunnel" size="sm" />
         Teredo IPv6 Address
@@ -350,9 +346,7 @@
         class="teredo-input {result?.success === true ? 'valid' : result?.success === false ? 'invalid' : ''}"
         spellcheck="false"
       />
-      <div class="input-hint">
-        Enter any Teredo IPv6 address in compressed or full format
-      </div>
+      <div class="input-hint">Enter any Teredo IPv6 address in compressed or full format</div>
     </div>
   </section>
 
@@ -373,32 +367,32 @@
             <h4>Address Structure</h4>
             <code class="full-address">{result.details.fullAddress}</code>
           </div>
-          
+
           <div class="breakdown-grid">
             <div class="breakdown-section prefix">
               <div class="section-label">Prefix</div>
               <code class="section-value">{result.components.prefix}</code>
               <div class="section-description">Teredo identifier</div>
             </div>
-            
+
             <div class="breakdown-section server">
               <div class="section-label">Server</div>
               <code class="section-value">{result.details.addressGroups[2]}:{result.details.addressGroups[3]}</code>
               <div class="section-description">IPv4: {result.components.serverIPv4}</div>
             </div>
-            
+
             <div class="breakdown-section flags">
               <div class="section-label">Flags</div>
               <code class="section-value">{result.details.addressGroups[4]}</code>
               <div class="section-description">{result.components.flags}</div>
             </div>
-            
+
             <div class="breakdown-section port">
               <div class="section-label">Port</div>
               <code class="section-value">{result.details.addressGroups[5]}</code>
               <div class="section-description">Actual: {result.components.clientPort}</div>
             </div>
-            
+
             <div class="breakdown-section client">
               <div class="section-label">Client</div>
               <code class="section-value">{result.details.addressGroups[6]}:{result.details.addressGroups[7]}</code>
@@ -413,7 +407,7 @@
             <Icon name="layers" size="sm" />
             Extracted Components
           </h4>
-          
+
           <div class="components-grid">
             <div class="component-card server">
               <div class="component-header">
@@ -429,9 +423,7 @@
                   <Icon name={copiedStates['server'] ? 'check' : 'copy'} size="sm" />
                 </button>
               </div>
-              <div class="component-description">
-                The Teredo relay server handling this tunnel
-              </div>
+              <div class="component-description">The Teredo relay server handling this tunnel</div>
             </div>
 
             <div class="component-card client">
@@ -448,9 +440,7 @@
                   <Icon name={copiedStates['client'] ? 'check' : 'copy'} size="sm" />
                 </button>
               </div>
-              <div class="component-description">
-                The client's external IPv4 address (XOR decoded)
-              </div>
+              <div class="component-description">The client's external IPv4 address (XOR decoded)</div>
             </div>
 
             <div class="component-card port">
@@ -467,9 +457,7 @@
                   <Icon name={copiedStates['port'] ? 'check' : 'copy'} size="sm" />
                 </button>
               </div>
-              <div class="component-description">
-                The client's external port (XOR decoded with FFFF)
-              </div>
+              <div class="component-description">The client's external port (XOR decoded with FFFF)</div>
             </div>
 
             <div class="component-card flags">
@@ -478,11 +466,11 @@
                 <span class="component-title">NAT Type</span>
               </div>
               <div class="component-content">
-                <span class="component-value {result.components.cone ? 'cone' : 'restricted'}">{result.components.cone ? 'Cone NAT' : 'Restricted NAT'}</span>
+                <span class="component-value {result.components.cone ? 'cone' : 'restricted'}"
+                  >{result.components.cone ? 'Cone NAT' : 'Restricted NAT'}</span
+                >
               </div>
-              <div class="component-description">
-                Indicates the type of NAT the client is behind
-              </div>
+              <div class="component-description">Indicates the type of NAT the client is behind</div>
             </div>
           </div>
         </div>
@@ -493,7 +481,7 @@
             <Icon name="settings" size="sm" />
             Technical Details
           </h4>
-          
+
           <div class="details-grid">
             <div class="detail-item">
               <span class="detail-label">Obfuscated Port:</span>
@@ -505,7 +493,9 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">Port Calculation:</span>
-              <span class="detail-value">{result.components.clientPortObfuscated} XOR FFFF = {result.components.clientPort}</span>
+              <span class="detail-value"
+                >{result.components.clientPortObfuscated} XOR FFFF = {result.components.clientPort}</span
+              >
             </div>
             <div class="detail-item">
               <span class="detail-label">Tunnel Protocol:</span>
@@ -529,7 +519,6 @@
             {/each}
           </div>
         </div>
-
       {:else}
         <div class="error-result">
           <Icon name="alert-triangle" size="lg" />
@@ -557,8 +546,8 @@
           What is Teredo?
         </h4>
         <p>
-          Teredo is an IPv6 transition technology that allows IPv6 connectivity for hosts located behind IPv4 NATs. 
-          It tunnels IPv6 packets inside IPv4 UDP datagrams, enabling communication with the IPv6 Internet.
+          Teredo is an IPv6 transition technology that allows IPv6 connectivity for hosts located behind IPv4 NATs. It
+          tunnels IPv6 packets inside IPv4 UDP datagrams, enabling communication with the IPv6 Internet.
         </p>
       </div>
 
@@ -568,8 +557,8 @@
           Why Obfuscation?
         </h4>
         <p>
-          The client IP and port are XOR'ed with known values to prevent some NAT devices from automatically 
-          translating these embedded addresses, which would break the Teredo mechanism.
+          The client IP and port are XOR'ed with known values to prevent some NAT devices from automatically translating
+          these embedded addresses, which would break the Teredo mechanism.
         </p>
       </div>
 
@@ -579,8 +568,8 @@
           NAT Detection
         </h4>
         <p>
-          The flags field indicates whether the client is behind a cone NAT (more permissive) or restricted NAT 
-          (more restrictive), which affects how the tunnel operates and performs.
+          The flags field indicates whether the client is behind a cone NAT (more permissive) or restricted NAT (more
+          restrictive), which affects how the tunnel operates and performs.
         </p>
       </div>
 
@@ -590,8 +579,8 @@
           Legacy Technology
         </h4>
         <p>
-          Teredo was important during IPv6 transition but is less common today. Modern systems prefer native 
-          IPv6 or other transition mechanisms like 6to4 or NAT64.
+          Teredo was important during IPv6 transition but is less common today. Modern systems prefer native IPv6 or
+          other transition mechanisms like 6to4 or NAT64.
         </p>
       </div>
     </div>
@@ -618,7 +607,7 @@
     align-items: flex-start;
     gap: var(--spacing-sm);
     color: var(--text-secondary);
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
@@ -640,7 +629,7 @@
     border: 1px solid var(--border-secondary);
     border-radius: var(--radius-md);
     background-color: var(--bg-secondary);
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -834,11 +823,21 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border-secondary);
 
-    &.prefix { background-color: rgba(99, 102, 241, 0.1); }
-    &.server { background-color: rgba(34, 197, 94, 0.1); }
-    &.flags { background-color: rgba(251, 146, 60, 0.1); }
-    &.port { background-color: rgba(168, 85, 247, 0.1); }
-    &.client { background-color: rgba(239, 68, 68, 0.1); }
+    &.prefix {
+      background-color: rgba(99, 102, 241, 0.1);
+    }
+    &.server {
+      background-color: rgba(34, 197, 94, 0.1);
+    }
+    &.flags {
+      background-color: rgba(251, 146, 60, 0.1);
+    }
+    &.port {
+      background-color: rgba(168, 85, 247, 0.1);
+    }
+    &.client {
+      background-color: rgba(239, 68, 68, 0.1);
+    }
   }
 
   .section-label {

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { reverseDnsContent } from '$lib/content/reverse-dns.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -23,7 +23,7 @@
 
     <div class="ref-section">
       <h2>{reverseDnsContent.ipv4Reverse.title}</h2>
-      
+
       <h3>Process Steps</h3>
       <ol>
         {#each reverseDnsContent.ipv4Reverse.process as step}
@@ -67,7 +67,7 @@
 
     <div class="ref-section">
       <h2>{reverseDnsContent.ipv6Reverse.title}</h2>
-      
+
       <h3>Process Steps</h3>
       <ol>
         {#each reverseDnsContent.ipv6Reverse.process as step}
@@ -81,7 +81,10 @@
           <div class="examples-title">IP Address: {example.ip}</div>
           <div class="example-item">
             <div><strong>Expanded:</strong> <code>{example.expanded}</code></div>
-            <div><strong>Reverse Name:</strong> <code style="font-size: 0.8em; word-break: break-all;">{example.nibbles}</code></div>
+            <div>
+              <strong>Reverse Name:</strong>
+              <code style="font-size: 0.8em; word-break: break-all;">{example.nibbles}</code>
+            </div>
             <div><strong>PTR Record:</strong> <code>{example.ptrRecord}</code></div>
             <div><strong>Note:</strong> {example.explanation}</div>
           </div>
@@ -94,14 +97,15 @@
           IPv6 Complexity
         </div>
         <div class="warning-content">
-          IPv6 reverse DNS names are much longer than IPv4 because each hex digit becomes a separate label. A single IPv6 address creates a 72-character reverse DNS name!
+          IPv6 reverse DNS names are much longer than IPv4 because each hex digit becomes a separate label. A single
+          IPv6 address creates a 72-character reverse DNS name!
         </div>
       </div>
     </div>
 
     <div class="ref-section">
       <h2>{reverseDnsContent.practicalExamples.title}</h2>
-      
+
       <h3>Command Examples</h3>
       <table class="ref-table">
         <thead>
@@ -157,7 +161,7 @@
 
     <div class="ref-section">
       <h2>Quick Reference & Tools</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">IPv4 Quick Examples</div>
@@ -165,7 +169,7 @@
             <div class="item-code">{example}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">IPv6 Quick Examples</div>
           {#each reverseDnsContent.quickReference.ipv6 as example}

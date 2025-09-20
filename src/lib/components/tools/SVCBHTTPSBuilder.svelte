@@ -27,12 +27,12 @@
     { key: 'port', value: '', enabled: false },
     { key: 'ipv4hint', value: '', enabled: false },
     { key: 'ech', value: '', enabled: false },
-    { key: 'ipv6hint', value: '', enabled: false }
+    { key: 'ipv6hint', value: '', enabled: false },
   ]);
 
   let showExamples = $state(false);
   let selectedExample = $state<string | null>(null);
-  
+
   // Button success states
   let buttonStates = $state<Record<string, boolean>>({});
 
@@ -43,7 +43,7 @@
     port: 'Alternative port number for the service',
     ipv4hint: 'IPv4 address hints to avoid additional DNS lookups',
     ech: 'Encrypted Client Hello configuration',
-    ipv6hint: 'IPv6 address hints to avoid additional DNS lookups'
+    ipv6hint: 'IPv6 address hints to avoid additional DNS lookups',
   };
 
   const parameterKeyMap: Record<string, number> = {
@@ -53,78 +53,84 @@
     port: 3,
     ipv4hint: 4,
     ech: 5,
-    ipv6hint: 6
+    ipv6hint: 6,
   };
 
   const serviceRecord = $derived.by((): ServiceRecord => {
-    const enabledParams = parameters.filter(p => p.enabled && (p.value.trim() || p.key === 'no-default-alpn'));
-    
+    const enabledParams = parameters.filter((p) => p.enabled && (p.value.trim() || p.key === 'no-default-alpn'));
+
     return {
       recordType,
       priority,
       targetName: targetName.trim() || '.',
-      parameters: enabledParams
+      parameters: enabledParams,
     };
   });
 
   const dnsRecord = $derived.by(() => {
     const record = serviceRecord;
     const target = record.targetName === '.' ? '.' : record.targetName;
-    
+
     let recordString = `${domain}. IN ${record.recordType} ${record.priority} ${target}`;
-    
+
     if (record.parameters.length > 0) {
-      const paramStrings = record.parameters.map(param => {
+      const paramStrings = record.parameters.map((param) => {
         const keyNum = parameterKeyMap[param.key];
         if (param.key === 'no-default-alpn') {
           return `${param.key}`;
         } else if (param.key === 'alpn') {
           // Format ALPN values as comma-separated quoted strings
-          const alpnValues = param.value.split(',').map(v => v.trim()).filter(v => v);
+          const alpnValues = param.value
+            .split(',')
+            .map((v) => v.trim())
+            .filter((v) => v);
           return `${param.key}=${alpnValues.join(',')}`;
         } else if (param.key === 'ipv4hint' || param.key === 'ipv6hint') {
           // Format IP hints as comma-separated values
-          const ipValues = param.value.split(',').map(v => v.trim()).filter(v => v);
+          const ipValues = param.value
+            .split(',')
+            .map((v) => v.trim())
+            .filter((v) => v);
           return `${param.key}=${ipValues.join(',')}`;
         } else {
           return `${param.key}=${param.value.trim()}`;
         }
       });
-      
+
       recordString += ` ${paramStrings.join(' ')}`;
     }
-    
+
     return recordString;
   });
 
   const validation = $derived.by(() => {
     const warnings: string[] = [];
     const errors: string[] = [];
-    
+
     // Check domain format
     if (!domain.trim()) {
       errors.push('Domain is required');
     } else if (!domain.includes('.')) {
       warnings.push('Domain should include TLD (e.g., .com, .org)');
     }
-    
+
     // Check priority
     if (priority < 0 || priority > 65535) {
       errors.push('Priority must be between 0 and 65535');
     }
-    
+
     if (priority === 0 && targetName !== '.') {
       warnings.push('Priority 0 should typically use "." as target (alias mode)');
     }
-    
+
     // Check target name
     if (targetName && targetName !== '.' && !targetName.includes('.')) {
       warnings.push('Target name should be a FQDN or "." for same domain');
     }
-    
+
     // Validate parameters
-    const enabledParams = parameters.filter(p => p.enabled);
-    
+    const enabledParams = parameters.filter((p) => p.enabled);
+
     for (const param of enabledParams) {
       if (param.key === 'port') {
         const port = parseInt(param.value);
@@ -132,22 +138,22 @@
           errors.push('Port must be a number between 1 and 65535');
         }
       }
-      
+
       if (param.key === 'alpn' && !param.value.trim()) {
         errors.push('ALPN parameter requires at least one protocol identifier');
       }
-      
+
       if (param.key === 'ipv4hint') {
-        const ips = param.value.split(',').map(ip => ip.trim());
+        const ips = param.value.split(',').map((ip) => ip.trim());
         for (const ip of ips) {
           if (ip && !/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
             errors.push(`Invalid IPv4 address in ipv4hint: ${ip}`);
           }
         }
       }
-      
+
       if (param.key === 'ipv6hint') {
-        const ips = param.value.split(',').map(ip => ip.trim());
+        const ips = param.value.split(',').map((ip) => ip.trim());
         for (const ip of ips) {
           if (ip && !ip.includes(':')) {
             errors.push(`Invalid IPv6 address in ipv6hint: ${ip}`);
@@ -155,28 +161,28 @@
         }
       }
     }
-    
+
     // Check for conflicting parameters
-    const hasAlpn = enabledParams.some(p => p.key === 'alpn');
-    const hasNoDefaultAlpn = enabledParams.some(p => p.key === 'no-default-alpn');
-    
+    const hasAlpn = enabledParams.some((p) => p.key === 'alpn');
+    const hasNoDefaultAlpn = enabledParams.some((p) => p.key === 'no-default-alpn');
+
     if (hasAlpn && hasNoDefaultAlpn) {
       warnings.push('Using both alpn and no-default-alpn may cause conflicts');
     }
-    
+
     // Check record type specific recommendations
     if (recordType === 'HTTPS' && priority > 0) {
-      const hasPort = enabledParams.some(p => p.key === 'port');
+      const hasPort = enabledParams.some((p) => p.key === 'port');
       if (!hasPort) {
         warnings.push('HTTPS records typically benefit from port parameter');
       }
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
       warnings,
-      parameterCount: enabledParams.length
+      parameterCount: enabledParams.length,
     };
   });
 
@@ -194,7 +200,7 @@
 
   function exportAsZoneFile(): void {
     if (!dnsRecord) return;
-    
+
     const zoneContent = dnsRecord;
     const blob = new Blob([zoneContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -209,7 +215,7 @@
   }
 
   function addParameter(key: string): void {
-    const param = parameters.find(p => p.key === key);
+    const param = parameters.find((p) => p.key === key);
     if (param) {
       param.enabled = true;
       parameters = parameters;
@@ -226,8 +232,8 @@
       targetName: '.',
       parameters: [
         { key: 'alpn', value: 'h2,h3', enabled: true },
-        { key: 'port', value: '443', enabled: true }
-      ]
+        { key: 'port', value: '443', enabled: true },
+      ],
     },
     {
       name: 'CDN Endpoint',
@@ -239,8 +245,8 @@
       parameters: [
         { key: 'alpn', value: 'h2', enabled: true },
         { key: 'ipv4hint', value: '203.0.113.1,203.0.113.2', enabled: true },
-        { key: 'port', value: '443', enabled: true }
-      ]
+        { key: 'port', value: '443', enabled: true },
+      ],
     },
     {
       name: 'Alternative Service',
@@ -252,23 +258,23 @@
       parameters: [
         { key: 'alpn', value: 'h2', enabled: true },
         { key: 'port', value: '8443', enabled: true },
-        { key: 'ipv4hint', value: '203.0.113.10', enabled: true }
-      ]
-    }
+        { key: 'ipv4hint', value: '203.0.113.10', enabled: true },
+      ],
+    },
   ];
 
-  function loadExample(example: typeof exampleConfigurations[0]): void {
+  function loadExample(example: (typeof exampleConfigurations)[0]): void {
     domain = example.domain;
     recordType = example.recordType;
     priority = example.priority;
     targetName = example.targetName;
-    
+
     // Reset all parameters
-    parameters = parameters.map(p => ({ ...p, enabled: false, value: '' }));
-    
+    parameters = parameters.map((p) => ({ ...p, enabled: false, value: '' }));
+
     // Set example parameters
     for (const exampleParam of example.parameters) {
-      const param = parameters.find(p => p.key === exampleParam.key);
+      const param = parameters.find((p) => p.key === exampleParam.key);
       if (param) {
         param.enabled = exampleParam.enabled;
         param.value = exampleParam.value;
@@ -283,7 +289,7 @@
     'Use "." as target name to indicate the same domain as the owner name',
     'ALPN values should match the protocols actually supported by the service',
     'IP hints can improve connection performance by avoiding additional DNS lookups',
-    'ECH parameter enables Encrypted Client Hello for enhanced privacy'
+    'ECH parameter enables Encrypted Client Hello for enhanced privacy',
   ];
 </script>
 
@@ -291,7 +297,8 @@
   <div class="card-header">
     <h1>SVCB/HTTPS Builder</h1>
     <p class="card-subtitle">
-      Build SVCB and HTTPS resource records with service parameters for enhanced service discovery and connection optimization.
+      Build SVCB and HTTPS resource records with service parameters for enhanced service discovery and connection
+      optimization.
     </p>
   </div>
 
@@ -304,22 +311,15 @@
             Service Configuration
           </h3>
         </div>
-        
+
         <div class="service-config-grid">
           <div class="input-group">
-            <label for="domain" use:tooltip={"Domain name for the SVCB/HTTPS record"}>
-              Domain:
-            </label>
-            <input
-              id="domain"
-              type="text"
-              bind:value={domain}
-              placeholder="example.com"
-            />
+            <label for="domain" use:tooltip={'Domain name for the SVCB/HTTPS record'}> Domain: </label>
+            <input id="domain" type="text" bind:value={domain} placeholder="example.com" />
           </div>
-          
+
           <div class="input-group">
-            <label for="recordType" use:tooltip={"Record type: HTTPS for HTTP services, SVCB for general services"}>
+            <label for="recordType" use:tooltip={'Record type: HTTPS for HTTP services, SVCB for general services'}>
               Record Type:
             </label>
             <select id="recordType" bind:value={recordType}>
@@ -327,31 +327,15 @@
               <option value="SVCB">SVCB</option>
             </select>
           </div>
-          
+
           <div class="input-group">
-            <label for="priority" use:tooltip={"Priority: 0 for alias mode, >0 for service mode"}>
-              Priority:
-            </label>
-            <input
-              id="priority"
-              type="number"
-              bind:value={priority}
-              min="0"
-              max="65535"
-              placeholder="1"
-            />
+            <label for="priority" use:tooltip={'Priority: 0 for alias mode, >0 for service mode'}> Priority: </label>
+            <input id="priority" type="number" bind:value={priority} min="0" max="65535" placeholder="1" />
           </div>
-          
+
           <div class="input-group">
-            <label for="targetName" use:tooltip={"Target domain name or '.' for same domain"}>
-              Target Name:
-            </label>
-            <input
-              id="targetName"
-              type="text"
-              bind:value={targetName}
-              placeholder=". (same domain)"
-            />
+            <label for="targetName" use:tooltip={"Target domain name or '.' for same domain"}> Target Name: </label>
+            <input id="targetName" type="text" bind:value={targetName} placeholder=". (same domain)" />
           </div>
         </div>
       </div>
@@ -363,7 +347,7 @@
             Service Parameters
           </h3>
         </div>
-        
+
         <div class="parameters-list">
           {#each parameters as parameter}
             <div class="parameter-item" class:enabled={parameter.enabled}>
@@ -371,24 +355,34 @@
                 <label class="parameter-toggle">
                   <input type="checkbox" bind:checked={parameter.enabled} />
                   <span class="parameter-name">{parameter.key}</span>
-                  <span class="parameter-description" use:tooltip={parameterDescriptions[parameter.key as keyof typeof parameterDescriptions]}>
+                  <span
+                    class="parameter-description"
+                    use:tooltip={parameterDescriptions[parameter.key as keyof typeof parameterDescriptions]}
+                  >
                     {parameterDescriptions[parameter.key as keyof typeof parameterDescriptions]}
                   </span>
                 </label>
               </div>
-              
+
               {#if parameter.key !== 'no-default-alpn'}
                 <div class="parameter-value">
                   <input
                     type="text"
                     bind:value={parameter.value}
                     disabled={!parameter.enabled}
-                    placeholder={parameter.key === 'alpn' ? 'h2,h3' :
-                                parameter.key === 'port' ? '443' :
-                                parameter.key === 'ipv4hint' ? '203.0.113.1,203.0.113.2' :
-                                parameter.key === 'ipv6hint' ? '2001:db8::1,2001:db8::2' :
-                                parameter.key === 'ech' ? 'base64-encoded-config' :
-                                parameter.key === 'mandatory' ? '1,3' : 'value'}
+                    placeholder={parameter.key === 'alpn'
+                      ? 'h2,h3'
+                      : parameter.key === 'port'
+                        ? '443'
+                        : parameter.key === 'ipv4hint'
+                          ? '203.0.113.1,203.0.113.2'
+                          : parameter.key === 'ipv6hint'
+                            ? '2001:db8::1,2001:db8::2'
+                            : parameter.key === 'ech'
+                              ? 'base64-encoded-config'
+                              : parameter.key === 'mandatory'
+                                ? '1,3'
+                                : 'value'}
                     class="parameter-input"
                   />
                 </div>
@@ -409,9 +403,9 @@
               class="copy-btn"
               class:success={buttonStates['copy-svcb']}
               onclick={() => copyToClipboard(dnsRecord, 'copy-svcb')}
-              use:tooltip={"Copy record to clipboard"}
+              use:tooltip={'Copy record to clipboard'}
             >
-              <Icon name={buttonStates['copy-svcb'] ? "check" : "copy"} size="sm" />
+              <Icon name={buttonStates['copy-svcb'] ? 'check' : 'copy'} size="sm" />
               {buttonStates['copy-svcb'] ? 'Copied!' : 'Copy'}
             </button>
             <button
@@ -419,14 +413,14 @@
               class="export-btn"
               class:success={buttonStates['export-svcb']}
               onclick={exportAsZoneFile}
-              use:tooltip={"Download as zone file"}
+              use:tooltip={'Download as zone file'}
             >
-              <Icon name={buttonStates['export-svcb'] ? "check" : "download"} size="sm" />
+              <Icon name={buttonStates['export-svcb'] ? 'check' : 'download'} size="sm" />
               {buttonStates['export-svcb'] ? 'Downloaded!' : 'Export'}
             </button>
           </div>
         </div>
-        
+
         <div class="record-output">
           <div class="code-block">
             <code>{dnsRecord}</code>
@@ -437,16 +431,20 @@
           <h4>Record Breakdown:</h4>
           <div class="breakdown-grid">
             <div class="breakdown-item">
-              <strong>Type:</strong> {recordType}
+              <strong>Type:</strong>
+              {recordType}
             </div>
             <div class="breakdown-item">
-              <strong>Priority:</strong> {priority} ({priority === 0 ? 'Alias Mode' : 'Service Mode'})
+              <strong>Priority:</strong>
+              {priority} ({priority === 0 ? 'Alias Mode' : 'Service Mode'})
             </div>
             <div class="breakdown-item">
-              <strong>Target:</strong> {serviceRecord.targetName}
+              <strong>Target:</strong>
+              {serviceRecord.targetName}
             </div>
             <div class="breakdown-item">
-              <strong>Parameters:</strong> {validation.parameterCount}
+              <strong>Parameters:</strong>
+              {validation.parameterCount}
             </div>
           </div>
         </div>
@@ -459,7 +457,7 @@
             Validation
           </h3>
         </div>
-        
+
         <div class="validation-status">
           <div class="status-item">
             <span class="status-label">Status:</span>
@@ -506,7 +504,7 @@
             Usage Notes
           </h3>
         </div>
-        
+
         <div class="usage-tips">
           <ul>
             {#each usageNotes as note}
@@ -540,7 +538,7 @@
               <div>Type: <code>{example.recordType}</code>, Priority: <code>{example.priority}</code></div>
               <div>Target: <code>{example.targetName}</code></div>
               <div class="example-params">
-                Params: {example.parameters.map(p => `${p.key}=${p.value}`).join(', ')}
+                Params: {example.parameters.map((p) => `${p.key}=${p.value}`).join(', ')}
               </div>
             </div>
           </button>
@@ -551,7 +549,8 @@
 </div>
 
 <style lang="scss">
-  .service-config-section, .parameters-section {
+  .service-config-section,
+  .parameters-section {
     margin-bottom: var(--spacing-lg);
   }
 
@@ -595,7 +594,8 @@
       font-size: var(--font-size-sm);
     }
 
-    input, select {
+    input,
+    select {
       padding: var(--spacing-sm);
       border: 1px solid var(--border-primary);
       border-radius: var(--radius-sm);
@@ -642,7 +642,7 @@
     cursor: pointer;
     width: 100%;
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       width: 16px;
       height: 16px;
       accent-color: var(--color-primary);
@@ -764,11 +764,11 @@
   .status-value {
     font-weight: 600;
     font-family: var(--font-mono);
-    
+
     &.success {
       color: var(--color-success);
     }
-    
+
     &.error {
       color: var(--color-error);
     }
@@ -928,7 +928,8 @@
     }
   }
 
-  .copy-btn, .export-btn {
+  .copy-btn,
+  .export-btn {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -944,7 +945,7 @@
       background: var(--color-success) !important;
       color: var(--bg-secondary) !important;
       transform: scale(1.05);
-      
+
       &:hover {
         background: var(--color-success) !important;
       }

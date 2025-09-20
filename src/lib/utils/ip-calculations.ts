@@ -5,16 +5,16 @@ import type { IPAddress, SubnetInfo } from '../types/ip.js';
  */
 export function parseIP(ip: string): IPAddress {
   const octets = ip.split('.').map(Number);
-  const binary = octets.map(n => n.toString(2).padStart(8, '0')).join('.');
+  const binary = octets.map((n) => n.toString(2).padStart(8, '0')).join('.');
   const decimal = octets.reduce((acc, octet, i) => acc + octet * Math.pow(256, 3 - i), 0);
-  const hex = octets.map(n => n.toString(16).padStart(2, '0').toUpperCase()).join('.');
+  const hex = octets.map((n) => n.toString(16).padStart(2, '0').toUpperCase()).join('.');
 
   return {
     octets,
     binary,
     decimal,
     hex,
-    valid: true
+    valid: true,
   };
 }
 
@@ -26,13 +26,8 @@ export function cidrToMask(cidr: number): IPAddress {
     return parseIP('0.0.0.0');
   }
   const mask = (0xffffffff << (32 - cidr)) >>> 0;
-  const octets = [
-    (mask >>> 24) & 0xff,
-    (mask >>> 16) & 0xff,
-    (mask >>> 8) & 0xff,
-    mask & 0xff
-  ];
-  
+  const octets = [(mask >>> 24) & 0xff, (mask >>> 16) & 0xff, (mask >>> 8) & 0xff, mask & 0xff];
+
   return parseIP(octets.join('.'));
 }
 
@@ -41,7 +36,7 @@ export function cidrToMask(cidr: number): IPAddress {
  */
 export function maskToCidr(mask: string): number {
   const octets = mask.split('.').map(Number);
-  const binary = octets.map(n => n.toString(2).padStart(8, '0')).join('');
+  const binary = octets.map((n) => n.toString(2).padStart(8, '0')).join('');
   return binary.split('1').length - 1;
 }
 
@@ -52,7 +47,7 @@ export function getNetworkAddress(ip: string, cidr: number): IPAddress {
   const ipNum = ipToNumber(ip);
   const mask = (0xffffffff << (32 - cidr)) >>> 0;
   const networkNum = (ipNum & mask) >>> 0;
-  
+
   return numberToIP(networkNum);
 }
 
@@ -63,7 +58,7 @@ export function getBroadcastAddress(ip: string, cidr: number): IPAddress {
   const networkNum = ipToNumber(getNetworkAddress(ip, cidr).octets.join('.'));
   const hostBits = 32 - cidr;
   const broadcastNum = networkNum + Math.pow(2, hostBits) - 1;
-  
+
   return numberToIP(broadcastNum);
 }
 
@@ -75,11 +70,11 @@ export function calculateSubnet(ip: string, cidr: number): SubnetInfo {
   const broadcast = getBroadcastAddress(ip, cidr);
   const subnet = cidrToMask(cidr);
   const wildcardMask = getWildcardMask(cidr);
-  
+
   const hostBits = 32 - cidr;
   const hostCount = Math.pow(2, hostBits);
   const usableHosts = hostCount > 2 ? hostCount - 2 : 0;
-  
+
   const firstHost = numberToIP(ipToNumber(network.octets.join('.')) + 1);
   const lastHost = numberToIP(ipToNumber(broadcast.octets.join('.')) - 1);
 
@@ -92,7 +87,7 @@ export function calculateSubnet(ip: string, cidr: number): SubnetInfo {
     usableHosts,
     firstHost,
     lastHost,
-    wildcardMask
+    wildcardMask,
   };
 }
 
@@ -101,8 +96,8 @@ export function calculateSubnet(ip: string, cidr: number): SubnetInfo {
  */
 export function getWildcardMask(cidr: number): IPAddress {
   const mask = cidrToMask(cidr);
-  const wildcardOctets = mask.octets.map(octet => 255 - octet);
-  
+  const wildcardOctets = mask.octets.map((octet) => 255 - octet);
+
   return parseIP(wildcardOctets.join('.'));
 }
 
@@ -111,20 +106,15 @@ export function getWildcardMask(cidr: number): IPAddress {
  */
 export function ipToNumber(ip: string): number {
   const octets = ip.split('.').map(Number);
-  return (octets[0] << 24 | octets[1] << 16 | octets[2] << 8 | octets[3]) >>> 0;
+  return ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0;
 }
 
 /**
  * Converts 32-bit number to IP address
  */
 export function numberToIP(num: number): IPAddress {
-  const octets = [
-    (num >>> 24) & 0xff,
-    (num >>> 16) & 0xff,
-    (num >>> 8) & 0xff,
-    num & 0xff
-  ];
-  
+  const octets = [(num >>> 24) & 0xff, (num >>> 16) & 0xff, (num >>> 8) & 0xff, num & 0xff];
+
   return parseIP(octets.join('.'));
 }
 
@@ -134,7 +124,7 @@ export function numberToIP(num: number): IPAddress {
 export function getHostRange(ip: string, cidr: number): { first: IPAddress; last: IPAddress } {
   const network = getNetworkAddress(ip, cidr);
   const broadcast = getBroadcastAddress(ip, cidr);
-  
+
   // Handle special cases for /31 and /32
   if (cidr === 32) {
     // Host route - first and last are the same
@@ -148,7 +138,7 @@ export function getHostRange(ip: string, cidr: number): { first: IPAddress; last
     const lastHostNum = ipToNumber(broadcast.octets.join('.')) - 1;
     return {
       first: numberToIP(firstHostNum),
-      last: numberToIP(lastHostNum)
+      last: numberToIP(lastHostNum),
     };
   }
 }
@@ -156,7 +146,10 @@ export function getHostRange(ip: string, cidr: number): { first: IPAddress; last
 /**
  * Calculates complete subnet information (alias for calculateSubnet)
  */
-export function calculateSubnetInfo(ip: string, cidr: number): SubnetInfo & { 
+export function calculateSubnetInfo(
+  ip: string,
+  cidr: number,
+): SubnetInfo & {
   ip: IPAddress;
   firstHost: IPAddress;
   lastHost: IPAddress;
@@ -165,7 +158,7 @@ export function calculateSubnetInfo(ip: string, cidr: number): SubnetInfo & {
   const subnet = calculateSubnet(ip, cidr);
   const hostRange = getHostRange(ip, cidr);
   const totalAddresses = Math.pow(2, 32 - cidr);
-  
+
   // Calculate proper host count for different CIDR sizes
   let hostCount: number;
   if (cidr === 32) {
@@ -177,7 +170,7 @@ export function calculateSubnetInfo(ip: string, cidr: number): SubnetInfo & {
   } else {
     hostCount = totalAddresses - 2; // Exclude network and broadcast
   }
-  
+
   return {
     ...subnet,
     ip: parseIP(ip),
@@ -186,7 +179,7 @@ export function calculateSubnetInfo(ip: string, cidr: number): SubnetInfo & {
     firstHost: hostRange.first,
     lastHost: hostRange.last,
     hostCount,
-    totalAddresses
+    totalAddresses,
   };
 }
 
@@ -197,6 +190,6 @@ export function isIPInSubnet(ip: string, subnet: string, cidr: number): boolean 
   const ipNum = ipToNumber(ip);
   const subnetNum = ipToNumber(subnet);
   const mask = (0xffffffff << (32 - cidr)) >>> 0;
-  
-  return ((ipNum & mask) >>> 0) === ((subnetNum & mask) >>> 0);
+
+  return (ipNum & mask) >>> 0 === (subnetNum & mask) >>> 0;
 }

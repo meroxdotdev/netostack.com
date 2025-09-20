@@ -15,29 +15,21 @@
       suggestions: [
         'Check the URL for typos',
         'Use the navigation menu to find what you need',
-        'Return to the homepage and browse from there'
-      ]
+        'Return to the homepage and browse from there',
+      ],
     },
     500: {
       title: 'Server Error',
       description: 'Something went wrong on our end. Please try again later.',
       icon: 'alert-triangle',
-      suggestions: [
-        'Refresh the page to try again',
-        'Check your internet connection',
-        'Try again in a few minutes'
-      ]
+      suggestions: ['Refresh the page to try again', 'Check your internet connection', 'Try again in a few minutes'],
     },
     default: {
       title: 'Something Went Wrong',
       description: 'We encountered an unexpected error.',
       icon: 'alert-triangle',
-      suggestions: [
-        'Refresh the page to try again',
-        'Go back to the previous page',
-        'Return to the homepage'
-      ]
-    }
+      suggestions: ['Refresh the page to try again', 'Go back to the previous page', 'Return to the homepage'],
+    },
   };
 
   $: errorInfo = errorTypes[status as keyof typeof errorTypes] || errorTypes.default;
@@ -53,7 +45,7 @@
 
 <svelte:head>
   <title>{status} - {errorInfo.title} | {site.title}</title>
-  <meta name="description" content="{errorInfo.description}" />
+  <meta name="description" content={errorInfo.description} />
   <meta name="robots" content="noindex" />
 </svelte:head>
 
@@ -232,7 +224,6 @@
       }
     }
   }
-
 
   @media (max-width: 640px) {
     .error-container {

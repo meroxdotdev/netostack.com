@@ -1,5 +1,4 @@
 <script lang="ts">
-  
   import { SUB_NAV } from '$lib/constants/nav';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import type { NavItem, NavGroup } from '$lib/constants/nav';
@@ -22,11 +21,12 @@
 
 <div class="ref-header">
   <h1>Networking Pocket Reference</h1>
-  <p>Offline quick guides, cheat sheets and reference info, for networking concepts, IP addressing, and common protocols</p>
+  <p>
+    Offline quick guides, cheat sheets and reference info, for networking concepts, IP addressing, and common protocols
+  </p>
 </div>
 
 <ToolsGrid tools={referencePages} />
 
 <style>
-
 </style>

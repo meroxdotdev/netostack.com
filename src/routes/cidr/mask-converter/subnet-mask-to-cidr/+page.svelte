@@ -1,37 +1,37 @@
 <!-- src/routes/cidr/mask-converter/subnet-mask-to-cidr/+page.svelte -->
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { derived } from 'svelte/store';
-	import { CIDR_CTX, type CidrContext } from '$lib/contexts/cidr';
-	import { validateSubnetMask } from '$lib/utils/ip-validation.js';
+  import { getContext } from 'svelte';
+  import { derived } from 'svelte/store';
+  import { CIDR_CTX, type CidrContext } from '$lib/contexts/cidr';
+  import { validateSubnetMask } from '$lib/utils/ip-validation.js';
 
-	const { cidr, mask, handleMaskChange } = getContext<CidrContext>(CIDR_CTX);
-	
-	// Track validation state reactively
-	const isValid = derived(mask, ($mask) => validateSubnetMask($mask).valid);
+  const { cidr, mask, handleMaskChange } = getContext<CidrContext>(CIDR_CTX);
+
+  // Track validation state reactively
+  const isValid = derived(mask, ($mask) => validateSubnetMask($mask).valid);
 </script>
 
 <div class="converter-section fade-in">
-	<!-- Mask Input -->
-	<div class="form-group">
-		<label for="mask-input">Subnet Mask</label>
-		<input
-			id="mask-input"
-			type="text"
-			value={$mask}
-			placeholder="255.255.255.0"
-			class="mask-input {$isValid ? '' : 'invalid'}"
-			on:input={(e) => handleMaskChange((e.target as HTMLInputElement).value)}
-		/>
-	</div>
+  <!-- Mask Input -->
+  <div class="form-group">
+    <label for="mask-input">Subnet Mask</label>
+    <input
+      id="mask-input"
+      type="text"
+      value={$mask}
+      placeholder="255.255.255.0"
+      class="mask-input {$isValid ? '' : 'invalid'}"
+      on:input={(e) => handleMaskChange((e.target as HTMLInputElement).value)}
+    />
+  </div>
 
-	<!-- Result Display -->
-	<div class="result-display success">
-		<div class="result-content">
-			<span class="result-label">CIDR Notation</span>
-			<span class="result-value">/{$cidr}</span>
-		</div>
-	</div>
+  <!-- Result Display -->
+  <div class="result-display success">
+    <div class="result-content">
+      <span class="result-label">CIDR Notation</span>
+      <span class="result-value">/{$cidr}</span>
+    </div>
+  </div>
 </div>
 
 <style lang="scss">
@@ -50,10 +50,10 @@
     }
   }
   .mask-input {
-		min-width: 16rem;
+    min-width: 16rem;
     font-family: var(--font-mono);
     font-size: var(--font-size-lg);
-    
+
     &.invalid {
       border-color: var(--color-error);
       box-shadow: 0 0 0 1px var(--color-error);
@@ -85,4 +85,3 @@
     }
   }
 </style>
-

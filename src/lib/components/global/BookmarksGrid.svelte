@@ -16,13 +16,12 @@
     description: bookmark.description,
     icon: bookmark.icon,
     keywords: [],
-    animationDelay: index * 0.1
+    animationDelay: index * 0.1,
   }));
 </script>
 
 {#if $bookmarks.length > 0}
   <div class="bookmarks-container" aria-live="polite">
-    
     {#if !hideOther}
       <div class="bookmarks-header">
         <div class="header-content">
@@ -97,13 +96,27 @@
       animation: subtleSlideIn 0.3s ease-out forwards;
       opacity: 0;
     }
-    :global(.tool-card:nth-child(1)) { animation-delay: 0.05s; }
-    :global(.tool-card:nth-child(2)) { animation-delay: 0.1s; }
-    :global(.tool-card:nth-child(3)) { animation-delay: 0.15s; }
-    :global(.tool-card:nth-child(4)) { animation-delay: 0.2s; }
-    :global(.tool-card:nth-child(5)) { animation-delay: 0.25s; }
-    :global(.tool-card:nth-child(6)) { animation-delay: 0.3s; }
-    :global(.tool-card:nth-child(n+7)) { animation-delay: 0.35s; }
+    :global(.tool-card:nth-child(1)) {
+      animation-delay: 0.05s;
+    }
+    :global(.tool-card:nth-child(2)) {
+      animation-delay: 0.1s;
+    }
+    :global(.tool-card:nth-child(3)) {
+      animation-delay: 0.15s;
+    }
+    :global(.tool-card:nth-child(4)) {
+      animation-delay: 0.2s;
+    }
+    :global(.tool-card:nth-child(5)) {
+      animation-delay: 0.25s;
+    }
+    :global(.tool-card:nth-child(6)) {
+      animation-delay: 0.3s;
+    }
+    :global(.tool-card:nth-child(n + 7)) {
+      animation-delay: 0.35s;
+    }
   }
 
   .empty-bookmarks {

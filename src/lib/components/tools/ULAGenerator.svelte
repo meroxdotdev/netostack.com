@@ -1,6 +1,6 @@
 <script lang="ts">
   import { generateULAAddresses, parseULA, type ULAResult } from '$lib/utils/ula';
-  
+
   let count = 1;
   let subnetIds = '';
   let result: ULAResult | null = null;
@@ -10,16 +10,16 @@
 
   async function generateULAs() {
     if (count < 1 || count > 100) return;
-    
+
     loading = true;
-    
+
     try {
       // Parse subnet IDs if provided
       const subnetIdArray = subnetIds
         .split(/[,\n]/)
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
-      
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
       result = generateULAAddresses(count, subnetIdArray.length > 0 ? subnetIdArray : undefined);
     } finally {
       loading = false;
@@ -43,18 +43,11 @@
   <div class="card">
     <h2>ULA Generator</h2>
     <p>Generate RFC 4193 Unique Local Addresses with cryptographically secure Global IDs.</p>
-    
+
     <div class="input-section">
       <div class="input-group">
         <label for="count">Number of ULAs to generate (1-100):</label>
-        <input
-          id="count"
-          type="number"
-          min="1"
-          max="100"
-          bind:value={count}
-          placeholder="1"
-        />
+        <input id="count" type="number" min="1" max="100" bind:value={count} placeholder="1" />
       </div>
 
       <div class="input-group">
@@ -68,11 +61,7 @@
         <small>If provided, must be 1-4 hex digits. Leave empty for random generation.</small>
       </div>
 
-      <button 
-        on:click={generateULAs}
-        disabled={loading || count < 1 || count > 100}
-        class="generate-btn"
-      >
+      <button on:click={generateULAs} disabled={loading || count < 1 || count > 100} class="generate-btn">
         {loading ? 'Generating...' : 'Generate ULA Addresses'}
       </button>
     </div>
@@ -110,7 +99,7 @@
           </div>
         {/if}
 
-        {#if result.generations.some(g => g.isValid)}
+        {#if result.generations.some((g) => g.isValid)}
           <div class="generations">
             <h3>Generated ULA Addresses</h3>
             {#each result.generations as generation, i}
@@ -126,7 +115,7 @@
                       📋
                     </button>
                   </div>
-                  
+
                   <div class="address-info">
                     <div class="address-row">
                       <span class="label">Network:</span>
@@ -193,7 +182,7 @@
   <div class="card">
     <h3>ULA Address Parser</h3>
     <p>Parse and analyze existing ULA addresses to extract their components.</p>
-    
+
     <div class="input-group">
       <label for="parse-input">ULA Address:</label>
       <input

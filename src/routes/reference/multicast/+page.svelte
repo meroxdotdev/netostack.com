@@ -1,6 +1,6 @@
 <script lang="ts">
   import { multicastContent } from '$lib/content/multicast.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -19,7 +19,7 @@
     <div class="ref-section">
       <h2>{multicastContent.ipv4Multicast.title}</h2>
       <p><strong>Range:</strong> <code>{multicastContent.ipv4Multicast.range}</code></p>
-      
+
       {#each multicastContent.ipv4Multicast.classes as multicastClass}
         <div class="ref-examples">
           <div class="examples-title">{multicastClass.name}</div>
@@ -39,10 +39,10 @@
     <div class="ref-section">
       <h2>{multicastContent.ipv6Multicast.title}</h2>
       <p><strong>Range:</strong> <code>{multicastContent.ipv6Multicast.range}</code></p>
-      
+
       <h3>Address Structure</h3>
       <p><strong>Format:</strong> <code>{multicastContent.ipv6Multicast.structure.format}</code></p>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Flag Bits</div>
@@ -50,7 +50,7 @@
             <div class="item-code">{flag.bit} - {flag.meaning}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">Scope Values</div>
           {#each multicastContent.ipv6Multicast.structure.scopes as scope}
@@ -165,7 +165,7 @@
             <div class="item-code">{addr}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">IPv6 Quick List</div>
           {#each multicastContent.quickReference.ipv6 as addr}
@@ -173,14 +173,15 @@
           {/each}
         </div>
       </div>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="wifi" size="sm" />
           Key Remember
         </div>
         <div class="highlight-content">
-          Most multicast addresses are designed for local subnet use only. Without proper multicast routing configuration, traffic won't cross router boundaries.
+          Most multicast addresses are designed for local subnet use only. Without proper multicast routing
+          configuration, traffic won't cross router boundaries.
         </div>
       </div>
     </div>

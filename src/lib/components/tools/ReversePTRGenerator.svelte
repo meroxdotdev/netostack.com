@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import { generatePTRName, generateCIDRPTRs, type PTRRecord } from '$lib/utils/reverse-dns.js';
-  
+
   let inputValue = $state('192.168.1.100');
   let inputType = $state<'single' | 'cidr'>('single');
   let results = $state<{
@@ -25,35 +25,35 @@
       label: 'Single IPv4',
       input: '192.168.1.100',
       type: 'single' as const,
-      description: 'Generate PTR for single IPv4 address'
+      description: 'Generate PTR for single IPv4 address',
     },
     {
       label: 'Single IPv6',
       input: '2001:db8::1',
       type: 'single' as const,
-      description: 'Generate PTR for single IPv6 address'
+      description: 'Generate PTR for single IPv6 address',
     },
     {
       label: 'IPv4 /28 Block',
       input: '192.168.1.16/28',
       type: 'cidr' as const,
-      description: 'Generate PTRs for /28 subnet (16 addresses)'
+      description: 'Generate PTRs for /28 subnet (16 addresses)',
     },
     {
       label: 'IPv4 /24 Network',
       input: '10.0.0.0/24',
       type: 'cidr' as const,
-      description: 'Generate PTRs for entire /24 network'
+      description: 'Generate PTRs for entire /24 network',
     },
     {
       label: 'IPv6 /64 Network',
       input: '2001:db8:1000::/64',
       type: 'cidr' as const,
-      description: 'Generate IPv6 PTR examples for /64'
-    }
+      description: 'Generate IPv6 PTR examples for /64',
+    },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     inputValue = example.input;
     inputType = example.type;
     selectedExample = example.label;
@@ -70,7 +70,7 @@
     try {
       const trimmed = inputValue.trim();
       let entries: PTRRecord[] = [];
-      
+
       if (inputType === 'single') {
         // Single IP address
         const record = generatePTRName(trimmed);
@@ -87,23 +87,22 @@
       // Generate summary
       const summary = {
         totalEntries: entries.length,
-        ipv4Entries: entries.filter(e => e.type === 'IPv4').length,
-        ipv6Entries: entries.filter(e => e.type === 'IPv6').length,
-        uniqueZones: [...new Set(entries.map(e => e.zone))].length
+        ipv4Entries: entries.filter((e) => e.type === 'IPv4').length,
+        ipv6Entries: entries.filter((e) => e.type === 'IPv6').length,
+        uniqueZones: [...new Set(entries.map((e) => e.zone))].length,
       };
 
       results = {
         success: true,
         entries,
-        summary
+        summary,
       };
-
     } catch (error) {
       results = {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
         entries: [],
-        summary: { totalEntries: 0, ipv4Entries: 0, ipv6Entries: 0, uniqueZones: 0 }
+        summary: { totalEntries: 0, ipv4Entries: 0, ipv6Entries: 0, uniqueZones: 0 },
       };
     }
   }
@@ -148,7 +147,8 @@
       <div class="overview-item">
         <Icon name="rotate" size="sm" />
         <div>
-          <strong>Reverse DNS:</strong> PTR records map IP addresses back to hostnames using <code>in-addr.arpa</code> (IPv4) and <code>ip6.arpa</code> (IPv6) zones.
+          <strong>Reverse DNS:</strong> PTR records map IP addresses back to hostnames using <code>in-addr.arpa</code>
+          (IPv4) and <code>ip6.arpa</code> (IPv6) zones.
         </div>
       </div>
       <div class="overview-item">
@@ -200,24 +200,14 @@
       <h3 class="type-label">Input Type</h3>
       <div class="type-options">
         <label class="type-option">
-          <input
-            type="radio"
-            bind:group={inputType}
-            value="single"
-            onchange={handleTypeChange}
-          />
+          <input type="radio" bind:group={inputType} value="single" onchange={handleTypeChange} />
           <div class="type-content">
             <Icon name="target" size="sm" />
             <span>Single IP</span>
           </div>
         </label>
         <label class="type-option">
-          <input
-            type="radio"
-            bind:group={inputType}
-            value="cidr"
-            onchange={handleTypeChange}
-          />
+          <input type="radio" bind:group={inputType} value="cidr" onchange={handleTypeChange} />
           <div class="type-content">
             <Icon name="network" size="sm" />
             <span>CIDR Block</span>
@@ -228,12 +218,11 @@
 
     <!-- IP/CIDR Input -->
     <div class="input-group">
-      <label 
+      <label
         for="ip-input"
-        use:tooltip={inputType === 'single' 
-          ? "Enter a single IPv4 or IPv6 address"
-          : "Enter an IPv4 or IPv6 CIDR block (e.g., 192.168.1.0/24)"
-        }
+        use:tooltip={inputType === 'single'
+          ? 'Enter a single IPv4 or IPv6 address'
+          : 'Enter an IPv4 or IPv6 CIDR block (e.g., 192.168.1.0/24)'}
       >
         <Icon name={inputType === 'single' ? 'target' : 'network'} size="sm" />
         {inputType === 'single' ? 'IP Address' : 'CIDR Block'}
@@ -311,7 +300,7 @@
                   {#snippet zoneLine()}
                     {@const recordName = entry.ptrName.replace(`.${entry.zone}`, '').replace(/\.$/, '')}
                     {@const hostname = `host-${entry.ip.replace(/[:.]/g, '-')}.example.com.`}
-                    <code>{recordName}    IN    PTR    {hostname}</code>
+                    <code>{recordName} IN PTR {hostname}</code>
                   {/snippet}
                   {@render zoneLine()}
                   <button
@@ -337,7 +326,6 @@
             {/if}
           </div>
         </div>
-
       {:else}
         <div class="error-result">
           <Icon name="alert-triangle" size="lg" />
@@ -363,32 +351,34 @@
       <div class="education-item info-panel">
         <h4>PTR Record Format</h4>
         <p>
-          PTR records use the special <code>in-addr.arpa</code> (IPv4) and <code>ip6.arpa</code> (IPv6) domains.
-          IP addresses are reversed: <code>192.168.1.100</code> becomes <code>100.1.168.192.in-addr.arpa</code>.
+          PTR records use the special <code>in-addr.arpa</code> (IPv4) and <code>ip6.arpa</code> (IPv6) domains. IP
+          addresses are reversed: <code>192.168.1.100</code> becomes <code>100.1.168.192.in-addr.arpa</code>.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Zone File Usage</h4>
         <p>
-          The generated zone file lines can be copied directly into your reverse DNS zone files.
-          Remember to adjust the hostname targets to match your actual domain structure.
+          The generated zone file lines can be copied directly into your reverse DNS zone files. Remember to adjust the
+          hostname targets to match your actual domain structure.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>IPv6 Nibbles</h4>
         <p>
-          IPv6 PTR records use individual hex digits (nibbles) reversed. Each character becomes a separate
-          label: <code>2001:db8::1</code> becomes a very long <code>ip6.arpa</code> name.
+          IPv6 PTR records use individual hex digits (nibbles) reversed. Each character becomes a separate label: <code
+            >2001:db8::1</code
+          >
+          becomes a very long <code>ip6.arpa</code> name.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Best Practices</h4>
         <p>
-          Ensure PTR records have corresponding A/AAAA records for proper forward-reverse DNS consistency.
-          Use descriptive hostnames that include IP information for easier network management.
+          Ensure PTR records have corresponding A/AAAA records for proper forward-reverse DNS consistency. Use
+          descriptive hostnames that include IP information for easier network management.
         </p>
       </div>
     </div>
@@ -411,7 +401,7 @@
     align-items: flex-start;
     gap: var(--spacing-sm);
     color: var(--text-secondary);
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
@@ -433,7 +423,7 @@
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -520,12 +510,12 @@
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
     font-weight: 600;
-    
+
     &.single {
       background-color: rgba(34, 197, 94, 0.1);
       color: var(--color-success);
     }
-    
+
     &.cidr {
       background-color: rgba(59, 130, 246, 0.1);
       color: var(--color-primary);
@@ -573,7 +563,7 @@
     position: relative;
     cursor: pointer;
 
-    input[type="radio"] {
+    input[type='radio'] {
       position: absolute;
       opacity: 0;
       pointer-events: none;
@@ -597,7 +587,7 @@
       border-color: var(--border-primary);
     }
 
-    input[type="radio"]:checked + .type-content {
+    input[type='radio']:checked + .type-content {
       background-color: var(--surface-hover);
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
@@ -653,7 +643,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
-    
+
     @media (max-width: 768px) {
       flex-direction: column;
       gap: var(--spacing-md);
@@ -709,7 +699,8 @@
     overflow: hidden;
   }
 
-  .table-header, .table-row {
+  .table-header,
+  .table-row {
     display: grid;
     grid-template-columns: 1fr 1.5fr 2fr auto;
     gap: var(--spacing-md);
@@ -726,7 +717,7 @@
 
   .table-row {
     border-bottom: 1px solid var(--border-secondary);
-    
+
     &:last-child {
       border-bottom: none;
     }
@@ -736,11 +727,12 @@
     }
   }
 
-  .col-ptr, .col-zone-line {
+  .col-ptr,
+  .col-zone-line {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    
+
     code {
       font-size: var(--font-size-xs);
       word-break: break-all;
@@ -772,12 +764,12 @@
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
     font-weight: 600;
-    
+
     &.ipv4 {
       background-color: rgba(34, 197, 94, 0.1);
       color: var(--color-success);
     }
-    
+
     &.ipv6 {
       background-color: rgba(147, 51, 234, 0.1);
       color: var(--color-accent);
@@ -864,7 +856,7 @@
       line-height: 1.6;
       margin: 0;
     }
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
@@ -888,15 +880,16 @@
       gap: var(--spacing-md);
     }
 
-    .table-header, .table-row {
+    .table-header,
+    .table-row {
       grid-template-columns: 1fr;
       gap: var(--spacing-sm);
       font-size: var(--font-size-sm);
     }
-    
+
     .col-zone-line {
       order: 3;
-      
+
       code {
         font-size: var(--font-size-xs);
       }

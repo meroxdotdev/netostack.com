@@ -240,7 +240,7 @@
         padding-left: 1em;
 
         &::before {
-          content: "•";
+          content: '•';
           color: var(--color-info);
           font-weight: bold;
           position: absolute;

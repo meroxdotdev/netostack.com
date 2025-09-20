@@ -31,7 +31,7 @@ export interface AlignmentResult {
 /* IPv4/IPv6 conversion utilities */
 function ipv4ToBigInt(ip: string): bigint {
   const parts = ip.split('.').map(Number);
-  if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) {
+  if (parts.length !== 4 || parts.some((p) => isNaN(p) || p < 0 || p > 255)) {
     throw new Error('Invalid IPv4 address');
   }
   return BigInt(parts[0] * 16777216 + parts[1] * 65536 + parts[2] * 256 + parts[3]);
@@ -39,18 +39,13 @@ function ipv4ToBigInt(ip: string): bigint {
 
 function bigIntToIPv4(num: bigint): string {
   const n = Number(num);
-  return [
-    Math.floor(n / 16777216) % 256,
-    Math.floor(n / 65536) % 256,
-    Math.floor(n / 256) % 256,
-    n % 256
-  ].join('.');
+  return [Math.floor(n / 16777216) % 256, Math.floor(n / 65536) % 256, Math.floor(n / 256) % 256, n % 256].join('.');
 }
 
 function ipv6ToBigInt(ip: string): bigint {
-  let expanded = expandIPv6(ip);
+  const expanded = expandIPv6(ip);
   const groups = expanded.split(':');
-  
+
   let result = 0n;
   for (let i = 0; i < 8; i++) {
     const group = parseInt(groups[i] || '0', 16);
@@ -61,27 +56,30 @@ function ipv6ToBigInt(ip: string): bigint {
 
 function expandIPv6(ip: string): string {
   if (!ip.includes('::')) {
-    return ip.split(':').map(g => g.padStart(4, '0')).join(':');
+    return ip
+      .split(':')
+      .map((g) => g.padStart(4, '0'))
+      .join(':');
   }
-  
+
   const parts = ip.split('::');
   const left = parts[0] ? parts[0].split(':') : [];
   const right = parts[1] ? parts[1].split(':') : [];
   const missing = 8 - left.length - right.length;
   const middle = Array(missing).fill('0000');
-  
-  return [...left, ...middle, ...right].map(g => g.padStart(4, '0')).join(':');
+
+  return [...left, ...middle, ...right].map((g) => g.padStart(4, '0')).join(':');
 }
 
 function bigIntToIPv6(num: bigint): string {
   const groups = [];
   let remaining = num;
-  
+
   for (let i = 0; i < 8; i++) {
     groups.unshift((remaining & 0xffffn).toString(16));
     remaining >>= 16n;
   }
-  
+
   return groups.join(':');
 }
 
@@ -108,62 +106,62 @@ function parseInput(input: string): {
   prefix?: number;
 } {
   input = input.trim();
-  
+
   if (input.includes('/')) {
     // CIDR notation
     const [ip, prefixStr] = input.split('/');
     const version = detectIPVersion(ip);
     const prefix = parseInt(prefixStr);
     const maxPrefix = version === 4 ? 32 : 128;
-    
+
     if (prefix < 0 || prefix > maxPrefix) {
       throw new Error(`Invalid prefix /${prefix} for IPv${version}`);
     }
-    
+
     const ipBig = ipToNumber(ip, version);
     const hostBits = BigInt(maxPrefix - prefix);
-    const networkBig = ipBig >> hostBits << hostBits;
+    const networkBig = (ipBig >> hostBits) << hostBits;
     const broadcastBig = networkBig + (1n << hostBits) - 1n;
-    
+
     return {
       type: 'cidr',
       version,
       start: networkBig,
       end: broadcastBig,
-      prefix
+      prefix,
     };
   } else if (input.includes('-')) {
     // Range notation
-    const [startIP, endIP] = input.split('-').map(s => s.trim());
+    const [startIP, endIP] = input.split('-').map((s) => s.trim());
     const version = detectIPVersion(startIP);
-    
+
     if (detectIPVersion(endIP) !== version) {
       throw new Error('Start and end IPs must be the same version');
     }
-    
+
     const startBig = ipToNumber(startIP, version);
     const endBig = ipToNumber(endIP, version);
-    
+
     if (startBig > endBig) {
       throw new Error('Start IP must be less than or equal to end IP');
     }
-    
+
     return {
       type: 'range',
       version,
       start: startBig,
-      end: endBig
+      end: endBig,
     };
   } else {
     // Single IP
     const version = detectIPVersion(input);
     const ipBig = ipToNumber(input, version);
-    
+
     return {
       type: 'ip',
       version,
       start: ipBig,
-      end: ipBig
+      end: ipBig,
     };
   }
 }
@@ -173,24 +171,24 @@ function checkAlignment(
   start: bigint,
   end: bigint,
   targetPrefix: number,
-  version: 4 | 6
+  version: 4 | 6,
 ): { isAligned: boolean; alignedCIDR?: string; reason?: string } {
   const maxPrefix = version === 4 ? 32 : 128;
   const hostBits = BigInt(maxPrefix - targetPrefix);
   const blockSize = 1n << hostBits;
-  
+
   // Calculate the expected network address for this prefix
-  const expectedNetwork = start >> hostBits << hostBits;
+  const expectedNetwork = (start >> hostBits) << hostBits;
   const expectedBroadcast = expectedNetwork + blockSize - 1n;
-  
+
   // Check if the range exactly matches the expected CIDR block
   if (start === expectedNetwork && end === expectedBroadcast) {
     return {
       isAligned: true,
-      alignedCIDR: `${numberToIP(expectedNetwork, version)}/${targetPrefix}`
+      alignedCIDR: `${numberToIP(expectedNetwork, version)}/${targetPrefix}`,
     };
   }
-  
+
   // Determine why it's not aligned
   let reason = '';
   if (start !== expectedNetwork && end !== expectedBroadcast) {
@@ -200,49 +198,44 @@ function checkAlignment(
   } else if (end !== expectedBroadcast) {
     reason = `End address doesn't align to /${targetPrefix} boundary. Expected end: ${numberToIP(expectedBroadcast, version)}`;
   }
-  
+
   return { isAligned: false, reason };
 }
 
 /* Generate alignment suggestions */
-function generateSuggestions(
-  start: bigint,
-  end: bigint,
-  targetPrefix: number,
-  version: 4 | 6
-): AlignmentSuggestion[] {
+function generateSuggestions(start: bigint, end: bigint, targetPrefix: number, version: 4 | 6): AlignmentSuggestion[] {
   const suggestions: AlignmentSuggestion[] = [];
   const maxPrefix = version === 4 ? 32 : 128;
   const rangeSize = end - start + 1n;
-  
+
   // Find the smallest CIDR that contains the entire range
   const requiredBits = rangeSize === 1n ? 0 : Math.ceil(Math.log2(Number(rangeSize)));
   const containingPrefix = Math.max(0, maxPrefix - requiredBits);
-  
+
   if (containingPrefix <= targetPrefix) {
     // Suggest a larger CIDR that contains the range
     const hostBits = BigInt(maxPrefix - containingPrefix);
-    const alignedStart = start >> hostBits << hostBits;
+    const alignedStart = (start >> hostBits) << hostBits;
     const alignedEnd = alignedStart + (1n << hostBits) - 1n;
     const efficiency = Math.round(Number(rangeSize * 100n) / Number(1n << hostBits));
-    
+
     suggestions.push({
       type: 'larger',
       description: `Use larger CIDR (/${containingPrefix}) that contains the entire range`,
       cidrs: [`${numberToIP(alignedStart, version)}/${containingPrefix}`],
-      efficiency
+      efficiency,
     });
   }
-  
+
   // Suggest smaller CIDRs that fit within the range
   if (targetPrefix < maxPrefix) {
     const smallerPrefix = targetPrefix + 1;
     const smallerHostBits = BigInt(maxPrefix - smallerPrefix);
     const smallerBlockSize = 1n << smallerHostBits;
-    
-    const alignedStart = start >> smallerHostBits << smallerHostBits;
+
+    const alignedStart = (start >> smallerHostBits) << smallerHostBits;
     const cidrs: string[] = [];
-    
+
     for (let addr = alignedStart; addr <= end; addr += smallerBlockSize) {
       const blockEnd = addr + smallerBlockSize - 1n;
       if (blockEnd >= start) {
@@ -250,72 +243,69 @@ function generateSuggestions(
       }
       if (cidrs.length >= 4) break; // Limit suggestions
     }
-    
+
     if (cidrs.length > 0) {
       suggestions.push({
         type: 'smaller',
         description: `Use smaller CIDRs (/${smallerPrefix}) that fit within the range`,
-        cidrs
+        cidrs,
       });
     }
   }
-  
+
   // Suggest splitting into multiple aligned CIDRs
   if (rangeSize > 1n && targetPrefix > 0) {
     const cidrs: string[] = [];
     let currentAddr = start;
-    
+
     while (currentAddr <= end && cidrs.length < 8) {
       // Find the largest block that fits
       let bestPrefix = maxPrefix;
       for (let p = targetPrefix; p <= maxPrefix; p++) {
         const hBits = BigInt(maxPrefix - p);
         const blockSize = 1n << hBits;
-        const blockStart = currentAddr >> hBits << hBits;
+        const blockStart = (currentAddr >> hBits) << hBits;
         const blockEnd = blockStart + blockSize - 1n;
-        
+
         if (blockStart === currentAddr && blockEnd <= end) {
           bestPrefix = p;
           break;
         }
       }
-      
+
       const hBits = BigInt(maxPrefix - bestPrefix);
       const blockSize = 1n << hBits;
       cidrs.push(`${numberToIP(currentAddr, version)}/${bestPrefix}`);
       currentAddr += blockSize;
     }
-    
+
     if (cidrs.length > 1) {
       suggestions.push({
         type: 'split',
         description: `Split into ${cidrs.length} aligned CIDR blocks`,
-        cidrs
+        cidrs,
       });
     }
   }
-  
+
   return suggestions;
 }
 
 /* Check CIDR boundary alignment for multiple inputs */
-export function checkCIDRAlignment(
-  inputs: string[],
-  targetPrefix: number
-): AlignmentResult {
+export function checkCIDRAlignment(inputs: string[], targetPrefix: number): AlignmentResult {
   const checks: AlignmentCheck[] = [];
   const errors: string[] = [];
-  
+
   for (const input of inputs) {
     if (!input.trim()) continue;
-    
+
     try {
       const parsed = parseInput(input);
       const alignment = checkAlignment(parsed.start, parsed.end, targetPrefix, parsed.version);
-      const suggestions = alignment.isAligned 
-        ? [] 
+      const suggestions = alignment.isAligned
+        ? []
         : generateSuggestions(parsed.start, parsed.end, targetPrefix, parsed.version);
-      
+
       checks.push({
         input: input.trim(),
         type: parsed.type,
@@ -323,9 +313,8 @@ export function checkCIDRAlignment(
         targetPrefix,
         alignedCIDR: alignment.alignedCIDR,
         reason: alignment.reason,
-        suggestions
+        suggestions,
       });
-      
     } catch (error) {
       errors.push(`Invalid input "${input}": ${error instanceof Error ? error.message : 'Unknown error'}`);
       checks.push({
@@ -334,22 +323,22 @@ export function checkCIDRAlignment(
         isAligned: false,
         targetPrefix,
         reason: error instanceof Error ? error.message : 'Unknown error',
-        suggestions: []
+        suggestions: [],
       });
     }
   }
-  
-  const alignedCount = checks.filter(c => c.isAligned).length;
+
+  const alignedCount = checks.filter((c) => c.isAligned).length;
   const totalCount = checks.length;
-  
+
   return {
     checks,
     summary: {
       totalInputs: totalCount,
       alignedInputs: alignedCount,
       misalignedInputs: totalCount - alignedCount,
-      alignmentRate: totalCount > 0 ? Math.round((alignedCount / totalCount) * 100) : 0
+      alignmentRate: totalCount > 0 ? Math.round((alignedCount / totalCount) * 100) : 0,
     },
-    errors
+    errors,
   };
 }

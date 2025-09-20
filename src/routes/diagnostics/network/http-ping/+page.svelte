@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let url = $state('https://google.com');
   let method = $state('HEAD');
   let count = $state(5);
@@ -12,22 +12,22 @@
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { url: 'https://google.com', method: 'HEAD', description: 'Google homepage' },
     { url: 'https://github.com', method: 'HEAD', description: 'GitHub homepage' },
     { url: 'https://api.github.com', method: 'GET', description: 'GitHub API' },
     { url: 'https://httpbin.org/delay/1', method: 'GET', description: 'Simulated 1s delay' },
     { url: 'https://www.cloudflare.com', method: 'HEAD', description: 'Cloudflare CDN' },
-    { url: 'https://stackoverflow.com', method: 'HEAD', description: 'Stack Overflow' }
+    { url: 'https://stackoverflow.com', method: 'HEAD', description: 'Stack Overflow' },
   ];
-  
+
   const httpMethods = [
     { value: 'HEAD', label: 'HEAD', description: 'Headers only, fastest' },
     { value: 'GET', label: 'GET', description: 'Full response, more realistic' },
-    { value: 'OPTIONS', label: 'OPTIONS', description: 'Preflight requests' }
+    { value: 'OPTIONS', label: 'OPTIONS', description: 'Preflight requests' },
   ];
-  
+
   // Reactive validation
   const isUrlValid = $derived(() => {
     try {
@@ -37,16 +37,16 @@
       return false;
     }
   });
-  
+
   const isInputValid = $derived(() => {
     return isUrlValid() && count >= 1 && count <= 20;
   });
-  
+
   async function httpPing() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/network', {
         method: 'POST',
@@ -56,10 +56,10 @@
           url: url.trim(),
           method,
           count,
-          timeout
-        })
+          timeout,
+        }),
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         try {
@@ -69,7 +69,7 @@
           throw new Error(`HTTP ping failed (${response.status})`);
         }
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -77,8 +77,8 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     url = example.url;
     method = example.method;
     count = 5;
@@ -86,34 +86,34 @@
     selectedExampleIndex = index;
     httpPing();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   function setMethod(newMethod: string) {
     method = newMethod;
     clearExampleSelection();
     if (isInputValid()) httpPing();
   }
-  
+
   function getLatencyClass(latency: number): string {
     if (latency < 100) return 'excellent';
     if (latency < 300) return 'good';
     if (latency < 1000) return 'fair';
     return 'poor';
   }
-  
+
   function getLatencyDescription(latency: number): string {
     if (latency < 100) return 'Excellent';
     if (latency < 300) return 'Good';
     if (latency < 1000) return 'Fair';
     return 'Poor';
   }
-  
+
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `HTTP Ping Results for ${results.url}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
     text += `Configuration:\n`;
@@ -124,7 +124,7 @@
     text += `  Successful: ${results.successful}\n`;
     text += `  Failed: ${results.failed}\n`;
     text += `  Success Rate: ${((results.successful / results.count) * 100).toFixed(1)}%\n\n`;
-    
+
     if (results.statistics && results.successful > 0) {
       text += `Latency Statistics:\n`;
       text += `  Min: ${results.statistics.min}ms\n`;
@@ -133,31 +133,34 @@
       text += `  Median: ${results.statistics.median}ms\n`;
       text += `  95th Percentile: ${results.statistics.p95}ms\n\n`;
     }
-    
+
     if (results.latencies?.length > 0) {
       text += `Individual Results:\n`;
       results.latencies.forEach((latency: number, i: number) => {
         text += `  Request ${i + 1}: ${latency}ms\n`;
       });
     }
-    
+
     if (results.errors?.length > 0) {
       text += `\nErrors:\n`;
       results.errors.forEach((err: string, i: number) => {
         text += `  ${i + 1}: ${err}\n`;
       });
     }
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>HTTP Ping</h1>
-    <p>Measure HTTP/HTTPS response latency by sending repeated requests and analyzing timing statistics. Alternative to ICMP ping for web services and APIs.</p>
+    <p>
+      Measure HTTP/HTTPS response latency by sending repeated requests and analyzing timing statistics. Alternative to
+      ICMP ping for web services and APIs.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -169,8 +172,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Ping ${example.url} using ${example.method} method`}
@@ -194,15 +197,18 @@
     <div class="card-content">
       <div class="form-row">
         <div class="form-group">
-          <label for="url" use:tooltip={"Enter a complete HTTP or HTTPS URL"}>
+          <label for="url" use:tooltip={'Enter a complete HTTP or HTTPS URL'}>
             Target URL
-            <input 
-              id="url" 
-              type="url" 
-              bind:value={url} 
+            <input
+              id="url"
+              type="url"
+              bind:value={url}
               placeholder="https://example.com"
               class:invalid={url && !isUrlValid()}
-              onchange={() => { clearExampleSelection(); if (isInputValid()) httpPing(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) httpPing();
+              }}
             />
             {#if url && !isUrlValid()}
               <span class="error-text">Must be a valid HTTP or HTTPS URL</span>
@@ -217,9 +223,9 @@
           <h3>HTTP Method</h3>
           <div class="method-options">
             {#each httpMethods as methodOption}
-              <button 
-                type="button" 
-                class="method-btn" 
+              <button
+                type="button"
+                class="method-btn"
                 class:active={method === methodOption.value}
                 onclick={() => setMethod(methodOption.value)}
                 use:tooltip={methodOption.description}
@@ -233,34 +239,40 @@
 
       <div class="form-row two-columns">
         <div class="form-group">
-          <label for="count" use:tooltip={"Number of requests to send (1-20)"}>
+          <label for="count" use:tooltip={'Number of requests to send (1-20)'}>
             Request Count
-            <input 
-              id="count" 
-              type="number" 
-              bind:value={count} 
-              min="1" 
+            <input
+              id="count"
+              type="number"
+              bind:value={count}
+              min="1"
               max="20"
-              onchange={() => { clearExampleSelection(); if (isInputValid()) httpPing(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) httpPing();
+              }}
             />
           </label>
         </div>
         <div class="form-group">
-          <label for="timeout" use:tooltip={"Timeout per request in milliseconds"}>
+          <label for="timeout" use:tooltip={'Timeout per request in milliseconds'}>
             Timeout (ms)
-            <input 
-              id="timeout" 
-              type="number" 
-              bind:value={timeout} 
-              min="1000" 
-              max="30000" 
+            <input
+              id="timeout"
+              type="number"
+              bind:value={timeout}
+              min="1000"
+              max="30000"
               step="1000"
-              onchange={() => { clearExampleSelection(); if (isInputValid()) httpPing(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) httpPing();
+              }}
             />
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={httpPing} disabled={loading || !isInputValid()}>
           {#if loading}
@@ -281,12 +293,11 @@
       <div class="card-header row">
         <h3>HTTP Ping Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" />
-          {copiedState ? "Copied!" : "Copy Results"}
+          <Icon name={copiedState ? 'check' : 'copy'} size="xs" />
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
-        
         <!-- Summary -->
         <div class="status-overview">
           <div class="status-item success">
@@ -432,7 +443,7 @@
             <li>Works through firewalls that block ICMP</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Request Methods</h4>
           <ul>
@@ -441,7 +452,7 @@
             <li><strong>OPTIONS:</strong> Check allowed methods and CORS</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Latency Guidelines</h4>
           <ul>
@@ -498,7 +509,8 @@
     cursor: pointer;
     transition: all var(--transition-fast);
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       background: var(--color-primary);
       color: var(--bg-primary);
       border-color: var(--color-primary);
@@ -518,7 +530,7 @@
 
   .stats-section {
     margin: var(--spacing-lg) 0;
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
@@ -556,7 +568,7 @@
 
   .results-section {
     margin: var(--spacing-lg) 0;
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
@@ -579,22 +591,22 @@
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-primary);
     text-align: center;
-    
+
     &.excellent {
       background: color-mix(in srgb, var(--color-success), transparent 95%);
       border-color: var(--color-success);
     }
-    
+
     &.good {
       background: color-mix(in srgb, var(--color-success), transparent 90%);
       border-color: var(--color-success);
     }
-    
+
     &.fair {
       background: color-mix(in srgb, var(--color-warning), transparent 95%);
       border-color: var(--color-warning);
     }
-    
+
     &.poor {
       background: color-mix(in srgb, var(--color-error), transparent 95%);
       border-color: var(--color-error);
@@ -619,7 +631,7 @@
 
   .errors-section {
     margin: var(--spacing-lg) 0;
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
@@ -658,7 +670,7 @@
 
   .info-section {
     margin-top: var(--spacing-lg);
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;

@@ -21,7 +21,7 @@
       label: 'Basic Containment',
       setA: '192.168.0.0/16',
       setB: `192.168.1.0/24
-192.168.2.0/24`
+192.168.2.0/24`,
     },
     {
       label: 'Mixed Results',
@@ -29,23 +29,23 @@
 10.0.0.0/16`,
       setB: `192.168.1.100/32
 10.0.1.0/24
-172.16.0.0/24`
+172.16.0.0/24`,
     },
     {
       label: 'Partial Overlap',
       setA: '192.168.1.0/25',
-      setB: '192.168.1.0/24'
+      setB: '192.168.1.0/24',
     },
     {
       label: 'IPv6 Containment',
       setA: '2001:db8::/32',
       setB: `2001:db8:1::/48
-2001:db8:2::/64`
-    }
+2001:db8:2::/64`,
+    },
   ];
 
   /* Set example */
-  function setExample(example: typeof examples[0], index: number) {
+  function setExample(example: (typeof examples)[0], index: number) {
     setA = example.setA;
     setB = example.setB;
     selectedExampleIndex = index;
@@ -62,7 +62,7 @@
     try {
       await navigator.clipboard.writeText(text);
       copiedStates[id] = true;
-      setTimeout(() => copiedStates[id] = false, 3000);
+      setTimeout(() => (copiedStates[id] = false), 3000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -71,30 +71,30 @@
   /* Export results as CSV */
   function exportAsCSV() {
     if (!result) return;
-    
+
     const headers = ['Input', 'Status', 'Coverage %', 'Matching Containers', 'Gaps'];
-    const rows = result.checks.map(check => [
+    const rows = result.checks.map((check) => [
       `"${check.input}"`,
       check.status,
       check.coverage,
       `"${check.matchingContainers.join(', ')}"`,
-      `"${check.gaps.join(', ')}"`
+      `"${check.gaps.join(', ')}"`,
     ]);
-    
-    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+
+    const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
     copyToClipboard(csv, 'csv-export');
   }
 
   /* Export results as JSON */
   function exportAsJSON() {
     if (!result) return;
-    
+
     const exportData = {
       checks: result.checks,
       stats: result.stats,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
-    
+
     const json = JSON.stringify(exportData, null, 2);
     copyToClipboard(json, 'json-export');
   }
@@ -120,7 +120,7 @@
         checks: [],
         stats: { setA: { count: 0, addresses: '0' }, totalChecked: 0, inside: 0, equal: 0, partial: 0, outside: 0 },
         visualization: [],
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
       };
     }
   }
@@ -154,10 +154,13 @@
   }
 
   /* Generate tooltip text for visualization segments */
-  function getSegmentTooltip(range: { start: bigint; end: bigint; label?: string; cidr?: string }, type: 'candidate' | 'container' | 'gap'): string {
+  function getSegmentTooltip(
+    range: { start: bigint; end: bigint; label?: string; cidr?: string },
+    type: 'candidate' | 'container' | 'gap',
+  ): string {
     const size = range.end - range.start + 1n;
     const label = type === 'candidate' ? 'Candidate' : type === 'container' ? 'Container' : 'Gap';
-    
+
     return `${label}${range.label ? ` (${range.label})` : ''}\nSize: ${size.toLocaleString()}${range.cidr ? `\nCIDR: ${range.cidr}` : ''}`;
   }
 
@@ -172,7 +175,10 @@
 <div class="card">
   <header class="card-header">
     <h2>CIDR Containment Checker</h2>
-    <p>Check if set A fully contains each item in set B. Supports many-to-many containment analysis with detailed classification.</p>
+    <p>
+      Check if set A fully contains each item in set B. Supports many-to-many containment analysis with detailed
+      classification.
+    </p>
   </header>
 
   <!-- Options -->
@@ -243,11 +249,7 @@
     </div>
 
     <div class="input-actions">
-      <button 
-        type="button" 
-        class="btn btn-secondary btn-sm"
-        onclick={clearInputs}
-      >
+      <button type="button" class="btn btn-secondary btn-sm" onclick={clearInputs}>
         <Icon name="trash" size="sm" />
         Clear All
       </button>
@@ -298,7 +300,7 @@
           <div class="summary-header">
             <h3>Containment Analysis</h3>
             <div class="export-buttons">
-              <button 
+              <button
                 type="button"
                 class="btn btn-primary btn-sm"
                 class:copied={copiedStates['csv-export']}
@@ -307,7 +309,7 @@
                 <Icon name={copiedStates['csv-export'] ? 'check' : 'csv-file'} size="sm" />
                 CSV
               </button>
-              <button 
+              <button
                 type="button"
                 class="btn btn-secondary btn-sm"
                 class:copied={copiedStates['json-export']}
@@ -364,7 +366,7 @@
               <div class="col-containers">Containers</div>
               <div class="col-gaps">Gaps</div>
             </div>
-            
+
             {#each result.checks as check}
               {@const statusInfo = getStatusInfo(check.status)}
               <div class="table-row status-{check.status}">
@@ -379,8 +381,8 @@
                 </div>
                 <div class="col-coverage">
                   <div class="coverage-bar">
-                    <div 
-                      class="coverage-fill" 
+                    <div
+                      class="coverage-fill"
                       style="width: {check.coverage}%; background-color: {statusInfo.color}"
                     ></div>
                     <span class="coverage-text">{check.coverage}%</span>
@@ -404,7 +406,7 @@
                         <code class="gap-item">{gap}</code>
                       {/each}
                     </div>
-                    <button 
+                    <button
                       type="button"
                       class="btn btn-icon btn-xs"
                       class:copied={copiedStates[`gaps-${check.input}`]}
@@ -439,7 +441,7 @@
                 <span>Uncovered Gaps</span>
               </div>
             </div>
-            
+
             <div class="visualization-list">
               {#each result.visualization as viz, index}
                 {@const check = result.checks[index]}
@@ -452,32 +454,38 @@
                       {statusInfo.label} ({check.coverage}%)
                     </div>
                   </div>
-                  
+
                   <div class="viz-bar-container">
                     <!-- Candidate base -->
                     <div class="viz-bar candidate-bar">
-                      <div 
+                      <div
                         class="viz-segment candidate-segment"
-                        style="width: {getBarWidth(viz.candidateRange, viz.totalRange)}%; left: {getBarOffset(viz.candidateRange, viz.totalRange)}%"
+                        style="width: {getBarWidth(viz.candidateRange, viz.totalRange)}%; left: {getBarOffset(
+                          viz.candidateRange,
+                          viz.totalRange,
+                        )}%"
                         use:tooltip={{ text: getSegmentTooltip(viz.candidateRange, 'candidate'), position: 'top' }}
                       ></div>
                     </div>
-                    
+
                     <!-- Container overlays -->
                     <div class="viz-bar container-bar">
                       {#each viz.containers as container}
-                        <div 
+                        <div
                           class="viz-segment container-segment"
-                          style="width: {getBarWidth(container, viz.totalRange)}%; left: {getBarOffset(container, viz.totalRange)}%"
+                          style="width: {getBarWidth(container, viz.totalRange)}%; left: {getBarOffset(
+                            container,
+                            viz.totalRange,
+                          )}%"
                           use:tooltip={{ text: getSegmentTooltip(container, 'container'), position: 'top' }}
                         ></div>
                       {/each}
                     </div>
-                    
+
                     <!-- Gap highlights -->
                     <div class="viz-bar gap-bar">
                       {#each viz.gaps as gap}
-                        <div 
+                        <div
                           class="viz-segment gap-segment"
                           style="width: {getBarWidth(gap, viz.totalRange)}%; left: {getBarOffset(gap, viz.totalRange)}%"
                           use:tooltip={{ text: getSegmentTooltip(gap, 'gap'), position: 'bottom' }}
@@ -509,54 +517,61 @@
   /* Options section */
   .options-section {
     margin-bottom: var(--spacing-lg);
-    
-    h3 { @extend %section-title; }
-    
+
+    h3 {
+      @extend %section-title;
+    }
+
     .options-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: var(--spacing-md);
     }
-    
   }
 
   /* Input section */
   .input-section {
     margin-bottom: var(--spacing-lg);
-    
+
     .input-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--spacing-lg);
       margin-bottom: var(--spacing-md);
     }
-    
+
     .input-group {
       h3 {
         @extend %section-title;
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
-        
+
         :global(.tooltip-trigger) {
           color: var(--text-secondary);
           opacity: 0.7;
-          &:hover { opacity: 1; }
+          &:hover {
+            opacity: 1;
+          }
         }
       }
     }
-    
+
     .input-textarea {
       width: 100%;
       height: 140px;
       font-family: var(--font-mono);
       font-size: var(--font-size-sm);
       resize: vertical;
-      
-      &.set-a { border-left: 4px solid var(--color-primary); }
-      &.set-b { border-left: 4px solid var(--color-primary); }
+
+      &.set-a {
+        border-left: 4px solid var(--color-primary);
+      }
+      &.set-b {
+        border-left: 4px solid var(--color-primary);
+      }
     }
-    
+
     .input-actions {
       display: flex;
       justify-content: center;
@@ -664,12 +679,12 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
-    
+
     h3 {
       color: var(--color-primary);
       margin: 0;
     }
-    
+
     .export-buttons {
       display: flex;
       gap: var(--spacing-sm);
@@ -693,13 +708,25 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    
-    &.containers { border-left: 4px solid var(--color-info); }
-    &.candidates { border-left: 4px solid var(--color-warning); }
-    &.inside { border-left: 4px solid var(--color-success); }
-    &.equal { border-left: 4px solid var(--color-info); }
-    &.partial { border-left: 4px solid var(--color-warning); }
-    &.outside { border-left: 4px solid var(--color-error); }
+
+    &.containers {
+      border-left: 4px solid var(--color-info);
+    }
+    &.candidates {
+      border-left: 4px solid var(--color-warning);
+    }
+    &.inside {
+      border-left: 4px solid var(--color-success);
+    }
+    &.equal {
+      border-left: 4px solid var(--color-info);
+    }
+    &.partial {
+      border-left: 4px solid var(--color-warning);
+    }
+    &.outside {
+      border-left: 4px solid var(--color-error);
+    }
   }
 
   .stat-label {
@@ -724,8 +751,10 @@
   /* Results table */
   .table-section {
     margin-bottom: var(--spacing-lg);
-    
-    h4 { @extend %section-title; }
+
+    h4 {
+      @extend %section-title;
+    }
   }
 
   .results-table {
@@ -754,15 +783,23 @@
     padding: var(--spacing-md);
     border-bottom: 1px solid var(--border-secondary);
     align-items: center;
-    
+
     &:last-child {
       border-bottom: none;
     }
-    
-    &.status-inside { background-color: color-mix(in srgb, var(--color-success), transparent 90%); }
-    &.status-equal { background-color: color-mix(in srgb, var(--color-info), transparent 90%); }
-    &.status-partial { background-color: color-mix(in srgb, var(--color-warning), transparent 90%); }
-    &.status-outside { background-color: color-mix(in srgb, var(--color-error), transparent 90%) }
+
+    &.status-inside {
+      background-color: color-mix(in srgb, var(--color-success), transparent 90%);
+    }
+    &.status-equal {
+      background-color: color-mix(in srgb, var(--color-info), transparent 90%);
+    }
+    &.status-partial {
+      background-color: color-mix(in srgb, var(--color-warning), transparent 90%);
+    }
+    &.status-outside {
+      background-color: color-mix(in srgb, var(--color-error), transparent 90%);
+    }
     .col-gaps {
       display: flex;
       align-items: center;
@@ -785,7 +822,7 @@
     font-weight: 500;
     font-size: var(--font-size-sm);
     background: var(--bg-secondary);
-    border: 1px solid var(--border-primary)
+    border: 1px solid var(--border-primary);
   }
 
   .coverage-bar {
@@ -795,13 +832,13 @@
     border-radius: var(--radius-sm);
     overflow: hidden;
     border: 1px solid var(--border-primary);
-    
+
     .coverage-fill {
       height: 100%;
       transition: width var(--transition-fast);
       opacity: 0.7;
     }
-    
+
     .coverage-text {
       position: absolute;
       top: 50%;
@@ -838,29 +875,37 @@
   /* Visualization */
   .visualization-section {
     margin-bottom: var(--spacing-lg);
-    
-    h4 { @extend %section-title; }
-    
+
+    h4 {
+      @extend %section-title;
+    }
+
     .viz-legend {
       display: flex;
       gap: var(--spacing-lg);
       margin-bottom: var(--spacing-md);
       justify-content: center;
-      
+
       .legend-item {
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
         font-size: var(--font-size-sm);
-        
+
         .legend-color {
           width: 16px;
           height: 16px;
           border-radius: var(--radius-xs);
-          
-          &.candidate-color { background-color: var(--color-warning); }
-          &.container-color { background-color: var(--color-info); }
-          &.gap-color { background-color: var(--color-error); }
+
+          &.candidate-color {
+            background-color: var(--color-warning);
+          }
+          &.container-color {
+            background-color: var(--color-info);
+          }
+          &.gap-color {
+            background-color: var(--color-error);
+          }
         }
       }
     }
@@ -877,11 +922,19 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border-primary);
     padding: var(--spacing-md);
-    
-    &.status-inside { border-left: 4px solid var(--color-success); }
-    &.status-equal { border-left: 4px solid var(--color-info); }
-    &.status-partial { border-left: 4px solid var(--color-warning); }
-    &.status-outside { border-left: 4px solid var(--color-error); }
+
+    &.status-inside {
+      border-left: 4px solid var(--color-success);
+    }
+    &.status-equal {
+      border-left: 4px solid var(--color-info);
+    }
+    &.status-partial {
+      border-left: 4px solid var(--color-warning);
+    }
+    &.status-outside {
+      border-left: 4px solid var(--color-error);
+    }
   }
 
   .viz-header {
@@ -924,23 +977,23 @@
     height: 100%;
     cursor: pointer;
     transition: all var(--transition-fast);
-    
+
     &.candidate-segment {
       background-color: var(--color-warning);
       opacity: 0.6;
     }
-    
+
     &.container-segment {
       background-color: var(--color-info);
       opacity: 0.8;
     }
-    
+
     &.gap-segment {
       background-color: var(--color-error);
       opacity: 0.9;
       border: 1px solid var(--bg-primary);
     }
-    
+
     &:hover {
       filter: brightness(1.1);
       z-index: 10;
@@ -951,7 +1004,7 @@
   .error-list {
     margin: var(--spacing-sm) 0;
     padding-left: var(--spacing-md);
-    
+
     li {
       color: var(--color-error);
       margin-bottom: var(--spacing-xs);
@@ -974,38 +1027,38 @@
     .input-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .stats-grid {
       grid-template-columns: repeat(3, 1fr);
     }
-    
+
     .examples-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .summary-header {
       flex-direction: column;
       gap: var(--spacing-sm);
       align-items: stretch;
     }
-    
+
     .table-header,
     .table-row {
       grid-template-columns: 1fr;
       gap: var(--spacing-xs);
     }
-    
+
     .table-header {
       display: none; // Hide on mobile, rely on card-like layout
     }
-    
+
     .table-row {
       display: block;
       padding: var(--spacing-md);
-      
+
       > div {
         margin-bottom: var(--spacing-sm);
-        
+
         &:before {
           content: attr(data-label);
           font-weight: 600;
@@ -1014,13 +1067,13 @@
         }
       }
     }
-    
+
     .viz-legend {
       flex-direction: column;
       align-items: flex-start;
       gap: var(--spacing-sm);
     }
-    
+
     .viz-header {
       flex-direction: column;
       align-items: flex-start;

@@ -2,8 +2,10 @@ export const site = {
   name: 'Networking Toolbox',
   title: 'Networking Toolbox',
   description: 'A free set of online tools to help with IP addressing and subnetting.',
-  longDescription: 'Comprehensive IP address calculator with subnet calculations, CIDR conversion, IP format conversion, and network reference tools.',
-  heroDescription: 'Comprehensive suite of networking tools for subnet calculations, CIDR conversions, IP format transformations, and network reference information.',
+  longDescription:
+    'Comprehensive IP address calculator with subnet calculations, CIDR conversion, IP format conversion, and network reference tools.',
+  heroDescription:
+    'Comprehensive suite of networking tools for subnet calculations, CIDR conversions, IP format transformations, and network reference information.',
   keywords: 'IP calculator, subnet calculator, CIDR converter, network tools, IP tools, networking',
   url: 'https://ip-calc.as93.net',
   image: 'https://ip-calc.as93.net/og-image.png',
@@ -39,42 +41,50 @@ export const author = {
 export const pages = {
   home: {
     title: 'IP Calc - Network Calculator & IP Tools',
-    description: 'Comprehensive IP address calculator with subnet calculations, CIDR conversion, IP format conversion, and network reference tools.',
-    ogDescription: 'Comprehensive network calculator and IP tools for subnet calculations, CIDR conversion, and network analysis'
+    description:
+      'Comprehensive IP address calculator with subnet calculations, CIDR conversion, IP format conversion, and network reference tools.',
+    ogDescription:
+      'Comprehensive network calculator and IP tools for subnet calculations, CIDR conversion, and network analysis',
   },
   about: {
     title: 'About - IP Calc',
-    description: 'Learn about IP Calc, a comprehensive network calculator and IP tools suite built with modern web technologies.',
-    ogDescription: 'Comprehensive network calculator and IP tools for professionals'
+    description:
+      'Learn about IP Calc, a comprehensive network calculator and IP tools suite built with modern web technologies.',
+    ogDescription: 'Comprehensive network calculator and IP tools for professionals',
   },
   subnetCalculator: {
     title: 'Subnet Calculator - IP Calc',
-    description: 'Calculate subnet information, network addresses, broadcast addresses, and host ranges. Professional subnet calculator with visual network analysis.'
+    description:
+      'Calculate subnet information, network addresses, broadcast addresses, and host ranges. Professional subnet calculator with visual network analysis.',
   },
   cidrConverter: {
     title: 'CIDR Converter - IP Calc',
-    description: 'Convert between CIDR notation and subnet masks. Professional networking tools.'
+    description: 'Convert between CIDR notation and subnet masks. Professional networking tools.',
   },
   ipConverter: {
     title: 'IP Address Converter - IP Calc',
-    description: 'Convert IP addresses between decimal, binary, hexadecimal, and octal formats. Professional IP address conversion tool.'
+    description:
+      'Convert IP addresses between decimal, binary, hexadecimal, and octal formats. Professional IP address conversion tool.',
   },
   ipv6SubnetCalculator: {
     title: 'IPv6 Subnet Calculator - IP Calc',
-    description: 'Calculate IPv6 subnets with 128-bit addressing. Plan modern networks with IPv6 prefix lengths, address compression, and visualizations.'
+    description:
+      'Calculate IPv6 subnets with 128-bit addressing. Plan modern networks with IPv6 prefix lengths, address compression, and visualizations.',
   },
   ipv6Expand: {
     title: 'IPv6 Address Expander - IP Calc',
-    description: 'Expand compressed IPv6 addresses to full 128-bit format. Convert short IPv6 notation like 2001:db8::1 to complete format.'
+    description:
+      'Expand compressed IPv6 addresses to full 128-bit format. Convert short IPv6 notation like 2001:db8::1 to complete format.',
   },
   ipv6Compress: {
-    title: 'IPv6 Address Compressor - IP Calc', 
-    description: 'Compress expanded IPv6 addresses to shortened format using :: notation and removing leading zeros.'
+    title: 'IPv6 Address Compressor - IP Calc',
+    description: 'Compress expanded IPv6 addresses to shortened format using :: notation and removing leading zeros.',
   },
   cidrSummarizer: {
     title: 'CIDR Summarization Tool - IP Calc',
-    description: 'Optimize mixed IPv4/IPv6 addresses, CIDR blocks, and ranges into minimal CIDR prefixes with route aggregation.'
-  }
+    description:
+      'Optimize mixed IPv4/IPv6 addresses, CIDR blocks, and ranges into minimal CIDR prefixes with route aggregation.',
+  },
 };
 
 export default { site, license, author, pages };

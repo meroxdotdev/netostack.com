@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ipv6PrivacyContent } from '$lib/content/ipv6-privacy-addresses.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -30,7 +30,7 @@
             <div><strong>Formation:</strong> {type.formation}</div>
             <div><strong>Example:</strong> <code>{type.example}</code></div>
             <div><strong>Privacy Level:</strong> {type.privacy}</div>
-            
+
             <h4>Characteristics:</h4>
             <ul>
               {#each type.characteristics as characteristic}
@@ -44,7 +44,7 @@
 
     <div class="ref-section">
       <h2>{ipv6PrivacyContent.howItWorks.title}</h2>
-      
+
       <h3>Address Generation Process</h3>
       <ol>
         {#each ipv6PrivacyContent.howItWorks.addressGeneration as step}
@@ -69,7 +69,7 @@
 
     <div class="ref-section">
       <h2>{ipv6PrivacyContent.lifetimes.title}</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Preferred Lifetime</div>
@@ -103,19 +103,19 @@
 
     <div class="ref-section">
       <h2>{ipv6PrivacyContent.osImplementations.title}</h2>
-      
+
       {#each Object.entries(ipv6PrivacyContent.osImplementations) as [key, os]}
         {#if typeof os === 'object' && os.os}
           <div class="ref-examples">
             <div class="examples-title">{os.os}</div>
             <div class="example-item">
               <div><strong>Default Behavior:</strong> {os.defaultBehavior}</div>
-              
+
               <h4>Configuration:</h4>
               {#each os.configuration as config}
                 <code class="example-input">{config}</code>
               {/each}
-              
+
               {#if (os as any).values}
                 <h4>Values:</h4>
                 <ul>
@@ -124,12 +124,12 @@
                   {/each}
                 </ul>
               {/if}
-              
+
               <h4>Useful Commands:</h4>
               {#each (os as any).commands as command}
                 <code class="example-input">{command}</code>
               {/each}
-              
+
               {#if (os as any).behavior}
                 <div><strong>Behavior:</strong> {(os as any).behavior}</div>
               {/if}
@@ -197,10 +197,10 @@
                 <li>{benefit}</li>
               {/each}
             </ul>
-            
+
             <h4>{security.limitations ? 'Limitations' : 'Challenges'}:</h4>
             <ul>
-              {#each (security.limitations || security.challenges) as item}
+              {#each security.limitations || security.challenges as item}
                 <li>{item}</li>
               {/each}
             </ul>
@@ -243,7 +243,7 @@
 
     <div class="ref-section">
       <h2>Quick Reference</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Address Types</div>
@@ -251,7 +251,7 @@
             <div class="item-description">{type}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">Identification</div>
           {#each ipv6PrivacyContent.quickReference.identification as tip}
@@ -267,7 +267,7 @@
             <div class="item-code">{config}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">Troubleshooting</div>
           {#each ipv6PrivacyContent.quickReference.troubleshooting as tip}
@@ -275,14 +275,15 @@
           {/each}
         </div>
       </div>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="key" size="sm" />
           Key Point
         </div>
         <div class="highlight-content">
-          Privacy extensions create multiple IPv6 addresses per interface. Temporary addresses change periodically for privacy, while stable addresses remain consistent for services. Both can coexist on the same interface.
+          Privacy extensions create multiple IPv6 addresses per interface. Temporary addresses change periodically for
+          privacy, while stable addresses remain consistent for services. Both can coexist on the same interface.
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domain = $state('example.com');
   let recordType = $state('A');
   let resolver = $state('cloudflare');
@@ -11,7 +11,7 @@
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const recordTypes = [
     { value: 'A', label: 'A', description: 'IPv4 address records' },
     { value: 'AAAA', label: 'AAAA', description: 'IPv6 address records' },
@@ -19,29 +19,29 @@
     { value: 'MX', label: 'MX', description: 'Mail exchange records' },
     { value: 'TXT', label: 'TXT', description: 'Text records' },
     { value: 'NS', label: 'NS', description: 'Name server records' },
-    { value: 'SOA', label: 'SOA', description: 'Start of authority records' }
+    { value: 'SOA', label: 'SOA', description: 'Start of authority records' },
   ];
-  
+
   const resolvers = [
     { value: 'cloudflare', label: 'Cloudflare (1.1.1.1)' },
     { value: 'google', label: 'Google (8.8.8.8)' },
     { value: 'quad9', label: 'Quad9 (9.9.9.9)' },
-    { value: 'opendns', label: 'OpenDNS (208.67.222.222)' }
+    { value: 'opendns', label: 'OpenDNS (208.67.222.222)' },
   ];
-  
+
   const examples = [
     { domain: 'cloudflare.com', type: 'A', description: 'DNSSEC-signed domain' },
     { domain: 'dnssec-failed.org', type: 'A', description: 'DNSSEC validation failure test' },
     { domain: 'example.com', type: 'A', description: 'Unsigned domain example' },
     { domain: 'google.com', type: 'A', description: 'Popular signed domain' },
-    { domain: 'iana.org', type: 'A', description: 'Internet registry domain' }
+    { domain: 'iana.org', type: 'A', description: 'Internet registry domain' },
   ];
-  
+
   async function checkDNSSEC() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/dns', {
         method: 'POST',
@@ -50,15 +50,15 @@
           action: 'dnssec-adflag',
           name: domain.trim(),
           type: recordType,
-          resolverOpts: { doh: resolver }
-        })
+          resolverOpts: { doh: resolver },
+        }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: `HTTP ${response.status}` }));
         throw new Error(errorData.message || `DNSSEC check failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -66,25 +66,25 @@
       loading = false;
     }
   }
-  
+
   function loadExample(example: { domain: string; type: string }, index: number) {
     domain = example.domain;
     recordType = example.type;
     selectedExampleIndex = index;
     checkDNSSEC();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   async function copyResults() {
     if (!results?.raw) return;
-    
+
     try {
       await navigator.clipboard.writeText(JSON.stringify(results.raw, null, 2));
       copiedState = true;
-      setTimeout(() => copiedState = false, 1500);
+      setTimeout(() => (copiedState = false), 1500);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -94,7 +94,10 @@
 <div class="card">
   <header class="card-header">
     <h1>DNSSEC AD Flag Checker</h1>
-    <p>Query DNS records via DoH and report if the AD (Authenticated Data) bit is set. The AD bit indicates whether the DNS response has been cryptographically verified through DNSSEC validation.</p>
+    <p>
+      Query DNS records via DoH and report if the AD (Authenticated Data) bit is set. The AD bit indicates whether the
+      DNS response has been cryptographically verified through DNSSEC validation.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -106,8 +109,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Check DNSSEC for ${example.domain} (${example.description})`}
@@ -129,33 +132,49 @@
     <div class="card-content">
       <div class="form-grid">
         <div class="form-group">
-          <label for="domain" use:tooltip={"Enter a domain name to check DNSSEC validation status"}>
+          <label for="domain" use:tooltip={'Enter a domain name to check DNSSEC validation status'}>
             Domain Name
-            <input 
-              id="domain" 
-              type="text" 
-              bind:value={domain} 
+            <input
+              id="domain"
+              type="text"
+              bind:value={domain}
               placeholder="example.com"
-              onchange={() => { clearExampleSelection(); if (domain.trim()) checkDNSSEC(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (domain.trim()) checkDNSSEC();
+              }}
             />
           </label>
         </div>
-        
+
         <div class="form-group">
-          <label for="recordType" use:tooltip={"Select the DNS record type to query"}>
+          <label for="recordType" use:tooltip={'Select the DNS record type to query'}>
             Record Type
-            <select id="recordType" bind:value={recordType} onchange={() => { clearExampleSelection(); if (domain.trim()) checkDNSSEC(); }}>
+            <select
+              id="recordType"
+              bind:value={recordType}
+              onchange={() => {
+                clearExampleSelection();
+                if (domain.trim()) checkDNSSEC();
+              }}
+            >
               {#each recordTypes as type}
                 <option value={type.value}>{type.label} - {type.description}</option>
               {/each}
             </select>
           </label>
         </div>
-        
+
         <div class="form-group">
-          <label for="resolver" use:tooltip={"Choose a DNS-over-HTTPS resolver for the query"}>
+          <label for="resolver" use:tooltip={'Choose a DNS-over-HTTPS resolver for the query'}>
             DoH Resolver
-            <select id="resolver" bind:value={resolver} onchange={() => { if (domain.trim()) checkDNSSEC(); }}>
+            <select
+              id="resolver"
+              bind:value={resolver}
+              onchange={() => {
+                if (domain.trim()) checkDNSSEC();
+              }}
+            >
               {#each resolvers as res}
                 <option value={res.value}>{res.label}</option>
               {/each}
@@ -163,7 +182,7 @@
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={checkDNSSEC} disabled={loading || !domain.trim()}>
           {#if loading}
@@ -184,18 +203,20 @@
       <div class="card-header row">
         <h3>DNSSEC Status for {results.name}</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Raw JSON"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Raw JSON'}
         </button>
       </div>
       <div class="card-content">
         <div class="lookup-info">
           <div class="info-item">
-            <span class="info-label" use:tooltip={"The domain and record type that was queried"}>Query:</span>
+            <span class="info-label" use:tooltip={'The domain and record type that was queried'}>Query:</span>
             <span class="info-value mono">{results.name} ({results.type})</span>
           </div>
           <div class="info-item">
-            <span class="info-label" use:tooltip={"DNS-over-HTTPS resolver used for the query"}>DoH Resolver:</span>
+            <span class="info-label" use:tooltip={'DNS-over-HTTPS resolver used for the query'}>DoH Resolver:</span>
             <span class="info-value">{results.resolver}</span>
           </div>
         </div>
@@ -208,10 +229,12 @@
               <Icon name={results.authenticated ? 'shield-check' : 'shield-alert'} size="md" />
               <div>
                 <strong>AD (Authenticated Data) Flag</strong>
-                <p>{results.authenticated ? 'SET - Response is DNSSEC validated' : 'NOT SET - Response is not validated'}</p>
+                <p>
+                  {results.authenticated ? 'SET - Response is DNSSEC validated' : 'NOT SET - Response is not validated'}
+                </p>
               </div>
             </div>
-            
+
             {#if results.checkingDisabled}
               <div class="status-item info">
                 <Icon name="info" size="md" />
@@ -221,7 +244,7 @@
                 </div>
               </div>
             {/if}
-            
+
             <div class="status-item {results.rcode === 0 ? 'success' : 'error'}">
               <Icon name={results.rcode === 0 ? 'check-circle' : 'x-circle'} size="md" />
               <div>
@@ -230,7 +253,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="explanation">
             <h5>Explanation</h5>
             <p>{results.explanation}</p>
@@ -306,19 +329,28 @@
       <div class="info-grid">
         <div class="info-section">
           <h4>What is DNSSEC?</h4>
-          <p>DNS Security Extensions (DNSSEC) adds cryptographic authentication to DNS responses, protecting against DNS spoofing and cache poisoning attacks by ensuring response integrity.</p>
+          <p>
+            DNS Security Extensions (DNSSEC) adds cryptographic authentication to DNS responses, protecting against DNS
+            spoofing and cache poisoning attacks by ensuring response integrity.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>The AD (Authenticated Data) Flag</h4>
-          <p>The AD bit in DNS responses indicates that the resolver has successfully validated the response using DNSSEC. When set, you can trust the response hasn't been tampered with.</p>
+          <p>
+            The AD bit in DNS responses indicates that the resolver has successfully validated the response using
+            DNSSEC. When set, you can trust the response hasn't been tampered with.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>Why Use DoH for DNSSEC?</h4>
-          <p>DNS-over-HTTPS preserves DNSSEC validation status in the AD flag, while traditional DNS queries may not expose this information clearly to clients.</p>
+          <p>
+            DNS-over-HTTPS preserves DNSSEC validation status in the AD flag, while traditional DNS queries may not
+            expose this information clearly to clients.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>Interpreting Results</h4>
           <ul>
@@ -338,12 +370,12 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: var(--spacing-lg);
-    
+
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
     }
   }
-  
+
   .form-group label {
     flex-direction: column;
   }

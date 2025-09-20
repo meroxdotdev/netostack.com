@@ -3,7 +3,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../styles/diagnostics-pages.scss';
-  
+
   let pools = $state(`192.168.0.0/16
 10.0.0.0/8`);
   let allocations = $state(`192.168.1.0/24
@@ -31,7 +31,7 @@
       allocations: `192.168.1.0/24
 192.168.10.0/24
 192.168.100.0/24`,
-      targetPrefix: 24
+      targetPrefix: 24,
     },
     {
       label: 'Large Pool Analysis',
@@ -39,7 +39,7 @@
       allocations: `10.0.0.0/16
 10.1.0.0/16
 10.255.0.0/16`,
-      targetPrefix: null
+      targetPrefix: null,
     },
     {
       label: 'Multi-Pool Setup',
@@ -47,7 +47,7 @@
 192.168.0.0/16`,
       allocations: `172.16.1.0/24
 192.168.100.0/24`,
-      targetPrefix: 28
+      targetPrefix: 28,
     },
     {
       label: 'Campus Network Planning',
@@ -56,7 +56,7 @@
       allocations: `10.10.1.0/24
 10.10.5.0/24
 10.20.10.0/24`,
-      targetPrefix: 25
+      targetPrefix: 25,
     },
     {
       label: 'Data Center Allocation',
@@ -64,7 +64,7 @@
       allocations: `172.20.0.0/16
 172.21.0.0/16
 172.23.128.0/17`,
-      targetPrefix: 20
+      targetPrefix: 20,
     },
     {
       label: 'Service Provider Space',
@@ -73,11 +73,11 @@
       allocations: `203.0.113.0/26
 203.0.113.128/25
 198.51.100.64/26`,
-      targetPrefix: 27
-    }
+      targetPrefix: 27,
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     pools = example.pools;
     allocations = example.allocations;
     targetPrefix = example.targetPrefix;
@@ -96,7 +96,7 @@
 
       // Use CIDR diff to get all available blocks (A - B = pools - allocations)
       const diffResult = computeCIDRDifference(pools, allocations || '', 'minimal');
-      
+
       // Check for errors
       if (diffResult.errors.length > 0) {
         result = {
@@ -104,19 +104,19 @@
           error: diffResult.errors.join('; '),
           availableBlocks: [],
           totalBlocks: 0,
-          totalAddresses: 0
+          totalAddresses: 0,
         };
         return;
       }
-      
+
       // Combine IPv4 and IPv6 results
       const allBlocks = [...diffResult.ipv4, ...diffResult.ipv6];
-      
+
       // Filter by target prefix if specified
       let filteredBlocks = allBlocks;
       if (targetPrefix !== null) {
         const target = targetPrefix; // Capture for closure
-        filteredBlocks = allBlocks.filter(block => {
+        filteredBlocks = allBlocks.filter((block) => {
           // Extract prefix length from CIDR notation
           const match = block.match(/\/(\d+)$/);
           if (!match) return false;
@@ -124,7 +124,7 @@
           return prefixLength <= target; // Can be subdivided to target prefix
         });
       }
-      
+
       // Calculate total addresses
       const totalAddresses = filteredBlocks.reduce((sum, block) => {
         const match = block.match(/\/(\d+)$/);
@@ -134,14 +134,14 @@
         const totalBits = version === 4 ? 32 : 128;
         return sum + Math.pow(2, totalBits - prefixLength);
       }, 0);
-      
+
       result = {
         success: true,
         availableBlocks: filteredBlocks,
         totalBlocks: filteredBlocks.length,
         totalAddresses: totalAddresses,
         stats: diffResult.stats,
-        visualization: diffResult.visualization
+        visualization: diffResult.visualization,
       };
     } catch (error) {
       result = {
@@ -149,7 +149,7 @@
         error: error instanceof Error ? error.message : 'Unknown error occurred',
         availableBlocks: [],
         totalBlocks: 0,
-        totalAddresses: 0
+        totalAddresses: 0,
       };
     }
   }
@@ -190,17 +190,12 @@
     if (version === 4) {
       // Convert bigint to IPv4 dotted decimal
       const num = Number(addr);
-      return [
-        (num >>> 24) & 0xff,
-        (num >>> 16) & 0xff,
-        (num >>> 8) & 0xff,
-        num & 0xff
-      ].join('.');
+      return [(num >>> 24) & 0xff, (num >>> 16) & 0xff, (num >>> 8) & 0xff, num & 0xff].join('.');
     } else {
       // Convert bigint to IPv6 (simplified)
       const hex = addr.toString(16).padStart(32, '0');
-      return [0,1,2,3,4,5,6,7]
-        .map(i => hex.substr(i * 4, 4))
+      return [0, 1, 2, 3, 4, 5, 6, 7]
+        .map((i) => hex.substr(i * 4, 4))
         .join(':')
         .replace(/(:0{1,3})+/g, ':')
         .replace(/^:|:$/g, '')
@@ -247,10 +242,7 @@
   <section class="input-section">
     <div class="input-grid">
       <div class="input-group">
-        <label 
-          for="pools"
-          use:tooltip="{"Enter network pools - one CIDR block per line (e.g., 192.168.0.0/16)"}"
-        >
+        <label for="pools" use:tooltip={'Enter network pools - one CIDR block per line (e.g., 192.168.0.0/16)'}>
           Network Pools
         </label>
         <textarea
@@ -264,10 +256,7 @@
       </div>
 
       <div class="input-group">
-        <label 
-          for="allocations"
-          use:tooltip={"Enter allocated/used blocks - one CIDR block per line"}
-        >
+        <label for="allocations" use:tooltip={'Enter allocated/used blocks - one CIDR block per line'}>
           Allocated Blocks
         </label>
         <textarea
@@ -282,9 +271,9 @@
 
     <div class="filter-section">
       <div class="input-group">
-        <label 
+        <label
           for="target-prefix"
-          use:tooltip={"Filter results to show only blocks that can accommodate the target prefix length"}
+          use:tooltip={'Filter results to show only blocks that can accommodate the target prefix length'}
         >
           Target Prefix Length (Optional)
         </label>
@@ -301,7 +290,10 @@
           <span class="prefix-hint">/{targetPrefix || 'xx'}</span>
           <button
             class="clear-filter"
-            onclick={() => { targetPrefix = null; handleInputChange(); }}
+            onclick={() => {
+              targetPrefix = null;
+              handleInputChange();
+            }}
             aria-label="Clear filter"
           >
             <Icon name="x" size="xs" />
@@ -392,48 +384,60 @@
                   <span>Available Space</span>
                 </div>
               </div>
-              
+
               <div class="address-blocks">
                 <!-- Pool blocks (background) -->
                 {#each result.visualization.setA as pool}
-                  <div 
+                  <div
                     class="address-block pool-block"
-                    style="left: {getBlockPosition(pool.start, result.visualization.totalRange)}%; width: {getBlockWidth(pool.start, pool.end, result.visualization.totalRange)}%"
-                    title="Pool: {pool.cidr || `${formatAddress(pool.start, result.visualization.version)}-${formatAddress(pool.end, result.visualization.version)}`}"
-                  >
-                  </div>
+                    style="left: {getBlockPosition(
+                      pool.start,
+                      result.visualization.totalRange,
+                    )}%; width: {getBlockWidth(pool.start, pool.end, result.visualization.totalRange)}%"
+                    title="Pool: {pool.cidr ||
+                      `${formatAddress(pool.start, result.visualization.version)}-${formatAddress(pool.end, result.visualization.version)}`}"
+                  ></div>
                 {/each}
-                
+
                 <!-- Allocated blocks -->
                 {#each result.visualization.setB as allocation}
-                  <div 
+                  <div
                     class="address-block allocated-block"
-                    style="left: {getBlockPosition(allocation.start, result.visualization.totalRange)}%; width: {getBlockWidth(allocation.start, allocation.end, result.visualization.totalRange)}%"
-                    title="Allocated: {allocation.cidr || `${formatAddress(allocation.start, result.visualization.version)}-${formatAddress(allocation.end, result.visualization.version)}`}"
-                  >
-                  </div>
+                    style="left: {getBlockPosition(
+                      allocation.start,
+                      result.visualization.totalRange,
+                    )}%; width: {getBlockWidth(allocation.start, allocation.end, result.visualization.totalRange)}%"
+                    title="Allocated: {allocation.cidr ||
+                      `${formatAddress(allocation.start, result.visualization.version)}-${formatAddress(allocation.end, result.visualization.version)}`}"
+                  ></div>
                 {/each}
-                
+
                 <!-- Available blocks (result) -->
                 {#each result.visualization.result as available}
-                  <div 
+                  <div
                     class="address-block available-block"
-                    style="left: {getBlockPosition(available.start, result.visualization.totalRange)}%; width: {getBlockWidth(available.start, available.end, result.visualization.totalRange)}%"
+                    style="left: {getBlockPosition(
+                      available.start,
+                      result.visualization.totalRange,
+                    )}%; width: {getBlockWidth(available.start, available.end, result.visualization.totalRange)}%"
                     title="Available: {available.cidr}"
                   >
                     <span class="block-label">{available.cidr}</span>
                   </div>
                 {/each}
               </div>
-              
+
               <div class="address-scale">
-                <span class="scale-start">{formatAddress(result.visualization.totalRange.start, result.visualization.version)}</span>
-                <span class="scale-end">{formatAddress(result.visualization.totalRange.end, result.visualization.version)}</span>
+                <span class="scale-start"
+                  >{formatAddress(result.visualization.totalRange.start, result.visualization.version)}</span
+                >
+                <span class="scale-end"
+                  >{formatAddress(result.visualization.totalRange.end, result.visualization.version)}</span
+                >
               </div>
             </div>
           </div>
         {/if}
-
       {:else}
         <div class="error-message">
           <Icon name="alert-triangle" />
@@ -446,7 +450,6 @@
 </div>
 
 <style lang="scss">
-
   .input-section {
     margin-bottom: var(--spacing-lg);
   }

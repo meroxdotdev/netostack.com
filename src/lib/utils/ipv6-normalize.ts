@@ -35,15 +35,15 @@ function isValidIPv6(ip: string): boolean {
   try {
     // Remove zone identifier if present
     const cleanIP = ip.split('%')[0];
-    
+
     // Basic format checks
     if (cleanIP.includes(':::')) return false; // Invalid triple colon
     if (cleanIP.split('::').length > 2) return false; // Multiple :: sequences
-    
+
     // Split by ::
     const parts = cleanIP.split('::');
     let groups: string[] = [];
-    
+
     if (parts.length === 1) {
       // No compression
       groups = cleanIP.split(':');
@@ -52,11 +52,11 @@ function isValidIPv6(ip: string): boolean {
       // With compression
       const leftGroups = parts[0] ? parts[0].split(':') : [];
       const rightGroups = parts[1] ? parts[1].split(':') : [];
-      
+
       // Check for IPv4-mapped addresses in the right part
       const lastGroup = rightGroups[rightGroups.length - 1];
       let ipv4Groups = 0;
-      
+
       if (lastGroup && lastGroup.includes('.')) {
         // IPv4-mapped IPv6 address
         const ipv4Parts = lastGroup.split('.');
@@ -70,13 +70,13 @@ function isValidIPv6(ip: string): boolean {
           rightGroups.pop(); // Remove IPv4 part from IPv6 groups
         }
       }
-      
+
       const totalGroups = leftGroups.length + rightGroups.length + ipv4Groups;
       if (totalGroups >= 8) return false; // No compression needed
-      
+
       groups = [...leftGroups, ...rightGroups];
     }
-    
+
     // Validate each group (excluding IPv4 part)
     for (const group of groups) {
       if (group.includes('.')) {
@@ -93,7 +93,7 @@ function isValidIPv6(ip: string): boolean {
         if (!/^[0-9a-fA-F]+$/.test(group)) return false;
       }
     }
-    
+
     return true;
   } catch {
     return false;
@@ -104,11 +104,11 @@ function isValidIPv6(ip: string): boolean {
 function expandIPv6(ip: string): string {
   // Remove zone identifier
   const [cleanIP, zone] = ip.split('%');
-  
+
   if (!cleanIP.includes('::')) {
     // Already expanded, just pad with zeros
     const groups = cleanIP.split(':');
-    const paddedGroups = groups.map(group => {
+    const paddedGroups = groups.map((group) => {
       if (group.includes('.')) {
         // IPv4 part - convert to IPv6 groups
         const ipv4Parts = group.split('.').map(Number);
@@ -118,15 +118,15 @@ function expandIPv6(ip: string): string {
       }
       return group.padStart(4, '0');
     });
-    
+
     const expanded = paddedGroups.join(':').replace(/([^:]):([^:])/, '$1:$2');
     return zone ? expanded + '%' + zone : expanded;
   }
-  
+
   const parts = cleanIP.split('::');
   const left = parts[0] ? parts[0].split(':') : [];
   const right = parts[1] ? parts[1].split(':') : [];
-  
+
   // Handle IPv4-mapped addresses
   let ipv4Groups = 0;
   const lastGroup = right[right.length - 1];
@@ -138,13 +138,13 @@ function expandIPv6(ip: string): string {
     right.push(low);
     ipv4Groups = 2;
   }
-  
+
   const missing = 8 - left.length - right.length;
   const middle = Array(missing).fill('0000');
-  
+
   const allGroups = [...left, ...middle, ...right];
-  const expanded = allGroups.map(group => group.padStart(4, '0')).join(':');
-  
+  const expanded = allGroups.map((group) => group.padStart(4, '0')).join(':');
+
   return zone ? expanded + '%' + zone : expanded;
 }
 
@@ -154,7 +154,7 @@ function findLongestZeroSequence(groups: string[]): { start: number; length: num
   let longestLength = 0;
   let currentStart = -1;
   let currentLength = 0;
-  
+
   for (let i = 0; i < groups.length; i++) {
     if (groups[i] === '0000') {
       if (currentStart === -1) {
@@ -172,13 +172,13 @@ function findLongestZeroSequence(groups: string[]): { start: number; length: num
       currentLength = 0;
     }
   }
-  
+
   // Check the final sequence
   if (currentLength > longestLength && currentLength > 1) {
     longestStart = currentStart;
     longestLength = currentLength;
   }
-  
+
   return { start: longestStart, length: longestLength };
 }
 
@@ -189,7 +189,7 @@ function normalizeIPv6(input: string): IPv6Normalization {
   let compressionApplied = false;
   let leadingZerosRemoved = false;
   let lowercaseApplied = false;
-  
+
   try {
     if (!isValidIPv6(input)) {
       return {
@@ -201,10 +201,10 @@ function normalizeIPv6(input: string): IPv6Normalization {
         originalFormat: input,
         compressionApplied: false,
         leadingZerosRemoved: false,
-        lowercaseApplied: false
+        lowercaseApplied: false,
       };
     }
-    
+
     // Step 1: Convert to lowercase (RFC 5952 Section 4.1)
     if (current !== current.toLowerCase()) {
       const before = current;
@@ -214,53 +214,53 @@ function normalizeIPv6(input: string): IPv6Normalization {
         step: '1',
         description: 'Convert hexadecimal digits to lowercase',
         before,
-        after: current
+        after: current,
       });
     }
-    
+
     // Step 2: Expand to full form
     const [cleanIP, zone] = current.split('%');
-    let expanded = expandIPv6(current);
-    
+    const expanded = expandIPv6(current);
+
     if (expanded !== current) {
       steps.push({
         step: '2',
         description: 'Expand compressed address to full form',
         before: current,
-        after: expanded
+        after: expanded,
       });
       current = expanded;
     }
-    
+
     // Step 3: Remove leading zeros (RFC 5952 Section 4.1)
     const [expandedClean, expandedZone] = current.split('%');
     const groups = expandedClean.split(':');
-    const trimmedGroups = groups.map(group => group.replace(/^0+/, '') || '0');
+    const trimmedGroups = groups.map((group) => group.replace(/^0+/, '') || '0');
     const trimmed = trimmedGroups.join(':') + (expandedZone ? '%' + expandedZone : '');
-    
+
     if (trimmed !== current) {
       leadingZerosRemoved = true;
       steps.push({
         step: '3',
         description: 'Remove leading zeros from each group',
         before: current,
-        after: trimmed
+        after: trimmed,
       });
       current = trimmed;
     }
-    
+
     // Step 4: Apply compression (RFC 5952 Section 4.2)
     const [trimmedClean, trimmedZone] = current.split('%');
     const trimmedGroupsForCompression = trimmedClean.split(':');
-    
+
     // Find longest sequence of consecutive zeros
     const zeroSeq = findLongestZeroSequence(trimmedGroupsForCompression);
-    
+
     if (zeroSeq.start !== -1 && zeroSeq.length > 1) {
       compressionApplied = true;
       const before = trimmedGroupsForCompression.slice(0, zeroSeq.start);
       const after = trimmedGroupsForCompression.slice(zeroSeq.start + zeroSeq.length);
-      
+
       let compressed: string;
       if (before.length === 0 && after.length === 0) {
         compressed = '::';
@@ -271,20 +271,20 @@ function normalizeIPv6(input: string): IPv6Normalization {
       } else {
         compressed = before.join(':') + '::' + after.join(':');
       }
-      
+
       const compressedWithZone = compressed + (trimmedZone ? '%' + trimmedZone : '');
-      
+
       if (compressedWithZone !== current) {
         steps.push({
           step: '4',
           description: `Compress longest sequence of ${zeroSeq.length} consecutive zero groups`,
           before: current,
-          after: compressedWithZone
+          after: compressedWithZone,
         });
         current = compressedWithZone;
       }
     }
-    
+
     return {
       input,
       normalized: current,
@@ -293,9 +293,8 @@ function normalizeIPv6(input: string): IPv6Normalization {
       originalFormat: input,
       compressionApplied,
       leadingZerosRemoved,
-      lowercaseApplied
+      lowercaseApplied,
     };
-    
   } catch (error) {
     return {
       input,
@@ -306,7 +305,7 @@ function normalizeIPv6(input: string): IPv6Normalization {
       originalFormat: input,
       compressionApplied: false,
       leadingZerosRemoved: false,
-      lowercaseApplied: false
+      lowercaseApplied: false,
     };
   }
 }
@@ -315,31 +314,29 @@ function normalizeIPv6(input: string): IPv6Normalization {
 export function normalizeIPv6Addresses(inputs: string[]): IPv6NormalizeResult {
   const normalizations: IPv6Normalization[] = [];
   const errors: string[] = [];
-  
+
   for (const input of inputs) {
     if (!input.trim()) continue;
-    
+
     const normalization = normalizeIPv6(input.trim());
     normalizations.push(normalization);
-    
+
     if (!normalization.isValid && normalization.error) {
       errors.push(`"${input}": ${normalization.error}`);
     }
   }
-  
-  const validCount = normalizations.filter(n => n.isValid).length;
-  const alreadyNormalizedCount = normalizations.filter(n => 
-    n.isValid && n.input === n.normalized
-  ).length;
-  
+
+  const validCount = normalizations.filter((n) => n.isValid).length;
+  const alreadyNormalizedCount = normalizations.filter((n) => n.isValid && n.input === n.normalized).length;
+
   return {
     normalizations,
     summary: {
       totalInputs: normalizations.length,
       validInputs: validCount,
       invalidInputs: normalizations.length - validCount,
-      alreadyNormalizedInputs: alreadyNormalizedCount
+      alreadyNormalizedInputs: alreadyNormalizedCount,
     },
-    errors
+    errors,
   };
 }

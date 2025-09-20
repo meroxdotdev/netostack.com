@@ -3,7 +3,7 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import { formatDNSError } from '$lib/utils/dns-validation.js';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let url = $state('https://bit.ly/3example');
   let maxRedirects = $state(10);
   let loading = $state(false);
@@ -18,7 +18,7 @@
     { url: 'https://httpbin.org/absolute-redirect/2', description: 'Absolute redirects' },
     { url: 'https://httpbin.org/redirect-to?url=https://example.com', description: 'Redirect to external site' },
     { url: 'https://httpbin.org/redirect/5', description: '5-hop redirect chain' },
-    { url: 'https://httpbin.org/relative-redirect/2', description: 'Relative path redirects' }
+    { url: 'https://httpbin.org/relative-redirect/2', description: 'Relative path redirects' },
   ];
 
   // Reactive validation
@@ -67,19 +67,19 @@
         body: JSON.stringify({
           action: 'redirect-trace',
           url: trimmedUrl,
-          maxRedirects
-        })
+          maxRedirects,
+        }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         let errorMessage = `Redirect trace failed (${response.status})`;
-        
+
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) errorMessage = errorData.message;
         } catch {}
-        
+
         throw new Error(errorMessage);
       }
 
@@ -91,21 +91,21 @@
     }
   }
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     url = example.url;
     selectedExampleIndex = index;
     traceRedirects();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
 
   async function copyResults() {
     if (!results?.redirectChain) return;
-    
+
     let text = `Redirect Chain Analysis\nOriginal URL: ${url}\nTotal Redirects: ${results.totalRedirects}\n\n`;
-    
+
     results.redirectChain.forEach((step: any, i: number) => {
       text += `${i + 1}. ${step.url}\n`;
       text += `   Status: ${step.status}\n`;
@@ -114,24 +114,24 @@
       }
       text += '\n';
     });
-    
+
     text += `Final URL: ${results.finalUrl}\nFinal Status: ${results.finalStatus}`;
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 
   function getStatusClass(status: number): string {
     if (status >= 200 && status < 300) return 'success';
-    if (status >= 300 && status < 400) return 'warning'; 
+    if (status >= 300 && status < 400) return 'warning';
     if (status >= 400) return 'error';
     return '';
   }
 
   function getStatusIcon(status: number): string {
     if (status >= 200 && status < 300) return 'check-circle';
-    if (status >= 300 && status < 400) return 'arrow-right'; 
+    if (status >= 300 && status < 400) return 'arrow-right';
     if (status >= 400) return 'alert-triangle';
     return 'circle';
   }
@@ -154,7 +154,10 @@
 <div class="card">
   <header class="card-header">
     <h1>HTTP Redirect Tracer</h1>
-    <p>Follow and analyze HTTP redirect chains to understand the complete journey from initial URL to final destination. Track status codes, locations, and security implications.</p>
+    <p>
+      Follow and analyze HTTP redirect chains to understand the complete journey from initial URL to final destination.
+      Track status codes, locations, and security implications.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -183,15 +186,17 @@
     <div class="card-content">
       <div class="form-grid">
         <div class="form-group">
-          <label for="url" use:tooltip={"Enter the URL to trace redirects for"}>
+          <label for="url" use:tooltip={'Enter the URL to trace redirects for'}>
             URL
-            <input 
-              id="url" 
-              type="url" 
-              bind:value={url} 
+            <input
+              id="url"
+              type="url"
+              bind:value={url}
               placeholder="https://bit.ly/example"
               class:invalid={url && !isInputValid()}
-              onchange={() => { if (isInputValid()) traceRedirects(); }}
+              onchange={() => {
+                if (isInputValid()) traceRedirects();
+              }}
             />
             {#if url && !isInputValid()}
               <span class="error-text">Invalid URL format</span>
@@ -200,20 +205,22 @@
         </div>
 
         <div class="form-group">
-          <label for="maxRedirects" use:tooltip={"Maximum number of redirects to follow"}>
+          <label for="maxRedirects" use:tooltip={'Maximum number of redirects to follow'}>
             Max Redirects
-            <input 
-              id="maxRedirects" 
-              type="number" 
-              bind:value={maxRedirects} 
-              min="1" 
+            <input
+              id="maxRedirects"
+              type="number"
+              bind:value={maxRedirects}
+              min="1"
               max="50"
-              onchange={() => { if (isInputValid()) traceRedirects(); }}
+              onchange={() => {
+                if (isInputValid()) traceRedirects();
+              }}
             />
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={traceRedirects} disabled={loading || !isInputValid}>
           {#if loading}
@@ -234,8 +241,10 @@
       <div class="card-header">
         <h3>Redirect Chain Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Chain"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Chain'}
         </button>
       </div>
       <div class="card-content">
@@ -283,13 +292,13 @@
                         {step.status}
                       </div>
                       {#if hasHSTS(step.headers)}
-                        <div class="security-badge" use:tooltip={"HSTS header present"}>
+                        <div class="security-badge" use:tooltip={'HSTS header present'}>
                           <Icon name="shield" size="xs" />
                           HSTS
                         </div>
                       {/if}
                       {#if i < results.redirectChain.length - 1 && isSecureRedirect(step.url, step.location)}
-                        <div class="security-badge success" use:tooltip={"HTTP to HTTPS upgrade"}>
+                        <div class="security-badge success" use:tooltip={'HTTP to HTTPS upgrade'}>
                           <Icon name="shield-check" size="xs" />
                           Secure Upgrade
                         </div>
@@ -304,7 +313,7 @@
                     {/if}
                   </div>
                 </div>
-                
+
                 {#if i < results.redirectChain.length - 1}
                   <div class="redirect-arrow">
                     <Icon name="chevron-down" size="sm" />
@@ -366,7 +375,7 @@
             <li><strong>308:</strong> Permanent (preserve method)</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Security Considerations</h4>
           <ul>
@@ -376,10 +385,13 @@
             <li><strong>Redirect Loops:</strong> Infinite chains</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Performance Impact</h4>
-          <p>Each redirect adds latency. Minimize redirect chains for better performance. Use 301/308 for permanent moves and 302/307 for temporary ones.</p>
+          <p>
+            Each redirect adds latency. Minimize redirect chains for better performance. Use 301/308 for permanent moves
+            and 302/307 for temporary ones.
+          </p>
         </div>
       </div>
     </div>

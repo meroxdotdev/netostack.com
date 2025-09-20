@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let targets = $state('google.com:443\ngithub.com:443\nstackoverflow.com:443');
   let timeout = $state(5000);
   let loading = $state(false);
@@ -10,34 +10,34 @@
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
-    { 
-      targets: 'google.com:443\ngithub.com:443\nstackoverflow.com:443', 
-      description: 'Common HTTPS ports' 
+    {
+      targets: 'google.com:443\ngithub.com:443\nstackoverflow.com:443',
+      description: 'Common HTTPS ports',
     },
-    { 
-      targets: 'smtp.gmail.com:587\nsmtp.gmail.com:465\nsmtp.gmail.com:25', 
-      description: 'Gmail SMTP ports' 
+    {
+      targets: 'smtp.gmail.com:587\nsmtp.gmail.com:465\nsmtp.gmail.com:25',
+      description: 'Gmail SMTP ports',
     },
-    { 
-      targets: 'dns.google:53\n1.1.1.1:53\n8.8.8.8:53', 
-      description: 'DNS server ports' 
+    {
+      targets: 'dns.google:53\n1.1.1.1:53\n8.8.8.8:53',
+      description: 'DNS server ports',
     },
-    { 
-      targets: 'reddit.com:80\nreddit.com:443\napi.reddit.com:443', 
-      description: 'HTTP vs HTTPS ports' 
+    {
+      targets: 'reddit.com:80\nreddit.com:443\napi.reddit.com:443',
+      description: 'HTTP vs HTTPS ports',
     },
-    { 
-      targets: 'localhost:22\nlocalhost:80\nlocalhost:443\nlocalhost:3306\nlocalhost:5432', 
-      description: 'Local development ports' 
+    {
+      targets: 'localhost:22\nlocalhost:80\nlocalhost:443\nlocalhost:3306\nlocalhost:5432',
+      description: 'Local development ports',
     },
-    { 
-      targets: 'microsoft.com:443\noffice.com:443\noutlook.com:443', 
-      description: 'Microsoft services' 
-    }
+    {
+      targets: 'microsoft.com:443\noffice.com:443\noutlook.com:443',
+      description: 'Microsoft services',
+    },
   ];
-  
+
   const commonPorts = [
     { port: '22', service: 'SSH', description: 'Secure Shell' },
     { port: '80', service: 'HTTP', description: 'Web traffic' },
@@ -46,33 +46,34 @@
     { port: '587', service: 'SMTP', description: 'Email submission' },
     { port: '993', service: 'IMAPS', description: 'Secure IMAP' },
     { port: '995', service: 'POP3S', description: 'Secure POP3' },
-    { port: '53', service: 'DNS', description: 'Domain resolution' }
+    { port: '53', service: 'DNS', description: 'Domain resolution' },
   ];
-  
+
   // Reactive validation
   const targetsList = $derived(() => {
-    return targets.split('\n')
-      .map(t => t.trim())
-      .filter(t => t)
+    return targets
+      .split('\n')
+      .map((t) => t.trim())
+      .filter((t) => t)
       .slice(0, 50); // Limit to 50 targets
   });
-  
+
   const isInputValid = $derived(() => {
-    return targetsList().length > 0 &&
-           targetsList().every((target: string) => /^[a-zA-Z0-9.-]+:\d+$/.test(target));
+    return targetsList().length > 0 && targetsList().every((target: string) => /^[a-zA-Z0-9.-]+:\d+$/.test(target));
   });
-  
+
   async function checkPorts() {
     loading = true;
     error = null;
     results = null;
-    
+
     // Calculate targets list at function call time
-    const currentTargets = targets.split('\n')
-      .map(t => t.trim())
-      .filter(t => t)
+    const currentTargets = targets
+      .split('\n')
+      .map((t) => t.trim())
+      .filter((t) => t)
       .slice(0, 50);
-    
+
     try {
       console.log('Sending targets:', currentTargets); // Debug log
       const response = await fetch('/api/internal/diagnostics/network', {
@@ -81,10 +82,10 @@
         body: JSON.stringify({
           action: 'tcp-port-check',
           targets: currentTargets,
-          timeout
-        })
+          timeout,
+        }),
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         try {
@@ -95,7 +96,7 @@
           throw new Error(errorText || `Port check failed (${response.status})`);
         }
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -103,44 +104,44 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     targets = example.targets;
     timeout = 5000;
     selectedExampleIndex = index;
     checkPorts();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   function addCommonPort(port: string) {
     const currentTargets = targets.trim();
     const newTarget = `example.com:${port}`;
     targets = currentTargets ? `${currentTargets}\n${newTarget}` : newTarget;
     clearExampleSelection();
   }
-  
-  function getPortStatus(result: any): { icon: string, class: string, text: string } {
+
+  function getPortStatus(result: any): { icon: string; class: string; text: string } {
     if (result.open) {
-      return { 
-        icon: 'check-circle', 
-        class: 'success', 
-        text: `Open (${result.latency}ms)` 
+      return {
+        icon: 'check-circle',
+        class: 'success',
+        text: `Open (${result.latency}ms)`,
       };
     } else {
-      return { 
-        icon: 'x-circle', 
-        class: 'error', 
-        text: result.error || 'Closed' 
+      return {
+        icon: 'x-circle',
+        class: 'error',
+        text: result.error || 'Closed',
       };
     }
   }
-  
+
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `TCP Port Check Results\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
     text += `Summary:\n`;
@@ -151,22 +152,25 @@
       text += `  Average latency: ${results.summary.avgLatency}ms\n`;
     }
     text += `\nResults:\n`;
-    
+
     results.results.forEach((result: any) => {
       const status = result.open ? `OPEN (${result.latency}ms)` : `CLOSED${result.error ? ` - ${result.error}` : ''}`;
       text += `  ${result.host}:${result.port} - ${status}\n`;
     });
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>TCP Port Checker</h1>
-    <p>Test TCP connectivity to one or more host:port combinations. Attempts direct TCP connections to check if ports are open and measures connection latency.</p>
+    <p>
+      Test TCP connectivity to one or more host:port combinations. Attempts direct TCP connections to check if ports are
+      open and measures connection latency.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -178,8 +182,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Test ports: ${example.targets.split('\n').join(', ')}`}
@@ -207,15 +211,18 @@
     <div class="card-content">
       <div class="form-row">
         <div class="form-group">
-          <label for="targets" use:tooltip={"Enter host:port combinations, one per line (max 50)"}>
+          <label for="targets" use:tooltip={'Enter host:port combinations, one per line (max 50)'}>
             Target Hosts & Ports
-            <textarea 
-              id="targets" 
-              bind:value={targets} 
+            <textarea
+              id="targets"
+              bind:value={targets}
               placeholder="google.com:443&#10;github.com:22&#10;example.com:80"
               rows="6"
               class:invalid={targets && !isInputValid()}
-              onchange={() => { clearExampleSelection(); if (isInputValid()) checkPorts(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) checkPorts();
+              }}
             ></textarea>
             <div class="input-help">
               <span class="target-count">{targetsList.length}/50 targets</span>
@@ -233,9 +240,9 @@
           <h3>Common Ports</h3>
           <div class="port-shortcuts">
             {#each commonPorts as port}
-              <button 
-                type="button" 
-                class="port-btn" 
+              <button
+                type="button"
+                class="port-btn"
                 onclick={() => addCommonPort(port.port)}
                 use:tooltip={`${port.service}: ${port.description}`}
               >
@@ -245,24 +252,27 @@
           </div>
         </div>
       </div>
-      
+
       <div class="form-row">
         <div class="form-group">
-          <label for="timeout" use:tooltip={"Connection timeout in milliseconds"}>
+          <label for="timeout" use:tooltip={'Connection timeout in milliseconds'}>
             Timeout (ms)
-            <input 
-              id="timeout" 
-              type="number" 
-              bind:value={timeout} 
-              min="1000" 
-              max="30000" 
+            <input
+              id="timeout"
+              type="number"
+              bind:value={timeout}
+              min="1000"
+              max="30000"
               step="1000"
-              onchange={() => { clearExampleSelection(); if (isInputValid()) checkPorts(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) checkPorts();
+              }}
             />
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={checkPorts} disabled={loading || !isInputValid}>
           {#if loading}
@@ -283,12 +293,11 @@
       <div class="card-header row">
         <h3>Port Check Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" />
-          {copiedState ? "Copied!" : "Copy Results"}
+          <Icon name={copiedState ? 'check' : 'copy'} size="xs" />
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
-        
         <!-- Summary -->
         <div class="status-overview">
           <div class="status-item success">
@@ -373,7 +382,7 @@
             <li><strong>Timeout:</strong> No response within timeout period</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Common Ports</h4>
           <ul>
@@ -383,7 +392,7 @@
             <li><strong>SMTP (25/587):</strong> Email sending</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Troubleshooting Tips</h4>
           <ul>
@@ -469,7 +478,7 @@
 
   .ports-section {
     margin: var(--spacing-lg) 0;
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
@@ -488,12 +497,12 @@
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-sm);
     padding: var(--spacing-md);
-    
+
     &.success {
       border-left: 4px solid var(--color-success);
       background: color-mix(in srgb, var(--color-success), transparent 97%);
     }
-    
+
     &.error {
       border-left: 4px solid var(--color-error);
       background: color-mix(in srgb, var(--color-error), transparent 97%);

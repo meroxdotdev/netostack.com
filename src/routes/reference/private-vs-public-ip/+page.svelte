@@ -1,6 +1,6 @@
 <script lang="ts">
   import { privateVsPublicContent } from '$lib/content/private-vs-public-ip.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -37,7 +37,7 @@
     <div class="ref-section">
       <h2>Public IP Addresses</h2>
       <p>{privateVsPublicContent.publicRanges.description}</p>
-      
+
       <h3>Characteristics</h3>
       <ul>
         {#each privateVsPublicContent.publicRanges.characteristics as characteristic}
@@ -66,12 +66,12 @@
 
     <div class="ref-section">
       <h2>{privateVsPublicContent.natImplications.title}</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">{privateVsPublicContent.natImplications.privateToPublic.title}</div>
           <div class="item-description">{privateVsPublicContent.natImplications.privateToPublic.description}</div>
-          
+
           <h4>Process:</h4>
           <ol>
             {#each privateVsPublicContent.natImplications.privateToPublic.process as step}
@@ -90,7 +90,7 @@
         <div class="grid-item">
           <div class="item-title">{privateVsPublicContent.natImplications.publicToPrivate.title}</div>
           <div class="item-description">{privateVsPublicContent.natImplications.publicToPrivate.description}</div>
-          
+
           <h4>Challenges:</h4>
           <ul>
             {#each privateVsPublicContent.natImplications.publicToPrivate.challenges as challenge}
@@ -110,7 +110,7 @@
 
     <div class="ref-section">
       <h2>Quick Identification Methods</h2>
-      
+
       <table class="ref-table">
         <thead>
           <tr>
@@ -202,7 +202,7 @@
 
     <div class="ref-section">
       <h2>Quick Reference</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Private IP Ranges</div>
@@ -210,7 +210,7 @@
             <div class="item-code">{range}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">Identification Tips</div>
           {#each privateVsPublicContent.quickReference.identificationTips as tip}
@@ -218,14 +218,15 @@
           {/each}
         </div>
       </div>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="key" size="sm" />
           Key Rule
         </div>
         <div class="highlight-content">
-          If an IP starts with 10, 172.16-31, or 192.168, it's private. Everything else (except other reserved ranges) is public. Private IPs need NAT to reach the internet.
+          If an IP starts with 10, 172.16-31, or 192.168, it's private. Everything else (except other reserved ranges)
+          is public. Private IPs need NAT to reach the internet.
         </div>
       </div>
     </div>

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { 
-    calculateVLSM, 
+  import {
+    calculateVLSM,
     generateSubnetId,
     validateSubnetRequirement,
     type SubnetRequirement,
-    type VLSMResult
+    type VLSMResult,
   } from '$lib/utils/vlsm-calculations.js';
   import { validateIPv4 } from '$lib/utils/ip-validation.js';
   import IPInput from './IPInput.svelte';
@@ -34,7 +34,7 @@
       id: generateSubnetId(),
       name: `Subnet ${subnets.length + 1}`,
       hostsNeeded: 50,
-      description: ''
+      description: '',
     });
   }
 
@@ -42,7 +42,7 @@
    * Remove a subnet requirement
    */
   function removeSubnet(id: string) {
-    subnets = subnets.filter(subnet => subnet.id !== id);
+    subnets = subnets.filter((subnet) => subnet.id !== id);
     if (subnets.length === 0) {
       vlsmResult = null;
     }
@@ -52,7 +52,7 @@
    * Update subnet requirement
    */
   function updateSubnet(id: string, field: keyof SubnetRequirement, value: any) {
-    const index = subnets.findIndex(s => s.id === id);
+    const index = subnets.findIndex((s) => s.id === id);
     if (index !== -1) {
       subnets[index] = { ...subnets[index], [field]: value };
     }
@@ -73,7 +73,7 @@
         totalHostsRequested: 0,
         totalHostsProvided: 0,
         totalWastedHosts: 0,
-        remainingAddresses: 0
+        remainingAddresses: 0,
       };
       return;
     }
@@ -91,7 +91,7 @@
           totalHostsRequested: 0,
           totalHostsProvided: 0,
           totalWastedHosts: 0,
-          remainingAddresses: 0
+          remainingAddresses: 0,
         };
         return;
       }
@@ -157,31 +157,14 @@
     <h3>Network Configuration</h3>
     <div class="grid grid-2">
       <div class="form-group">
-        <IPInput 
-          bind:value={networkIP}
-          label="Network Address"
-          placeholder="192.168.1.0"
-        />
+        <IPInput bind:value={networkIP} label="Network Address" placeholder="192.168.1.0" />
       </div>
       <div class="form-group">
         <label for="cidr-input">CIDR Notation</label>
         <div class="cidr-input">
           <span class="cidr-prefix">/{cidr}</span>
-          <input
-            id="cidr-input"
-            type="range"
-            min="8"
-            max="30"
-            bind:value={cidr}
-            class="cidr-slider"
-          />
-          <input
-            type="number"
-            min="8"
-            max="30"
-            bind:value={cidr}
-            class="cidr-number"
-          />
+          <input id="cidr-input" type="range" min="8" max="30" bind:value={cidr} class="cidr-slider" />
+          <input type="number" min="8" max="30" bind:value={cidr} class="cidr-number" />
         </div>
       </div>
     </div>
@@ -218,7 +201,8 @@
                   min="1"
                   max="16777214"
                   bind:value={subnet.hostsNeeded}
-                  oninput={(e) => updateSubnet(subnet.id, 'hostsNeeded', parseInt((e.target as HTMLInputElement)?.value || '1'))}
+                  oninput={(e) =>
+                    updateSubnet(subnet.id, 'hostsNeeded', parseInt((e.target as HTMLInputElement)?.value || '1'))}
                   class="hosts-number-input"
                 />
               </div>
@@ -232,7 +216,7 @@
               <Icon name="trash" size="sm" />
             </button>
           </div>
-          
+
           <div class="requirement-description">
             <input
               type="text"
@@ -273,7 +257,10 @@
             </div>
             <div class="stat-item">
               <span class="stat-label">Efficiency</span>
-              <span class="stat-value" style="color: {getEfficiencyColor(vlsmResult.totalWastedHosts, vlsmResult.totalHostsProvided)}">
+              <span
+                class="stat-value"
+                style="color: {getEfficiencyColor(vlsmResult.totalWastedHosts, vlsmResult.totalHostsProvided)}"
+              >
                 {((1 - vlsmResult.totalWastedHosts / vlsmResult.totalHostsProvided) * 100).toFixed(1)}%
               </span>
             </div>
@@ -305,7 +292,7 @@
                     <div class="subnet-description">{subnet.description}</div>
                   {/if}
                 </div>
-                
+
                 <div class="col-network">
                   <div class="network-info">
                     <div class="network-address">{subnet.networkAddress}/{subnet.cidr}</div>
@@ -314,7 +301,7 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="col-hosts">
                   <div class="hosts-info">
                     <div class="hosts-needed">{subnet.hostsNeeded} needed</div>
@@ -324,23 +311,23 @@
                     {/if}
                   </div>
                 </div>
-                
+
                 <div class="col-mask">
                   <div class="mask-info">
                     <div class="subnet-mask">{subnet.subnetMask}</div>
                     <div class="wildcard-mask">{subnet.wildcardMask}</div>
                   </div>
                 </div>
-                
+
                 <div class="col-efficiency">
-                  <div 
+                  <div
                     class="efficiency-indicator"
                     style="color: {getEfficiencyColor(subnet.wastedHosts, subnet.hostsProvided)}"
                   >
                     {((1 - subnet.wastedHosts / subnet.hostsProvided) * 100).toFixed(1)}%
                   </div>
                 </div>
-                
+
                 <div class="col-actions">
                   <button
                     type="button"
@@ -365,35 +352,51 @@
                 <div class="subnet-details">
                   <div class="details-grid">
                     <div class="detail-item">
-                      <span class="detail-label" use:tooltip={"First IP address in the subnet - identifies the network"}>Network Address</span>
+                      <span class="detail-label" use:tooltip={'First IP address in the subnet - identifies the network'}
+                        >Network Address</span
+                      >
                       <code class="detail-value">{subnet.networkAddress}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label" use:tooltip={"Last IP address in the subnet - sends to all hosts"}>Broadcast Address</span>
+                      <span class="detail-label" use:tooltip={'Last IP address in the subnet - sends to all hosts'}
+                        >Broadcast Address</span
+                      >
                       <code class="detail-value">{subnet.broadcastAddress}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label" use:tooltip={"First IP address available for host assignment"}>First Usable Host</span>
+                      <span class="detail-label" use:tooltip={'First IP address available for host assignment'}
+                        >First Usable Host</span
+                      >
                       <code class="detail-value">{subnet.firstUsableHost}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label" use:tooltip={"Last IP address available for host assignment"}>Last Usable Host</span>
+                      <span class="detail-label" use:tooltip={'Last IP address available for host assignment'}
+                        >Last Usable Host</span
+                      >
                       <code class="detail-value">{subnet.lastUsableHost}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label" use:tooltip={"Defines which portion of IP represents network vs host"}>Subnet Mask</span>
+                      <span class="detail-label" use:tooltip={'Defines which portion of IP represents network vs host'}
+                        >Subnet Mask</span
+                      >
                       <code class="detail-value">{subnet.subnetMask}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label" use:tooltip={"Inverse of subnet mask - used in access control lists"}>Wildcard Mask</span>
+                      <span class="detail-label" use:tooltip={'Inverse of subnet mask - used in access control lists'}
+                        >Wildcard Mask</span
+                      >
                       <code class="detail-value">{subnet.wildcardMask}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label" use:tooltip={"Binary representation of the subnet mask"}>Binary Mask</span>
+                      <span class="detail-label" use:tooltip={'Binary representation of the subnet mask'}
+                        >Binary Mask</span
+                      >
                       <code class="detail-value binary-mask">{subnet.binaryMask}</code>
                     </div>
                     <div class="detail-item">
-                      <span class="detail-label" use:tooltip={"Number of bits available for host addressing"}>Host Bits</span>
+                      <span class="detail-label" use:tooltip={'Number of bits available for host addressing'}
+                        >Host Bits</span
+                      >
                       <code class="detail-value">{subnet.actualHostBits} bits</code>
                     </div>
                   </div>
@@ -408,12 +411,11 @@
           <div class="info-panel info">
             <h4>Next Available Network</h4>
             <p>
-              The next available network address for additional subnets: 
+              The next available network address for additional subnets:
               <code>{vlsmResult.nextAvailableNetwork}</code>
             </p>
           </div>
         {/if}
-
       {:else}
         <!-- Error -->
         <div class="info-panel error">
@@ -426,7 +428,6 @@
 </div>
 
 <style>
-  
   .btn {
     :global(.icon) {
       vertical-align: middle;
@@ -462,7 +463,6 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    
   }
 
   .cidr-prefix {
@@ -481,7 +481,7 @@
     appearance: none;
     cursor: pointer;
     outline: none;
-    
+
     &::-webkit-slider-thumb {
       appearance: none;
       height: 1.25rem;
@@ -491,7 +491,7 @@
       cursor: pointer;
       box-shadow: var(--shadow-md);
       transition: transform var(--transition-fast);
-      
+
       &:hover {
         transform: scale(1.1);
       }
@@ -506,7 +506,7 @@
       border: none;
       box-shadow: var(--shadow-md);
       transition: transform var(--transition-fast);
-      
+
       &:hover {
         transform: scale(1.1);
       }
@@ -516,15 +516,15 @@
   .cidr-number {
     width: 4rem;
     text-align: center;
-    
+
     /* Hide number input arrows */
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
     }
-    
-    &[type=number] {
+
+    &[type='number'] {
       -moz-appearance: textfield;
       appearance: textfield;
     }
@@ -600,15 +600,15 @@
 
   .hosts-number-input {
     width: 6rem;
-    
+
     /* Hide number input arrows */
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
     }
-    
-    &[type=number] {
+
+    &[type='number'] {
       -moz-appearance: textfield;
       appearance: textfield;
     }

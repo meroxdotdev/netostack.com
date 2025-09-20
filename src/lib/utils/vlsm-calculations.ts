@@ -52,19 +52,14 @@ function ipToInt(ip: string): number {
  * Convert 32-bit integer to IP address
  */
 function intToIp(int: number): string {
-  return [
-    (int >>> 24) & 0xFF,
-    (int >>> 16) & 0xFF,
-    (int >>> 8) & 0xFF,
-    int & 0xFF
-  ].join('.');
+  return [(int >>> 24) & 0xff, (int >>> 16) & 0xff, (int >>> 8) & 0xff, int & 0xff].join('.');
 }
 
 /**
  * Calculate subnet mask from CIDR
  */
 function cidrToSubnetMask(cidr: number): string {
-  const mask = 0xFFFFFFFF << (32 - cidr);
+  const mask = 0xffffffff << (32 - cidr);
   return intToIp(mask >>> 0);
 }
 
@@ -80,9 +75,12 @@ function cidrToWildcardMask(cidr: number): string {
  * Convert subnet mask to binary representation
  */
 function subnetMaskToBinary(mask: string): string {
-  return mask.split('.').map(octet => {
-    return parseInt(octet).toString(2).padStart(8, '0');
-  }).join('.');
+  return mask
+    .split('.')
+    .map((octet) => {
+      return parseInt(octet).toString(2).padStart(8, '0');
+    })
+    .join('.');
 }
 
 /**
@@ -121,8 +119,8 @@ function calculateHostsFromBits(hostBits: number): number {
 function isValidIP(ip: string): boolean {
   const parts = ip.split('.');
   if (parts.length !== 4) return false;
-  
-  return parts.every(part => {
+
+  return parts.every((part) => {
     const num = parseInt(part);
     return !isNaN(num) && num >= 0 && num <= 255;
   });
@@ -151,18 +149,14 @@ function validateAddressSpace(networkIP: string, cidr: number, requirements: Sub
     const hostBits = calculateRequiredHostBits(req.hostsNeeded);
     return sum + Math.pow(2, hostBits);
   }, 0);
-  
+
   return totalRequiredAddresses <= totalAvailableAddresses;
 }
 
 /**
  * Main VLSM calculation function
  */
-export function calculateVLSM(
-  networkIP: string,
-  cidr: number,
-  requirements: SubnetRequirement[]
-): VLSMResult {
+export function calculateVLSM(networkIP: string, cidr: number, requirements: SubnetRequirement[]): VLSMResult {
   try {
     // Input validation
     if (!isValidIP(networkIP)) {
@@ -175,7 +169,7 @@ export function calculateVLSM(
         totalHostsRequested: 0,
         totalHostsProvided: 0,
         totalWastedHosts: 0,
-        remainingAddresses: 0
+        remainingAddresses: 0,
       };
     }
 
@@ -189,7 +183,7 @@ export function calculateVLSM(
         totalHostsRequested: 0,
         totalHostsProvided: 0,
         totalWastedHosts: 0,
-        remainingAddresses: 0
+        remainingAddresses: 0,
       };
     }
 
@@ -204,7 +198,7 @@ export function calculateVLSM(
         totalHostsRequested: 0,
         totalHostsProvided: 0,
         totalWastedHosts: 0,
-        remainingAddresses: totalNetworkSize
+        remainingAddresses: totalNetworkSize,
       };
     }
 
@@ -221,13 +215,13 @@ export function calculateVLSM(
           totalHostsRequested: 0,
           totalHostsProvided: 0,
           totalWastedHosts: 0,
-          remainingAddresses: 0
+          remainingAddresses: 0,
         };
       }
     }
 
     // Validate unique subnet names
-    const names = requirements.map(req => req.name);
+    const names = requirements.map((req) => req.name);
     const uniqueNames = new Set(names);
     if (names.length !== uniqueNames.size) {
       return {
@@ -239,7 +233,7 @@ export function calculateVLSM(
         totalHostsRequested: 0,
         totalHostsProvided: 0,
         totalWastedHosts: 0,
-        remainingAddresses: 0
+        remainingAddresses: 0,
       };
     }
 
@@ -254,7 +248,7 @@ export function calculateVLSM(
         totalHostsRequested: requirements.reduce((sum, req) => sum + req.hostsNeeded, 0),
         totalHostsProvided: 0,
         totalWastedHosts: 0,
-        remainingAddresses: calculateHostsFromBits(32 - cidr)
+        remainingAddresses: calculateHostsFromBits(32 - cidr),
       };
     }
 
@@ -264,8 +258,8 @@ export function calculateVLSM(
     // Calculate subnets
     const calculatedSubnets: CalculatedSubnet[] = [];
     let currentNetworkInt = ipToInt(networkIP);
-    const originalNetworkMask = 0xFFFFFFFF << (32 - cidr);
-    
+    const originalNetworkMask = 0xffffffff << (32 - cidr);
+
     // Ensure we start with the network address
     currentNetworkInt = currentNetworkInt & (originalNetworkMask >>> 0);
 
@@ -285,12 +279,12 @@ export function calculateVLSM(
       const broadcastAddress = intToIp(broadcastInt);
       const firstUsableHost = intToIp(currentNetworkInt + 1);
       const lastUsableHost = intToIp(broadcastInt - 1);
-      
+
       // Calculate masks
       const subnetMask = cidrToSubnetMask(subnetCIDR);
       const wildcardMask = cidrToWildcardMask(subnetCIDR);
       const binaryMask = subnetMaskToBinary(subnetMask);
-      
+
       const wastedHosts = hostsProvided - requirement.hostsNeeded;
 
       calculatedSubnets.push({
@@ -308,7 +302,7 @@ export function calculateVLSM(
         wildcardMask,
         binaryMask,
         actualHostBits: hostBits,
-        wastedHosts
+        wastedHosts,
       });
 
       totalHostsRequested += requirement.hostsNeeded;
@@ -334,9 +328,8 @@ export function calculateVLSM(
       totalHostsProvided,
       totalWastedHosts,
       remainingAddresses,
-      nextAvailableNetwork
+      nextAvailableNetwork,
     };
-
   } catch (error) {
     return {
       success: false,
@@ -347,7 +340,7 @@ export function calculateVLSM(
       totalHostsRequested: 0,
       totalHostsProvided: 0,
       totalWastedHosts: 0,
-      remainingAddresses: 0
+      remainingAddresses: 0,
     };
   }
 }
@@ -371,7 +364,8 @@ export function validateSubnetRequirement(requirement: SubnetRequirement): { val
     return { valid: false, error: 'hosts needed must be greater than 0' };
   }
 
-  if (requirement.hostsNeeded > 16777214) { // Max hosts in a /8 network
+  if (requirement.hostsNeeded > 16777214) {
+    // Max hosts in a /8 network
     return { valid: false, error: 'Number of hosts too large (max: 16,777,214)' };
   }
 

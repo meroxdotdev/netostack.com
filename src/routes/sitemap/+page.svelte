@@ -12,30 +12,32 @@
     label: item.label || item.title,
     href: item.href || null,
     description: item.description,
-    children: []
+    children: [],
   });
 
   // Build tree structure from navigation data
   const siteTree: TreeNode[] = [
-    ...TOP_NAV.map(topItem => {
+    ...TOP_NAV.map((topItem) => {
       const section = mapToNode(topItem);
       const subNavData = SUB_NAV[topItem.href];
 
       if (subNavData) {
-        section.children = subNavData.map(item =>
-          'href' in item
-            ? mapToNode(item)
-            : { ...mapToNode(item), children: item.items.map(mapToNode) }
+        section.children = subNavData.map((item) =>
+          'href' in item ? mapToNode(item) : { ...mapToNode(item), children: item.items.map(mapToNode) },
         );
       }
       return section;
     }),
-    ...(aboutPages.length ? [{
-      label: 'About',
-      href: null,
-      description: 'Information about the project and documentation',
-      children: aboutPages.map(mapToNode)
-    }] : [])
+    ...(aboutPages.length
+      ? [
+          {
+            label: 'About',
+            href: null,
+            description: 'Information about the project and documentation',
+            children: aboutPages.map(mapToNode),
+          },
+        ]
+      : []),
   ];
 </script>
 
@@ -75,9 +77,8 @@
 <div class="sitemap-page card">
   <h1>Site Map</h1>
   <p>
-    Site-wide page listing.<br>
-    For computer-readable version,
-    see <a class="xml-link" href="/sitemap.xml">sitemap.xml</a>
+    Site-wide page listing.<br />
+    For computer-readable version, see <a class="xml-link" href="/sitemap.xml">sitemap.xml</a>
   </p>
 
   <div class="tree">

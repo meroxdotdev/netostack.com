@@ -1,41 +1,41 @@
 <!-- src/routes/cidr/mask-converter/cidr-to-subnet-mask/+page.svelte -->
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { CIDR_CTX, type CidrContext } from '$lib/contexts/cidr';
+  import { getContext } from 'svelte';
+  import { CIDR_CTX, type CidrContext } from '$lib/contexts/cidr';
 
-	const { cidr, mask } = getContext<CidrContext>(CIDR_CTX);
+  const { cidr, mask } = getContext<CidrContext>(CIDR_CTX);
 </script>
 
 <div class="converter-section fade-in">
-	<!-- CIDR Input -->
-	<div class="form-group">
-		<label for="cidr-slider" class="slider-label">
-			CIDR Prefix Length: /{$cidr}
-		</label>
+  <!-- CIDR Input -->
+  <div class="form-group">
+    <label for="cidr-slider" class="slider-label">
+      CIDR Prefix Length: /{$cidr}
+    </label>
 
-		<div class="slider-container">
-			<input
-				id="cidr-slider"
-				type="range"
-				min="0"
-				max="32"
-				value={$cidr}
-				on:input={(e) => cidr.set(Number((e.target as HTMLInputElement).value))}
-				class="cidr-slider"
-			/>
-			<div class="slider-markers">
-				<span>0</span><span>8</span><span>16</span><span>24</span><span>32</span>
-			</div>
-		</div>
-	</div>
+    <div class="slider-container">
+      <input
+        id="cidr-slider"
+        type="range"
+        min="0"
+        max="32"
+        value={$cidr}
+        on:input={(e) => cidr.set(Number((e.target as HTMLInputElement).value))}
+        class="cidr-slider"
+      />
+      <div class="slider-markers">
+        <span>0</span><span>8</span><span>16</span><span>24</span><span>32</span>
+      </div>
+    </div>
+  </div>
 
-	<!-- Result Display -->
-	<div class="result-display info">
-		<div class="result-content">
-			<span class="result-label">Subnet Mask</span>
-			<span class="result-value">{$mask}</span>
-		</div>
-	</div>
+  <!-- Result Display -->
+  <div class="result-display info">
+    <div class="result-content">
+      <span class="result-label">Subnet Mask</span>
+      <span class="result-value">{$mask}</span>
+    </div>
+  </div>
 </div>
 
 <style lang="scss">
@@ -45,7 +45,7 @@
     width: 100%;
     gap: 2rem;
     align-items: center;
-		flex-wrap: wrap;
+    flex-wrap: wrap;
     .form-group {
       flex: 1;
     }
@@ -138,4 +138,3 @@
     }
   }
 </style>
-

@@ -1,5 +1,4 @@
 <script lang="ts">
-  
   import { SUB_NAV } from '$lib/constants/nav';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import type { NavItem, NavGroup } from '$lib/constants/nav';
@@ -17,15 +16,18 @@
     return navItems;
   }
 
-  const dnsGenerators = extractNavItems((SUB_NAV['/dns']?.find(section => 'title' in section && section.title === 'Record Generators') as any)?.items || []);
+  const dnsGenerators = extractNavItems(
+    (SUB_NAV['/dns']?.find((section) => 'title' in section && section.title === 'Record Generators') as any)?.items ||
+      [],
+  );
 </script>
 
 <div class="page-container">
   <header class="page-header">
     <h1>DNS Record Generators</h1>
     <p class="page-description">
-      Professional DNS record generation tools with built-in validation and best practices. 
-      Create bulk A/AAAA records, build validated CNAME chains, and plan MX configurations with proper fallback strategies.
+      Professional DNS record generation tools with built-in validation and best practices. Create bulk A/AAAA records,
+      build validated CNAME chains, and plan MX configurations with proper fallback strategies.
     </p>
   </header>
 

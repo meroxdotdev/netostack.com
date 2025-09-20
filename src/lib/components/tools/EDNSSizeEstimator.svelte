@@ -2,30 +2,24 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import { estimateEDNSSize, type DNSRecord, type EDNSEstimate } from '$lib/utils/dns-validation.js';
-  
+
   let queryName = $state('example.com');
   let queryType = $state('A');
   let includeQuery = $state(true);
-  
-  let records = $state<DNSRecord[]>([
-    { name: 'example.com', type: 'A', value: '192.0.2.1', ttl: 3600 }
-  ]);
-  
+
+  let records = $state<DNSRecord[]>([{ name: 'example.com', type: 'A', value: '192.0.2.1', ttl: 3600 }]);
+
   let results = $state<EDNSEstimate | null>(null);
   let copiedState = $state(false);
   let activeExampleIndex = $state<number | null>(null);
 
-  const recordTypes = [
-    'A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV', 'NS', 'SOA', 'CAA', 'DNSKEY', 'RRSIG'
-  ];
+  const recordTypes = ['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV', 'NS', 'SOA', 'CAA', 'DNSKEY', 'RRSIG'];
 
   const examples = [
     {
       name: 'Simple A Record',
-      records: [
-        { name: 'example.com', type: 'A', value: '192.0.2.1', ttl: 3600 }
-      ],
-      description: 'Basic single A record response'
+      records: [{ name: 'example.com', type: 'A', value: '192.0.2.1', ttl: 3600 }],
+      description: 'Basic single A record response',
     },
     {
       name: 'Multiple A Records',
@@ -33,26 +27,36 @@
         { name: 'example.com', type: 'A', value: '192.0.2.1', ttl: 3600 },
         { name: 'example.com', type: 'A', value: '192.0.2.2', ttl: 3600 },
         { name: 'example.com', type: 'A', value: '192.0.2.3', ttl: 3600 },
-        { name: 'example.com', type: 'A', value: '192.0.2.4', ttl: 3600 }
+        { name: 'example.com', type: 'A', value: '192.0.2.4', ttl: 3600 },
       ],
-      description: 'Load-balanced web servers'
+      description: 'Load-balanced web servers',
     },
     {
       name: 'Long TXT Records',
       records: [
-        { name: 'example.com', type: 'TXT', value: 'v=spf1 include:_spf.google.com include:mailgun.org include:_spf.salesforce.com ~all', ttl: 3600 },
-        { name: '_dmarc.example.com', type: 'TXT', value: 'v=DMARC1; p=reject; rua=mailto:dmarc@example.com; ruf=mailto:dmarc@example.com; pct=100', ttl: 3600 }
+        {
+          name: 'example.com',
+          type: 'TXT',
+          value: 'v=spf1 include:_spf.google.com include:mailgun.org include:_spf.salesforce.com ~all',
+          ttl: 3600,
+        },
+        {
+          name: '_dmarc.example.com',
+          type: 'TXT',
+          value: 'v=DMARC1; p=reject; rua=mailto:dmarc@example.com; ruf=mailto:dmarc@example.com; pct=100',
+          ttl: 3600,
+        },
       ],
-      description: 'SPF and DMARC policies'
+      description: 'SPF and DMARC policies',
     },
     {
       name: 'MX Records',
       records: [
         { name: 'example.com', type: 'MX', value: 'mail1.example.com.', priority: 10, ttl: 3600 },
         { name: 'example.com', type: 'MX', value: 'mail2.example.com.', priority: 20, ttl: 3600 },
-        { name: 'example.com', type: 'MX', value: 'mail3.example.com.', priority: 30, ttl: 3600 }
+        { name: 'example.com', type: 'MX', value: 'mail3.example.com.', priority: 30, ttl: 3600 },
       ],
-      description: 'Mail server configuration'
+      description: 'Mail server configuration',
     },
     {
       name: 'Large Response',
@@ -60,13 +64,13 @@
         name: `server${i + 1}.example.com`,
         type: 'A' as const,
         value: `192.0.2.${i + 1}`,
-        ttl: 3600
+        ttl: 3600,
       })),
-      description: 'Many A records causing fragmentation risk'
-    }
+      description: 'Many A records causing fragmentation risk',
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     records = [...example.records];
     activeExampleIndex = index;
     estimateSize();
@@ -86,19 +90,21 @@
     if (a.length !== b.length) return false;
     return a.every((record, index) => {
       const other = b[index];
-      return record.name === other.name && 
-             record.type === other.type && 
-             record.value === other.value &&
-             record.ttl === other.ttl;
+      return (
+        record.name === other.name &&
+        record.type === other.type &&
+        record.value === other.value &&
+        record.ttl === other.ttl
+      );
     });
   }
 
   function addRecord() {
-    records.push({ 
-      name: 'example.com', 
-      type: 'A', 
-      value: '192.0.2.1', 
-      ttl: 3600 
+    records.push({
+      name: 'example.com',
+      type: 'A',
+      value: '192.0.2.1',
+      ttl: 3600,
     });
     clearActiveIfChanged();
     estimateSize();
@@ -127,14 +133,14 @@
     }
 
     let recordsToEstimate = [...records];
-    
+
     // Add query section if enabled
     if (includeQuery) {
       recordsToEstimate.unshift({
         name: queryName,
         type: queryType,
         value: '', // Query has no value
-        ttl: 0
+        ttl: 0,
       });
     }
 
@@ -151,10 +157,14 @@
 
   function getRiskColor(risk: string): string {
     switch (risk) {
-      case 'low': return 'var(--color-success)';
-      case 'medium': return 'var(--color-warning)';
-      case 'high': return 'var(--color-error)';
-      default: return 'var(--text-secondary)';
+      case 'low':
+        return 'var(--color-success)';
+      case 'medium':
+        return 'var(--color-warning)';
+      case 'high':
+        return 'var(--color-error)';
+      default:
+        return 'var(--text-secondary)';
     }
   }
 
@@ -249,16 +259,11 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     <h3>Query Configuration</h3>
     <div class="config-inner">
       <div class="query-toggle">
-        <label 
-          class="checkbox-label" 
-          use:tooltip={"Include the DNS query section in size calculations. Queries add ~20-50 bytes depending on name length."}
+        <label
+          class="checkbox-label"
+          use:tooltip={'Include the DNS query section in size calculations. Queries add ~20-50 bytes depending on name length.'}
         >
-          <input
-            type="checkbox"
-            class="primary-checkbox"
-            bind:checked={includeQuery}
-            onchange={handleInputChange}
-          />
+          <input type="checkbox" class="primary-checkbox" bind:checked={includeQuery} onchange={handleInputChange} />
           <span class="checkbox-text">Include query section in estimate</span>
         </label>
       </div>
@@ -266,7 +271,10 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
       {#if includeQuery}
         <div class="query-inputs">
           <div class="field-group">
-            <label for="query-name" use:tooltip={"The domain name being queried. Longer names result in larger message sizes."}>
+            <label
+              for="query-name"
+              use:tooltip={'The domain name being queried. Longer names result in larger message sizes.'}
+            >
               <Icon name="globe" size="xs" />
               Query Name
             </label>
@@ -280,16 +288,11 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
             />
           </div>
           <div class="field-group">
-            <label for="query-type" use:tooltip={"The type of DNS record being requested (A, AAAA, MX, etc.)."}>
+            <label for="query-type" use:tooltip={'The type of DNS record being requested (A, AAAA, MX, etc.).'}>
               <Icon name="list" size="xs" />
               Query Type
             </label>
-            <select
-              id="query-type"
-              bind:value={queryType}
-              onchange={handleInputChange}
-              class="query-select"
-            >
+            <select id="query-type" bind:value={queryType} onchange={handleInputChange} class="query-select">
               {#each recordTypes as type}
                 <option value={type}>{type}</option>
               {/each}
@@ -370,11 +373,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
               />
             </div>
           </div>
-          <button
-            class="remove-record-btn"
-            onclick={() => removeRecord(index)}
-            use:tooltip={"Remove this record"}
-          >
+          <button class="remove-record-btn" onclick={() => removeRecord(index)} use:tooltip={'Remove this record'}>
             <Icon name="trash" size="sm" />
           </button>
         </div>
@@ -400,15 +399,12 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
               <Icon name="ruler" size="sm" />
               Size Breakdown
             </h4>
-            <button
-              class="copy-button {copiedState ? 'copied' : ''}"
-              onclick={copyEstimate}
-            >
+            <button class="copy-button {copiedState ? 'copied' : ''}" onclick={copyEstimate}>
               <Icon name={copiedState ? 'check' : 'copy'} size="sm" />
               Copy Summary
             </button>
           </div>
-          
+
           <div class="size-breakdown">
             <div class="size-item">
               <div class="size-label">DNS Header</div>
@@ -437,7 +433,12 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
         </div>
 
         <!-- Fragmentation Analysis -->
-        <div class="fragmentation-card" style="background-color: color-mix(in srgb, {getRiskColor(results.fragmentationRisk)}, transparent 90%); border: 1px solid {getRiskColor(results.fragmentationRisk)};">
+        <div
+          class="fragmentation-card"
+          style="background-color: color-mix(in srgb, {getRiskColor(
+            results.fragmentationRisk,
+          )}, transparent 90%); border: 1px solid {getRiskColor(results.fragmentationRisk)};"
+        >
           <h4 style="color: {getRiskColor(results.fragmentationRisk)};">
             <Icon name="alert-triangle" size="sm" />
             Fragmentation Analysis
@@ -476,7 +477,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
               {#each results.recommendations as recommendation}
                 <li class="recommendation-item">{recommendation}</li>
               {/each}
-              
+
               {#if results.totalSize > 4096}
                 <li class="recommendation-item">Consider using TCP for queries expecting large responses</li>
               {/if}
@@ -499,32 +500,32 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
       <div class="education-item info-panel">
         <h4>UDP Limitations</h4>
         <p>
-          Classic DNS over UDP is limited to 512 bytes. Larger responses require EDNS0 extension
-          to advertise bigger buffer sizes. Without EDNS0, servers must truncate responses.
+          Classic DNS over UDP is limited to 512 bytes. Larger responses require EDNS0 extension to advertise bigger
+          buffer sizes. Without EDNS0, servers must truncate responses.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Fragmentation Issues</h4>
         <p>
-          UDP packets larger than ~1232 bytes may be fragmented by network devices. Fragmented
-          packets are more likely to be dropped, causing DNS resolution failures.
+          UDP packets larger than ~1232 bytes may be fragmented by network devices. Fragmented packets are more likely
+          to be dropped, causing DNS resolution failures.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>EDNS Buffer Sizes</h4>
         <p>
-          Common EDNS buffer sizes are 1232, 4096, and 8192 bytes. Larger buffers allow bigger
-          responses but increase fragmentation risk. Choose based on your network environment.
+          Common EDNS buffer sizes are 1232, 4096, and 8192 bytes. Larger buffers allow bigger responses but increase
+          fragmentation risk. Choose based on your network environment.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Optimization Strategies</h4>
         <p>
-          Minimize record sizes with shorter names and values. Use separate queries for large
-          responses. Consider TCP for consistently large responses like DNSSEC-signed zones.
+          Minimize record sizes with shorter names and values. Use separate queries for large responses. Consider TCP
+          for consistently large responses like DNSSEC-signed zones.
         </p>
       </div>
     </div>
@@ -561,7 +562,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -658,7 +659,7 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     font-weight: 600;
     color: var(--text-primary);
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       margin: 0;
     }
   }
@@ -689,7 +690,8 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
       font-size: var(--font-size-sm);
     }
 
-    input, select {
+    input,
+    select {
       padding: var(--spacing-sm);
       border: 1px solid var(--border-primary);
       border-radius: var(--radius-sm);
@@ -788,7 +790,6 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     border: 2px dashed var(--border-secondary);
   }
 
-
   .copy-button {
     display: flex;
     align-items: center;
@@ -825,11 +826,11 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
 
   .size-item {
     text-align: center;
-    
+
     &.total {
       border-top: 2px solid var(--border-primary);
       padding-top: var(--spacing-md);
-      
+
       .size-value {
         font-size: var(--font-size-xl);
         font-weight: 700;
@@ -872,7 +873,6 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     }
   }
 
-
   .fragmentation-risk {
     display: flex;
     flex-direction: column;
@@ -910,13 +910,12 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
     }
   }
 
-
   .recommendations-card {
     background-color: color-mix(in srgb, var(--color-info), transparent 90%) !important;
     border: 1px solid var(--color-info) !important;
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
-    
+
     h4 {
       display: flex;
       align-items: center;
@@ -926,24 +925,24 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
       color: var(--color-info) !important;
       font-size: var(--font-size-md);
     }
-    
+
     .recommendations-list {
       list-style: none;
       padding: 0;
       margin: 0;
-      
+
       .recommendation-item {
         margin-bottom: var(--spacing-xs);
         padding-left: var(--spacing-md);
         position: relative;
-        
+
         &::before {
           content: '•';
           color: var(--color-info);
           position: absolute;
           left: 0;
         }
-        
+
         &:last-child {
           margin-bottom: 0;
         }
@@ -1150,13 +1149,13 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
       }
     }
   }
-  
+
   .card-header-with-actions {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: var(--spacing-md);
-    
+
     h4 {
       display: flex;
       align-items: center;
@@ -1195,7 +1194,6 @@ Fragmentation Risk: ${results?.fragmentationRisk || 'unknown'}`;
       }
     }
   }
-
 
   @media (max-width: 768px) {
     .examples-grid {

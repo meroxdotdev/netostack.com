@@ -2,42 +2,42 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domain = $state('google.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { domain: 'google.com', description: 'Google DMARC policy' },
     { domain: 'github.com', description: 'GitHub enterprise DMARC' },
     { domain: 'microsoft.com', description: 'Microsoft DMARC configuration' },
     { domain: 'paypal.com', description: 'PayPal strict DMARC policy' },
     { domain: 'amazon.com', description: 'Amazon DMARC implementation' },
-    { domain: 'salesforce.com', description: 'Salesforce DMARC setup' }
+    { domain: 'salesforce.com', description: 'Salesforce DMARC setup' },
   ];
-  
+
   async function checkDMARC() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/dns', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'dmarc-check',
-          domain: domain.trim()
-        })
+          domain: domain.trim(),
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`DMARC check failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -45,109 +45,120 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     domain = example.domain;
     selectedExampleIndex = index;
     checkDMARC();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   function getPolicyColor(policy: string): string {
     switch (policy) {
-      case 'reject': return 'success';
-      case 'quarantine': return 'warning';
-      case 'none': return 'error';
-      default: return 'secondary';
+      case 'reject':
+        return 'success';
+      case 'quarantine':
+        return 'warning';
+      case 'none':
+        return 'error';
+      default:
+        return 'secondary';
     }
   }
-  
+
   function getAlignmentColor(alignment: string): string {
     switch (alignment) {
-      case 's': return 'success'; // strict
-      case 'r': return 'warning'; // relaxed
-      default: return 'secondary';
+      case 's':
+        return 'success'; // strict
+      case 'r':
+        return 'warning'; // relaxed
+      default:
+        return 'secondary';
     }
   }
-  
+
   function getSeverityColor(severity: 'high' | 'medium' | 'low'): string {
     switch (severity) {
-      case 'high': return 'error';
-      case 'medium': return 'warning';
-      case 'low': return 'success';
-      default: return 'secondary';
+      case 'high':
+        return 'error';
+      case 'medium':
+        return 'warning';
+      case 'low':
+        return 'success';
+      default:
+        return 'secondary';
     }
   }
-  
-  function getIssues(): Array<{message: string, severity: 'high' | 'medium' | 'low'}> {
+
+  function getIssues(): Array<{ message: string; severity: 'high' | 'medium' | 'low' }> {
     if (!results?.parsed) return [];
-    
-    const issues: Array<{message: string, severity: 'high' | 'medium' | 'low'}> = [];
+
+    const issues: Array<{ message: string; severity: 'high' | 'medium' | 'low' }> = [];
     const parsed = results.parsed;
-    
+
     // Policy issues
     if (parsed.policy === 'none') {
       issues.push({
         message: 'Policy is set to "none" - no action taken on DMARC failures',
-        severity: 'high'
+        severity: 'high',
       });
     }
-    
+
     // Alignment issues
     if (parsed.alignment.dkim === 'r' && parsed.alignment.spf === 'r') {
       issues.push({
         message: 'Both DKIM and SPF alignment are relaxed - consider strict alignment',
-        severity: 'medium'
+        severity: 'medium',
       });
     }
-    
+
     // Reporting issues
     if (!parsed.reporting.aggregate) {
       issues.push({
         message: 'No aggregate reporting address (rua) specified',
-        severity: 'medium'
+        severity: 'medium',
       });
     }
-    
+
     if (!parsed.reporting.forensic) {
       issues.push({
         message: 'No forensic reporting address (ruf) specified',
-        severity: 'low'
+        severity: 'low',
       });
     }
-    
+
     // Percentage issues
     const percentage = parseInt(parsed.percentage);
     if (percentage < 100) {
       issues.push({
         message: `Only ${percentage}% of messages are subject to DMARC policy`,
-        severity: percentage < 50 ? 'high' : 'medium'
+        severity: percentage < 50 ? 'high' : 'medium',
       });
     }
-    
+
     // Add original issues from API
     if (results.issues) {
       results.issues.forEach((issue: string) => {
         issues.push({ message: issue, severity: 'medium' });
       });
     }
-    
+
     return issues;
   }
-  
+
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `DMARC Check for ${domain}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
-    
+
     if (results.record) {
       text += `DMARC Record:\n${results.record}\n\n`;
     }
-    
+
     if (results.parsed) {
       const p = results.parsed;
       text += `Parsed Policy:\n`;
@@ -160,27 +171,30 @@
       if (p.reporting.forensic) text += `  Forensic Reports: ${p.reporting.forensic}\n`;
       text += `  Failure Options: ${p.reporting.failureOptions}\n\n`;
     }
-    
+
     const issues = getIssues();
     if (issues.length > 0) {
       text += `Issues Found:\n`;
-      issues.forEach(issue => {
+      issues.forEach((issue) => {
         text += `  [${issue.severity.toUpperCase()}] ${issue.message}\n`;
       });
     } else {
       text += `No issues found - DMARC configuration looks good!\n`;
     }
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>DMARC Policy Checker</h1>
-    <p>Analyze DMARC (Domain-based Message Authentication, Reporting & Conformance) policies. Check policy configuration, alignment settings, and identify potential security issues.</p>
+    <p>
+      Analyze DMARC (Domain-based Message Authentication, Reporting & Conformance) policies. Check policy configuration,
+      alignment settings, and identify potential security issues.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -192,8 +206,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Check DMARC policy for ${example.domain} (${example.description})`}
@@ -213,18 +227,21 @@
     </div>
     <div class="card-content">
       <div class="form-group">
-        <label for="domain" use:tooltip={"Enter the domain to check DMARC policy for"}>
+        <label for="domain" use:tooltip={'Enter the domain to check DMARC policy for'}>
           Domain Name
-          <input 
-            id="domain" 
-            type="text" 
-            bind:value={domain} 
+          <input
+            id="domain"
+            type="text"
+            bind:value={domain}
             placeholder="example.com"
-            onchange={() => { clearExampleSelection(); if (domain) checkDMARC(); }}
+            onchange={() => {
+              clearExampleSelection();
+              if (domain) checkDMARC();
+            }}
           />
         </label>
       </div>
-      
+
       <div class="action-section">
         <button class="check-btn lookup-btn" onclick={checkDMARC} disabled={loading || !domain.trim()}>
           {#if loading}
@@ -245,8 +262,8 @@
       <div class="card-header row">
         <h3>DMARC Policy Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" />
-          {copiedState ? "Copied!" : "Copy Results"}
+          <Icon name={copiedState ? 'check' : 'copy'} size="xs" />
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
@@ -255,13 +272,26 @@
           {@const issues = getIssues()}
           {@const parsed = results.parsed}
           <div class="status-overview">
-            <div class="status-item {issues.length === 0 ? 'success' : issues.some(i => i.severity === 'high') ? 'error' : 'warning'}">
-              <Icon name={issues.length === 0 ? 'shield-check' : issues.some(i => i.severity === 'high') ? 'shield-x' : 'shield-alert'} size="md" />
+            <div
+              class="status-item {issues.length === 0
+                ? 'success'
+                : issues.some((i) => i.severity === 'high')
+                  ? 'error'
+                  : 'warning'}"
+            >
+              <Icon
+                name={issues.length === 0
+                  ? 'shield-check'
+                  : issues.some((i) => i.severity === 'high')
+                    ? 'shield-x'
+                    : 'shield-alert'}
+                size="md"
+              />
               <div>
                 <h4>
                   {#if issues.length === 0}
                     DMARC Configuration Secure
-                  {:else if issues.some(i => i.severity === 'high')}
+                  {:else if issues.some((i) => i.severity === 'high')}
                     DMARC Issues Found
                   {:else}
                     DMARC Needs Improvement
@@ -427,7 +457,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Issues -->
           {#if issues.length > 0}
             <div class="issues-section">
@@ -435,7 +465,14 @@
               <div class="issues-list">
                 {#each issues as issue}
                   <div class="issue-item {getSeverityColor(issue.severity)}">
-                    <Icon name={issue.severity === 'high' ? 'alert-triangle' : issue.severity === 'medium' ? 'alert-circle' : 'info'} size="sm" />
+                    <Icon
+                      name={issue.severity === 'high'
+                        ? 'alert-triangle'
+                        : issue.severity === 'medium'
+                          ? 'alert-circle'
+                          : 'info'}
+                      size="sm"
+                    />
                     <div class="issue-content">
                       <span class="issue-severity">{issue.severity.toUpperCase()}</span>
                       <span class="issue-message">{issue.message}</span>
@@ -458,15 +495,20 @@
           <Icon name="info" size="md" />
           <div>
             <strong>No DMARC Record Found</strong>
-            <p>Domain <code>{domain}</code> does not have a DMARC policy configured at <code>{results.domain}</code>.</p>
-            <p class="help-text">This means the domain is not protected by DMARC. Consider implementing a DMARC policy to prevent email spoofing.</p>
+            <p>
+              Domain <code>{domain}</code> does not have a DMARC policy configured at <code>{results.domain}</code>.
+            </p>
+            <p class="help-text">
+              This means the domain is not protected by DMARC. Consider implementing a DMARC policy to prevent email
+              spoofing.
+            </p>
           </div>
         </div>
       </div>
     </div>
   {/if}
 
-  {#if error || (results?.error)}
+  {#if error || results?.error}
     <div class="card error-card">
       <div class="card-content">
         <div class="error-content">
@@ -501,7 +543,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>Alignment Modes</h4>
           <div class="alignment-explanations">
@@ -513,7 +555,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>Reporting Types</h4>
           <ul>
@@ -521,7 +563,7 @@
             <li><strong>Forensic (RUF):</strong> Real-time failure reports with message samples</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Best Practices</h4>
           <ul>
@@ -569,7 +611,7 @@
   .status-item {
     border: 2px solid;
     gap: var(--spacing-md);
-    
+
     &.success {
       border-color: var(--color-success);
     }
@@ -594,7 +636,9 @@
     }
   }
 
-  .policy-section, .reporting-section, .issues-section {
+  .policy-section,
+  .reporting-section,
+  .issues-section {
     margin-bottom: var(--spacing-lg);
 
     h4 {
@@ -720,7 +764,8 @@
     line-height: 1.4;
   }
 
-  .policy-explanations, .alignment-explanations {
+  .policy-explanations,
+  .alignment-explanations {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -729,7 +774,7 @@
   .explanation-item {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    
+
     strong {
       color: var(--text-primary);
       font-family: var(--font-mono);

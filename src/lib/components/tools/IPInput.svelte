@@ -12,13 +12,13 @@
     class?: string;
   }
 
-  let { 
+  let {
     value = $bindable(''),
     placeholder = '192.168.1.1',
     label = 'IP Address',
     required = false,
     disabled = false,
-    class: className = ''
+    class: className = '',
   }: Props = $props();
 
   let validation: ValidationResult = $state({ valid: true });
@@ -48,7 +48,7 @@
       {#if required}<span class="required">*</span>{/if}
     </label>
   {/if}
-  
+
   <div class="field-input">
     <input
       id="ip-input"
@@ -62,10 +62,10 @@
       class:invalid={!validation.valid && value}
       class:focused
       oninput={handleInput}
-      onfocus={() => focused = true}
-      onblur={() => focused = false}
+      onfocus={() => (focused = true)}
+      onblur={() => (focused = false)}
     />
-    
+
     <!-- Validation indicator -->
     <div class="field-icon">
       {#if value && validation.valid}
@@ -79,19 +79,17 @@
       {/if}
     </div>
   </div>
-  
+
   <!-- Error message -->
   {#if !validation.valid && validation.error}
     <p class="field-error fade-in">
       {validation.error}
     </p>
   {/if}
-  
+
   <!-- Helper text -->
   {#if validation.valid && value}
-    <p class="field-help">
-      Valid IPv4 address format
-    </p>
+    <p class="field-help">Valid IPv4 address format</p>
   {/if}
 </div>
 
@@ -101,15 +99,15 @@
     font-size: var(--font-size-lg);
     padding-right: 2.5rem;
     flex: 1;
-    
+
     &.valid {
       border-color: var(--color-success);
     }
-    
+
     &.invalid {
       border-color: var(--color-error);
     }
-    
+
     &.focused {
       box-shadow: var(--shadow-md);
     }

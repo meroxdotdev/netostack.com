@@ -6,12 +6,7 @@
     children: () => any;
   }
 
-  let { 
-    text, 
-    position = 'top', 
-    delay = 500,
-    children 
-  }: Props = $props();
+  let { text, position = 'top', delay = 500, children }: Props = $props();
 
   let showTooltip = $state(false);
   let tooltipTimeout: number;
@@ -34,14 +29,9 @@
   }
 </script>
 
-<div
-  class="tooltip-container"
-  role="tooltip"
-  onmouseenter={handleMouseEnter}
-  onmouseleave={handleMouseLeave}
->
+<div class="tooltip-container" role="tooltip" onmouseenter={handleMouseEnter} onmouseleave={handleMouseLeave}>
   {@render children()}
-  
+
   {#if showTooltip}
     <div class="tooltip {position}">
       {text}

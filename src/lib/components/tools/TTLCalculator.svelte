@@ -2,20 +2,20 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import { humanizeTTL, calculateCacheExpiry, type TTLInfo } from '$lib/utils/dns-validation.js';
-  
+
   let ttlInput = $state('3600');
   let customDate = $state('');
   let useCustomDate = $state(false);
   let activeTTLIndex = $state<number | null>(null);
   let activeExampleIndex = $state<number | null>(null);
-  
+
   let results = $state<{
     ttlInfo: TTLInfo;
     expiryFromNow: Date;
     expiryFromCustom?: Date;
     customDateValid: boolean;
   } | null>(null);
-  
+
   let copiedState = $state(false);
 
   const commonTTLs = [
@@ -29,33 +29,33 @@
     { seconds: 43200, label: '12 hours', description: 'Long - very stable records' },
     { seconds: 86400, label: '1 day', description: 'Long - default for many records' },
     { seconds: 172800, label: '2 days', description: 'Very long - infrastructure records' },
-    { seconds: 604800, label: '1 week', description: 'Very long - rarely changing records' }
+    { seconds: 604800, label: '1 week', description: 'Very long - rarely changing records' },
   ];
 
   const examples = [
-    { 
-      ttl: '300', 
-      scenario: 'Load Balancer IP', 
-      description: 'Short TTL for quick failover capability' 
+    {
+      ttl: '300',
+      scenario: 'Load Balancer IP',
+      description: 'Short TTL for quick failover capability',
     },
-    { 
-      ttl: '3600', 
-      scenario: 'Web Server A Record', 
-      description: 'Standard TTL for web services' 
+    {
+      ttl: '3600',
+      scenario: 'Web Server A Record',
+      description: 'Standard TTL for web services',
     },
-    { 
-      ttl: '86400', 
-      scenario: 'MX Record', 
-      description: 'Stable mail server configuration' 
+    {
+      ttl: '86400',
+      scenario: 'MX Record',
+      description: 'Stable mail server configuration',
     },
-    { 
-      ttl: '604800', 
-      scenario: 'NS Record', 
-      description: 'Authoritative name servers rarely change' 
-    }
+    {
+      ttl: '604800',
+      scenario: 'NS Record',
+      description: 'Authoritative name servers rarely change',
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     ttlInput = example.ttl;
     activeExampleIndex = index;
     activeTTLIndex = null;
@@ -71,7 +71,7 @@
 
   function calculateTTL() {
     const ttlSeconds = parseInt(ttlInput);
-    
+
     if (isNaN(ttlSeconds) || ttlSeconds < 0) {
       results = null;
       return;
@@ -79,10 +79,10 @@
 
     const ttlInfo = humanizeTTL(ttlSeconds);
     const expiryFromNow = calculateCacheExpiry(ttlSeconds);
-    
+
     let expiryFromCustom: Date | undefined;
     let customDateValid = true;
-    
+
     if (useCustomDate && customDate) {
       const customDateTime = new Date(customDate);
       if (!isNaN(customDateTime.getTime())) {
@@ -96,7 +96,7 @@
       ttlInfo,
       expiryFromNow,
       expiryFromCustom,
-      customDateValid
+      customDateValid,
     };
   }
 
@@ -108,7 +108,7 @@
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      timeZoneName: 'short'
+      timeZoneName: 'short',
     });
   }
 
@@ -229,7 +229,7 @@
   <div class="card input-card">
     <!-- TTL Input -->
     <div class="input-group">
-      <label for="ttl-input" use:tooltip={"Enter TTL value in seconds"}>
+      <label for="ttl-input" use:tooltip={'Enter TTL value in seconds'}>
         <Icon name="clock" size="sm" />
         TTL (seconds)
       </label>
@@ -248,12 +248,7 @@
     <!-- Custom Date Toggle -->
     <div class="input-group">
       <label class="checkbox-label">
-        <input
-          type="checkbox"
-          class="styled-checkbox"
-          bind:checked={useCustomDate}
-          onchange={handleInputChange}
-        />
+        <input type="checkbox" class="styled-checkbox" bind:checked={useCustomDate} onchange={handleInputChange} />
         Calculate expiry from custom date/time
       </label>
 
@@ -273,10 +268,7 @@
     <div class="card results-card">
       <div class="results-header">
         <h3>TTL Analysis</h3>
-        <button
-          class="copy-button {copiedState ? 'copied' : ''}"
-          onclick={copyTTL}
-        >
+        <button class="copy-button {copiedState ? 'copied' : ''}" onclick={copyTTL}>
           <Icon name={copiedState ? 'check' : 'copy'} size="sm" />
           Copy TTL
         </button>
@@ -299,7 +291,7 @@
       <!-- Cache Expiry Times -->
       <div class="expiry-section">
         <h4>Cache Expiry Times</h4>
-        
+
         <div class="expiry-cards">
           <div class="expiry-card">
             <div class="expiry-label">
@@ -368,32 +360,32 @@
       <div class="education-item info-panel">
         <h4>TTL Trade-offs</h4>
         <p>
-          Lower TTLs allow faster propagation of DNS changes but increase DNS query load.
-          Higher TTLs reduce DNS traffic but slow down change propagation. Balance based on your needs.
+          Lower TTLs allow faster propagation of DNS changes but increase DNS query load. Higher TTLs reduce DNS traffic
+          but slow down change propagation. Balance based on your needs.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Cache Behavior</h4>
         <p>
-          DNS resolvers cache records for the TTL duration. Once expired, they must query authoritative
-          servers again. Some resolvers may cache slightly longer or shorter than the exact TTL.
+          DNS resolvers cache records for the TTL duration. Once expired, they must query authoritative servers again.
+          Some resolvers may cache slightly longer or shorter than the exact TTL.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Change Planning</h4>
         <p>
-          Before making DNS changes, consider lowering TTLs in advance. This reduces the time
-          users see old records. After changes stabilize, you can increase TTLs again.
+          Before making DNS changes, consider lowering TTLs in advance. This reduces the time users see old records.
+          After changes stabilize, you can increase TTLs again.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Monitoring Impact</h4>
         <p>
-          Monitor DNS query volumes when changing TTLs. Very short TTLs can significantly increase
-          load on authoritative servers and may impact DNS provider costs.
+          Monitor DNS query volumes when changing TTLs. Very short TTLs can significantly increase load on authoritative
+          servers and may impact DNS provider costs.
         </p>
       </div>
     </div>
@@ -422,12 +414,14 @@
     }
   }
 
-  .common-ttls-card, .examples-card {
+  .common-ttls-card,
+  .examples-card {
     margin-bottom: var(--spacing-md);
     padding: 0;
   }
 
-  .common-details, .examples-details {
+  .common-details,
+  .examples-details {
     border: none;
     background: none;
 
@@ -438,7 +432,8 @@
     }
   }
 
-  .common-summary, .examples-summary {
+  .common-summary,
+  .examples-summary {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -448,7 +443,9 @@
     user-select: none;
     transition: all var(--transition-fast);
     border-radius: var(--radius-md);
-    h4 { margin: 0;}
+    h4 {
+      margin: 0;
+    }
 
     &:hover {
       background-color: var(--surface-hover);
@@ -461,7 +458,6 @@
     :global(.icon) {
       transition: transform var(--transition-fast);
     }
-
   }
 
   .ttls-grid {
@@ -743,25 +739,25 @@
     border-radius: var(--radius-sm);
     text-transform: capitalize;
 
-    &.very-short { 
-      background-color: color-mix(in srgb, var(--color-error), transparent 90%); 
-      color: var(--color-error); 
+    &.very-short {
+      background-color: color-mix(in srgb, var(--color-error), transparent 90%);
+      color: var(--color-error);
     }
-    &.short { 
-      background-color: color-mix(in srgb, var(--color-warning), transparent 90%); 
-      color: var(--color-warning); 
+    &.short {
+      background-color: color-mix(in srgb, var(--color-warning), transparent 90%);
+      color: var(--color-warning);
     }
-    &.medium { 
-      background-color: color-mix(in srgb, var(--color-success), transparent 90%); 
-      color: var(--color-success); 
+    &.medium {
+      background-color: color-mix(in srgb, var(--color-success), transparent 90%);
+      color: var(--color-success);
     }
-    &.long { 
-      background-color: color-mix(in srgb, var(--color-info), transparent 90%); 
-      color: var(--color-info); 
+    &.long {
+      background-color: color-mix(in srgb, var(--color-info), transparent 90%);
+      color: var(--color-info);
     }
-    &.very-long { 
-      background-color: color-mix(in srgb, var(--color-accent), transparent 90%); 
-      color: var(--color-accent); 
+    &.very-long {
+      background-color: color-mix(in srgb, var(--color-accent), transparent 90%);
+      color: var(--color-accent);
     }
   }
 
@@ -887,25 +883,25 @@
     border-radius: var(--radius-sm);
     text-align: center;
 
-    &.very-short { 
-      background-color: color-mix(in srgb, var(--color-error), transparent 90%); 
-      color: var(--color-error); 
+    &.very-short {
+      background-color: color-mix(in srgb, var(--color-error), transparent 90%);
+      color: var(--color-error);
     }
-    &.short { 
-      background-color: color-mix(in srgb, var(--color-warning), transparent 90%); 
-      color: var(--color-warning); 
+    &.short {
+      background-color: color-mix(in srgb, var(--color-warning), transparent 90%);
+      color: var(--color-warning);
     }
-    &.medium { 
-      background-color: color-mix(in srgb, var(--color-success), transparent 90%); 
-      color: var(--color-success); 
+    &.medium {
+      background-color: color-mix(in srgb, var(--color-success), transparent 90%);
+      color: var(--color-success);
     }
-    &.long { 
-      background-color: color-mix(in srgb, var(--color-info), transparent 90%); 
-      color: var(--color-info); 
+    &.long {
+      background-color: color-mix(in srgb, var(--color-info), transparent 90%);
+      color: var(--color-info);
     }
-    &.very-long { 
-      background-color: color-mix(in srgb, var(--color-accent), transparent 90%); 
-      color: var(--color-accent); 
+    &.very-long {
+      background-color: color-mix(in srgb, var(--color-accent), transparent 90%);
+      color: var(--color-accent);
     }
   }
 

@@ -2,20 +2,20 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import { analyzePTRCoverage, type PTRCoverageAnalysis } from '$lib/utils/reverse-dns.js';
-  
+
   let cidrInput = $state('192.168.1.0/24');
   let existingPTRsInput = $state(`100.1.168.192.in-addr.arpa
 101.1.168.192.in-addr.arpa
 105.1.168.192.in-addr.arpa
 200.1.168.192.in-addr.arpa`);
   let namingPattern = $state('.*\\.example\\.com\\.$');
-  
+
   let results = $state<{
     success: boolean;
     error?: string;
     analysis: PTRCoverageAnalysis;
   } | null>(null);
-  
+
   let copiedStates = $state<Record<string, boolean>>({});
   let selectedExample = $state<string | null>(null);
   let userModified = $state(false);
@@ -28,7 +28,7 @@
 101.1.168.192.in-addr.arpa
 105.1.168.192.in-addr.arpa`,
       pattern: '.*\\.example\\.com\\.$',
-      description: 'Network with some missing PTRs'
+      description: 'Network with some missing PTRs',
     },
     {
       label: 'Mixed Naming',
@@ -39,7 +39,7 @@
 15.0.0.10.in-addr.arpa
 20.0.0.10.in-addr.arpa`,
       pattern: 'host-.*\\.corp\\.com\\.$',
-      description: 'Check pattern compliance'
+      description: 'Check pattern compliance',
     },
     {
       label: 'IPv6 Network',
@@ -47,18 +47,18 @@
       ptrs: `0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.8.b.d.0.1.0.0.2.ip6.arpa
 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.8.b.d.0.1.0.0.2.ip6.arpa`,
       pattern: '.*\\.ipv6\\.example\\.com\\.$',
-      description: 'IPv6 PTR coverage analysis'
-    }
+      description: 'IPv6 PTR coverage analysis',
+    },
   ];
 
   const patternHelp = [
     { pattern: '.*\\.example\\.com\\.$', description: 'Any hostname ending in .example.com.' },
     { pattern: 'host-.*\\.corp\\.com\\.$', description: 'Hostnames starting with "host-" in corp.com' },
     { pattern: '^[0-9-]+\\.net\\.example\\.com\\.$', description: 'IP-based hostnames in net.example.com' },
-    { pattern: '(server|workstation)-.*', description: 'Names starting with "server-" or "workstation-"' }
+    { pattern: '(server|workstation)-.*', description: 'Names starting with "server-" or "workstation-"' },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     cidrInput = example.cidr;
     existingPTRsInput = example.ptrs;
     namingPattern = example.pattern;
@@ -77,20 +77,15 @@
       const trimmedCidr = cidrInput.trim();
       const existingPTRs = existingPTRsInput
         .split('\n')
-        .map(ptr => ptr.trim())
-        .filter(ptr => ptr.length > 0);
-      
-      const analysis = analyzePTRCoverage(
-        trimmedCidr, 
-        existingPTRs, 
-        namingPattern.trim() || undefined
-      );
+        .map((ptr) => ptr.trim())
+        .filter((ptr) => ptr.length > 0);
+
+      const analysis = analyzePTRCoverage(trimmedCidr, existingPTRs, namingPattern.trim() || undefined);
 
       results = {
         success: true,
-        analysis
+        analysis,
       };
-
     } catch (error) {
       results = {
         success: false,
@@ -102,8 +97,8 @@
           missingPTRs: [],
           extraPTRs: [],
           patternMatches: 0,
-          coverage: 0
-        }
+          coverage: 0,
+        },
       };
     }
   }
@@ -127,26 +122,32 @@
   }
 
   function generateDigCommands(missingPTRs: string[]): string {
-    return missingPTRs.slice(0, 20).map(ptr => 
-      `dig +short -x ${ptr.replace(/(.*\.in-addr\.arpa|.*\.ip6\.arpa)$/, 
-        (match, domain) => {
-          if (domain.includes('in-addr.arpa')) {
-            // Convert IPv4 PTR back to IP
-            const parts = domain.replace('.in-addr.arpa', '').split('.');
-            return parts.reverse().join('.');
-          } else {
-            // IPv6 conversion is more complex, skip for now
-            return ptr;
-          }
-        })}`
-    ).join('\n');
+    return missingPTRs
+      .slice(0, 20)
+      .map(
+        (ptr) =>
+          `dig +short -x ${ptr.replace(/(.*\.in-addr\.arpa|.*\.ip6\.arpa)$/, (match, domain) => {
+            if (domain.includes('in-addr.arpa')) {
+              // Convert IPv4 PTR back to IP
+              const parts = domain.replace('.in-addr.arpa', '').split('.');
+              return parts.reverse().join('.');
+            } else {
+              // IPv6 conversion is more complex, skip for now
+              return ptr;
+            }
+          })}`,
+      )
+      .join('\n');
   }
 
   function generateCreateCommands(missingPTRs: string[]): string {
-    return missingPTRs.slice(0, 20).map(ptr => {
-      const recordName = ptr.split('.').slice(0, -4).join('.');
-      return `${recordName}    IN    PTR    host-${recordName.split('.').reverse().join('-')}.example.com.`;
-    }).join('\n');
+    return missingPTRs
+      .slice(0, 20)
+      .map((ptr) => {
+        const recordName = ptr.split('.').slice(0, -4).join('.');
+        return `${recordName}    IN    PTR    host-${recordName.split('.').reverse().join('-')}.example.com.`;
+      })
+      .join('\n');
   }
 
   // Analyze on component load
@@ -215,7 +216,7 @@
   <div class="card input-card">
     <!-- CIDR Input -->
     <div class="input-group">
-      <label for="cidr-input" use:tooltip={"Enter the CIDR block to analyze PTR coverage for"}>
+      <label for="cidr-input" use:tooltip={'Enter the CIDR block to analyze PTR coverage for'}>
         <Icon name="network" size="sm" />
         CIDR Block to Analyze
       </label>
@@ -232,7 +233,7 @@
 
     <!-- Existing PTRs Input -->
     <div class="input-group">
-      <label for="ptrs-input" use:tooltip={"Paste existing PTR record names, one per line"}>
+      <label for="ptrs-input" use:tooltip={'Paste existing PTR record names, one per line'}>
         <Icon name="list" size="sm" />
         Existing PTR Records
       </label>
@@ -249,7 +250,7 @@
 
     <!-- Naming Pattern -->
     <div class="input-group">
-      <label for="pattern-input" use:tooltip={"Optional regex pattern to validate PTR target naming"}>
+      <label for="pattern-input" use:tooltip={'Optional regex pattern to validate PTR target naming'}>
         <Icon name="search" size="sm" />
         Naming Pattern (Optional)
       </label>
@@ -262,15 +263,18 @@
         class="pattern-input"
         spellcheck="false"
       />
-      
+
       <!-- Pattern Help -->
       <div class="pattern-help">
         <h4>Common Patterns:</h4>
         <div class="pattern-examples">
           {#each patternHelp as item}
-            <button 
+            <button
               class="pattern-example"
-              onclick={() => { namingPattern = item.pattern; handleInputChange(); }}
+              onclick={() => {
+                namingPattern = item.pattern;
+                handleInputChange();
+              }}
             >
               <code class="pattern-code">{item.pattern}</code>
               <span class="pattern-desc">{item.description}</span>
@@ -289,8 +293,12 @@
           <h3>Coverage Analysis Results</h3>
           <div class="coverage-meter">
             <div class="coverage-bar">
-              <div 
-                class="coverage-fill {results.analysis.coverage >= 80 ? 'good' : results.analysis.coverage >= 50 ? 'fair' : 'poor'}"
+              <div
+                class="coverage-fill {results.analysis.coverage >= 80
+                  ? 'good'
+                  : results.analysis.coverage >= 50
+                    ? 'fair'
+                    : 'poor'}"
                 style="width: {results.analysis.coverage}%"
               ></div>
             </div>
@@ -344,7 +352,7 @@
                   Copy List
                 </button>
               </div>
-              
+
               <div class="records-list">
                 {#each results.analysis.missingPTRs.slice(0, 20) as ptr}
                   <div class="record-item missing">
@@ -376,7 +384,7 @@
                   Copy List
                 </button>
               </div>
-              
+
               <div class="records-list">
                 {#each results.analysis.extraPTRs.slice(0, 10) as ptr}
                   <div class="record-item extra">
@@ -400,7 +408,7 @@
                 Recommended Actions
               </h4>
             </div>
-            
+
             <div class="action-items">
               {#if results.analysis.missingPTRs.length > 0}
                 <div class="action-item">
@@ -409,7 +417,9 @@
                     <span>Create Missing PTR Records</span>
                     <button
                       class="copy-button {copiedStates['create-commands'] ? 'copied' : ''}"
-                      onclick={() => results && copyToClipboard(generateCreateCommands(results.analysis.missingPTRs), 'create-commands')}
+                      onclick={() =>
+                        results &&
+                        copyToClipboard(generateCreateCommands(results.analysis.missingPTRs), 'create-commands')}
                     >
                       <Icon name={copiedStates['create-commands'] ? 'check' : 'copy'} size="sm" />
                       Copy Zone Lines
@@ -428,19 +438,22 @@
                     <span>Review Extra Records</span>
                   </div>
                   <div class="action-description">
-                    Review {results.analysis.extraPTRs.length} extra PTR records that don't correspond to addresses in this CIDR block.
+                    Review {results.analysis.extraPTRs.length} extra PTR records that don't correspond to addresses in this
+                    CIDR block.
                   </div>
                 </div>
               {/if}
 
-              {#if namingPattern.trim() && results.analysis.patternMatches < (results.analysis.totalAddresses - results.analysis.missingPTRs.length)}
+              {#if namingPattern.trim() && results.analysis.patternMatches < results.analysis.totalAddresses - results.analysis.missingPTRs.length}
                 <div class="action-item">
                   <div class="action-header">
                     <Icon name="edit-3" size="sm" />
                     <span>Fix Naming Pattern Violations</span>
                   </div>
                   <div class="action-description">
-                    {(results.analysis.totalAddresses - results.analysis.missingPTRs.length) - results.analysis.patternMatches} existing PTR records don't match the naming pattern.
+                    {results.analysis.totalAddresses -
+                      results.analysis.missingPTRs.length -
+                      results.analysis.patternMatches} existing PTR records don't match the naming pattern.
                   </div>
                 </div>
               {/if}
@@ -459,7 +472,6 @@
             </div>
           </div>
         </div>
-
       {:else}
         <div class="error-result">
           <Icon name="alert-triangle" size="lg" />
@@ -484,9 +496,8 @@
       <div class="education-item info-panel">
         <h4>PTR Coverage Planning</h4>
         <p>
-          PTR coverage analysis helps identify gaps in reverse DNS configuration. Complete coverage
-          ensures all IPs in your network blocks have proper reverse DNS entries for troubleshooting
-          and compliance requirements.
+          PTR coverage analysis helps identify gaps in reverse DNS configuration. Complete coverage ensures all IPs in
+          your network blocks have proper reverse DNS entries for troubleshooting and compliance requirements.
         </p>
       </div>
 
@@ -494,26 +505,26 @@
         <h4>Naming Pattern Validation</h4>
         <p>
           Use regex patterns to enforce consistent hostname naming conventions. Patterns like
-          <code>.*\.corp\.example\.com\.$</code> ensure all PTR records point to properly
-          formatted hostnames within your domain structure.
+          <code>.*\.corp\.example\.com\.$</code> ensure all PTR records point to properly formatted hostnames within your
+          domain structure.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Common PTR Issues</h4>
         <p>
-          Missing PTRs can cause mail delivery problems and failed reverse lookups. Extra PTRs
-          may indicate outdated records or configuration drift. Regular PTR sweeps help maintain
-          DNS hygiene and network documentation accuracy.
+          Missing PTRs can cause mail delivery problems and failed reverse lookups. Extra PTRs may indicate outdated
+          records or configuration drift. Regular PTR sweeps help maintain DNS hygiene and network documentation
+          accuracy.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Remediation Best Practices</h4>
         <p>
-          Create missing PTRs in batches, verify forward/reverse consistency (A/AAAA records),
-          and establish monitoring to detect future gaps. Use descriptive hostnames that include
-          network or service information for easier troubleshooting.
+          Create missing PTRs in batches, verify forward/reverse consistency (A/AAAA records), and establish monitoring
+          to detect future gaps. Use descriptive hostnames that include network or service information for easier
+          troubleshooting.
         </p>
       </div>
     </div>
@@ -536,7 +547,7 @@
     align-items: flex-start;
     gap: var(--spacing-sm);
     color: var(--text-secondary);
-    
+
     strong {
       color: var(--text-primary);
     }
@@ -550,7 +561,7 @@
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -634,7 +645,7 @@
   .example-field {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    
+
     code {
       font-size: var(--font-size-xs);
       color: var(--text-primary);
@@ -665,7 +676,8 @@
     }
   }
 
-  .cidr-input, .pattern-input {
+  .cidr-input,
+  .pattern-input {
     width: 100%;
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-lg);
@@ -773,7 +785,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
-    
+
     @media (max-width: 768px) {
       flex-direction: column;
       gap: var(--spacing-md);
@@ -797,7 +809,7 @@
     background-color: var(--bg-tertiary);
     border-radius: var(--radius-md);
     overflow: hidden;
-    
+
     @media (max-width: 768px) {
       width: 100%;
     }
@@ -806,15 +818,15 @@
   .coverage-fill {
     height: 100%;
     transition: width var(--transition-slow);
-    
+
     &.good {
       background-color: var(--color-success);
     }
-    
+
     &.fair {
       background-color: var(--color-warning);
     }
-    
+
     &.poor {
       background-color: var(--color-error);
     }
@@ -886,17 +898,17 @@
   .record-item {
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--radius-sm);
-    
+
     &.missing {
       background-color: rgba(var(--color-error-rgb), 0.1);
       border: 1px solid rgba(var(--color-error-rgb), 0.2);
     }
-    
+
     &.extra {
       background-color: rgba(var(--color-warning-rgb), 0.1);
       border: 1px solid rgba(var(--color-warning-rgb), 0.2);
     }
-    
+
     code {
       font-size: var(--font-size-xs);
       background: none;
@@ -923,12 +935,12 @@
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-md);
-    
+
     &.success {
       border-color: var(--color-success);
       background-color: rgba(var(--color-success-rgb), 0.05);
     }
-    
+
     .action-header {
       display: flex;
       align-items: center;
@@ -937,7 +949,7 @@
       font-weight: 600;
       color: var(--text-primary);
     }
-    
+
     .action-description {
       color: var(--text-secondary);
       line-height: 1.4;
@@ -1038,7 +1050,7 @@
       line-height: 1.6;
       margin: 0;
     }
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { supernetContent } from '$lib/content/supernetting.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -14,7 +14,7 @@
     <div class="ref-section">
       <h2>{supernetContent.sections.whatIs.title}</h2>
       <p>{supernetContent.sections.whatIs.content}</p>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="target" size="sm" />
@@ -61,7 +61,7 @@
     <div class="ref-section">
       <h2>{supernetContent.binaryExample.title}</h2>
       <p><strong>{supernetContent.binaryExample.scenario}</strong></p>
-      
+
       <table class="ref-table">
         <thead>
           <tr>
@@ -78,7 +78,7 @@
           {/each}
         </tbody>
       </table>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="eye" size="sm" />
@@ -138,4 +138,3 @@
     </div>
   </div>
 </div>
-

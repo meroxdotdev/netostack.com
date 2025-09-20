@@ -3,10 +3,10 @@
   import { SUB_NAV } from '$lib/constants/nav.js';
 
   const zoneTools = (() => {
-    const dnsNavGroup = SUB_NAV['/dns']?.find(group =>
-      typeof group === 'object' && 'title' in group && group.title === 'Zone File Tools'
+    const dnsNavGroup = SUB_NAV['/dns']?.find(
+      (group) => typeof group === 'object' && 'title' in group && group.title === 'Zone File Tools',
     );
-    return (dnsNavGroup && 'items' in dnsNavGroup) ? dnsNavGroup.items : [];
+    return dnsNavGroup && 'items' in dnsNavGroup ? dnsNavGroup.items : [];
   })();
 </script>
 
@@ -14,7 +14,10 @@
   <div class="hero-section">
     <div class="hero-content">
       <h1>DNS Zone File Tools</h1>
-      <p>Professional tools for DNS zone file analysis, validation, and management. Built for network administrators, DNS engineers, and automation workflows.</p>
+      <p>
+        Professional tools for DNS zone file analysis, validation, and management. Built for network administrators, DNS
+        engineers, and automation workflows.
+      </p>
     </div>
   </div>
 
@@ -43,7 +46,10 @@
         </div>
         <div class="feature-content">
           <h4>Zone Validation</h4>
-          <p>Comprehensive RFC compliance checking with detailed error reporting and recommendations for fixing common issues.</p>
+          <p>
+            Comprehensive RFC compliance checking with detailed error reporting and recommendations for fixing common
+            issues.
+          </p>
         </div>
       </div>
 
@@ -53,7 +59,10 @@
         </div>
         <div class="feature-content">
           <h4>Change Tracking</h4>
-          <p>Compare zone file versions to track DNS changes, plan migrations, and audit modifications with unified diff support.</p>
+          <p>
+            Compare zone file versions to track DNS changes, plan migrations, and audit modifications with unified diff
+            support.
+          </p>
         </div>
       </div>
 
@@ -63,7 +72,9 @@
         </div>
         <div class="feature-content">
           <h4>Analytics & Insights</h4>
-          <p>Deep analysis of record distribution, TTL patterns, name lengths, and zone health metrics for optimization.</p>
+          <p>
+            Deep analysis of record distribution, TTL patterns, name lengths, and zone health metrics for optimization.
+          </p>
         </div>
       </div>
 
@@ -73,7 +84,9 @@
         </div>
         <div class="feature-content">
           <h4>Standards Compliance</h4>
-          <p>Ensure DNS names meet RFC length limits and zone files follow best practices for reliable DNS operation.</p>
+          <p>
+            Ensure DNS names meet RFC length limits and zone files follow best practices for reliable DNS operation.
+          </p>
         </div>
       </div>
     </div>
@@ -84,22 +97,32 @@
     <div class="use-cases-grid">
       <div class="use-case">
         <h4>DNS Migration Planning</h4>
-        <p>Compare existing and target zones to understand exactly what changes during migrations and ensure nothing is missed.</p>
+        <p>
+          Compare existing and target zones to understand exactly what changes during migrations and ensure nothing is
+          missed.
+        </p>
       </div>
 
       <div class="use-case">
         <h4>Zone File Cleanup</h4>
-        <p>Normalize messy zone files with consistent formatting, proper ordering, duplicate removal, and error correction.</p>
+        <p>
+          Normalize messy zone files with consistent formatting, proper ordering, duplicate removal, and error
+          correction.
+        </p>
       </div>
 
       <div class="use-case">
         <h4>Compliance Auditing</h4>
-        <p>Validate zone files against DNS standards to identify potential issues before they cause resolution failures.</p>
+        <p>
+          Validate zone files against DNS standards to identify potential issues before they cause resolution failures.
+        </p>
       </div>
 
       <div class="use-case">
         <h4>Configuration Analysis</h4>
-        <p>Understand zone structure, identify optimization opportunities, and track DNS infrastructure growth over time.</p>
+        <p>
+          Understand zone structure, identify optimization opportunities, and track DNS infrastructure growth over time.
+        </p>
       </div>
     </div>
   </div>
@@ -111,27 +134,27 @@
         <Icon name="check" size="sm" />
         <span>Always include SOA and NS records for proper delegation</span>
       </div>
-      
+
       <div class="practice">
         <Icon name="check" size="sm" />
         <span>Use fully qualified domain names ending with dots</span>
       </div>
-      
+
       <div class="practice">
         <Icon name="check" size="sm" />
         <span>Maintain consistent TTL values based on change frequency</span>
       </div>
-      
+
       <div class="practice">
         <Icon name="check" size="sm" />
         <span>Keep domain names under 63 characters per label</span>
       </div>
-      
+
       <div class="practice">
         <Icon name="check" size="sm" />
         <span>Remove duplicate records to avoid confusion</span>
       </div>
-      
+
       <div class="practice">
         <Icon name="check" size="sm" />
         <span>Validate zones after changes before deployment</span>
@@ -151,7 +174,8 @@
     text-align: center;
     margin-bottom: var(--spacing-2xl);
     padding: var(--spacing-2xl) 0;
-    background: linear-gradient(135deg, 
+    background: linear-gradient(
+      135deg,
       color-mix(in srgb, var(--color-primary), transparent 95%),
       color-mix(in srgb, var(--color-secondary), transparent 95%)
     );
@@ -214,7 +238,7 @@
 
     .tool-info {
       flex: 1;
-      
+
       h3 {
         font-size: var(--font-size-lg);
         font-weight: 600;

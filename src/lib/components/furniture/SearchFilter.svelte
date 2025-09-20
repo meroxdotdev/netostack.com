@@ -2,11 +2,14 @@
   import { ALL_PAGES, type NavItem } from '$lib/constants/nav';
   import Icon from '$lib/components/global/Icon.svelte';
 
-  let { filteredTools = $bindable(), searchQuery = $bindable() }: {
+  let {
+    filteredTools = $bindable(),
+    searchQuery = $bindable(),
+  }: {
     filteredTools: NavItem[];
     searchQuery: string;
   } = $props();
-  
+
   let searchInput: HTMLInputElement | undefined = $state();
   let isSearchOpen: boolean = $state(false);
 
@@ -18,7 +21,7 @@
     KEYWORD_EXACT: 50,
     KEYWORD_PARTIAL: 40,
     DESC_CONTAINS: 20,
-    DESC_PARTIAL: 10
+    DESC_PARTIAL: 10,
   };
 
   // Calculate relevance score for search matching
@@ -28,8 +31,8 @@
 
     const title = item.label.toLowerCase();
     const description = item.description?.toLowerCase() || '';
-    const keywords = item.keywords?.map(k => k.toLowerCase()) || [];
-    
+    const keywords = item.keywords?.map((k) => k.toLowerCase()) || [];
+
     let score = 0;
 
     // Title matches (highest priority)
@@ -71,18 +74,17 @@
     return 2; // Higher priority for tools
   }
 
-  // Perform search with fuzzy matching and relevance scoring  
+  // Perform search with fuzzy matching and relevance scoring
   function performSearch(query: string): NavItem[] {
     if (!query.trim()) {
       return ALL_PAGES;
     }
 
-    const results = ALL_PAGES
-      .map(item => ({
-        item,
-        relevance: calculateRelevance(item, query),
-        categoryPriority: getCategoryPriority(item)
-      }))
+    const results = ALL_PAGES.map((item) => ({
+      item,
+      relevance: calculateRelevance(item, query),
+      categoryPriority: getCategoryPriority(item),
+    }))
       .filter(({ relevance }) => relevance > 0)
       .sort((a, b) => {
         // First sort by category (tools before reference)
@@ -124,7 +126,6 @@
       searchInput.value = '';
     }
   }
-
 </script>
 
 <div class="search-container">
@@ -132,11 +133,7 @@
   <div class="search-wrapper">
     {#if !isSearchOpen}
       <!-- Search Chip -->
-      <button 
-        class="search-chip"
-        onclick={openSearch}
-        aria-label="Open search"
-      >
+      <button class="search-chip" onclick={openSearch} aria-label="Open search">
         <span class="search-text">Filter</span>
         <span class="search-shortcut">⌘K</span>
       </button>
@@ -152,17 +149,13 @@
           value={searchQuery}
           oninput={handleSearch}
         />
-        <button 
-          class="close-search-button" 
-          onclick={clearSearch}
-          aria-label="Close search"
-        >
+        <button class="close-search-button" onclick={clearSearch} aria-label="Close search">
           <Icon name="x" size="sm" />
         </button>
       </div>
     {/if}
   </div>
-  
+
   <!-- Search results info with smooth height transition -->
   <div class="search-results-container" class:visible={isSearchOpen}>
     <div class="search-results-info">
@@ -194,7 +187,7 @@
     align-items: center;
     justify-content: center;
     transition: min-height var(--transition-normal) ease-out;
-    
+
     // When search is open, increase height smoothly
     &:has(.search-input-wrapper) {
       min-height: 3rem; // Height of search input
@@ -235,7 +228,7 @@
       transform: scale(0.98) translateY(1px);
       box-shadow: var(--shadow-sm);
     }
-    
+
     // Subtle pulse animation on load
     animation: chipAppear 0.4s ease-out;
 
@@ -266,7 +259,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-4px);
     transition: all var(--transition-normal) ease-out;
-    
+
     // Animation when expanding
     &.expanding {
       opacity: 1;
@@ -336,7 +329,7 @@
     max-height: 0;
     opacity: 0;
     transition: all var(--transition-normal) ease-out;
-    
+
     &.visible {
       max-height: 3rem; // Enough for results info
       opacity: 1;
@@ -350,7 +343,7 @@
     color: var(--text-secondary);
     transform: translateY(-8px);
     transition: transform var(--transition-normal) ease-out;
-    
+
     .search-results-container.visible & {
       transform: translateY(0);
     }
@@ -393,7 +386,7 @@
       max-width: none;
       margin: 0 var(--spacing-md);
     }
-    
+
     .search-input {
       font-size: var(--font-size-sm);
     }
@@ -405,7 +398,7 @@
 
     .search-wrapper {
       min-height: 2rem;
-      
+
       &:has(.search-input-wrapper) {
         min-height: 2.5rem;
       }

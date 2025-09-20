@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ipv6EmbeddedIPv4Content } from '$lib/content/ipv6-embedded-ipv4.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -22,7 +22,13 @@
         <div class="ref-examples">
           <div class="examples-title">
             {mechanism.name}
-            <span style="color: {mechanism.status === 'Active' ? 'var(--color-success)' : mechanism.status === 'Deprecated' ? 'var(--color-error)' : 'var(--color-warning)'}">[{mechanism.status}]</span>
+            <span
+              style="color: {mechanism.status === 'Active'
+                ? 'var(--color-success)'
+                : mechanism.status === 'Deprecated'
+                  ? 'var(--color-error)'
+                  : 'var(--color-warning)'}">[{mechanism.status}]</span
+            >
           </div>
           <div class="example-item">
             <div><strong>Prefix:</strong> <code>{mechanism.prefix}</code></div>
@@ -69,7 +75,7 @@
     <div class="ref-section">
       <h2>{ipv6EmbeddedIPv4Content.conversion.title}</h2>
       <p>To understand embedded addresses, you need to convert IPv4 addresses to hexadecimal:</p>
-      
+
       <table class="ref-table">
         <thead>
           <tr>
@@ -88,7 +94,7 @@
           {/each}
         </tbody>
       </table>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="calculator" size="sm" />
@@ -135,14 +141,15 @@
           </div>
         {/each}
       </div>
-      
+
       <div class="ref-warning">
         <div class="warning-title">
           <Icon name="shield-alert" size="sm" />
           Security Warning
         </div>
         <div class="warning-content">
-          Many IPv4-in-IPv6 transition mechanisms have known security vulnerabilities. Disable unused mechanisms and monitor for unexpected embedded address patterns in your network.
+          Many IPv4-in-IPv6 transition mechanisms have known security vulnerabilities. Disable unused mechanisms and
+          monitor for unexpected embedded address patterns in your network.
         </div>
       </div>
     </div>

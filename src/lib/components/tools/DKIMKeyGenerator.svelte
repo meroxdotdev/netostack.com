@@ -16,14 +16,14 @@
   let generatedKey = $state<DKIMKey | null>(null);
   let isGenerating = $state(false);
   let showPrivateKey = $state(false);
-  
+
   // Button success states
   let buttonStates = $state<Record<string, boolean>>({});
 
   // Generate RSA key pair using Web Crypto API
   async function generateDKIMKeys(): Promise<void> {
     if (isGenerating) return;
-    
+
     isGenerating = true;
     try {
       // Generate RSA key pair
@@ -35,7 +35,7 @@
           hash: 'SHA-256',
         },
         true, // extractable
-        ['sign', 'verify']
+        ['sign', 'verify'],
       );
 
       // Export private key
@@ -56,7 +56,7 @@
         publicKey: publicKeyPEM,
         publicKeyForDNS,
         selector: selector.trim() || 'default',
-        keySize
+        keySize,
       };
     } catch (error) {
       console.error('Failed to generate DKIM keys:', error);
@@ -109,7 +109,7 @@
 
   function downloadPrivateKey(): void {
     if (!generatedKey) return;
-    
+
     const blob = new Blob([generatedKey.privateKey], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -124,7 +124,7 @@
 
   function downloadPublicKey(): void {
     if (!generatedKey) return;
-    
+
     const blob = new Blob([generatedKey.publicKey], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -139,7 +139,7 @@
 
   function downloadTXTRecord(): void {
     if (!txtRecord) return;
-    
+
     const blob = new Blob([txtRecord], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -157,23 +157,23 @@
       name: 'Standard Setup',
       selector: 'default',
       domain: 'example.com',
-      keySize: 2048
+      keySize: 2048,
     },
     {
       name: 'Monthly Rotation',
       selector: '202412',
       domain: 'mycompany.com',
-      keySize: 2048
+      keySize: 2048,
     },
     {
       name: 'Service-Specific',
       selector: 'mailgun',
       domain: 'notifications.example.com',
-      keySize: 1024
-    }
+      keySize: 1024,
+    },
   ];
 
-  function loadExample(example: typeof examples[0]): void {
+  function loadExample(example: (typeof examples)[0]): void {
     selector = example.selector;
     domain = example.domain;
     keySize = example.keySize;
@@ -184,9 +184,7 @@
 <div class="card">
   <div class="card-header">
     <h1>DKIM Key Generator</h1>
-    <p class="card-subtitle">
-      Generate DKIM RSA keypairs with selectors and DNS TXT records for email authentication.
-    </p>
+    <p class="card-subtitle">Generate DKIM RSA keypairs with selectors and DNS TXT records for email authentication.</p>
   </div>
 
   <div class="grid-layout">
@@ -198,35 +196,28 @@
             Configuration
           </h3>
         </div>
-        
+
         <div class="config-grid">
           <div class="input-group">
-            <label for="selector" use:tooltip={"Unique identifier for this DKIM key (e.g., 'default', '202412', 'mailgun')"}>
+            <label
+              for="selector"
+              use:tooltip={"Unique identifier for this DKIM key (e.g., 'default', '202412', 'mailgun')"}
+            >
               Selector:
             </label>
-            <input
-              id="selector"
-              type="text"
-              bind:value={selector}
-              placeholder="default"
-              pattern="[a-zA-Z0-9._-]+"
-            />
+            <input id="selector" type="text" bind:value={selector} placeholder="default" pattern="[a-zA-Z0-9._-]+" />
           </div>
-          
+
           <div class="input-group">
-            <label for="domain" use:tooltip={"Domain that will use this DKIM key for signing emails"}>
-              Domain:
-            </label>
-            <input
-              id="domain"
-              type="text"
-              bind:value={domain}
-              placeholder="example.com"
-            />
+            <label for="domain" use:tooltip={'Domain that will use this DKIM key for signing emails'}> Domain: </label>
+            <input id="domain" type="text" bind:value={domain} placeholder="example.com" />
           </div>
-          
+
           <div class="input-group">
-            <label for="keySize" use:tooltip={"RSA key size in bits. 2048-bit recommended for security, 1024-bit for compatibility"}>
+            <label
+              for="keySize"
+              use:tooltip={'RSA key size in bits. 2048-bit recommended for security, 1024-bit for compatibility'}
+            >
               Key Size:
             </label>
             <select id="keySize" bind:value={keySize}>
@@ -236,13 +227,13 @@
           </div>
         </div>
 
-        <button 
-          type="button" 
+        <button
+          type="button"
           class="generate-btn"
           onclick={generateDKIMKeys}
           disabled={isGenerating || !selector.trim() || !domain.trim()}
         >
-          <Icon name={isGenerating ? "loader" : "key"} size="sm" />
+          <Icon name={isGenerating ? 'loader' : 'key'} size="sm" />
           {isGenerating ? 'Generating...' : 'Generate DKIM Keys'}
         </button>
       </div>
@@ -255,7 +246,7 @@
               Generated Keys
             </h3>
           </div>
-          
+
           <div class="key-item">
             <div class="key-header">
               <h4>Private Key</h4>
@@ -263,10 +254,10 @@
                 <button
                   type="button"
                   class="toggle-btn"
-                  onclick={() => showPrivateKey = !showPrivateKey}
-                  use:tooltip={showPrivateKey ? "Hide private key" : "Show private key"}
+                  onclick={() => (showPrivateKey = !showPrivateKey)}
+                  use:tooltip={showPrivateKey ? 'Hide private key' : 'Show private key'}
                 >
-                  <Icon name={showPrivateKey ? "eye-off" : "eye"} size="sm" />
+                  <Icon name={showPrivateKey ? 'eye-off' : 'eye'} size="sm" />
                   {showPrivateKey ? 'Hide' : 'Show'}
                 </button>
                 <button
@@ -274,14 +265,14 @@
                   class="download-btn"
                   class:success={buttonStates['download-private']}
                   onclick={downloadPrivateKey}
-                  use:tooltip={"Download private key as PEM file"}
+                  use:tooltip={'Download private key as PEM file'}
                 >
-                  <Icon name={buttonStates['download-private'] ? "check" : "download"} size="sm" />
+                  <Icon name={buttonStates['download-private'] ? 'check' : 'download'} size="sm" />
                   {buttonStates['download-private'] ? 'Downloaded!' : 'Download'}
                 </button>
               </div>
             </div>
-            
+
             {#if showPrivateKey}
               <div class="key-content">
                 <div class="code-block">
@@ -294,7 +285,7 @@
                 Private key hidden for security
               </div>
             {/if}
-            
+
             <div class="security-warning">
               <Icon name="alert-triangle" size="sm" />
               Keep this private key secure. Never share it publicly or store it in version control.
@@ -310,9 +301,9 @@
                   class="copy-btn"
                   class:success={buttonStates['copy-public']}
                   onclick={() => copyToClipboard(generatedKey?.publicKey || '', 'copy-public')}
-                  use:tooltip={"Copy public key to clipboard"}
+                  use:tooltip={'Copy public key to clipboard'}
                 >
-                  <Icon name={buttonStates['copy-public'] ? "check" : "copy"} size="sm" />
+                  <Icon name={buttonStates['copy-public'] ? 'check' : 'copy'} size="sm" />
                   {buttonStates['copy-public'] ? 'Copied!' : 'Copy'}
                 </button>
                 <button
@@ -320,14 +311,14 @@
                   class="download-btn"
                   class:success={buttonStates['download-public']}
                   onclick={downloadPublicKey}
-                  use:tooltip={"Download public key as PEM file"}
+                  use:tooltip={'Download public key as PEM file'}
                 >
-                  <Icon name={buttonStates['download-public'] ? "check" : "download"} size="sm" />
+                  <Icon name={buttonStates['download-public'] ? 'check' : 'download'} size="sm" />
                   {buttonStates['download-public'] ? 'Downloaded!' : 'Download'}
                 </button>
               </div>
             </div>
-            
+
             <div class="key-content">
               <div class="code-block">
                 <code>{generatedKey.publicKey}</code>
@@ -349,9 +340,9 @@
                 class="copy-btn"
                 class:success={buttonStates['copy-txt']}
                 onclick={() => copyToClipboard(txtRecord, 'copy-txt')}
-                use:tooltip={"Copy DNS TXT record to clipboard"}
+                use:tooltip={'Copy DNS TXT record to clipboard'}
               >
-                <Icon name={buttonStates['copy-txt'] ? "check" : "copy"} size="sm" />
+                <Icon name={buttonStates['copy-txt'] ? 'check' : 'copy'} size="sm" />
                 {buttonStates['copy-txt'] ? 'Copied!' : 'Copy'}
               </button>
               <button
@@ -359,14 +350,14 @@
                 class="export-btn"
                 class:success={buttonStates['download-txt']}
                 onclick={downloadTXTRecord}
-                use:tooltip={"Download DNS record as text file"}
+                use:tooltip={'Download DNS record as text file'}
               >
-                <Icon name={buttonStates['download-txt'] ? "check" : "download"} size="sm" />
+                <Icon name={buttonStates['download-txt'] ? 'check' : 'download'} size="sm" />
                 {buttonStates['download-txt'] ? 'Downloaded!' : 'Export'}
               </button>
             </div>
           </div>
-          
+
           <div class="record-output">
             <h4>Zone File Format:</h4>
             <div class="code-block">
@@ -389,16 +380,19 @@
               Implementation Notes
             </h3>
           </div>
-          
+
           <div class="info-grid">
             <div class="info-item">
-              <strong>Selector:</strong> {generatedKey.selector}
+              <strong>Selector:</strong>
+              {generatedKey.selector}
             </div>
             <div class="info-item">
-              <strong>Domain:</strong> {domain}
+              <strong>Domain:</strong>
+              {domain}
             </div>
             <div class="info-item">
-              <strong>Key Size:</strong> {generatedKey.keySize}-bit RSA
+              <strong>Key Size:</strong>
+              {generatedKey.keySize}-bit RSA
             </div>
             <div class="info-item">
               <strong>Algorithm:</strong> RSA-SHA256 (rsa-sha256)
@@ -427,11 +421,7 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example}
-          <button
-            type="button"
-            class="example-card"
-            onclick={() => loadExample(example)}
-          >
+          <button type="button" class="example-card" onclick={() => loadExample(example)}>
             <div class="example-header">
               <strong>{example.name}</strong>
             </div>
@@ -493,7 +483,8 @@
       font-size: var(--font-size-sm);
     }
 
-    input, select {
+    input,
+    select {
       padding: var(--spacing-sm);
       border: 1px solid var(--border-primary);
       border-radius: var(--radius-sm);
@@ -674,7 +665,10 @@
     }
   }
 
-  .toggle-btn, .copy-btn, .download-btn, .export-btn {
+  .toggle-btn,
+  .copy-btn,
+  .download-btn,
+  .export-btn {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -685,7 +679,6 @@
     font-size: var(--font-size-sm);
     transition: all 0.3s ease;
     transform: scale(1);
-
   }
 
   .toggle-btn {

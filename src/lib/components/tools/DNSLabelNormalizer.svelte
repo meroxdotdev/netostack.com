@@ -2,27 +2,27 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import { normalizeLabel, type LabelAnalysis } from '$lib/utils/dns-validation';
-  
+
   let input = $state('');
   let results = $state<LabelAnalysis[]>([]);
   let copiedStates = $state<Record<string, boolean>>({});
   let activeExampleIndex = $state<number | null>(null);
-  
+
   function normalizeInput() {
     if (!input.trim()) {
       results = [];
       return;
     }
-    
+
     // Split by whitespace, commas, or newlines to handle multiple labels
-    const labels = input.split(/[\s,\n]+/).filter(label => label.trim());
-    results = labels.map(label => normalizeLabel(label.trim()));
+    const labels = input.split(/[\s,\n]+/).filter((label) => label.trim());
+    results = labels.map((label) => normalizeLabel(label.trim()));
   }
-  
+
   // Auto-normalize on input change and clear active example when user types
   $effect(() => {
     normalizeInput();
-    
+
     // If user manually changes input, clear active example
     if (activeExampleIndex !== null) {
       const exampleValue = examples[activeExampleIndex]?.value;
@@ -31,7 +31,7 @@
       }
     }
   });
-  
+
   async function copyToClipboard(text: string, key: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -43,29 +43,29 @@
       console.error('Failed to copy:', err);
     }
   }
-  
+
   function loadExample(exampleValue: string, index: number) {
     input = exampleValue;
     activeExampleIndex = index;
     normalizeInput();
   }
-  
+
   const examples = [
     {
       label: 'Case Normalization',
       value: 'Example.COM\nWWW.GOOGLE.com',
-      description: 'Mixed case domain labels'
+      description: 'Mixed case domain labels',
     },
     {
       label: 'IDN/Punycode',
       value: 'москва.рф\nxn--80adxhks.xn--p1ai',
-      description: 'International domain names'
+      description: 'International domain names',
     },
     {
       label: 'Homograph Attack',
       value: 'googlе.com\nexаmple.org',
-      description: 'Cyrillic characters mixed with Latin'
-    }
+      description: 'Cyrillic characters mixed with Latin',
+    },
   ];
 </script>
 
@@ -112,7 +112,7 @@
       <div class="examples-inner">
         <div class="examples-grid">
           {#each examples as example, index}
-            <button 
+            <button
               class="example-item {activeExampleIndex === index ? 'active' : ''}"
               onclick={() => loadExample(example.value, index)}
             >
@@ -133,7 +133,7 @@
     <h3>Domain Labels</h3>
     <div class="input-inner">
       <div class="form-group">
-        <label for="input" use:tooltip={"Enter domain labels separated by spaces, commas, or newlines"}>
+        <label for="input" use:tooltip={'Enter domain labels separated by spaces, commas, or newlines'}>
           <Icon name="dns-label-normalize" size="xs" />
           Labels to Normalize
         </label>
@@ -149,7 +149,7 @@ mixed-script-еxample.com"
       </div>
     </div>
   </section>
-  
+
   <!-- Results Section -->
   {#if results.length > 0}
     <section class="results-section">
@@ -170,30 +170,30 @@ mixed-script-еxample.com"
               {/if}
             </div>
           </div>
-          
+
           <div class="label-comparison">
             <div class="label-row">
               <span class="label-type">Original:</span>
               <code class="label-value">{result.original}</code>
-              <button 
+              <button
                 class="copy-button {copiedStates[`orig-${index}`] ? 'copied' : ''}"
                 onclick={() => copyToClipboard(result.original, `orig-${index}`)}
               >
                 <Icon name={copiedStates[`orig-${index}`] ? 'check' : 'copy'} size="sm" />
               </button>
             </div>
-            
+
             <div class="label-row">
               <span class="label-type">Normalized:</span>
               <code class="label-value normalized">{result.normalized}</code>
-              <button 
+              <button
                 class="copy-button {copiedStates[`norm-${index}`] ? 'copied' : ''}"
                 onclick={() => copyToClipboard(result.normalized, `norm-${index}`)}
               >
                 <Icon name={copiedStates[`norm-${index}`] ? 'check' : 'copy'} size="sm" />
               </button>
             </div>
-            
+
             {#if result.original !== result.normalized}
               <div class="change-indicator success">
                 <Icon name="arrow-right" size="sm" />
@@ -206,7 +206,7 @@ mixed-script-еxample.com"
               </div>
             {/if}
           </div>
-          
+
           {#if result.scripts.length > 0}
             <div class="scripts-section">
               <h5>
@@ -220,7 +220,7 @@ mixed-script-еxample.com"
               </div>
             </div>
           {/if}
-          
+
           {#if result.warnings.length > 0}
             <div class="validation-section warnings">
               <h5>
@@ -234,7 +234,7 @@ mixed-script-еxample.com"
               </ul>
             </div>
           {/if}
-          
+
           {#if result.errors.length > 0}
             <div class="validation-section errors">
               <h5>
@@ -252,7 +252,7 @@ mixed-script-еxample.com"
       {/each}
     </section>
   {/if}
-  
+
   <!-- Educational Section -->
   <section class="education-section">
     <h3>About DNS Label Normalization</h3>
@@ -270,7 +270,8 @@ mixed-script-еxample.com"
       <div class="education-item">
         <h4>IDN Processing</h4>
         <p>
-          Internationalized Domain Names use punycode encoding. This tool detects IDN labels and potential encoding issues.
+          Internationalized Domain Names use punycode encoding. This tool detects IDN labels and potential encoding
+          issues.
         </p>
         <div class="code-example">
           <code>москва.рф</code> ↔ <code>xn--80adxhks.xn--p1ai</code>
@@ -279,9 +280,7 @@ mixed-script-еxample.com"
 
       <div class="education-item">
         <h4>Security Analysis</h4>
-        <p>
-          Mixed scripts in labels can indicate homograph attacks. This tool warns about potential security risks.
-        </p>
+        <p>Mixed scripts in labels can indicate homograph attacks. This tool warns about potential security risks.</p>
         <div class="code-example">
           <code>googlе.com</code> (Cyrillic 'е')
         </div>
@@ -290,11 +289,10 @@ mixed-script-еxample.com"
       <div class="education-item">
         <h4>Best Practices</h4>
         <p>
-          Always normalize labels before comparison. Be cautious of mixed scripts and visually similar characters from different scripts.
+          Always normalize labels before comparison. Be cautious of mixed scripts and visually similar characters from
+          different scripts.
         </p>
-        <div class="code-example">
-          Normalize → Compare → Validate
-        </div>
+        <div class="code-example">Normalize → Compare → Validate</div>
       </div>
     </div>
   </section>
@@ -304,11 +302,11 @@ mixed-script-еxample.com"
   // Overview Section - tertiary background
   .overview-section {
     margin-bottom: var(--spacing-lg);
-  .overview-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-md);
-    .overview-card {
+    .overview-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--spacing-md);
+      .overview-card {
         background-color: var(--bg-tertiary);
         border: 1px solid var(--border-primary);
         border-radius: var(--radius-md);
@@ -335,8 +333,6 @@ mixed-script-еxample.com"
     }
   }
 
-
-
   // Examples Section - tertiary background
   .examples-section {
     background-color: var(--bg-tertiary);
@@ -349,7 +345,7 @@ mixed-script-еxample.com"
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -735,7 +731,8 @@ mixed-script-еxample.com"
     margin: 0;
   }
 
-  .error-item, .warning-item {
+  .error-item,
+  .warning-item {
     padding: var(--spacing-sm) var(--spacing-md);
     margin-bottom: var(--spacing-xs);
     border-radius: var(--radius-sm);

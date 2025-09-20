@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../styles/diagnostics-pages.scss';
-  
+
   let inputValue = $state('');
   let selectedExampleIndex = $state<number | null>(null);
   let result = $state<{
@@ -31,7 +31,7 @@
     { label: 'IPv4 with leading zeros', value: '192.168.001.001', valid: false },
     { label: 'IPv4 octet too large', value: '192.168.1.256', valid: false },
     { label: 'IPv6 with multiple ::', value: '2001::db8::1', valid: false },
-    { label: 'IPv6 too many groups', value: '2001:db8:85a3:0000:0000:8a2e:0370:7334:extra', valid: false }
+    { label: 'IPv6 too many groups', value: '2001:db8:85a3:0000:0000:8a2e:0370:7334:extra', valid: false },
   ];
 
   function validateIPv4(ip: string): { isValid: boolean; errors: string[]; warnings: string[]; details: any } {
@@ -46,7 +46,7 @@
     }
 
     const parts = ip.split('.');
-    
+
     // Check number of octets
     if (parts.length !== 4) {
       errors.push(`IPv4 addresses must have exactly 4 octets, found ${parts.length}`);
@@ -54,11 +54,11 @@
     }
 
     const octets: number[] = [];
-    
+
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
       const octetNum = i + 1;
-      
+
       // Check if empty
       if (part === '') {
         errors.push(`Octet ${octetNum} is empty`);
@@ -196,11 +196,11 @@
 
       const leftParts = parts[0] ? parts[0].split(':') : [];
       const rightParts = parts[1] ? parts[1].split(':') : [];
-      
+
       // Calculate how many groups to insert
       const totalParts = leftParts.length + rightParts.length;
       const missingGroups = 8 - totalParts;
-      
+
       if (missingGroups < 0) {
         errors.push('Too many groups in compressed IPv6 address');
         return { isValid: false, errors, warnings, details };
@@ -214,12 +214,12 @@
     // Check for embedded IPv4
     const ipv4Pattern = /(\d+)\.(\d+)\.(\d+)\.(\d+)$/;
     const ipv4Match = expandedIP.match(ipv4Pattern);
-    
+
     if (ipv4Match) {
       // Validate the IPv4 part
       const ipv4Part = ipv4Match[0];
       const ipv4Result = validateIPv4(ipv4Part);
-      
+
       if (!ipv4Result.isValid) {
         errors.push(`Invalid embedded IPv4 address: ${ipv4Result.errors.join(', ')}`);
         return { isValid: false, errors, warnings, details };
@@ -229,7 +229,7 @@
       const [, a, b, c, d] = ipv4Match;
       const group1 = ((parseInt(a) << 8) + parseInt(b)).toString(16).padStart(4, '0');
       const group2 = ((parseInt(c) << 8) + parseInt(d)).toString(16).padStart(4, '0');
-      
+
       expandedIP = expandedIP.replace(ipv4Pattern, `${group1}:${group2}`);
       details.hasEmbeddedIPv4 = true;
       details.embeddedIPv4 = ipv4Part;
@@ -238,7 +238,7 @@
 
     // Split into groups and validate
     const groups = expandedIP.split(':');
-    
+
     if (groups.length !== 8) {
       if (!cleanIP.includes('::')) {
         errors.push(`IPv6 addresses must have 8 groups, found ${groups.length} (use :: for compression)`);
@@ -274,7 +274,7 @@
     }
 
     // Normalize the address
-    const normalizedGroups = groups.map(group => group.toLowerCase().padStart(4, '0'));
+    const normalizedGroups = groups.map((group) => group.toLowerCase().padStart(4, '0'));
     const fullForm = normalizedGroups.join(':');
     details.normalizedForm = fullForm;
 
@@ -371,12 +371,12 @@
     }
 
     // Apply compression
-    let result = groups.map(group => group.replace(/^0+/, '') || '0').join(':');
-    
+    let result = groups.map((group) => group.replace(/^0+/, '') || '0').join(':');
+
     if (bestStart !== -1) {
-      const beforeZeros = groups.slice(0, bestStart).map(group => group.replace(/^0+/, '') || '0');
-      const afterZeros = groups.slice(bestStart + bestLength).map(group => group.replace(/^0+/, '') || '0');
-      
+      const beforeZeros = groups.slice(0, bestStart).map((group) => group.replace(/^0+/, '') || '0');
+      const afterZeros = groups.slice(bestStart + bestLength).map((group) => group.replace(/^0+/, '') || '0');
+
       if (beforeZeros.length === 0) {
         result = '::' + afterZeros.join(':');
       } else if (afterZeros.length === 0) {
@@ -409,7 +409,7 @@
         type: 'ipv6',
         errors: ipv6Result.errors,
         warnings: ipv6Result.warnings,
-        details: ipv6Result.details
+        details: ipv6Result.details,
       };
     } else if (hasColons) {
       // IPv6
@@ -419,7 +419,7 @@
         type: 'ipv6',
         errors: ipv6Result.errors,
         warnings: ipv6Result.warnings,
-        details: ipv6Result.details
+        details: ipv6Result.details,
       };
     } else if (hasDots) {
       // IPv4
@@ -429,7 +429,7 @@
         type: 'ipv4',
         errors: ipv4Result.errors,
         warnings: ipv4Result.warnings,
-        details: ipv4Result.details
+        details: ipv4Result.details,
       };
     } else {
       // Neither format detected
@@ -438,7 +438,7 @@
         type: null,
         errors: ['Input does not appear to be an IP address (no dots or colons found)'],
         warnings: [],
-        details: {}
+        details: {},
       };
     }
   }
@@ -489,9 +489,7 @@
         autocomplete="off"
         spellcheck="false"
       />
-      <div class="input-hint">
-        Supports IPv4 (192.168.1.1), IPv6 (2001:db8::1), and various formats
-      </div>
+      <div class="input-hint">Supports IPv4 (192.168.1.1), IPv6 (2001:db8::1), and various formats</div>
     </div>
   </section>
 
@@ -534,7 +532,7 @@
               {/if}
             </div>
           </div>
-          
+
           {#if result.isValid && result.details.normalizedForm}
             <div class="normalized-form">
               <span class="normalized-label">Normalized:</span>
@@ -586,7 +584,7 @@
               <Icon name="info" size="sm" />
               Address Details
             </h4>
-            
+
             <div class="details-grid">
               {#if result.details.addressType}
                 <div class="detail-item">
@@ -594,14 +592,14 @@
                   <span class="detail-value">{result.details.addressType}</span>
                 </div>
               {/if}
-              
+
               {#if result.details.scope}
                 <div class="detail-item">
                   <span class="detail-label">Scope:</span>
                   <span class="detail-value">{result.details.scope}</span>
                 </div>
               {/if}
-              
+
               {#if result.details.isPrivate !== undefined}
                 <div class="detail-item">
                   <span class="detail-label">Routing:</span>
@@ -610,21 +608,21 @@
                   </span>
                 </div>
               {/if}
-              
+
               {#if result.details.compressedForm}
                 <div class="detail-item">
                   <span class="detail-label">Compressed:</span>
                   <code class="detail-value compressed">{result.details.compressedForm}</code>
                 </div>
               {/if}
-              
+
               {#if result.details.embeddedIPv4}
                 <div class="detail-item">
                   <span class="detail-label">Embedded IPv4:</span>
                   <code class="detail-value embedded">{result.details.embeddedIPv4}</code>
                 </div>
               {/if}
-              
+
               {#if result.details.zoneId}
                 <div class="detail-item">
                   <span class="detail-label">Zone ID:</span>
@@ -660,8 +658,8 @@
         <p>
           Valid IP addresses follow specific rules. For IPv4, you need exactly four numbers (0-255) separated by dots,
           like 192.168.1.1. For IPv6, you need eight groups of hex digits separated by colons, though you can compress
-          consecutive zeros with :: (like 2001:db8::1). The validator checks these rules and tells you exactly what's wrong
-          when something doesn't match.
+          consecutive zeros with :: (like 2001:db8::1). The validator checks these rules and tells you exactly what's
+          wrong when something doesn't match.
         </p>
       </div>
 
@@ -746,7 +744,8 @@
     &.valid-example {
       border-left: 3px solid var(--color-success);
 
-      &:hover, &.selected {
+      &:hover,
+      &.selected {
         border-color: var(--color-success) !important;
 
         .test-case-label :global(svg) {
@@ -758,7 +757,8 @@
     &.invalid-example {
       border-left: 3px solid var(--color-error);
 
-      &:hover, &.selected {
+      &:hover,
+      &.selected {
         border-color: var(--color-error) !important;
 
         .test-case-label :global(svg) {
@@ -805,9 +805,11 @@
     padding: var(--spacing-xl);
 
     &.valid {
-      background: linear-gradient(135deg,
+      background: linear-gradient(
+        135deg,
         color-mix(in srgb, var(--color-success), transparent 55%),
-        color-mix(in srgb, var(--color-success), transparent 65%));
+        color-mix(in srgb, var(--color-success), transparent 65%)
+      );
       border: 1px solid var(--color-success);
       color: var(--text-primary);
       .details-section {
@@ -816,9 +818,11 @@
     }
 
     &.invalid {
-      background: linear-gradient(135deg,
+      background: linear-gradient(
+        135deg,
         color-mix(in srgb, var(--color-error), transparent 55%),
-        color-mix(in srgb, var(--color-error), transparent 65%));
+        color-mix(in srgb, var(--color-error), transparent 65%)
+      );
       border: 1px solid var(--color-error);
       color: var(--text-primary);
       .errors-section {
@@ -882,7 +886,9 @@
     color: var(--text-primary);
   }
 
-  .errors-section, .warnings-section, .details-section {
+  .errors-section,
+  .warnings-section,
+  .details-section {
     background-color: var(--bg-tertiary);
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-md);
@@ -900,7 +906,9 @@
     }
   }
 
-  .error-list, .warning-list, .info-list {
+  .error-list,
+  .warning-list,
+  .info-list {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -909,7 +917,9 @@
     gap: var(--spacing-sm);
   }
 
-  .error-item, .warning-item, .info-item {
+  .error-item,
+  .warning-item,
+  .info-item {
     display: flex;
     align-items: flex-start;
     gap: var(--spacing-sm);
@@ -956,7 +966,9 @@
       color: var(--color-info-light);
     }
 
-    &.compressed, &.embedded, &.zone {
+    &.compressed,
+    &.embedded,
+    &.zone {
       font-family: var(--font-mono);
       background-color: var(--bg-primary);
       padding: 2px var(--spacing-xs);
@@ -1000,9 +1012,7 @@
     gap: var(--spacing-xl);
   }
 
-
   @media (max-width: 768px) {
-
     .result-header {
       flex-direction: column;
     }

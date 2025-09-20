@@ -3,7 +3,7 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import { isValidDomainName, formatDNSError } from '$lib/utils/dns-validation.js';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let url = $state('https://example.com');
   let method = $state('GET');
   let customHeadersText = $state('');
@@ -21,7 +21,7 @@
     { url: 'https://www.cloudflare.com', method: 'GET', description: 'Cloudflare response headers' },
     { url: 'https://httpbin.org/status/404', method: 'GET', description: '404 status response' },
     { url: 'https://httpbin.org/redirect/3', method: 'GET', description: 'Redirect chain headers' },
-    { url: 'https://httpbin.org/gzip', method: 'GET', description: 'Compressed response headers' }
+    { url: 'https://httpbin.org/gzip', method: 'GET', description: 'Compressed response headers' },
   ];
 
   // Reactive validation
@@ -39,12 +39,12 @@
   function parseCustomHeaders(): Record<string, string> {
     const headers: Record<string, string> = {};
     if (!customHeadersText.trim()) return headers;
-    
+
     const lines = customHeadersText.split('\n');
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed) continue;
-      
+
       const colonIndex = trimmed.indexOf(':');
       if (colonIndex > 0) {
         const key = trimmed.slice(0, colonIndex).trim();
@@ -80,7 +80,7 @@
 
     try {
       const customHeaders = parseCustomHeaders();
-      
+
       const response = await fetch('/api/internal/diagnostics/http', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -88,19 +88,19 @@
           action: 'headers',
           url: trimmedUrl,
           method,
-          headers: customHeaders
-        })
+          headers: customHeaders,
+        }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         let errorMessage = `Request failed (${response.status})`;
-        
+
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) errorMessage = errorData.message;
         } catch {}
-        
+
         throw new Error(errorMessage);
       }
 
@@ -112,33 +112,33 @@
     }
   }
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     url = example.url;
     method = example.method;
     customHeadersText = '';
     selectedExampleIndex = index;
     checkHeaders();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
 
   async function copyResults() {
     if (!results?.headers) return;
-    
+
     let text = `${method} ${results.url}\nStatus: ${results.status} ${results.statusText}\n\nResponse Headers:\n`;
     Object.entries(results.headers).forEach(([key, value]) => {
       text += `${key}: ${value}\n`;
     });
-    
+
     if (results.size) {
       text += `\nContent-Length: ${results.size} bytes`;
     }
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 
   function formatBytes(bytes: number): string {
@@ -151,7 +151,7 @@
 
   function getStatusClass(status: number): string {
     if (status >= 200 && status < 300) return 'success';
-    if (status >= 300 && status < 400) return 'warning'; 
+    if (status >= 300 && status < 400) return 'warning';
     if (status >= 400) return 'error';
     return '';
   }
@@ -160,7 +160,10 @@
 <div class="card">
   <header class="card-header">
     <h1>HTTP Headers Analyzer</h1>
-    <p>Analyze HTTP response headers, status codes, and response metadata. Supports custom request methods and headers for comprehensive HTTP testing.</p>
+    <p>
+      Analyze HTTP response headers, status codes, and response metadata. Supports custom request methods and headers
+      for comprehensive HTTP testing.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -172,8 +175,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Analyze headers for ${example.url}`}
@@ -194,15 +197,18 @@
     <div class="card-content">
       <div class="form-grid">
         <div class="form-group">
-          <label for="url" use:tooltip={"Enter the URL to analyze"}>
+          <label for="url" use:tooltip={'Enter the URL to analyze'}>
             URL
-            <input 
-              id="url" 
-              type="url" 
-              bind:value={url} 
+            <input
+              id="url"
+              type="url"
+              bind:value={url}
               placeholder="https://example.com"
               class:invalid={url && !isInputValid()}
-              onchange={() => { clearExampleSelection(); if (isInputValid()) checkHeaders(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) checkHeaders();
+              }}
             />
             {#if url && !isInputValid()}
               <span class="error-text">Invalid URL format</span>
@@ -211,9 +217,16 @@
         </div>
 
         <div class="form-group">
-          <label for="method" use:tooltip={"HTTP method to use"}>
+          <label for="method" use:tooltip={'HTTP method to use'}>
             Method
-            <select id="method" bind:value={method} onchange={() => { clearExampleSelection(); if (isInputValid()) checkHeaders(); }}>
+            <select
+              id="method"
+              bind:value={method}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) checkHeaders();
+              }}
+            >
               {#each methods as methodOption}
                 <option value={methodOption}>{methodOption}</option>
               {/each}
@@ -225,16 +238,19 @@
       <div class="form-group">
         <label for="headers" use:tooltip={"Custom headers (one per line: 'Name: Value')"}>
           Custom Headers (Optional)
-          <textarea 
+          <textarea
             id="headers"
             bind:value={customHeadersText}
             placeholder="User-Agent: My Custom Agent&#10;Authorization: Bearer token123"
             rows="3"
-            onchange={() => { clearExampleSelection(); if (isInputValid()) checkHeaders(); }}
+            onchange={() => {
+              clearExampleSelection();
+              if (isInputValid()) checkHeaders();
+            }}
           ></textarea>
         </label>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={checkHeaders} disabled={loading || !isInputValid}>
           {#if loading}
@@ -255,8 +271,10 @@
       <div class="card-header row">
         <h3>HTTP Response Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Results"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
@@ -269,7 +287,7 @@
               <div class="status-text">HTTP Status</div>
             </div>
           </div>
-          
+
           {#if results.size}
             <div class="status-item">
               <Icon name="file" size="sm" />
@@ -298,7 +316,8 @@
             {#each Object.entries(results.headers) as [name, value]}
               <div class="record-item">
                 <div class="record-data">
-                  <strong>{name}:</strong> {value}
+                  <strong>{name}:</strong>
+                  {value}
                 </div>
               </div>
             {/each}
@@ -362,9 +381,12 @@
       <div class="info-grid">
         <div class="info-section">
           <h4>Response Headers</h4>
-          <p>HTTP headers provide metadata about the response, including content type, caching instructions, security policies, and server information.</p>
+          <p>
+            HTTP headers provide metadata about the response, including content type, caching instructions, security
+            policies, and server information.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>Status Codes</h4>
           <ul>
@@ -374,7 +396,7 @@
             <li><strong>5xx:</strong> Server error responses</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Common Headers</h4>
           <ul>

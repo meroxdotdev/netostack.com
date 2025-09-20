@@ -1,5 +1,4 @@
-
-export type Field = typeof fieldOptionsArray[number]['type'];
+export type Field = (typeof fieldOptionsArray)[number]['type'];
 
 export interface FieldOption {
   type: Field;
@@ -50,61 +49,50 @@ export const fieldOptionsArray = [
     type: 'ipv4-prefix',
     label: 'IPv4 Prefix',
     example: '24',
-    explanation:
-      'Number of leading bits in the network portion (0-32). Larger value → smaller subnet',
+    explanation: 'Number of leading bits in the network portion (0-32). Larger value → smaller subnet',
   },
   {
     type: 'ipv6-prefix',
     label: 'IPv6 Prefix',
     example: '64',
-    explanation:
-      'Number of leading bits in the network portion (0-128). Larger value → smaller subnet',
+    explanation: 'Number of leading bits in the network portion (0-128). Larger value → smaller subnet',
   },
   {
     type: 'ipv4-subnet',
     label: 'IPv4 Subnet',
     example: '192.168.1.0/26',
-    explanation:
-      'An IPv4 CIDR used as a child network carved from a larger parent',
+    explanation: 'An IPv4 CIDR used as a child network carved from a larger parent',
   },
   {
     type: 'ipv6-subnet',
     label: 'IPv6 Subnet',
     example: '2001:db8::/72',
-    explanation:
-      'An IPv6 CIDR used as a child network carved from a larger parent',
+    explanation: 'An IPv6 CIDR used as a child network carved from a larger parent',
   },
   {
     type: 'subnets',
     label: 'Subnets Count',
     example: '4',
-    explanation:
-      'How many equal-sized subnets to create; typically a power of two (e.g., 1, 2, 4, 8)',
+    explanation: 'How many equal-sized subnets to create; typically a power of two (e.g., 1, 2, 4, 8)',
   },
 ] as const;
 
-
 // build the map when you need it
-export const fieldOptions: Record<Field, Omit<FieldOption, 'type'>> =
-  Object.fromEntries(
-    fieldOptionsArray.map(({ type, ...rest }) => [type, rest])
-  ) as any;
+export const fieldOptions: Record<Field, Omit<FieldOption, 'type'>> = Object.fromEntries(
+  fieldOptionsArray.map(({ type, ...rest }) => [type, rest]),
+) as any;
 
 interface PageSpec {
   path: string;
   params: Field[] | { optional: Field[] } | { either: Field[] };
 }
 
-export const pageSpec: PageSpec[] = [
-  { path: '/subnetting/ipv4-subnet-calculator', params: ['ipv4-cidr'] },
-];
-
+export const pageSpec: PageSpec[] = [{ path: '/subnetting/ipv4-subnet-calculator', params: ['ipv4-cidr'] }];
 
 // Page-param spec types:
 // either-or
 // list
 // optional
-
 
 // export const QUERY_SPEC = {
 //   '/subnetting/ipv4-subnet-calculator': [ 'cidr' ],

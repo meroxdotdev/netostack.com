@@ -5,9 +5,9 @@
   $: currentPath = $page.url.pathname;
   $: sectionKey = findSectionKey(currentPath); // e.g. '/reference' or '/cidr'
   $: navStructure = sectionKey ? SUB_NAV[sectionKey] : null;
-  
+
   // Check if the structure contains any groups
-  $: hasGroups = navStructure && navStructure.some(item => 'title' in item);
+  $: hasGroups = navStructure && navStructure.some((item) => 'title' in item);
 </script>
 
 {#if navStructure}
@@ -35,9 +35,9 @@
               </div>
             {/if}
           {/each}
-          
+
           <!-- Render standalone links under "More" group if any exist -->
-          {#if navStructure.some(item => 'href' in item)}
+          {#if navStructure.some((item) => 'href' in item)}
             <div class="nav-group">
               <div class="group-title">More</div>
               <div class="group-links">
@@ -87,7 +87,7 @@
       display: none;
     }
   }
-  
+
   /* Flat navigation styles (existing) */
   .sub-nav-links {
     display: flex;
@@ -97,24 +97,24 @@
     scrollbar-width: thin;
     scrollbar-color: var(--border-primary) transparent;
   }
-  
+
   .sub-nav-links::-webkit-scrollbar {
     height: 4px;
   }
-  
+
   .sub-nav-links::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .sub-nav-links::-webkit-scrollbar-thumb {
     background: var(--border-primary);
     border-radius: var(--radius-sm);
   }
-  
+
   .sub-nav-links::-webkit-scrollbar-thumb:hover {
     background: var(--text-secondary);
   }
-  
+
   .sub-nav-link {
     padding: var(--spacing-xs) var(--spacing-md);
     border-radius: var(--radius-sm);
@@ -125,18 +125,18 @@
     white-space: nowrap;
     flex-shrink: 0;
   }
-  
+
   .sub-nav-link:hover {
     color: var(--color-primary);
     background-color: var(--surface-hover);
   }
-  
+
   .sub-nav-link.active {
     color: var(--color-primary);
     background-color: var(--surface-hover);
     font-weight: 500;
   }
-  
+
   /* Mixed navigation styles */
   .mixed-nav {
     display: flex;
@@ -147,31 +147,31 @@
     scrollbar-width: thin;
     scrollbar-color: var(--border-primary) transparent;
   }
-  
+
   .mixed-nav::-webkit-scrollbar {
     height: 4px;
   }
-  
+
   .mixed-nav::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .mixed-nav::-webkit-scrollbar-thumb {
     background: var(--border-primary);
     border-radius: var(--radius-sm);
   }
-  
+
   .mixed-nav::-webkit-scrollbar-thumb:hover {
     background: var(--text-secondary);
   }
-  
+
   .nav-group {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
     flex-shrink: 0;
   }
-  
+
   .group-title {
     font-size: var(--font-size-xs);
     font-weight: 600;
@@ -181,23 +181,23 @@
     padding: var(--spacing-xs) var(--spacing-md);
     white-space: nowrap;
   }
-  
+
   .group-links {
     display: flex;
     gap: var(--spacing-md);
     flex-shrink: 0;
   }
-  
+
   /* Responsive styles */
   @media (max-width: 768px) {
     .sub-nav-links {
       gap: var(--spacing-sm);
     }
-    
+
     .mixed-nav {
       gap: var(--spacing-sm);
     }
-    
+
     .group-links {
       gap: var(--spacing-sm);
     }

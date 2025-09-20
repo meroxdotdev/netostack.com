@@ -1,25 +1,25 @@
 <script lang="ts">
   import CIDRSplitter from '$lib/components/tools/CIDRSplitter.svelte';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
 <div class="page-container">
   <CIDRSplitter />
-  
+
   <section class="explainer-section">
     <h3>About CIDR Subnet Splitting</h3>
     <p>
-      CIDR subnet splitting divides a larger network (parent) into smaller networks (children) of equal size. 
-      This is essential for efficient IP address allocation and network design.
+      CIDR subnet splitting divides a larger network (parent) into smaller networks (children) of equal size. This is
+      essential for efficient IP address allocation and network design.
     </p>
 
     <div class="split-modes">
       <div class="mode-item">
         <h4><Icon name="hash" size="sm" /> Split by Count</h4>
         <p>
-          Specify how many equal subnets you need. The tool calculates the required prefix length 
-          and creates exactly that many subnets (rounded up to the nearest power of 2).
+          Specify how many equal subnets you need. The tool calculates the required prefix length and creates exactly
+          that many subnets (rounded up to the nearest power of 2).
         </p>
         <div class="mode-example">
           <div class="example-input">
@@ -27,9 +27,9 @@
           </div>
           <div class="arrow">→</div>
           <div class="example-output">
-            <code>192.168.1.0/26</code><br>
-            <code>192.168.1.64/26</code><br>
-            <code>192.168.1.128/26</code><br>
+            <code>192.168.1.0/26</code><br />
+            <code>192.168.1.64/26</code><br />
+            <code>192.168.1.128/26</code><br />
             <code>192.168.1.192/26</code>
           </div>
         </div>
@@ -38,8 +38,8 @@
       <div class="mode-item">
         <h4><Icon name="target" size="sm" /> Split by Prefix</h4>
         <p>
-          Specify the target prefix length for child subnets. The tool creates all possible 
-          subnets at that prefix length within the parent network.
+          Specify the target prefix length for child subnets. The tool creates all possible subnets at that prefix
+          length within the parent network.
         </p>
         <div class="mode-example">
           <div class="example-input">
@@ -47,9 +47,9 @@
           </div>
           <div class="arrow">→</div>
           <div class="example-output">
-            <code>10.0.0.0/20</code> (16 subnets)<br>
-            <code>10.0.16.0/20</code><br>
-            <code>10.0.32.0/20</code><br>
+            <code>10.0.0.0/20</code> (16 subnets)<br />
+            <code>10.0.16.0/20</code><br />
+            <code>10.0.32.0/20</code><br />
             <span class="more">... and 13 more</span>
           </div>
         </div>
@@ -94,15 +94,15 @@
         <div class="note">
           <h5>IPv4 vs IPv6</h5>
           <p>
-            IPv4 uses 32-bit addresses with /0-/32 prefixes. IPv6 uses 128-bit addresses 
-            with /0-/128 prefixes. The splitting logic is identical for both.
+            IPv4 uses 32-bit addresses with /0-/32 prefixes. IPv6 uses 128-bit addresses with /0-/128 prefixes. The
+            splitting logic is identical for both.
           </p>
         </div>
         <div class="note">
           <h5>Network vs Host Addresses</h5>
           <p>
-            In IPv4, the first address is the network address and the last is the broadcast address. 
-            IPv6 doesn't have broadcast, so the first and last addresses are both usable.
+            In IPv4, the first address is the network address and the last is the broadcast address. IPv6 doesn't have
+            broadcast, so the first and last addresses are both usable.
           </p>
         </div>
       </div>
@@ -116,14 +116,14 @@
     padding: var(--spacing-xl);
     background-color: var(--bg-secondary);
     border-radius: var(--radius-lg);
-    
+
     h3 {
       color: var(--color-primary);
       margin-bottom: var(--spacing-md);
       font-size: var(--font-size-lg);
       font-weight: 600;
     }
-    
+
     h4 {
       color: var(--text-primary);
       margin-bottom: var(--spacing-md);
@@ -133,7 +133,7 @@
       align-items: center;
       gap: var(--spacing-sm);
     }
-    
+
     h5 {
       color: var(--color-primary);
       margin-bottom: var(--spacing-sm);
@@ -166,13 +166,13 @@
     align-items: center;
     gap: var(--spacing-md);
     flex-wrap: wrap;
-    
+
     .arrow {
       font-size: var(--font-size-lg);
       color: var(--color-primary);
       font-weight: bold;
     }
-    
+
     code {
       background-color: var(--bg-secondary);
       padding: 2px var(--spacing-xs);
@@ -180,7 +180,7 @@
       font-family: var(--font-mono);
       font-size: var(--font-size-sm);
     }
-    
+
     .more {
       color: var(--text-secondary);
       font-style: italic;
@@ -203,11 +203,11 @@
     background-color: var(--bg-primary);
     border: 1px solid var(--border-secondary);
     border-radius: var(--radius-md);
-    
+
     h5 {
       margin-bottom: var(--spacing-sm);
     }
-    
+
     p {
       color: var(--text-secondary);
       font-size: var(--font-size-sm);
@@ -237,14 +237,14 @@
         color: var(--text-primary);
         font-size: var(--font-size-sm);
         &::before {
-          content: "•";
+          content: '•';
           color: var(--color-info);
           font-weight: bold;
           display: inline-block;
           width: 1em;
           margin-right: var(--spacing-xs);
         }
-        
+
         strong {
           color: var(--color-info);
         }
@@ -268,11 +268,11 @@
     border: 1px solid var(--border-secondary);
     border-left: 4px solid var(--color-warning);
     border-radius: var(--radius-md);
-    
+
     h5 {
       margin-bottom: var(--spacing-sm);
     }
-    
+
     p {
       color: var(--text-secondary);
       font-size: var(--font-size-sm);
@@ -284,13 +284,13 @@
     .split-modes {
       grid-template-columns: 1fr;
     }
-    
+
     .mode-example {
       .arrow {
         transform: rotate(90deg);
       }
     }
-    
+
     .concepts-grid,
     .notes-grid {
       grid-template-columns: 1fr;

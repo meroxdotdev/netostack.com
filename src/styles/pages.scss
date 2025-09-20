@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-lg);
-  
+
   @media (max-width: 768px) {
     gap: var(--spacing-sm);
   }
@@ -18,11 +18,11 @@
 .nav-links {
   display: flex;
   gap: var(--spacing-md);
-  
+
   @media (max-width: 768px) {
     display: none;
   }
-  
+
   .nav-link {
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--radius-sm);
@@ -30,12 +30,12 @@
     color: var(--text-secondary);
     text-decoration: none;
     transition: all var(--transition-fast);
-    
+
     &:hover {
       color: var(--color-primary);
       background-color: var(--surface-hover);
     }
-    
+
     &.active {
       color: var(--color-primary);
       background-color: var(--surface-hover);
@@ -48,15 +48,15 @@
   background-color: var(--bg-tertiary);
   border-bottom: 1px solid var(--border-primary);
   padding: var(--spacing-sm) 0;
-  
+
   .sub-nav-links {
     display: flex;
     gap: var(--spacing-md);
-    
+
     @media (max-width: 768px) {
       gap: var(--spacing-sm);
     }
-    
+
     .sub-nav-link {
       padding: var(--spacing-xs) var(--spacing-md);
       border-radius: var(--radius-sm);
@@ -64,12 +64,12 @@
       color: var(--text-secondary);
       text-decoration: none;
       transition: all var(--transition-fast);
-      
+
       &:hover {
         color: var(--color-primary);
         background-color: var(--surface-hover);
       }
-      
+
       &.active {
         color: var(--color-primary);
         background-color: var(--surface-hover);
@@ -84,10 +84,9 @@
     color: inherit;
     text-decoration: none;
   }
-  
+
   .logo-icon a {
     color: inherit;
     text-decoration: none;
   }
 }
-

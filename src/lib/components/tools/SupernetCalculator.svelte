@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { 
-    calculateSupernet, 
+  import {
+    calculateSupernet,
     generateNetworkId,
     analyzeAggregation,
     type NetworkInput,
-    type SupernetResult
+    type SupernetResult,
   } from '$lib/utils/supernet-calculations.js';
   import IPInput from './IPInput.svelte';
   import Icon from '$lib/components/global/Icon.svelte';
@@ -31,13 +31,13 @@
       id: generateNetworkId(),
       network: '',
       cidr: 24,
-      description: ''
+      description: '',
     });
   }
 
   /* Remove a network input */
   function removeNetwork(id: string) {
-    networks = networks.filter(net => net.id !== id);
+    networks = networks.filter((net) => net.id !== id);
     if (networks.length === 0) {
       supernetResult = null;
     }
@@ -45,7 +45,7 @@
 
   /* Update network input */
   function updateNetwork(id: string, field: keyof NetworkInput, value: any) {
-    const index = networks.findIndex(n => n.id === id);
+    const index = networks.findIndex((n) => n.id === id);
     if (index !== -1) {
       networks[index] = { ...networks[index], [field]: value };
       userModified = true;
@@ -80,8 +80,8 @@
         { id: generateNetworkId(), network: '192.168.0.0', cidr: 25, description: 'Sales Department' },
         { id: generateNetworkId(), network: '192.168.0.128', cidr: 25, description: 'Marketing Department' },
         { id: generateNetworkId(), network: '192.168.1.0', cidr: 25, description: 'Engineering Department' },
-        { id: generateNetworkId(), network: '192.168.1.128', cidr: 25, description: 'HR Department' }
-      ]
+        { id: generateNetworkId(), network: '192.168.1.128', cidr: 25, description: 'HR Department' },
+      ],
     },
     {
       label: 'Home Network',
@@ -91,8 +91,8 @@
         { id: generateNetworkId(), network: '192.168.1.0', cidr: 26, description: 'Main LAN' },
         { id: generateNetworkId(), network: '192.168.1.64', cidr: 27, description: 'Guest Network' },
         { id: generateNetworkId(), network: '192.168.1.96', cidr: 28, description: 'IoT Devices' },
-        { id: generateNetworkId(), network: '192.168.1.112', cidr: 28, description: 'Security Cameras' }
-      ]
+        { id: generateNetworkId(), network: '192.168.1.112', cidr: 28, description: 'Security Cameras' },
+      ],
     },
     {
       label: 'Homelab Setup',
@@ -102,8 +102,8 @@
         { id: generateNetworkId(), network: '10.10.10.0', cidr: 26, description: 'Proxmox VMs' },
         { id: generateNetworkId(), network: '10.10.10.64', cidr: 27, description: 'Docker Containers' },
         { id: generateNetworkId(), network: '10.10.10.96', cidr: 28, description: 'Kubernetes Cluster' },
-        { id: generateNetworkId(), network: '10.10.10.112', cidr: 28, description: 'Storage/NAS' }
-      ]
+        { id: generateNetworkId(), network: '10.10.10.112', cidr: 28, description: 'Storage/NAS' },
+      ],
     },
     {
       label: 'Data Center Networks',
@@ -113,8 +113,8 @@
         { id: generateNetworkId(), network: '10.0.0.0', cidr: 26, description: 'Web Servers' },
         { id: generateNetworkId(), network: '10.0.0.64', cidr: 26, description: 'Database Servers' },
         { id: generateNetworkId(), network: '10.0.0.128', cidr: 26, description: 'Application Servers' },
-        { id: generateNetworkId(), network: '10.0.0.192', cidr: 26, description: 'Management Network' }
-      ]
+        { id: generateNetworkId(), network: '10.0.0.192', cidr: 26, description: 'Management Network' },
+      ],
     },
     {
       label: 'Campus Network',
@@ -124,8 +124,8 @@
         { id: generateNetworkId(), network: '172.16.0.0', cidr: 24, description: 'Building A - Admin' },
         { id: generateNetworkId(), network: '172.16.1.0', cidr: 24, description: 'Building B - Students' },
         { id: generateNetworkId(), network: '172.16.2.0', cidr: 24, description: 'Building C - Faculty' },
-        { id: generateNetworkId(), network: '172.16.3.0', cidr: 24, description: 'Library & Labs' }
-      ]
+        { id: generateNetworkId(), network: '172.16.3.0', cidr: 24, description: 'Library & Labs' },
+      ],
     },
     {
       label: 'Scattered Networks',
@@ -134,14 +134,14 @@
       networks: [
         { id: generateNetworkId(), network: '10.1.0.0', cidr: 24, description: 'Branch Office A' },
         { id: generateNetworkId(), network: '10.3.0.0', cidr: 24, description: 'Branch Office B' },
-        { id: generateNetworkId(), network: '10.5.0.0', cidr: 24, description: 'Branch Office C' }
-      ]
-    }
+        { id: generateNetworkId(), network: '10.5.0.0', cidr: 24, description: 'Branch Office C' },
+      ],
+    },
   ];
 
   /* Add preset example networks */
-  function loadExample(example: typeof examples[0]) {
-    networks = example.networks.map(net => ({ ...net, id: generateNetworkId() }));
+  function loadExample(example: (typeof examples)[0]) {
+    networks = example.networks.map((net) => ({ ...net, id: generateNetworkId() }));
     selectedExample = example.label;
     userModified = false;
   }
@@ -158,16 +158,16 @@
 
   // Single reactive effect for all calculations
   $effect(() => {
-    const validNetworks = networks.filter(net => net.network.trim() !== '');
-    
+    const validNetworks = networks.filter((net) => net.network.trim() !== '');
+
     // Update aggregation analysis
     aggregationAnalysis = analyzeAggregation(validNetworks);
-    
+
     // Calculate supernet if we have networks
     if (validNetworks.length > 0) {
       const result = calculateSupernet(validNetworks);
       supernetResult = result;
-      
+
       if (result.success) {
         showVisualization = true;
       }
@@ -181,7 +181,9 @@
 <div class="card supernet-calc-car">
   <header class="card-header">
     <h2>Supernet Calculator</h2>
-    <p>Aggregate multiple networks into a single supernet for route summarization and efficient routing table management.</p>
+    <p>
+      Aggregate multiple networks into a single supernet for route summarization and efficient routing table management.
+    </p>
   </header>
 
   <!-- Quick Examples -->
@@ -230,10 +232,7 @@
             <span class="network-number">{index + 1}</span>
             <div class="network-inputs-row">
               <div class="network-input">
-                <IPInput 
-                  bind:value={network.network}
-                  placeholder="192.168.1.0"
-                />
+                <IPInput bind:value={network.network} placeholder="192.168.1.0" />
               </div>
               <div class="cidr-input">
                 <label for="cidr-{index}">CIDR</label>
@@ -247,13 +246,7 @@
                     bind:value={network.cidr}
                     class="cidr-slider"
                   />
-                  <input
-                    type="number"
-                    min="8"
-                    max="30"
-                    bind:value={network.cidr}
-                    class="cidr-number"
-                  />
+                  <input type="number" min="8" max="30" bind:value={network.cidr} class="cidr-number" />
                 </div>
               </div>
             </div>
@@ -266,7 +259,7 @@
               <Icon name="trash" size="sm" />
             </button>
           </div>
-          
+
           <div class="network-description">
             <input
               type="text"
@@ -281,23 +274,25 @@
   </div>
 
   <!-- Aggregation Analysis -->
-  {#if aggregationAnalysis && networks.filter(n => n.network.trim()).length > 1}
+  {#if aggregationAnalysis && networks.filter((n) => n.network.trim()).length > 1}
     <div class="analysis-section">
       <h3>Aggregation Analysis</h3>
       <div class="analysis-card">
         <div class="analysis-header">
           <div class="analysis-stat">
-            <span class="stat-label" use:tooltip={"How efficiently the networks can be aggregated - higher is better"}>Aggregation Efficiency</span>
+            <span class="stat-label" use:tooltip={'How efficiently the networks can be aggregated - higher is better'}
+              >Aggregation Efficiency</span
+            >
             <span class="stat-value" style="color: {getEfficiencyColor(aggregationAnalysis.efficiency)}">
               {aggregationAnalysis.efficiency.toFixed(1)}%
             </span>
           </div>
           <div class="analysis-status" class:can-aggregate={aggregationAnalysis.canAggregate}>
-            <Icon name={aggregationAnalysis.canAggregate ? "check-circle" : "alert-triangle"} size="sm" />
+            <Icon name={aggregationAnalysis.canAggregate ? 'check-circle' : 'alert-triangle'} size="sm" />
             {aggregationAnalysis.canAggregate ? 'Can Aggregate' : 'Limited Aggregation'}
           </div>
         </div>
-        
+
         {#if aggregationAnalysis.recommendations.length > 0}
           <div class="recommendations">
             <h4>Recommendations</h4>
@@ -321,20 +316,28 @@
           <h3>Supernet Summary</h3>
           <div class="summary-grid">
             <div class="summary-item">
-              <span class="summary-label" use:tooltip={"The aggregated network address that encompasses all input networks"}>Supernet Address</span>
+              <span
+                class="summary-label"
+                use:tooltip={'The aggregated network address that encompasses all input networks'}
+                >Supernet Address</span
+              >
               <div class="value-copy">
                 <span class="ip-value success">{supernetResult.supernet.network}/{supernetResult.supernet.cidr}</span>
                 <button
                   class="btn btn-icon copy-btn"
                   class:copied={copiedStates['supernet']}
-                  onclick={() => supernetResult?.supernet && copyToClipboard(`${supernetResult.supernet.network}/${supernetResult.supernet.cidr}`, 'supernet')}
+                  onclick={() =>
+                    supernetResult?.supernet &&
+                    copyToClipboard(`${supernetResult.supernet.network}/${supernetResult.supernet.cidr}`, 'supernet')}
                 >
                   <Icon name={copiedStates['supernet'] ? 'check' : 'copy'} size="sm" />
                 </button>
               </div>
             </div>
             <div class="summary-item">
-              <span class="summary-label" use:tooltip={"Total number of host addresses available in the supernet"}>Total Hosts</span>
+              <span class="summary-label" use:tooltip={'Total number of host addresses available in the supernet'}
+                >Total Hosts</span
+              >
               <span class="summary-value">{supernetResult.supernet.totalHosts.toLocaleString()}</span>
             </div>
           </div>
@@ -346,20 +349,28 @@
             <h3>Route Aggregation Benefits</h3>
             <div class="savings-grid">
               <div class="savings-item">
-                <span class="savings-label" use:tooltip={"Number of individual routes before aggregation"}>Original Routes</span>
+                <span class="savings-label" use:tooltip={'Number of individual routes before aggregation'}
+                  >Original Routes</span
+                >
                 <span class="savings-value">{supernetResult.savingsAnalysis.originalRoutes}</span>
               </div>
               <div class="savings-item">
-                <span class="savings-label" use:tooltip={"Number of routes after supernet aggregation"}>Aggregated Routes</span>
+                <span class="savings-label" use:tooltip={'Number of routes after supernet aggregation'}
+                  >Aggregated Routes</span
+                >
                 <span class="savings-value success">{supernetResult.savingsAnalysis.aggregatedRoutes}</span>
               </div>
               <div class="savings-item">
-                <span class="savings-label" use:tooltip={"Number of routes eliminated through aggregation"}>Routes Saved</span>
+                <span class="savings-label" use:tooltip={'Number of routes eliminated through aggregation'}
+                  >Routes Saved</span
+                >
                 <span class="savings-value success">{supernetResult.savingsAnalysis.routeReduction}</span>
               </div>
               <div class="savings-item">
-                <span class="savings-label" use:tooltip={"Percentage reduction in routing table size"}>Reduction</span>
-                <span class="savings-value success">{supernetResult.savingsAnalysis.reductionPercentage.toFixed(1)}%</span>
+                <span class="savings-label" use:tooltip={'Percentage reduction in routing table size'}>Reduction</span>
+                <span class="savings-value success"
+                  >{supernetResult.savingsAnalysis.reductionPercentage.toFixed(1)}%</span
+                >
               </div>
             </div>
           </div>
@@ -370,18 +381,23 @@
           <div class="details-header">
             <h3>Supernet Details</h3>
           </div>
-          
+
           <div class="details-grid">
             <div class="detail-item">
               <div class="detail-label-wrapper">
-                <span class="detail-label" use:tooltip={"The first IP address in the supernet that identifies the network itself"}>Network Address</span>
+                <span
+                  class="detail-label"
+                  use:tooltip={'The first IP address in the supernet that identifies the network itself'}
+                  >Network Address</span
+                >
               </div>
               <div class="value-copy">
                 <code class="detail-value">{supernetResult.supernet.network}</code>
                 <button
                   class="btn btn-icon copy-btn"
                   class:copied={copiedStates['network']}
-                  onclick={() => supernetResult?.supernet && copyToClipboard(supernetResult.supernet.network, 'network')}
+                  onclick={() =>
+                    supernetResult?.supernet && copyToClipboard(supernetResult.supernet.network, 'network')}
                 >
                   <Icon name={copiedStates['network'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -390,14 +406,19 @@
 
             <div class="detail-item">
               <div class="detail-label-wrapper">
-                <span class="detail-label" use:tooltip={"Defines which portion of the IP address represents the network vs host bits"}>Subnet Mask</span>
+                <span
+                  class="detail-label"
+                  use:tooltip={'Defines which portion of the IP address represents the network vs host bits'}
+                  >Subnet Mask</span
+                >
               </div>
               <div class="value-copy">
                 <code class="detail-value">{supernetResult.supernet.subnetMask}</code>
                 <button
                   class="btn btn-icon copy-btn"
                   class:copied={copiedStates['mask']}
-                  onclick={() => supernetResult?.supernet && copyToClipboard(supernetResult.supernet.subnetMask, 'mask')}
+                  onclick={() =>
+                    supernetResult?.supernet && copyToClipboard(supernetResult.supernet.subnetMask, 'mask')}
                 >
                   <Icon name={copiedStates['mask'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -406,14 +427,19 @@
 
             <div class="detail-item">
               <div class="detail-label-wrapper">
-                <span class="detail-label" use:tooltip={"Inverse of subnet mask, used in access control lists and routing protocols"}>Wildcard Mask</span>
+                <span
+                  class="detail-label"
+                  use:tooltip={'Inverse of subnet mask, used in access control lists and routing protocols'}
+                  >Wildcard Mask</span
+                >
               </div>
               <div class="value-copy">
                 <code class="detail-value">{supernetResult.supernet.wildcardMask}</code>
                 <button
                   class="btn btn-icon copy-btn"
                   class:copied={copiedStates['wildcard']}
-                  onclick={() => supernetResult?.supernet && copyToClipboard(supernetResult.supernet.wildcardMask, 'wildcard')}
+                  onclick={() =>
+                    supernetResult?.supernet && copyToClipboard(supernetResult.supernet.wildcardMask, 'wildcard')}
                 >
                   <Icon name={copiedStates['wildcard'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -422,7 +448,11 @@
 
             <div class="detail-item">
               <div class="detail-label-wrapper">
-                <span class="detail-label" use:tooltip={"First and last usable IP addresses in the supernet (excluding network and broadcast)"}>Address Range</span>
+                <span
+                  class="detail-label"
+                  use:tooltip={'First and last usable IP addresses in the supernet (excluding network and broadcast)'}
+                  >Address Range</span
+                >
               </div>
               <div class="value-copy">
                 <code class="detail-value">
@@ -431,7 +461,12 @@
                 <button
                   class="btn btn-icon copy-btn"
                   class:copied={copiedStates['range']}
-                  onclick={() => supernetResult?.supernet && copyToClipboard(`${supernetResult.supernet.addressRange.first} - ${supernetResult.supernet.addressRange.last}`, 'range')}
+                  onclick={() =>
+                    supernetResult?.supernet &&
+                    copyToClipboard(
+                      `${supernetResult.supernet.addressRange.first} - ${supernetResult.supernet.addressRange.last}`,
+                      'range',
+                    )}
                 >
                   <Icon name={copiedStates['range'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -440,14 +475,19 @@
 
             <div class="detail-item full-width">
               <div class="detail-label-wrapper">
-                <span class="detail-label" use:tooltip={"Binary representation of the subnet mask showing network (1) and host (0) bits"}>Binary Subnet Mask</span>
+                <span
+                  class="detail-label"
+                  use:tooltip={'Binary representation of the subnet mask showing network (1) and host (0) bits'}
+                  >Binary Subnet Mask</span
+                >
               </div>
               <div class="value-copy">
                 <code class="detail-value binary-mask">{supernetResult.supernet.binaryMask}</code>
                 <button
                   class="btn btn-icon copy-btn"
                   class:copied={copiedStates['binary']}
-                  onclick={() => supernetResult?.supernet && copyToClipboard(supernetResult.supernet.binaryMask, 'binary')}
+                  onclick={() =>
+                    supernetResult?.supernet && copyToClipboard(supernetResult.supernet.binaryMask, 'binary')}
                 >
                   <Icon name={copiedStates['binary'] ? 'check' : 'copy'} size="sm" />
                 </button>
@@ -465,7 +505,7 @@
                 <h4>Input Networks vs Supernet</h4>
                 <p>Visual representation of how individual networks are aggregated into a supernet</p>
               </div>
-              
+
               <div class="network-diagram">
                 <div class="input-networks">
                   <h5>Input Networks</h5>
@@ -480,12 +520,12 @@
                     </div>
                   {/each}
                 </div>
-                
+
                 <div class="aggregation-arrow">
                   <Icon name="arrow-down" size="lg" />
                   <span>Aggregates to</span>
                 </div>
-                
+
                 <div class="supernet-visual">
                   <h5>Supernet</h5>
                   <div class="supernet-bar">
@@ -497,7 +537,6 @@
             </div>
           </div>
         {/if}
-
       {:else}
         <!-- Error Display -->
         <div class="info-panel error">
@@ -556,7 +595,7 @@
       font-size: var(--font-size-md);
     }
   }
-  
+
   .examples-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -739,7 +778,7 @@
     appearance: none;
     cursor: pointer;
     outline: none;
-    
+
     &::-webkit-slider-thumb {
       appearance: none;
       height: 1.25rem;
@@ -749,7 +788,7 @@
       cursor: pointer;
       box-shadow: var(--shadow-md);
       transition: transform var(--transition-fast);
-      
+
       &:hover {
         transform: scale(1.1);
       }
@@ -764,7 +803,7 @@
       border: none;
       box-shadow: var(--shadow-md);
       transition: transform var(--transition-fast);
-      
+
       &:hover {
         transform: scale(1.1);
       }
@@ -774,15 +813,15 @@
   .cidr-number {
     width: 3.5rem;
     text-align: center;
-    
+
     /* Hide number input arrows */
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
     }
-    
-    &[type=number] {
+
+    &[type='number'] {
       -moz-appearance: textfield;
       appearance: textfield;
     }
@@ -839,12 +878,12 @@
     border-radius: var(--radius-sm);
     font-size: var(--font-size-sm);
     font-weight: 500;
-    
+
     &.can-aggregate {
       color: var(--color-success);
       background-color: rgba(35, 134, 54, 0.1);
     }
-    
+
     &:not(.can-aggregate) {
       color: var(--color-warning);
       background-color: rgba(210, 153, 34, 0.1);
@@ -862,18 +901,18 @@
       color: var(--text-primary);
       margin-bottom: var(--spacing-sm);
     }
-    
+
     ul {
       list-style: none;
       padding: 0;
       margin: 0;
-      
+
       li {
         color: var(--text-secondary);
         font-size: var(--font-size-sm);
-        
+
         &::before {
-          content: "•";
+          content: '•';
           color: var(--color-primary);
           margin-right: var(--spacing-sm);
         }
@@ -927,7 +966,7 @@
     font-weight: 600;
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--radius-sm);
-    
+
     &.success {
       color: var(--color-success);
       background-color: rgba(35, 134, 54, 0.1);
@@ -959,7 +998,7 @@
     font-size: var(--font-size-lg);
     font-weight: 600;
     color: var(--text-primary);
-    
+
     &.success {
       color: var(--color-success);
     }
@@ -976,7 +1015,7 @@
     align-items: center;
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-lg);
-    
+
     h3 {
       margin: 0;
       color: var(--color-primary);
@@ -997,7 +1036,7 @@
       grid-column: span 2;
     }
     :global(.icon) {
-      width: var(--spacing-md)
+      width: var(--spacing-md);
     }
   }
 
@@ -1012,7 +1051,7 @@
       color: var(--text-secondary);
       opacity: 0.7;
       transition: opacity var(--transition-fast);
-      
+
       &:hover {
         opacity: 1;
         color: var(--color-info);
@@ -1042,7 +1081,7 @@
     flex: 1;
     min-width: 0; /* Allow text to wrap/truncate */
     font-size: var(--font-size-sm);
-    
+
     &.binary-mask {
       font-size: var(--font-size-xs);
       word-break: break-all;
@@ -1092,12 +1131,12 @@
   .visualization-header {
     text-align: center;
     margin-bottom: var(--spacing-lg);
-    
+
     h4 {
       color: var(--color-primary);
       margin-bottom: var(--spacing-sm);
     }
-    
+
     p {
       color: var(--text-secondary);
       font-size: var(--font-size-sm);
@@ -1114,7 +1153,7 @@
 
   .input-networks {
     width: 100%;
-    
+
     h5 {
       text-align: center;
       color: var(--text-primary);
@@ -1128,8 +1167,9 @@
 
   .network-bar {
     padding: var(--spacing-md);
-    background: linear-gradient(135deg, 
-      hsl(calc(200 + var(--network-index) * 40), 70%, 50%), 
+    background: linear-gradient(
+      135deg,
+      hsl(calc(200 + var(--network-index) * 40), 70%, 50%),
       hsl(calc(220 + var(--network-index) * 40), 60%, 60%)
     );
     border-radius: var(--radius-md);
@@ -1137,12 +1177,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
+
     .network-label {
       font-family: var(--font-mono);
       font-weight: 600;
     }
-    
+
     .network-desc {
       font-size: var(--font-size-sm);
       opacity: 0.9;
@@ -1156,7 +1196,7 @@
     gap: var(--spacing-xs);
     color: var(--color-primary);
     font-weight: 500;
-    
+
     :global(.icon) {
       width: 2rem;
       height: 2rem;
@@ -1165,7 +1205,7 @@
 
   .supernet-visual {
     width: 100%;
-    
+
     h5 {
       text-align: center;
       color: var(--text-primary);
@@ -1182,13 +1222,13 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: var(--shadow-md);
-    
+
     .supernet-label {
       font-family: var(--font-mono);
       font-weight: 700;
       font-size: var(--font-size-lg);
     }
-    
+
     .supernet-hosts {
       font-size: var(--font-size-sm);
       opacity: 0.9;

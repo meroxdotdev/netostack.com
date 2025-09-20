@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
+
   let inputAddress = $state('192.168.1.100');
   let customPrefix = $state('64:ff9b::/96');
   let conversionMode = $state<'ipv4-to-ipv6' | 'ipv6-to-ipv4'>('ipv4-to-ipv6');
@@ -29,32 +29,32 @@
       address: '192.168.1.100',
       prefix: '64:ff9b::/96',
       mode: 'ipv4-to-ipv6' as const,
-      description: 'Private IPv4 address with default NAT64 prefix'
+      description: 'Private IPv4 address with default NAT64 prefix',
     },
     {
       label: 'Public IPv4',
       address: '8.8.8.8',
       prefix: '64:ff9b::/96',
       mode: 'ipv4-to-ipv6' as const,
-      description: 'Google DNS server with standard prefix'
+      description: 'Google DNS server with standard prefix',
     },
     {
       label: 'Custom Prefix',
       address: '10.0.0.1',
       prefix: '2001:db8:64::/96',
       mode: 'ipv4-to-ipv6' as const,
-      description: 'Documentation prefix for NAT64'
+      description: 'Documentation prefix for NAT64',
     },
     {
       label: 'IPv6 to IPv4',
       address: '64:ff9b::c0a8:164',
       prefix: '64:ff9b::/96',
       mode: 'ipv6-to-ipv4' as const,
-      description: 'Extract IPv4 from NAT64 address'
-    }
+      description: 'Extract IPv4 from NAT64 address',
+    },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     inputAddress = example.address;
     customPrefix = example.prefix;
     conversionMode = example.mode;
@@ -66,42 +66,42 @@
   function expandIPv6(address: string): string {
     // Remove zone ID if present
     const cleanAddress = address.split('%')[0];
-    
+
     // Handle :: compression
     let expanded = cleanAddress;
     if (cleanAddress.includes('::')) {
       const parts = cleanAddress.split('::');
       const leftParts = parts[0] ? parts[0].split(':') : [];
       const rightParts = parts[1] ? parts[1].split(':') : [];
-      
+
       const totalParts = leftParts.length + rightParts.length;
       const missingParts = 8 - totalParts;
-      
+
       const middleParts = Array(missingParts).fill('0000');
       const allParts = [...leftParts, ...middleParts, ...rightParts];
       expanded = allParts.join(':');
     }
-    
+
     // Pad each group to 4 characters
     return expanded
       .split(':')
-      .map(group => group.padStart(4, '0'))
+      .map((group) => group.padStart(4, '0'))
       .join(':');
   }
 
   function compressIPv6(address: string): string {
     // First expand to normalize
     const expanded = expandIPv6(address);
-    
+
     // Remove leading zeros from each group
-    let groups = expanded.split(':').map(group => group.replace(/^0+/, '') || '0');
-    
+    let groups = expanded.split(':').map((group) => group.replace(/^0+/, '') || '0');
+
     // Find the longest sequence of consecutive '0' groups
     let maxZeroStart = -1;
     let maxZeroLength = 0;
     let currentZeroStart = -1;
     let currentZeroLength = 0;
-    
+
     for (let i = 0; i < groups.length; i++) {
       if (groups[i] === '0') {
         if (currentZeroStart === -1) {
@@ -119,18 +119,18 @@
         currentZeroLength = 0;
       }
     }
-    
+
     // Check the last sequence
     if (currentZeroLength > maxZeroLength) {
       maxZeroStart = currentZeroStart;
       maxZeroLength = currentZeroLength;
     }
-    
+
     // Replace the longest zero sequence with ::
     if (maxZeroLength > 1) {
       const beforeZeros = groups.slice(0, maxZeroStart);
       const afterZeros = groups.slice(maxZeroStart + maxZeroLength);
-      
+
       if (beforeZeros.length === 0) {
         return '::' + afterZeros.join(':');
       } else if (afterZeros.length === 0) {
@@ -139,15 +139,15 @@
         return beforeZeros.join(':') + '::' + afterZeros.join(':');
       }
     }
-    
+
     return groups.join(':');
   }
 
   function isValidIPv4(address: string): boolean {
     const parts = address.split('.');
     if (parts.length !== 4) return false;
-    
-    return parts.every(part => {
+
+    return parts.every((part) => {
       const num = parseInt(part, 10);
       return !isNaN(num) && num >= 0 && num <= 255 && part === num.toString();
     });
@@ -157,14 +157,14 @@
     try {
       const expanded = expandIPv6(address);
       const groups = expanded.split(':');
-      
+
       if (groups.length !== 8) return false;
-      
+
       for (const group of groups) {
         if (group.length !== 4) return false;
         if (!/^[0-9a-fA-F]{4}$/.test(group)) return false;
       }
-      
+
       return true;
     } catch {
       return false;
@@ -174,18 +174,21 @@
   function parsePrefix(prefix: string): { network: string; length: number } {
     const [network, lengthStr] = prefix.split('/');
     const length = parseInt(lengthStr, 10);
-    
+
     if (!isValidIPv6(network) || isNaN(length) || length < 0 || length > 128) {
       throw new Error('Invalid IPv6 prefix format');
     }
-    
+
     return { network, length };
   }
 
-  function ipv4ToNAT64(ipv4: string, prefix: string): { 
-    ipv6: string; 
-    prefixUsed: string; 
-    prefixLength: number; 
+  function ipv4ToNAT64(
+    ipv4: string,
+    prefix: string,
+  ): {
+    ipv6: string;
+    prefixUsed: string;
+    prefixLength: number;
     ipv4Hex: string;
     explanation: string[];
   } {
@@ -194,24 +197,24 @@
     }
 
     const { network, length } = parsePrefix(prefix);
-    
+
     // NAT64 requires /96 prefix length for standard operation
     if (length !== 96) {
       throw new Error('NAT64 prefix must be /96 for proper IPv4 embedding');
     }
 
     // Convert IPv4 to hex representation
-    const parts = ipv4.split('.').map(part => parseInt(part, 10));
-    const ipv4Hex = parts.map(part => part.toString(16).padStart(2, '0')).join('');
-    
+    const parts = ipv4.split('.').map((part) => parseInt(part, 10));
+    const ipv4Hex = parts.map((part) => part.toString(16).padStart(2, '0')).join('');
+
     // Get the first 96 bits (6 groups) from the prefix
     const expandedPrefix = expandIPv6(network);
     const prefixGroups = expandedPrefix.split(':').slice(0, 6);
-    
+
     // Embed IPv4 in last 32 bits (2 groups)
     const ipv4Group1 = ipv4Hex.substring(0, 4);
     const ipv4Group2 = ipv4Hex.substring(4, 8);
-    
+
     const nat64Groups = [...prefixGroups, ipv4Group1, ipv4Group2];
     const nat64Address = nat64Groups.join(':');
     const compressedAddress = compressIPv6(nat64Address);
@@ -222,7 +225,7 @@
       `3. IPv4 as hex: ${ipv4Hex} (${ipv4Group1}:${ipv4Group2})`,
       `4. NAT64 prefix: ${prefix} → first 96 bits`,
       `5. Combine: ${network.split(':').slice(0, 6).join(':')}:${ipv4Group1}:${ipv4Group2}`,
-      `6. Compressed: ${compressedAddress}`
+      `6. Compressed: ${compressedAddress}`,
     ];
 
     return {
@@ -230,11 +233,14 @@
       prefixUsed: prefix,
       prefixLength: length,
       ipv4Hex,
-      explanation
+      explanation,
     };
   }
 
-  function nat64ToIPv4(ipv6: string, expectedPrefix: string): {
+  function nat64ToIPv4(
+    ipv6: string,
+    expectedPrefix: string,
+  ): {
     ipv4: string;
     prefixUsed: string;
     prefixLength: number;
@@ -246,17 +252,17 @@
     }
 
     const { network, length } = parsePrefix(expectedPrefix);
-    
+
     if (length !== 96) {
       throw new Error('NAT64 prefix must be /96 for proper IPv4 extraction');
     }
 
     const expandedIPv6 = expandIPv6(ipv6);
     const expandedPrefix = expandIPv6(network);
-    
+
     const ipv6Groups = expandedIPv6.split(':');
     const prefixGroups = expandedPrefix.split(':').slice(0, 6);
-    
+
     // Check if the IPv6 address matches the expected prefix
     for (let i = 0; i < 6; i++) {
       if (ipv6Groups[i] !== prefixGroups[i]) {
@@ -268,13 +274,13 @@
     const ipv4Group1 = ipv6Groups[6];
     const ipv4Group2 = ipv6Groups[7];
     const ipv4Hex = ipv4Group1 + ipv4Group2;
-    
+
     // Convert hex back to IPv4
     const byte1 = parseInt(ipv4Hex.substring(0, 2), 16);
     const byte2 = parseInt(ipv4Hex.substring(2, 4), 16);
     const byte3 = parseInt(ipv4Hex.substring(4, 6), 16);
     const byte4 = parseInt(ipv4Hex.substring(6, 8), 16);
-    
+
     const ipv4 = `${byte1}.${byte2}.${byte3}.${byte4}`;
 
     const explanation = [
@@ -283,7 +289,7 @@
       `3. Expected prefix: ${expectedPrefix}`,
       `4. Verify prefix match: ✓ First 96 bits match`,
       `5. Extract IPv4 hex: ${ipv4Group1}:${ipv4Group2} → ${ipv4Hex}`,
-      `6. Convert to IPv4: ${ipv4Hex} → ${byte1}.${byte2}.${byte3}.${byte4}`
+      `6. Convert to IPv4: ${ipv4Hex} → ${byte1}.${byte2}.${byte3}.${byte4}`,
     ];
 
     return {
@@ -291,7 +297,7 @@
       prefixUsed: expectedPrefix,
       prefixLength: length,
       ipv4Hex,
-      explanation
+      explanation,
     };
   }
 
@@ -313,10 +319,10 @@
     try {
       const trimmedInput = inputAddress.trim();
       const trimmedPrefix = customPrefix.trim();
-      
+
       // Auto-detect input type if not manually set
       const detectedType = autoDetectInputType(trimmedInput);
-      
+
       if (detectedType === 'unknown') {
         throw new Error('Invalid IP address format. Please enter a valid IPv4 or IPv6 address.');
       }
@@ -330,7 +336,7 @@
         }
         translationResult = ipv4ToNAT64(trimmedInput, trimmedPrefix);
         inputType = 'ipv4';
-        
+
         result = {
           success: true,
           originalAddress: trimmedInput,
@@ -341,8 +347,8 @@
             prefixUsed: translationResult.prefixUsed,
             prefixLength: translationResult.prefixLength,
             ipv4Hex: translationResult.ipv4Hex,
-            explanation: translationResult.explanation
-          }
+            explanation: translationResult.explanation,
+          },
         };
       } else {
         if (detectedType !== 'ipv6') {
@@ -350,7 +356,7 @@
         }
         translationResult = nat64ToIPv4(trimmedInput, trimmedPrefix);
         inputType = 'ipv6';
-        
+
         result = {
           success: true,
           originalAddress: trimmedInput,
@@ -361,11 +367,10 @@
             prefixUsed: translationResult.prefixUsed,
             prefixLength: translationResult.prefixLength,
             ipv4Hex: translationResult.ipv4Hex,
-            explanation: translationResult.explanation
-          }
+            explanation: translationResult.explanation,
+          },
         };
       }
-
     } catch (error) {
       result = {
         success: false,
@@ -378,8 +383,8 @@
           prefixUsed: '',
           prefixLength: 0,
           ipv4Hex: '',
-          explanation: []
-        }
+          explanation: [],
+        },
       };
     }
   }
@@ -430,7 +435,8 @@
       <div class="overview-item">
         <Icon name="globe" size="sm" />
         <div>
-          <strong>Well-Known Prefix:</strong> <code>64:ff9b::/96</code> is the standard prefix defined in RFC 6052 for NAT64 translation.
+          <strong>Well-Known Prefix:</strong> <code>64:ff9b::/96</code> is the standard prefix defined in RFC 6052 for NAT64
+          translation.
         </div>
       </div>
       <div class="overview-item">
@@ -477,24 +483,14 @@
       <h3 class="mode-label">Conversion Direction</h3>
       <div class="mode-options">
         <label class="mode-option">
-          <input
-            type="radio"
-            bind:group={conversionMode}
-            value="ipv4-to-ipv6"
-            onchange={handleModeChange}
-          />
+          <input type="radio" bind:group={conversionMode} value="ipv4-to-ipv6" onchange={handleModeChange} />
           <div class="mode-content">
             <Icon name="arrow-right" size="sm" />
             <span>IPv4 → IPv6</span>
           </div>
         </label>
         <label class="mode-option">
-          <input
-            type="radio"
-            bind:group={conversionMode}
-            value="ipv6-to-ipv4"
-            onchange={handleModeChange}
-          />
+          <input type="radio" bind:group={conversionMode} value="ipv6-to-ipv4" onchange={handleModeChange} />
           <div class="mode-content">
             <Icon name="arrow-left" size="sm" />
             <span>IPv6 → IPv4</span>
@@ -505,12 +501,11 @@
 
     <!-- IP Address Input -->
     <div class="input-group">
-      <label 
+      <label
         for="address-input"
-        use:tooltip={conversionMode === 'ipv4-to-ipv6' 
-          ? "Enter an IPv4 address to convert to NAT64 IPv6 format"
-          : "Enter a NAT64 IPv6 address to extract the embedded IPv4"
-        }
+        use:tooltip={conversionMode === 'ipv4-to-ipv6'
+          ? 'Enter an IPv4 address to convert to NAT64 IPv6 format'
+          : 'Enter a NAT64 IPv6 address to extract the embedded IPv4'}
       >
         <Icon name={conversionMode === 'ipv4-to-ipv6' ? 'globe' : 'globe'} size="sm" />
         {conversionMode === 'ipv4-to-ipv6' ? 'IPv4 Address' : 'NAT64 IPv6 Address'}
@@ -528,9 +523,9 @@
 
     <!-- NAT64 Prefix Input -->
     <div class="input-group">
-      <label 
+      <label
         for="prefix-input"
-        use:tooltip={"NAT64 prefix must be /96. Default is 64:ff9b::/96 (RFC 6052 well-known prefix)"}
+        use:tooltip={'NAT64 prefix must be /96. Default is 64:ff9b::/96 (RFC 6052 well-known prefix)'}
       >
         <Icon name="hash" size="sm" />
         NAT64 Prefix
@@ -544,9 +539,7 @@
         class="prefix-input"
         spellcheck="false"
       />
-      <div class="input-hint">
-        Must be a /96 prefix for proper IPv4 embedding
-      </div>
+      <div class="input-hint">Must be a /96 prefix for proper IPv4 embedding</div>
     </div>
   </div>
 
@@ -568,11 +561,11 @@
               <div class="step-label">Input ({result.details.inputType.toUpperCase()})</div>
               <code class="step-value">{result.originalAddress}</code>
             </div>
-            
+
             <div class="translation-arrow">
               <Icon name="arrow-right" size="lg" />
             </div>
-            
+
             <div class="translation-step output">
               <div class="step-label">Output ({result.details.inputType === 'ipv4' ? 'IPv6' : 'IPv4'})</div>
               <div class="step-content">
@@ -599,7 +592,7 @@
             <Icon name="settings" size="sm" />
             Technical Details
           </h4>
-          
+
           <div class="details-grid">
             <div class="detail-item">
               <span class="detail-label">IPv4 Hex Representation:</span>
@@ -635,7 +628,6 @@
             {/each}
           </div>
         </div>
-
       {:else}
         <div class="error-result">
           <Icon name="alert-triangle" size="lg" />
@@ -664,8 +656,8 @@
           What is NAT64?
         </h4>
         <p>
-          NAT64 is a stateless IP/ICMP translation mechanism that allows IPv6-only clients to communicate 
-          with IPv4-only servers. It embeds IPv4 addresses within IPv6 addresses using a /96 prefix.
+          NAT64 is a stateless IP/ICMP translation mechanism that allows IPv6-only clients to communicate with IPv4-only
+          servers. It embeds IPv4 addresses within IPv6 addresses using a /96 prefix.
         </p>
       </div>
 
@@ -675,8 +667,8 @@
           Well-Known Prefix
         </h4>
         <p>
-          RFC 6052 defines <code>64:ff9b::/96</code> as the well-known prefix for NAT64 translation. 
-          This prefix is reserved for this purpose and should not be routed on the global Internet.
+          RFC 6052 defines <code>64:ff9b::/96</code> as the well-known prefix for NAT64 translation. This prefix is reserved
+          for this purpose and should not be routed on the global Internet.
         </p>
       </div>
 
@@ -686,8 +678,9 @@
           Address Structure
         </h4>
         <p>
-          NAT64 addresses use 96 bits for the prefix and embed the 32-bit IPv4 address in the 
-          remaining bits: <code>Prefix::/96 + IPv4(32 bits)</code>
+          NAT64 addresses use 96 bits for the prefix and embed the 32-bit IPv4 address in the remaining bits: <code
+            >Prefix::/96 + IPv4(32 bits)</code
+          >
         </p>
       </div>
 
@@ -697,8 +690,8 @@
           Use Cases
         </h4>
         <p>
-          Common in IPv6 transition scenarios, dual-stack networks, and environments where 
-          IPv6-only clients need to access legacy IPv4 services through translation gateways.
+          Common in IPv6 transition scenarios, dual-stack networks, and environments where IPv6-only clients need to
+          access legacy IPv4 services through translation gateways.
         </p>
       </div>
     </div>
@@ -721,7 +714,7 @@
     align-items: flex-start;
     gap: var(--spacing-sm);
     color: var(--text-secondary);
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
@@ -742,7 +735,7 @@
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -829,12 +822,12 @@
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
     font-weight: 600;
-    
+
     &.ipv4-to-ipv6 {
       background-color: rgba(34, 197, 94, 0.1);
       color: var(--color-success);
     }
-    
+
     &.ipv6-to-ipv4 {
       background-color: rgba(59, 130, 246, 0.1);
       color: var(--color-primary);
@@ -891,7 +884,7 @@
     position: relative;
     cursor: pointer;
 
-    input[type="radio"] {
+    input[type='radio'] {
       position: absolute;
       opacity: 0;
       pointer-events: none;
@@ -915,7 +908,7 @@
       border-color: var(--border-primary);
     }
 
-    input[type="radio"]:checked + .mode-content {
+    input[type='radio']:checked + .mode-content {
       background-color: var(--surface-hover);
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
@@ -936,7 +929,8 @@
     }
   }
 
-  .address-input, .prefix-input {
+  .address-input,
+  .prefix-input {
     width: 100%;
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-lg);
@@ -1239,7 +1233,7 @@
       line-height: 1.6;
       margin: 0;
     }
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);

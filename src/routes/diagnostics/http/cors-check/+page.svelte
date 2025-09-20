@@ -3,7 +3,7 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import { formatDNSError } from '$lib/utils/dns-validation.js';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let url = $state('https://api.github.com');
   let origin = $state('https://example.com');
   let method = $state('GET');
@@ -17,22 +17,29 @@
   const examples = [
     { url: 'https://api.github.com', origin: 'https://example.com', description: 'GitHub API CORS policy' },
     { url: 'https://httpbin.org/get', origin: 'https://test.com', description: 'HTTPBin CORS test' },
-    { url: 'https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current=temperature_2m', origin: 'https://weather-app.com', description: 'Open weather API' },
-    { url: 'https://jsonplaceholder.typicode.com/posts/1', origin: 'https://example.org', description: 'JSON Placeholder API' }
+    {
+      url: 'https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current=temperature_2m',
+      origin: 'https://weather-app.com',
+      description: 'Open weather API',
+    },
+    {
+      url: 'https://jsonplaceholder.typicode.com/posts/1',
+      origin: 'https://example.org',
+      description: 'JSON Placeholder API',
+    },
   ];
 
   // Reactive validation
   const isInputValid = $derived(() => {
     const trimmedUrl = url.trim();
     const trimmedOrigin = origin.trim();
-    
+
     if (!trimmedUrl || !trimmedOrigin) return false;
-    
+
     try {
       const parsedUrl = new URL(trimmedUrl);
       const parsedOrigin = new URL(trimmedOrigin);
-      return ['http:', 'https:'].includes(parsedUrl.protocol) && 
-             ['http:', 'https:'].includes(parsedOrigin.protocol);
+      return ['http:', 'https:'].includes(parsedUrl.protocol) && ['http:', 'https:'].includes(parsedOrigin.protocol);
     } catch {
       return false;
     }
@@ -46,7 +53,7 @@
     // Validation
     const trimmedUrl = url.trim();
     const trimmedOrigin = origin.trim();
-    
+
     if (!trimmedUrl) {
       error = 'URL is required';
       loading = false;
@@ -77,20 +84,20 @@
           url: trimmedUrl,
           method,
           headers: {
-            origin: trimmedOrigin
-          }
-        })
+            origin: trimmedOrigin,
+          },
+        }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         let errorMessage = `CORS check failed (${response.status})`;
-        
+
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) errorMessage = errorData.message;
         } catch {}
-        
+
         throw new Error(errorMessage);
       }
 
@@ -102,7 +109,7 @@
     }
   }
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     url = example.url;
     origin = example.origin;
     checkCORS();
@@ -110,37 +117,37 @@
 
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `CORS Policy Analysis\nURL: ${url}\nOrigin: ${origin}\nMethod: ${method}\n\n`;
-    
+
     text += `Preflight Status: ${results.preflight.status}\n`;
     text += `Origin Allowed: ${results.preflight.allowed ? 'Yes' : 'No'}\n`;
     text += `CORS Enabled: ${results.analysis.corsEnabled ? 'Yes' : 'No'}\n\n`;
-    
+
     if (results.analysis.allowedMethods.length > 0) {
       text += `Allowed Methods: ${results.analysis.allowedMethods.join(', ')}\n`;
     }
-    
+
     if (results.analysis.allowedHeaders.length > 0) {
       text += `Allowed Headers: ${results.analysis.allowedHeaders.join(', ')}\n`;
     }
-    
+
     text += `Credentials Allowed: ${results.analysis.allowsCredentials ? 'Yes' : 'No'}\n`;
-    
+
     if (results.analysis.maxAge) {
       text += `Max Age: ${results.analysis.maxAge} seconds\n`;
     }
-    
+
     if (Object.keys(results.preflight.headers || {}).length > 0) {
       text += '\nCORS Headers:\n';
       Object.entries(results.preflight.headers).forEach(([key, value]) => {
         text += `${key}: ${value}\n`;
       });
     }
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 
   function getAccessClass(allowed: boolean): string {
@@ -153,7 +160,7 @@
 
   function getCORSStatusText(): string {
     if (!results?.analysis) return 'Unknown';
-    
+
     if (!results.analysis.corsEnabled) return 'No CORS Policy';
     if (results.analysis.allowsOrigin) return 'Access Allowed';
     return 'Access Denied';
@@ -161,7 +168,7 @@
 
   function getCORSStatusClass(): string {
     if (!results?.analysis) return '';
-    
+
     if (!results.analysis.corsEnabled) return 'warning';
     if (results.analysis.allowsOrigin) return 'success';
     return 'error';
@@ -171,7 +178,10 @@
 <div class="card">
   <header class="card-header">
     <h1>CORS Policy Checker</h1>
-    <p>Test Cross-Origin Resource Sharing (CORS) policies by sending preflight requests and analyzing the server's CORS configuration. Check if your origin is allowed to access the target resource.</p>
+    <p>
+      Test Cross-Origin Resource Sharing (CORS) policies by sending preflight requests and analyzing the server's CORS
+      configuration. Check if your origin is allowed to access the target resource.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -200,15 +210,17 @@
     <div class="card-content">
       <div class="form-grid">
         <div class="form-group">
-          <label for="url" use:tooltip={"Target API/resource URL to test CORS against"}>
+          <label for="url" use:tooltip={'Target API/resource URL to test CORS against'}>
             Target URL
-            <input 
-              id="url" 
-              type="url" 
-              bind:value={url} 
+            <input
+              id="url"
+              type="url"
+              bind:value={url}
               placeholder="https://api.example.com"
               class:invalid={url && !isInputValid()}
-              onchange={() => { if (isInputValid()) checkCORS(); }}
+              onchange={() => {
+                if (isInputValid()) checkCORS();
+              }}
             />
             {#if url && !isInputValid()}
               <span class="error-text">Invalid URL format</span>
@@ -219,13 +231,15 @@
         <div class="form-group">
           <label for="origin" use:tooltip={"Your website's origin (where the request would come from)"}>
             Origin
-            <input 
-              id="origin" 
-              type="url" 
-              bind:value={origin} 
+            <input
+              id="origin"
+              type="url"
+              bind:value={origin}
               placeholder="https://yoursite.com"
               class:invalid={origin && !isInputValid}
-              onchange={() => { if (isInputValid()) checkCORS(); }}
+              onchange={() => {
+                if (isInputValid()) checkCORS();
+              }}
             />
             {#if origin && !isInputValid}
               <span class="error-text">Invalid origin format</span>
@@ -234,9 +248,15 @@
         </div>
 
         <div class="form-group">
-          <label for="method" use:tooltip={"HTTP method to test in preflight request"}>
+          <label for="method" use:tooltip={'HTTP method to test in preflight request'}>
             Method
-            <select id="method" bind:value={method} onchange={() => { if (isInputValid()) checkCORS(); }}>
+            <select
+              id="method"
+              bind:value={method}
+              onchange={() => {
+                if (isInputValid()) checkCORS();
+              }}
+            >
               {#each methods as methodOption}
                 <option value={methodOption}>{methodOption}</option>
               {/each}
@@ -244,7 +264,7 @@
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={checkCORS} disabled={loading || !isInputValid}>
           {#if loading}
@@ -265,8 +285,10 @@
       <div class="card-header">
         <h3>CORS Policy Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Results"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
@@ -307,7 +329,11 @@
               <Icon name={results.analysis.corsEnabled ? 'check' : 'x'} size="sm" />
               <div>
                 <strong>CORS Enabled</strong>
-                <p>{results.analysis.corsEnabled ? 'Server has CORS headers configured' : 'No CORS headers found - requests will be blocked by browsers'}</p>
+                <p>
+                  {results.analysis.corsEnabled
+                    ? 'Server has CORS headers configured'
+                    : 'No CORS headers found - requests will be blocked by browsers'}
+                </p>
               </div>
             </div>
 
@@ -329,7 +355,11 @@
               <Icon name={results.analysis.allowsCredentials ? 'check' : 'x'} size="sm" />
               <div>
                 <strong>Credentials Support</strong>
-                <p>{results.analysis.allowsCredentials ? 'Cookies and credentials can be sent' : 'Cookies and credentials cannot be sent'}</p>
+                <p>
+                  {results.analysis.allowsCredentials
+                    ? 'Cookies and credentials can be sent'
+                    : 'Cookies and credentials cannot be sent'}
+                </p>
               </div>
             </div>
           </div>
@@ -367,7 +397,8 @@
               {#each Object.entries(results.preflight.headers) as [name, value]}
                 <div class="record-item">
                   <div class="record-data">
-                    <strong>{name}:</strong> {value}
+                    <strong>{name}:</strong>
+                    {value}
                   </div>
                 </div>
               {/each}
@@ -382,7 +413,9 @@
           <div class="no-records">
             <Icon name="x-circle" size="md" />
             <p>No CORS headers found</p>
-            <p class="help-text">The server does not provide CORS headers - cross-origin requests will be blocked by browsers</p>
+            <p class="help-text">
+              The server does not provide CORS headers - cross-origin requests will be blocked by browsers
+            </p>
           </div>
         {/if}
       </div>
@@ -412,14 +445,20 @@
       <div class="info-grid">
         <div class="info-section">
           <h4>What is CORS?</h4>
-          <p>Cross-Origin Resource Sharing (CORS) is a security mechanism that allows or restricts web pages from making requests to a different domain, protocol, or port than the one serving the web page.</p>
+          <p>
+            Cross-Origin Resource Sharing (CORS) is a security mechanism that allows or restricts web pages from making
+            requests to a different domain, protocol, or port than the one serving the web page.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>Preflight Requests</h4>
-          <p>For certain requests, browsers send a preflight OPTIONS request to check if the actual request is allowed. The server responds with CORS headers indicating permissions.</p>
+          <p>
+            For certain requests, browsers send a preflight OPTIONS request to check if the actual request is allowed.
+            The server responds with CORS headers indicating permissions.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>Common CORS Headers</h4>
           <ul>
@@ -474,7 +513,8 @@
     }
   }
 
-  .method-list, .header-list {
+  .method-list,
+  .header-list {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-xs);

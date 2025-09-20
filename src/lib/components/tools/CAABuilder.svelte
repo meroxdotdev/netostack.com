@@ -13,43 +13,43 @@
   let records = $state<CAARecord[]>([
     { flag: 0, tag: 'issue', value: '', enabled: false },
     { flag: 0, tag: 'issuewild', value: '', enabled: false },
-    { flag: 0, tag: 'iodef', value: '', enabled: false }
+    { flag: 0, tag: 'iodef', value: '', enabled: false },
   ]);
 
   let showExamples = $state(false);
   let selectedExample = $state<string | null>(null);
-  
+
   // Button success states
   let buttonStates = $state<Record<string, boolean>>({});
 
   const commonCAs = [
-    { name: 'Let\'s Encrypt', value: 'letsencrypt.org' },
+    { name: "Let's Encrypt", value: 'letsencrypt.org' },
     { name: 'DigiCert', value: 'digicert.com' },
     { name: 'Sectigo', value: 'sectigo.com' },
     { name: 'GlobalSign', value: 'globalsign.com' },
     { name: 'GoDaddy', value: 'godaddy.com' },
     { name: 'Amazon (ACM)', value: 'amazon.com' },
     { name: 'Google Trust Services', value: 'pki.goog' },
-    { name: 'Cloudflare', value: 'comodoca.com' }
+    { name: 'Cloudflare', value: 'comodoca.com' },
   ];
 
   const tagDescriptions = {
     issue: 'Authorize certificate issuance for this domain',
-    issuewild: 'Authorize wildcard certificate issuance for this domain', 
-    iodef: 'Contact information for certificate abuse reports'
+    issuewild: 'Authorize wildcard certificate issuance for this domain',
+    iodef: 'Contact information for certificate abuse reports',
   };
 
   const flagDescriptions = {
     0: 'Non-critical flag - unknown tags can be ignored',
-    128: 'Critical flag - unknown tags must cause rejection'
+    128: 'Critical flag - unknown tags must cause rejection',
   };
 
   const caaRecords = $derived.by(() => {
     return records
-      .filter(record => record.enabled && record.value.trim())
-      .map(record => {
+      .filter((record) => record.enabled && record.value.trim())
+      .map((record) => {
         let value = record.value.trim();
-        
+
         // Format iodef values properly
         if (record.tag === 'iodef') {
           if (value.includes('@') && !value.startsWith('mailto:')) {
@@ -58,7 +58,7 @@
             value = `https://${value}`;
           }
         }
-        
+
         return `${domain}. IN CAA ${record.flag} ${record.tag} "${value}"`;
       });
   });
@@ -66,43 +66,43 @@
   const validation = $derived.by(() => {
     const warnings: string[] = [];
     const errors: string[] = [];
-    const enabledRecords = records.filter(r => r.enabled);
-    
+    const enabledRecords = records.filter((r) => r.enabled);
+
     // Check domain format
     if (!domain.trim()) {
       errors.push('Domain is required');
     } else if (!domain.includes('.')) {
       warnings.push('Domain should include TLD (e.g., .com, .org)');
     }
-    
+
     // Check if any records are enabled
     if (enabledRecords.length === 0) {
       warnings.push('No CAA records enabled - this will not provide any protection');
     }
-    
+
     // Check for issue records
-    const issueRecords = enabledRecords.filter(r => r.tag === 'issue');
-    const issuewildRecords = enabledRecords.filter(r => r.tag === 'issuewild');
-    
+    const issueRecords = enabledRecords.filter((r) => r.tag === 'issue');
+    const issuewildRecords = enabledRecords.filter((r) => r.tag === 'issuewild');
+
     if (issueRecords.length === 0 && issuewildRecords.length === 0) {
       warnings.push('No issue or issuewild records - certificates can be issued by any CA');
     }
-    
+
     // Check for wildcard without base issue
     if (issuewildRecords.length > 0 && issueRecords.length === 0) {
       warnings.push('Wildcard authorization without base domain authorization may cause issues');
     }
-    
+
     // Check for deny-all configuration
-    const hasIssueNone = issueRecords.some(r => r.value.trim() === ';');
-    const hasIssuewildNone = issuewildRecords.some(r => r.value.trim() === ';');
-    
+    const hasIssueNone = issueRecords.some((r) => r.value.trim() === ';');
+    const hasIssuewildNone = issuewildRecords.some((r) => r.value.trim() === ';');
+
     if (hasIssueNone && hasIssuewildNone) {
       warnings.push('Both issue and issuewild set to ";" - this will block ALL certificate issuance');
     }
-    
+
     // Validate iodef records
-    const iodefRecords = enabledRecords.filter(r => r.tag === 'iodef');
+    const iodefRecords = enabledRecords.filter((r) => r.tag === 'iodef');
     for (const record of iodefRecords) {
       const value = record.value.trim();
       if (value) {
@@ -116,11 +116,11 @@
         }
       }
     }
-    
+
     // Check for conflicting records
     const duplicateValues = new Set<string>();
     const seen = new Set<string>();
-    
+
     for (const record of enabledRecords) {
       const key = `${record.tag}:${record.value.trim()}`;
       if (seen.has(key)) {
@@ -128,16 +128,16 @@
       }
       seen.add(key);
     }
-    
+
     if (duplicateValues.size > 0) {
       warnings.push(`Duplicate CAA records found: ${Array.from(duplicateValues).join(', ')}`);
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
       warnings,
-      recordCount: enabledRecords.length
+      recordCount: enabledRecords.length,
     };
   });
 
@@ -146,7 +146,7 @@
       flag: 0,
       tag,
       value: '',
-      enabled: true
+      enabled: true,
     });
     records = records;
   }
@@ -190,13 +190,13 @@
 
   const exampleConfigurations = [
     {
-      name: 'Let\'s Encrypt Only',
-      description: 'Allow only Let\'s Encrypt certificates',
+      name: "Let's Encrypt Only",
+      description: "Allow only Let's Encrypt certificates",
       domain: 'example.com',
       records: [
         { flag: 0, tag: 'issue' as const, value: 'letsencrypt.org', enabled: true },
-        { flag: 0, tag: 'iodef' as const, value: 'security@example.com', enabled: true }
-      ]
+        { flag: 0, tag: 'iodef' as const, value: 'security@example.com', enabled: true },
+      ],
     },
     {
       name: 'Multiple CAs',
@@ -206,8 +206,8 @@
         { flag: 0, tag: 'issue' as const, value: 'letsencrypt.org', enabled: true },
         { flag: 0, tag: 'issue' as const, value: 'digicert.com', enabled: true },
         { flag: 0, tag: 'issuewild' as const, value: 'letsencrypt.org', enabled: true },
-        { flag: 0, tag: 'iodef' as const, value: 'certificates@mycompany.com', enabled: true }
-      ]
+        { flag: 0, tag: 'iodef' as const, value: 'certificates@mycompany.com', enabled: true },
+      ],
     },
     {
       name: 'No Certificates',
@@ -216,30 +216,28 @@
       records: [
         { flag: 0, tag: 'issue' as const, value: ';', enabled: true },
         { flag: 0, tag: 'issuewild' as const, value: ';', enabled: true },
-        { flag: 0, tag: 'iodef' as const, value: 'security@example.com', enabled: true }
-      ]
-    }
+        { flag: 0, tag: 'iodef' as const, value: 'security@example.com', enabled: true },
+      ],
+    },
   ];
 
-  function loadExample(example: typeof exampleConfigurations[0]): void {
+  function loadExample(example: (typeof exampleConfigurations)[0]): void {
     domain = example.domain;
-    
+
     // Reset all records
-    records = records.map(r => ({ ...r, enabled: false, value: '' }));
-    
+    records = records.map((r) => ({ ...r, enabled: false, value: '' }));
+
     // Add example records
     for (const exampleRecord of example.records) {
-      const existingIndex = records.findIndex(r => 
-        r.tag === exampleRecord.tag && !r.enabled
-      );
-      
+      const existingIndex = records.findIndex((r) => r.tag === exampleRecord.tag && !r.enabled);
+
       if (existingIndex >= 0) {
         records[existingIndex] = { ...exampleRecord };
       } else {
         records.push({ ...exampleRecord });
       }
     }
-    
+
     records = records;
     selectedExample = example.name;
     showExamples = false;
@@ -250,7 +248,7 @@
     'Use specific CAs: Only authorize certificate authorities you actually use',
     'Include wildcards: Add issuewild records if you use wildcard certificates',
     'Monitor regularly: Check iodef notifications for unauthorized issuance attempts',
-    'Test thoroughly: Verify legitimate certificate renewals still work after deployment'
+    'Test thoroughly: Verify legitimate certificate renewals still work after deployment',
   ];
 </script>
 
@@ -258,7 +256,8 @@
   <div class="card-header">
     <h1>CAA Record Builder</h1>
     <p class="card-subtitle">
-      Build CAA (Certificate Authority Authorization) records to control which CAs can issue certificates for your domain.
+      Build CAA (Certificate Authority Authorization) records to control which CAs can issue certificates for your
+      domain.
     </p>
   </div>
 
@@ -271,17 +270,10 @@
             Domain Configuration
           </h3>
         </div>
-        
+
         <div class="input-group">
-          <label for="domain" use:tooltip={"Domain to create CAA records for"}>
-            Domain:
-          </label>
-          <input
-            id="domain"
-            type="text"
-            bind:value={domain}
-            placeholder="example.com"
-          />
+          <label for="domain" use:tooltip={'Domain to create CAA records for'}> Domain: </label>
+          <input id="domain" type="text" bind:value={domain} placeholder="example.com" />
         </div>
       </div>
 
@@ -296,7 +288,7 @@
               type="button"
               class="add-btn"
               onclick={() => addRecord('issue')}
-              use:tooltip={"Add certificate issuance authorization"}
+              use:tooltip={'Add certificate issuance authorization'}
             >
               <Icon name="plus" size="sm" />
               Issue
@@ -305,7 +297,7 @@
               type="button"
               class="add-btn"
               onclick={() => addRecord('issuewild')}
-              use:tooltip={"Add wildcard certificate issuance authorization"}
+              use:tooltip={'Add wildcard certificate issuance authorization'}
             >
               <Icon name="plus" size="sm" />
               Wildcard
@@ -314,14 +306,14 @@
               type="button"
               class="add-btn"
               onclick={() => addRecord('iodef')}
-              use:tooltip={"Add incident reporting contact"}
+              use:tooltip={'Add incident reporting contact'}
             >
               <Icon name="plus" size="sm" />
               Contact
             </button>
           </div>
         </div>
-        
+
         <div class="records-list">
           {#each records as record, index}
             <div class="record-item" class:enabled={record.enabled}>
@@ -333,7 +325,7 @@
                     {tagDescriptions[record.tag]}
                   </span>
                 </label>
-                
+
                 <div class="record-controls">
                   <div class="flag-select">
                     <select bind:value={record.flag} disabled={!record.enabled}>
@@ -341,29 +333,31 @@
                       <option value={128}>Flag 128 (Critical)</option>
                     </select>
                   </div>
-                  
+
                   <button
                     type="button"
                     class="remove-btn"
                     onclick={() => removeRecord(index)}
-                    use:tooltip={"Remove this record"}
+                    use:tooltip={'Remove this record'}
                   >
                     <Icon name="x" size="sm" />
                   </button>
                 </div>
               </div>
-              
+
               <div class="record-value-section">
                 <input
                   type="text"
                   bind:value={record.value}
                   disabled={!record.enabled}
-                  placeholder={record.tag === 'issue' ? 'letsencrypt.org or ; (to deny all)' :
-                              record.tag === 'issuewild' ? 'letsencrypt.org or ; (to deny all)' :
-                              'security@example.com or https://example.com/security'}
+                  placeholder={record.tag === 'issue'
+                    ? 'letsencrypt.org or ; (to deny all)'
+                    : record.tag === 'issuewild'
+                      ? 'letsencrypt.org or ; (to deny all)'
+                      : 'security@example.com or https://example.com/security'}
                   class="record-input"
                 />
-                
+
                 {#if (record.tag === 'issue' || record.tag === 'issuewild') && record.enabled}
                   <div class="ca-shortcuts">
                     <span class="shortcuts-label">Common CAs:</span>
@@ -382,7 +376,7 @@
                         type="button"
                         class="ca-btn deny-all"
                         onclick={() => addCA(index, ';')}
-                        use:tooltip={"Deny all certificate issuance"}
+                        use:tooltip={'Deny all certificate issuance'}
                       >
                         Deny All
                       </button>
@@ -406,10 +400,10 @@
               class="copy-btn"
               class:success={buttonStates['copy-caa']}
               onclick={() => copyToClipboard(caaRecords.join('\n'), 'copy-caa')}
-              use:tooltip={"Copy all CAA records to clipboard"}
+              use:tooltip={'Copy all CAA records to clipboard'}
               disabled={caaRecords.length === 0}
             >
-              <Icon name={buttonStates['copy-caa'] ? "check" : "copy"} size="sm" />
+              <Icon name={buttonStates['copy-caa'] ? 'check' : 'copy'} size="sm" />
               {buttonStates['copy-caa'] ? 'Copied!' : 'Copy'}
             </button>
             <button
@@ -417,15 +411,15 @@
               class="export-btn"
               class:success={buttonStates['export-caa']}
               onclick={exportAsZoneFile}
-              use:tooltip={"Download as zone file"}
+              use:tooltip={'Download as zone file'}
               disabled={caaRecords.length === 0}
             >
-              <Icon name={buttonStates['export-caa'] ? "check" : "download"} size="sm" />
+              <Icon name={buttonStates['export-caa'] ? 'check' : 'download'} size="sm" />
               {buttonStates['export-caa'] ? 'Downloaded!' : 'Export'}
             </button>
           </div>
         </div>
-        
+
         {#if caaRecords.length > 0}
           <div class="records-output">
             {#each caaRecords as record}
@@ -449,7 +443,7 @@
             Policy Validation
           </h3>
         </div>
-        
+
         <div class="validation-stats">
           <div class="stat-item">
             <span class="stat-label">Active Records:</span>
@@ -500,7 +494,7 @@
             Security Tips
           </h3>
         </div>
-        
+
         <div class="security-tips">
           <ul>
             {#each securityTips as tip}
@@ -545,7 +539,8 @@
 </div>
 
 <style lang="scss">
-  .domain-section, .records-section {
+  .domain-section,
+  .records-section {
     margin-bottom: var(--spacing-lg);
   }
 
@@ -563,7 +558,8 @@
       color: var(--color-text);
     }
 
-    .actions, .add-buttons {
+    .actions,
+    .add-buttons {
       display: flex;
       gap: var(--spacing-xs);
     }
@@ -656,7 +652,7 @@
     flex: 1;
     min-width: 0;
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       width: 16px;
       height: 16px;
       accent-color: var(--color-primary);
@@ -765,7 +761,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
-    
+
     .shortcuts-label {
       font-size: var(--font-size-xs);
       color: var(--color-text-secondary);
@@ -862,11 +858,11 @@
   .stat-value {
     font-weight: 600;
     font-family: var(--font-mono);
-    
+
     &.success {
       color: var(--color-success);
     }
-    
+
     &.error {
       color: var(--color-error);
     }
@@ -1022,7 +1018,8 @@
     }
   }
 
-  .copy-btn, .export-btn {
+  .copy-btn,
+  .export-btn {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -1043,7 +1040,7 @@
       background: var(--color-success) !important;
       color: var(--bg-secondary) !important;
       transform: scale(1.05);
-      
+
       &:hover {
         background: var(--color-success) !important;
       }

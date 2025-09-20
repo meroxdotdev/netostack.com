@@ -15,38 +15,38 @@
   const examples = [
     {
       input: '192.168.1.0/24 @ 10',
-      description: 'Get 10th IP from a /24 subnet'
+      description: 'Get 10th IP from a /24 subnet',
     },
     {
       input: '10.0.0.0-10.0.0.255 [128]\n172.16.0.0/16 1000',
-      description: 'Multiple range types with different indices'
+      description: 'Multiple range types with different indices',
     },
     {
       input: '2001:db8::/64#100\nfe80::/10 @ 50',
-      description: 'IPv6 networks with various formats'
+      description: 'IPv6 networks with various formats',
     },
     {
       input: '192.168.0.0/16 + 100\n10.0.0.0/8 [5000]',
-      description: 'Large networks with high indices'
+      description: 'Large networks with high indices',
     },
     {
       input: '203.0.113.0/24 @ 1\n203.0.113.0/24 @ -1',
-      description: 'First and last IP using positive/negative indexing'
+      description: 'First and last IP using positive/negative indexing',
     },
     {
       input: '192.168.1.1-192.168.1.100 [25]\n192.168.1.101-192.168.1.200 [75]',
-      description: 'Sequential IP ranges with specific indices'
+      description: 'Sequential IP ranges with specific indices',
     },
     {
       input: '2001:db8:85a3::/48#65536\nfc00::/7 @ 1000000',
-      description: 'Large IPv6 address spaces'
+      description: 'Large IPv6 address spaces',
     },
     {
       input: '127.0.0.0/8 @ 256\n::1/128 @ 0\n169.254.0.0/16 [32768]',
-      description: 'Special-use addresses: loopback and link-local'
-    }
+      description: 'Special-use addresses: loopback and link-local',
+    },
   ];
-  
+
   function calculateIPs() {
     if (!inputText.trim()) {
       result = null;
@@ -56,12 +56,12 @@
     isLoading = true;
 
     try {
-      const inputs = inputText.split('\n').filter(line => line.trim());
+      const inputs = inputText.split('\n').filter((line) => line.trim());
       if (inputs.length === 0) {
         result = {
           calculations: [],
           summary: { totalCalculations: 0, validCalculations: 0, invalidCalculations: 0, outOfBoundsCalculations: 0 },
-          errors: ['No valid input lines found']
+          errors: ['No valid input lines found'],
         };
         return;
       }
@@ -71,24 +71,25 @@
       result = {
         calculations: [],
         summary: { totalCalculations: 0, validCalculations: 0, invalidCalculations: 0, outOfBoundsCalculations: 0 },
-        errors: [error instanceof Error ? error.message : 'Unknown error occurred while calculating nth IPs']
+        errors: [error instanceof Error ? error.message : 'Unknown error occurred while calculating nth IPs'],
       };
     } finally {
       isLoading = false;
     }
   }
-  
+
   function exportResults(format: 'csv' | 'json') {
     if (!result) return;
-    
+
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
     let content = '';
     let filename = '';
-    
+
     if (format === 'csv') {
       const headers = 'Input,Network,Index,Offset,Result IP,Version,Total Addresses,In Bounds,Valid,Error';
-      const rows = result.calculations.map(calc => 
-        `"${calc.input}","${calc.network}","${calc.index}","${calc.offset}","${calc.resultIP}","IPv${calc.version}","${calc.totalAddresses}","${calc.isInBounds}","${calc.isValid}","${calc.error || ''}"`
+      const rows = result.calculations.map(
+        (calc) =>
+          `"${calc.input}","${calc.network}","${calc.index}","${calc.offset}","${calc.resultIP}","IPv${calc.version}","${calc.totalAddresses}","${calc.isInBounds}","${calc.isValid}","${calc.error || ''}"`,
       );
       content = [headers, ...rows].join('\n');
       filename = `nth-ip-${timestamp}.csv`;
@@ -96,7 +97,7 @@
       content = JSON.stringify(result, null, 2);
       filename = `nth-ip-${timestamp}.json`;
     }
-    
+
     const blob = new Blob([content], { type: format === 'csv' ? 'text/csv' : 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -105,8 +106,8 @@
     a.click();
     URL.revokeObjectURL(url);
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     inputText = example.input;
     selectedExampleIndex = index;
     userModified = false;
@@ -129,7 +130,7 @@
       console.error('Failed to copy to clipboard:', error);
     }
   }
-  
+
   // Auto-calculate when inputs change
   $effect(() => {
     if (inputText.trim()) {
@@ -178,7 +179,10 @@
     <div class="card-content">
       <div class="form-row">
         <div class="form-group textarea-group">
-          <label for="inputs" use:tooltip={"Enter network and index specifications, one per line. Supports formats: network @ index, network [index], network index, or network#index"}>
+          <label
+            for="inputs"
+            use:tooltip={'Enter network and index specifications, one per line. Supports formats: network @ index, network [index], network index, or network#index'}
+          >
             Network and Index Specifications
           </label>
           <textarea
@@ -195,7 +199,7 @@
 
         <div class="options-section">
           <div class="option-group">
-            <label for="offset" use:tooltip={"Add this value to all index calculations (0-based indexing)"}>
+            <label for="offset" use:tooltip={'Add this value to all index calculations (0-based indexing)'}>
               Global Offset
             </label>
             <input
@@ -206,9 +210,7 @@
               placeholder="0"
               min="0"
             />
-            <div class="option-help">
-              Add this value to all index calculations (0-based indexing)
-            </div>
+            <div class="option-help">Add this value to all index calculations (0-based indexing)</div>
           </div>
         </div>
       </div>
@@ -251,8 +253,14 @@
             <button
               class="copy-btn"
               class:copied={copiedStates['summary']}
-              onclick={() => result && result.summary && copyToClipboard(`Total: ${result.summary.totalCalculations}\nValid: ${result.summary.validCalculations}\nInvalid: ${result.summary.invalidCalculations}\nOut of Bounds: ${result.summary.outOfBoundsCalculations}`, 'summary')}
-              use:tooltip={"Copy summary to clipboard"}
+              onclick={() =>
+                result &&
+                result.summary &&
+                copyToClipboard(
+                  `Total: ${result.summary.totalCalculations}\nValid: ${result.summary.validCalculations}\nInvalid: ${result.summary.invalidCalculations}\nOut of Bounds: ${result.summary.outOfBoundsCalculations}`,
+                  'summary',
+                )}
+              use:tooltip={'Copy summary to clipboard'}
             >
               <Icon name={copiedStates['summary'] ? 'check' : 'copy'} size="xs" />
               {copiedStates['summary'] ? 'Copied!' : 'Copy'}
@@ -270,11 +278,15 @@
               </div>
               <div class="info-card">
                 <div class="info-label">Invalid</div>
-                <div class="metric-value" class:error={result.summary.invalidCalculations > 0}>{result.summary.invalidCalculations}</div>
+                <div class="metric-value" class:error={result.summary.invalidCalculations > 0}>
+                  {result.summary.invalidCalculations}
+                </div>
               </div>
               <div class="info-card">
                 <div class="info-label">Out of Bounds</div>
-                <div class="metric-value" class:warning={result.summary.outOfBoundsCalculations > 0}>{result.summary.outOfBoundsCalculations}</div>
+                <div class="metric-value" class:warning={result.summary.outOfBoundsCalculations > 0}>
+                  {result.summary.outOfBoundsCalculations}
+                </div>
               </div>
             </div>
           </div>
@@ -284,24 +296,25 @@
           <div class="card-header row">
             <h3>IP Calculations</h3>
             <div class="export-buttons">
-              <button onclick={() => exportResults('csv')} use:tooltip={"Export results as CSV file"}>
+              <button onclick={() => exportResults('csv')} use:tooltip={'Export results as CSV file'}>
                 <Icon name="csv-file" size="xs" />
                 Export CSV
               </button>
-              <button onclick={() => exportResults('json')} use:tooltip={"Export results as JSON file"}>
+              <button onclick={() => exportResults('json')} use:tooltip={'Export results as JSON file'}>
                 <Icon name="json-file" size="xs" />
                 Export JSON
               </button>
             </div>
           </div>
           <div class="card-content">
-
             <div class="calculations-list">
               {#each result.calculations as calculation, index}
-                <div class="calculation-card"
-                     class:valid={calculation.isValid && calculation.isInBounds}
-                     class:out-of-bounds={calculation.isValid && !calculation.isInBounds}
-                     class:invalid={!calculation.isValid}>
+                <div
+                  class="calculation-card"
+                  class:valid={calculation.isValid && calculation.isInBounds}
+                  class:out-of-bounds={calculation.isValid && !calculation.isInBounds}
+                  class:invalid={!calculation.isValid}
+                >
                   <div class="calc-header">
                     <div class="input-info">
                       <div class="value-copy">
@@ -310,28 +323,32 @@
                           class="copy-btn"
                           class:copied={copiedStates[`input-${index}`]}
                           onclick={() => copyToClipboard(calculation.input, `input-${index}`)}
-                          use:tooltip={"Copy input specification"}
+                          use:tooltip={'Copy input specification'}
                         >
                           <Icon name={copiedStates[`input-${index}`] ? 'check' : 'copy'} size="xs" />
                         </button>
                       </div>
                       <div class="input-meta">
-                        <span class="network-type" use:tooltip={`Network type: ${calculation.inputType}`}>{calculation.inputType.toUpperCase()}</span>
-                        <span class="ip-version" use:tooltip={`IP version ${calculation.version}`}>IPv{calculation.version}</span>
+                        <span class="network-type" use:tooltip={`Network type: ${calculation.inputType}`}
+                          >{calculation.inputType.toUpperCase()}</span
+                        >
+                        <span class="ip-version" use:tooltip={`IP version ${calculation.version}`}
+                          >IPv{calculation.version}</span
+                        >
                       </div>
                     </div>
 
                     <div class="status">
                       {#if calculation.isValid && calculation.isInBounds}
-                        <span use:tooltip={"Valid calculation within bounds"}>
+                        <span use:tooltip={'Valid calculation within bounds'}>
                           <Icon name="check-circle" size="md" />
                         </span>
                       {:else if calculation.isValid && !calculation.isInBounds}
-                        <span use:tooltip={"Valid calculation but index out of bounds"}>
+                        <span use:tooltip={'Valid calculation but index out of bounds'}>
                           <Icon name="alert-circle" size="md" />
                         </span>
                       {:else}
-                        <span use:tooltip={"Invalid calculation"}>
+                        <span use:tooltip={'Invalid calculation'}>
                           <Icon name="x-circle" size="md" />
                         </span>
                       {/if}
@@ -342,14 +359,16 @@
                     <div class="calculation-details">
                       <div class="result-section">
                         <div class="result-ip">
-                          <span class="result-label" use:tooltip={"The calculated IP address at the specified index"}>Result IP:</span>
+                          <span class="result-label" use:tooltip={'The calculated IP address at the specified index'}
+                            >Result IP:</span
+                          >
                           <div class="value-copy">
                             <span class="result-value">{calculation.resultIP}</span>
                             <button
                               class="copy-btn"
                               class:copied={copiedStates[`result-${index}`]}
                               onclick={() => copyToClipboard(calculation.resultIP, `result-${index}`)}
-                              use:tooltip={"Copy result IP address"}
+                              use:tooltip={'Copy result IP address'}
                             >
                               <Icon name={copiedStates[`result-${index}`] ? 'check' : 'copy'} size="xs" />
                             </button>
@@ -365,19 +384,19 @@
                       </div>
 
                       <div class="calculation-info">
-                          <div class="details-header">
+                        <div class="details-header">
                           <h4>Calculation Details</h4>
                         </div>
                         <div class="info-grid">
                           <div class="info-card">
-                            <div class="info-label" use:tooltip={"Network or range being processed"}>Network</div>
+                            <div class="info-label" use:tooltip={'Network or range being processed'}>Network</div>
                             <div class="value-copy">
                               <span class="ip-value">{calculation.network}</span>
                               <button
                                 class="copy-btn"
                                 class:copied={copiedStates[`network-${index}`]}
                                 onclick={() => copyToClipboard(calculation.network, `network-${index}`)}
-                                use:tooltip={"Copy network address"}
+                                use:tooltip={'Copy network address'}
                               >
                                 <Icon name={copiedStates[`network-${index}`] ? 'check' : 'copy'} size="xs" />
                               </button>
@@ -385,17 +404,21 @@
                           </div>
 
                           <div class="info-card">
-                            <div class="info-label" use:tooltip={"Total number of addresses in this network"}>Total Addresses</div>
+                            <div class="info-label" use:tooltip={'Total number of addresses in this network'}>
+                              Total Addresses
+                            </div>
                             <div class="metric-value">{calculation.totalAddresses}</div>
                           </div>
 
                           <div class="info-card">
-                            <div class="info-label" use:tooltip={"The index position requested"}>Index</div>
+                            <div class="info-label" use:tooltip={'The index position requested'}>Index</div>
                             <div class="metric-value info">{calculation.index}</div>
                           </div>
 
                           <div class="info-card">
-                            <div class="info-label" use:tooltip={"Global offset applied to the calculation"}>Offset</div>
+                            <div class="info-label" use:tooltip={'Global offset applied to the calculation'}>
+                              Offset
+                            </div>
                             <div class="metric-value">{calculation.offset}</div>
                           </div>
                         </div>
@@ -403,52 +426,60 @@
 
                       {#if calculation.details}
                         <div>
-                        <div class="details-header">
-                          <h4>Network Details</h4>
-                        </div>
-                        <div class="network-details">
-                          <div class="details-grid">
-                            <div class="info-card">
-                              <div class="info-label" use:tooltip={"First IP address in the network"}>Start</div>
-                              <div class="value-copy">
-                                <span class="ip-value">{calculation.details.networkStart}</span>
-                                <button
-                                  class="copy-btn"
-                                  class:copied={copiedStates[`start-${index}`]}
-                                  onclick={() => calculation.details && copyToClipboard(calculation.details.networkStart, `start-${index}`)}
-                                  use:tooltip={"Copy network start address"}
-                                >
-                                  <Icon name={copiedStates[`start-${index}`] ? 'check' : 'copy'} size="xs" />
-                                </button>
+                          <div class="details-header">
+                            <h4>Network Details</h4>
+                          </div>
+                          <div class="network-details">
+                            <div class="details-grid">
+                              <div class="info-card">
+                                <div class="info-label" use:tooltip={'First IP address in the network'}>Start</div>
+                                <div class="value-copy">
+                                  <span class="ip-value">{calculation.details.networkStart}</span>
+                                  <button
+                                    class="copy-btn"
+                                    class:copied={copiedStates[`start-${index}`]}
+                                    onclick={() =>
+                                      calculation.details &&
+                                      copyToClipboard(calculation.details.networkStart, `start-${index}`)}
+                                    use:tooltip={'Copy network start address'}
+                                  >
+                                    <Icon name={copiedStates[`start-${index}`] ? 'check' : 'copy'} size="xs" />
+                                  </button>
+                                </div>
                               </div>
-                            </div>
 
-                            <div class="info-card">
-                              <div class="info-label" use:tooltip={"Last IP address in the network"}>End</div>
-                              <div class="value-copy">
-                                <span class="ip-value">{calculation.details.networkEnd}</span>
-                                <button
-                                  class="copy-btn"
-                                  class:copied={copiedStates[`end-${index}`]}
-                                  onclick={() => calculation.details && copyToClipboard(calculation.details.networkEnd, `end-${index}`)}
-                                  use:tooltip={"Copy network end address"}
-                                >
-                                  <Icon name={copiedStates[`end-${index}`] ? 'check' : 'copy'} size="xs" />
-                                </button>
+                              <div class="info-card">
+                                <div class="info-label" use:tooltip={'Last IP address in the network'}>End</div>
+                                <div class="value-copy">
+                                  <span class="ip-value">{calculation.details.networkEnd}</span>
+                                  <button
+                                    class="copy-btn"
+                                    class:copied={copiedStates[`end-${index}`]}
+                                    onclick={() =>
+                                      calculation.details &&
+                                      copyToClipboard(calculation.details.networkEnd, `end-${index}`)}
+                                    use:tooltip={'Copy network end address'}
+                                  >
+                                    <Icon name={copiedStates[`end-${index}`] ? 'check' : 'copy'} size="xs" />
+                                  </button>
+                                </div>
                               </div>
-                            </div>
 
-                            <div class="info-card">
-                              <div class="info-label" use:tooltip={"The actual index used (including offset)"}>Actual Index</div>
-                              <div class="metric-value info">{calculation.details.actualIndex}</div>
-                            </div>
+                              <div class="info-card">
+                                <div class="info-label" use:tooltip={'The actual index used (including offset)'}>
+                                  Actual Index
+                                </div>
+                                <div class="metric-value info">{calculation.details.actualIndex}</div>
+                              </div>
 
-                            <div class="info-card">
-                              <div class="info-label" use:tooltip={"Maximum valid index for this network"}>Max Index</div>
-                              <div class="metric-value">{calculation.details.maxIndex}</div>
+                              <div class="info-card">
+                                <div class="info-label" use:tooltip={'Maximum valid index for this network'}>
+                                  Max Index
+                                </div>
+                                <div class="metric-value">{calculation.details.maxIndex}</div>
+                              </div>
                             </div>
                           </div>
-                        </div>
                         </div>
                       {/if}
                     </div>
@@ -574,7 +605,9 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
-    .card { width: 100%; }
+    .card {
+      width: 100%;
+    }
   }
 
   .error-content {
@@ -795,7 +828,6 @@
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
 
-
     .details-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -807,13 +839,15 @@
     }
   }
 
-  .info-grid, .details-grid {
+  .info-grid,
+  .details-grid {
     background: var(--bg-secondary);
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
     .info-card {
       flex-direction: column;
-      .metric-value, .value-copy {
+      .metric-value,
+      .value-copy {
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 100%;

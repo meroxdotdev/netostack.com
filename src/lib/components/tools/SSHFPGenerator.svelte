@@ -12,13 +12,13 @@
   let inputType = $state<'public-key' | 'fingerprint'>('public-key');
   let publicKeyInput = $state('');
   let fingerprintInput = $state('');
-  
+
   let algorithm = $state(1);
   let fingerprintType = $state(1);
 
   let showExamples = $state(false);
   let selectedExample = $state<string | null>(null);
-  
+
   // Button success states
   let buttonStates = $state<Record<string, boolean>>({});
 
@@ -26,37 +26,41 @@
     1: 'RSA - Traditional RSA algorithm (most common)',
     2: 'DSA - Digital Signature Algorithm (deprecated)',
     3: 'ECDSA - Elliptic Curve Digital Signature Algorithm',
-    4: 'Ed25519 - Edwards-curve Digital Signature Algorithm (modern, recommended)'
+    4: 'Ed25519 - Edwards-curve Digital Signature Algorithm (modern, recommended)',
   };
 
   const fingerprintTypeDescriptions = {
     1: 'SHA-1 - Legacy hash algorithm (160-bit)',
-    2: 'SHA-256 - Modern hash algorithm (256-bit, recommended)'
+    2: 'SHA-256 - Modern hash algorithm (256-bit, recommended)',
   };
 
   const sshfpRecord = $derived.by(() => {
     let fingerprintValue = '';
-    
+
     if (inputType === 'fingerprint') {
       // Use provided fingerprint directly
-      fingerprintValue = fingerprintInput.trim().replace(/[^a-fA-F0-9]/g, '').toLowerCase();
+      fingerprintValue = fingerprintInput
+        .trim()
+        .replace(/[^a-fA-F0-9]/g, '')
+        .toLowerCase();
     } else if (inputType === 'public-key') {
       // For demo purposes, we'll show how it would work
       // In a real implementation, you'd parse the public key and generate the fingerprint
       if (publicKeyInput.trim()) {
         // Generate demo fingerprint based on fingerprint type
-        fingerprintValue = fingerprintType === 1 
-          ? 'abcd1234567890abcdef1234567890abcdef1234' 
-          : 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab';
+        fingerprintValue =
+          fingerprintType === 1
+            ? 'abcd1234567890abcdef1234567890abcdef1234'
+            : 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab';
       }
     }
-    
+
     if (!fingerprintValue) return null;
-    
+
     return {
       algorithm,
       fingerprintType,
-      fingerprint: fingerprintValue
+      fingerprint: fingerprintValue,
     };
   });
 
@@ -68,14 +72,14 @@
   const validation = $derived.by(() => {
     const warnings: string[] = [];
     const errors: string[] = [];
-    
+
     // Check domain format
     if (!domain.trim()) {
       errors.push('Domain is required');
     } else if (!domain.includes('.')) {
       warnings.push('Domain should include TLD (e.g., .com, .org)');
     }
-    
+
     // Check public key/fingerprint input
     if (inputType === 'public-key') {
       if (!publicKeyInput.trim()) {
@@ -100,20 +104,20 @@
         }
       }
     }
-    
+
     // Algorithm recommendations
     if (algorithm === 2) {
       warnings.push('DSA algorithm is deprecated and should be avoided');
     }
-    
+
     if (fingerprintType === 1) {
       warnings.push('SHA-1 is deprecated - use SHA-256 for new deployments');
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   });
 
@@ -131,7 +135,7 @@
 
   function exportAsZoneFile(): void {
     if (!dnsRecord) return;
-    
+
     const zoneContent = dnsRecord;
     const blob = new Blob([zoneContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -152,11 +156,12 @@
       // 1. Parse the OpenSSH public key format
       // 2. Extract the key material
       // 3. Hash it with the chosen algorithm
-      
-      const demoFingerprint = fingerprintType === 1 
-        ? 'abcd1234567890abcdef1234567890abcdef1234' 
-        : 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab';
-        
+
+      const demoFingerprint =
+        fingerprintType === 1
+          ? 'abcd1234567890abcdef1234567890abcdef1234'
+          : 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab';
+
       fingerprintInput = demoFingerprint;
       inputType = 'fingerprint';
     }
@@ -169,7 +174,7 @@
       domain: 'server.example.com',
       algorithm: 1,
       fingerprintType: 2,
-      fingerprint: 'a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890'
+      fingerprint: 'a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890',
     },
     {
       name: 'Ed25519 SSH Key',
@@ -177,7 +182,7 @@
       domain: 'ssh.example.com',
       algorithm: 4,
       fingerprintType: 2,
-      fingerprint: 'fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321'
+      fingerprint: 'fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321',
     },
     {
       name: 'ECDSA SSH Key',
@@ -185,11 +190,11 @@
       domain: 'secure.example.com',
       algorithm: 3,
       fingerprintType: 2,
-      fingerprint: '123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0'
-    }
+      fingerprint: '123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0',
+    },
   ];
 
-  function loadExample(example: typeof exampleConfigurations[0]): void {
+  function loadExample(example: (typeof exampleConfigurations)[0]): void {
     domain = example.domain;
     algorithm = example.algorithm;
     fingerprintType = example.fingerprintType;
@@ -204,7 +209,7 @@
     'Prefer SHA-256 (type 2) over SHA-1 (type 1) for fingerprints',
     'Deploy SSHFP records for all SSH host keys on your servers',
     'Update SSHFP records when rotating SSH host keys',
-    'Configure SSH clients to verify SSHFP records for enhanced security'
+    'Configure SSH clients to verify SSHFP records for enhanced security',
   ];
 </script>
 
@@ -225,17 +230,10 @@
             Domain Configuration
           </h3>
         </div>
-        
+
         <div class="input-group">
-          <label for="domain" use:tooltip={"Domain name for the SSHFP record"}>
-            Domain:
-          </label>
-          <input
-            id="domain"
-            type="text"
-            bind:value={domain}
-            placeholder="example.com"
-          />
+          <label for="domain" use:tooltip={'Domain name for the SSHFP record'}> Domain: </label>
+          <input id="domain" type="text" bind:value={domain} placeholder="example.com" />
         </div>
       </div>
 
@@ -246,12 +244,10 @@
             SSHFP Parameters
           </h3>
         </div>
-        
+
         <div class="parameters-grid">
           <div class="input-group">
-            <label for="algorithm" use:tooltip={"SSH key algorithm used by the server"}>
-              Algorithm:
-            </label>
+            <label for="algorithm" use:tooltip={'SSH key algorithm used by the server'}> Algorithm: </label>
             <select id="algorithm" bind:value={algorithm}>
               <option value={1}>1 - RSA</option>
               <option value={2}>2 - DSA (deprecated)</option>
@@ -262,9 +258,9 @@
               {algorithmDescriptions[algorithm as keyof typeof algorithmDescriptions]}
             </div>
           </div>
-          
+
           <div class="input-group">
-            <label for="fingerprintType" use:tooltip={"Hash algorithm used to generate the fingerprint"}>
+            <label for="fingerprintType" use:tooltip={'Hash algorithm used to generate the fingerprint'}>
               Fingerprint Type:
             </label>
             <select id="fingerprintType" bind:value={fingerprintType}>
@@ -285,7 +281,7 @@
             SSH Key Data
           </h3>
         </div>
-        
+
         <div class="input-type-selector">
           <label class="input-type-option">
             <input type="radio" bind:group={inputType} value="public-key" />
@@ -299,7 +295,7 @@
 
         {#if inputType === 'public-key'}
           <div class="input-group">
-            <label for="publicKey" use:tooltip={"Paste the SSH public key from ~/.ssh/id_rsa.pub or similar"}>
+            <label for="publicKey" use:tooltip={'Paste the SSH public key from ~/.ssh/id_rsa.pub or similar'}>
               SSH Public Key:
             </label>
             <textarea
@@ -314,7 +310,7 @@
               class="generate-fingerprint-btn"
               onclick={generateFingerprintFromKey}
               disabled={!publicKeyInput.trim()}
-              use:tooltip={"Generate fingerprint from public key (demo mode)"}
+              use:tooltip={'Generate fingerprint from public key (demo mode)'}
             >
               <Icon name="arrow-right" size="sm" />
               Generate Fingerprint
@@ -322,16 +318,18 @@
           </div>
         {:else}
           <div class="input-group">
-            <label for="fingerprint" use:tooltip={`Enter the ${fingerprintType === 1 ? 'SHA-1' : 'SHA-256'} fingerprint value`}>
+            <label
+              for="fingerprint"
+              use:tooltip={`Enter the ${fingerprintType === 1 ? 'SHA-1' : 'SHA-256'} fingerprint value`}
+            >
               Fingerprint Value:
             </label>
             <textarea
               id="fingerprint"
               bind:value={fingerprintInput}
-              placeholder={fingerprintType === 1 ? 
-                'abcd1234567890abcdef1234567890abcdef1234' :
-                'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab'
-              }
+              placeholder={fingerprintType === 1
+                ? 'abcd1234567890abcdef1234567890abcdef1234'
+                : 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab'}
               rows="2"
               class="fingerprint-input"
             ></textarea>
@@ -351,9 +349,9 @@
                 class="copy-btn"
                 class:success={buttonStates['copy-sshfp']}
                 onclick={() => copyToClipboard(dnsRecord, 'copy-sshfp')}
-                use:tooltip={"Copy SSHFP record to clipboard"}
+                use:tooltip={'Copy SSHFP record to clipboard'}
               >
-                <Icon name={buttonStates['copy-sshfp'] ? "check" : "copy"} size="sm" />
+                <Icon name={buttonStates['copy-sshfp'] ? 'check' : 'copy'} size="sm" />
                 {buttonStates['copy-sshfp'] ? 'Copied!' : 'Copy'}
               </button>
               <button
@@ -361,14 +359,14 @@
                 class="export-btn"
                 class:success={buttonStates['export-sshfp']}
                 onclick={exportAsZoneFile}
-                use:tooltip={"Download as zone file"}
+                use:tooltip={'Download as zone file'}
               >
-                <Icon name={buttonStates['export-sshfp'] ? "check" : "download"} size="sm" />
+                <Icon name={buttonStates['export-sshfp'] ? 'check' : 'download'} size="sm" />
                 {buttonStates['export-sshfp'] ? 'Downloaded!' : 'Export'}
               </button>
             </div>
           </div>
-          
+
           <div class="record-output">
             <div class="code-block">
               <code>{dnsRecord}</code>
@@ -379,13 +377,18 @@
             <h4>Record Breakdown:</h4>
             <div class="breakdown-grid">
               <div class="breakdown-item">
-                <strong>Algorithm:</strong> {algorithm} ({Object.values(algorithmDescriptions)[algorithm - 1].split(' - ')[1].split(' (')[0]})
+                <strong>Algorithm:</strong>
+                {algorithm} ({Object.values(algorithmDescriptions)[algorithm - 1].split(' - ')[1].split(' (')[0]})
               </div>
               <div class="breakdown-item">
-                <strong>Fingerprint Type:</strong> {fingerprintType} ({Object.values(fingerprintTypeDescriptions)[fingerprintType - 1].split(' - ')[1].split(' (')[0]})
+                <strong>Fingerprint Type:</strong>
+                {fingerprintType} ({Object.values(fingerprintTypeDescriptions)
+                  [fingerprintType - 1].split(' - ')[1]
+                  .split(' (')[0]})
               </div>
               <div class="breakdown-item">
-                <strong>Fingerprint Length:</strong> {sshfpRecord.fingerprint.length} chars
+                <strong>Fingerprint Length:</strong>
+                {sshfpRecord.fingerprint.length} chars
               </div>
             </div>
           </div>
@@ -399,7 +402,7 @@
             Validation
           </h3>
         </div>
-        
+
         <div class="validation-status">
           <div class="status-item">
             <span class="status-label">Status:</span>
@@ -446,16 +449,16 @@
             SSH Client Configuration
           </h3>
         </div>
-        
+
         <div class="usage-instructions">
           <h4>To enable SSHFP verification in SSH clients:</h4>
           <div class="code-block">
             <code>ssh -o "VerifyHostKeyDNS=yes" user@{domain}</code>
           </div>
-          
+
           <h4>Or add to ~/.ssh/config:</h4>
           <div class="code-block">
-            <code>Host {domain}<br>&nbsp;&nbsp;VerifyHostKeyDNS yes</code>
+            <code>Host {domain}<br />&nbsp;&nbsp;VerifyHostKeyDNS yes</code>
           </div>
         </div>
       </div>
@@ -467,7 +470,7 @@
             Security Best Practices
           </h3>
         </div>
-        
+
         <div class="security-tips">
           <ul>
             {#each securityTips as tip}
@@ -511,7 +514,9 @@
 </div>
 
 <style lang="scss">
-  .domain-section, .sshfp-parameters-section, .input-data-section {
+  .domain-section,
+  .sshfp-parameters-section,
+  .input-data-section {
     margin-bottom: var(--spacing-lg);
   }
 
@@ -555,7 +560,9 @@
       font-size: var(--font-size-sm);
     }
 
-    input, select, textarea {
+    input,
+    select,
+    textarea {
       padding: var(--spacing-sm);
       border: 1px solid var(--border-primary);
       border-radius: var(--radius-sm);
@@ -606,7 +613,7 @@
       background: color-mix(in srgb, var(--color-primary) 5%, transparent);
     }
 
-    input[type="radio"] {
+    input[type='radio'] {
       width: 16px;
       height: 16px;
       accent-color: var(--color-primary);
@@ -618,7 +625,8 @@
     }
   }
 
-  .public-key-input, .fingerprint-input {
+  .public-key-input,
+  .fingerprint-input {
     font-family: var(--font-mono);
     font-size: var(--font-size-xs);
     background: var(--bg-primary);
@@ -723,11 +731,11 @@
   .status-value {
     font-weight: 600;
     font-family: var(--font-mono);
-    
+
     &.success {
       color: var(--color-success);
     }
-    
+
     &.error {
       color: var(--color-error);
     }
@@ -894,7 +902,8 @@
     }
   }
 
-  .copy-btn, .export-btn {
+  .copy-btn,
+  .export-btn {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -910,7 +919,7 @@
       background: var(--color-success) !important;
       color: var(--bg-secondary) !important;
       transform: scale(1.05);
-      
+
       &:hover {
         background: var(--color-success) !important;
       }

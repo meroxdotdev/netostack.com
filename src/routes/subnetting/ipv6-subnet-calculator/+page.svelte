@@ -1,21 +1,20 @@
 <script lang="ts">
   import IPv6SubnetCalculator from '$lib/components/tools/IPv6SubnetCalculator.svelte';
-  
+
   import '$lib/../styles/pages.scss';
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
 <div class="page-container">
-  
   <IPv6SubnetCalculator />
-  
+
   <section class="explainer-section">
     <h3>About IPv6 Subnetting</h3>
     <p>
-      <strong>IPv6 subnetting</strong> uses 128-bit addresses and hierarchical prefix-based allocation
-      to provide virtually unlimited address space. Unlike IPv4, IPv6 simplifies subnet planning with:
+      <strong>IPv6 subnetting</strong> uses 128-bit addresses and hierarchical prefix-based allocation to provide virtually
+      unlimited address space. Unlike IPv4, IPv6 simplifies subnet planning with:
     </p>
-    
+
     <div class="benefits-grid">
       <div class="benefit-item">
         <h4>Massive Address Space</h4>
@@ -85,9 +84,8 @@
         IPv6 Planning Tip
       </h4>
       <p>
-        IPv6's massive address space eliminates the need for complex subnetting. Focus on 
-        logical network hierarchy rather than conserving addresses. A single /64 subnet 
-        provides more addresses than the entire IPv4 internet.
+        IPv6's massive address space eliminates the need for complex subnetting. Focus on logical network hierarchy
+        rather than conserving addresses. A single /64 subnet provides more addresses than the entire IPv4 internet.
       </p>
     </div>
   </section>
@@ -100,12 +98,12 @@
     background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-secondary);
-    
+
     h3 {
       color: var(--text-primary);
       margin-bottom: var(--spacing-md);
     }
-    
+
     @media (max-width: 768px) {
       padding: var(--spacing-md);
     }
@@ -123,13 +121,13 @@
     background-color: var(--bg-secondary);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-primary);
-    
+
     h4 {
       color: var(--color-primary);
       margin-bottom: var(--spacing-sm);
       font-size: var(--font-size-md);
     }
-    
+
     p {
       color: var(--text-secondary);
       font-size: var(--font-size-sm);
@@ -141,7 +139,7 @@
   .addressing-section,
   .best-practices-section {
     margin: var(--spacing-lg) 0;
-    
+
     h4 {
       color: var(--text-primary);
       margin-bottom: var(--spacing-md);
@@ -163,7 +161,7 @@
     background-color: var(--bg-secondary);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-primary);
-    
+
     h5 {
       color: var(--color-primary);
       margin-bottom: var(--spacing-sm);
@@ -171,7 +169,7 @@
       font-weight: 600;
       font-family: var(--font-mono);
     }
-    
+
     p {
       color: var(--text-secondary);
       font-size: var(--font-size-sm);
@@ -186,7 +184,7 @@
     background: linear-gradient(135deg, rgba(9, 105, 218, 0.1), rgba(31, 111, 235, 0.05));
     border: 1px solid var(--color-info);
     border-radius: var(--radius-md);
-    
+
     h4 {
       color: var(--color-info);
       margin-bottom: var(--spacing-sm);
@@ -200,7 +198,7 @@
         height: 1.25em;
       }
     }
-    
+
     p {
       color: var(--text-primary);
       font-size: var(--font-size-sm);

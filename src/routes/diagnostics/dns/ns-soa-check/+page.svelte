@@ -2,42 +2,42 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domain = $state('google.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { domain: 'google.com', description: 'Google DNS infrastructure check' },
     { domain: 'github.com', description: 'GitHub nameserver configuration' },
     { domain: 'cloudflare.com', description: 'Cloudflare NS/SOA setup' },
     { domain: 'stackoverflow.com', description: 'Stack Overflow DNS consistency' },
     { domain: 'microsoft.com', description: 'Microsoft nameserver analysis' },
-    { domain: 'aws.amazon.com', description: 'AWS subdomain NS/SOA check' }
+    { domain: 'aws.amazon.com', description: 'AWS subdomain NS/SOA check' },
   ];
-  
+
   async function checkNSSOA() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/dns', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'ns-soa-check',
-          domain: domain.trim()
-        })
+          domain: domain.trim(),
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`NS/SOA check failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -45,17 +45,17 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     domain = example.domain;
     selectedExampleIndex = index;
     checkNSSOA();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   function parseSOA(soaString: string): any {
     // SOA format: primary-ns admin serial refresh retry expire minimum
     const parts = soaString.trim().split(/\s+/);
@@ -67,12 +67,12 @@
         refresh: parseInt(parts[3]),
         retry: parseInt(parts[4]),
         expire: parseInt(parts[5]),
-        minimum: parseInt(parts[6])
+        minimum: parseInt(parts[6]),
       };
     }
     return null;
   }
-  
+
   function formatTime(seconds: number): string {
     if (seconds >= 86400) {
       const days = Math.floor(seconds / 86400);
@@ -89,29 +89,33 @@
       return `${seconds}s`;
     }
   }
-  
-  function getConsistencyStatus(): { status: string, color: string, message: string } {
+
+  function getConsistencyStatus(): { status: string; color: string; message: string } {
     if (!results) return { status: 'unknown', color: 'secondary', message: 'No check performed' };
     if (results.error) return { status: 'error', color: 'error', message: results.error };
-    
+
     const resolvedCount = results.nameserverChecks?.filter((ns: any) => ns.resolved)?.length || 0;
     const totalCount = results.nameserverChecks?.length || 0;
-    
+
     if (resolvedCount === totalCount && totalCount > 0) {
       return { status: 'good', color: 'success', message: `All ${totalCount} nameservers resolve correctly` };
     } else if (resolvedCount > 0) {
-      return { status: 'partial', color: 'warning', message: `${resolvedCount}/${totalCount} nameservers resolve correctly` };
+      return {
+        status: 'partial',
+        color: 'warning',
+        message: `${resolvedCount}/${totalCount} nameservers resolve correctly`,
+      };
     } else {
       return { status: 'bad', color: 'error', message: 'No nameservers resolve correctly' };
     }
   }
-  
+
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `NS/SOA Check for ${domain}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
-    
+
     if (results.nameservers?.length > 0) {
       text += `Nameservers (${results.nameservers.length}):\n`;
       results.nameservers.forEach((ns: string) => {
@@ -119,11 +123,11 @@
       });
       text += '\n';
     }
-    
+
     if (results.soa) {
       text += `SOA Record:\n${results.soa}\n\n`;
     }
-    
+
     if (results.nameserverChecks?.length > 0) {
       text += `Nameserver Resolution Check:\n`;
       results.nameserverChecks.forEach((check: any) => {
@@ -136,20 +140,23 @@
       });
       text += '\n';
     }
-    
+
     const status = getConsistencyStatus();
     text += `Status: ${status.message}`;
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>NS/SOA Consistency Checker</h1>
-    <p>Verify DNS nameserver and SOA (Start of Authority) record consistency. Check that all listed nameservers resolve correctly and analyze SOA parameters for proper DNS configuration.</p>
+    <p>
+      Verify DNS nameserver and SOA (Start of Authority) record consistency. Check that all listed nameservers resolve
+      correctly and analyze SOA parameters for proper DNS configuration.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -161,8 +168,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Check NS/SOA consistency for ${example.domain}`}
@@ -182,18 +189,21 @@
     </div>
     <div class="card-content">
       <div class="form-group">
-        <label for="domain" use:tooltip={"Enter the domain to check nameserver and SOA consistency for"}>
+        <label for="domain" use:tooltip={'Enter the domain to check nameserver and SOA consistency for'}>
           Domain Name
-          <input 
-            id="domain" 
-            type="text" 
-            bind:value={domain} 
+          <input
+            id="domain"
+            type="text"
+            bind:value={domain}
             placeholder="example.com"
-            onchange={() => { clearExampleSelection(); if (domain) checkNSSOA(); }}
+            onchange={() => {
+              clearExampleSelection();
+              if (domain) checkNSSOA();
+            }}
           />
         </label>
       </div>
-      
+
       <div class="action-section">
         <button class="check-btn lookup-btn" onclick={checkNSSOA} disabled={loading || !domain.trim()}>
           {#if loading}
@@ -214,8 +224,10 @@
       <div class="card-header row">
         <h3>NS/SOA Analysis Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Results"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
@@ -224,7 +236,14 @@
           {#if results}
             {@const status = getConsistencyStatus()}
             <div class="status-item {status.color}">
-              <Icon name={status.status === 'good' ? 'check-circle' : status.status === 'partial' ? 'alert-circle' : 'x-circle'} size="md" />
+              <Icon
+                name={status.status === 'good'
+                  ? 'check-circle'
+                  : status.status === 'partial'
+                    ? 'alert-circle'
+                    : 'x-circle'}
+                size="md"
+              />
               <div>
                 <h4>
                   {#if status.status === 'good'}
@@ -252,7 +271,7 @@
                     <Icon name={check.resolved ? 'check-circle' : 'x-circle'} size="sm" />
                     <span class="nameserver-name">{check.nameserver}</span>
                   </div>
-                  
+
                   {#if check.resolved && check.addresses?.length > 0}
                     <div class="nameserver-addresses">
                       {#each check.addresses as address}
@@ -276,7 +295,7 @@
           {@const parsed = parseSOA(results.soa)}
           <div class="soa-section">
             <h4>SOA (Start of Authority) Record</h4>
-            
+
             <!-- Raw SOA -->
             <div class="soa-raw">
               <h5>Raw SOA Record</h5>
@@ -291,28 +310,24 @@
                 <h5>Parsed SOA Parameters</h5>
                 <div class="soa-grid">
                   <div class="soa-item">
-                    <div class="soa-label" use:tooltip={"The primary nameserver for this zone"}>
-                      Primary NS
-                    </div>
+                    <div class="soa-label" use:tooltip={'The primary nameserver for this zone'}>Primary NS</div>
                     <div class="soa-value">{parsed.primaryNS}</div>
                   </div>
-                  
+
                   <div class="soa-item">
-                    <div class="soa-label" use:tooltip={"Email address of the zone administrator (@ replaced with .)"}>
+                    <div class="soa-label" use:tooltip={'Email address of the zone administrator (@ replaced with .)'}>
                       Administrator
                     </div>
                     <div class="soa-value">{parsed.admin}</div>
                   </div>
-                  
+
                   <div class="soa-item">
-                    <div class="soa-label" use:tooltip={"Zone serial number - used to track zone changes"}>
-                      Serial
-                    </div>
+                    <div class="soa-label" use:tooltip={'Zone serial number - used to track zone changes'}>Serial</div>
                     <div class="soa-value mono">{parsed.serial}</div>
                   </div>
-                  
+
                   <div class="soa-item">
-                    <div class="soa-label" use:tooltip={"How often secondary servers should check for updates"}>
+                    <div class="soa-label" use:tooltip={'How often secondary servers should check for updates'}>
                       Refresh
                     </div>
                     <div class="soa-value">
@@ -320,9 +335,9 @@
                       <span class="time-readable">({formatTime(parsed.refresh)})</span>
                     </div>
                   </div>
-                  
+
                   <div class="soa-item">
-                    <div class="soa-label" use:tooltip={"How long to wait before retrying a failed zone transfer"}>
+                    <div class="soa-label" use:tooltip={'How long to wait before retrying a failed zone transfer'}>
                       Retry
                     </div>
                     <div class="soa-value">
@@ -330,9 +345,12 @@
                       <span class="time-readable">({formatTime(parsed.retry)})</span>
                     </div>
                   </div>
-                  
+
                   <div class="soa-item">
-                    <div class="soa-label" use:tooltip={"When secondary servers should stop answering queries if they can't contact the primary"}>
+                    <div
+                      class="soa-label"
+                      use:tooltip={"When secondary servers should stop answering queries if they can't contact the primary"}
+                    >
                       Expire
                     </div>
                     <div class="soa-value">
@@ -340,9 +358,9 @@
                       <span class="time-readable">({formatTime(parsed.expire)})</span>
                     </div>
                   </div>
-                  
+
                   <div class="soa-item">
-                    <div class="soa-label" use:tooltip={"Default TTL for negative responses (NXDOMAIN)"}>
+                    <div class="soa-label" use:tooltip={'Default TTL for negative responses (NXDOMAIN)'}>
                       Minimum TTL
                     </div>
                     <div class="soa-value">
@@ -378,7 +396,9 @@
                     {:else if parsed.refresh < 3600}
                       <div class="recommendation-item warning">
                         <Icon name="alert-circle" size="sm" />
-                        <span>Refresh interval ({formatTime(parsed.refresh)}) is quite frequent - consider increasing</span>
+                        <span
+                          >Refresh interval ({formatTime(parsed.refresh)}) is quite frequent - consider increasing</span
+                        >
                       </div>
                     {:else}
                       <div class="recommendation-item warning">
@@ -427,7 +447,7 @@
     </div>
   {/if}
 
-  {#if error || (results?.error)}
+  {#if error || results?.error}
     <div class="card error-card">
       <div class="card-content">
         <div class="error-content">
@@ -458,7 +478,7 @@
             <li>Be geographically distributed for redundancy</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>SOA (Start of Authority)</h4>
           <p>The SOA record contains administrative information about the zone:</p>
@@ -470,7 +490,7 @@
             <li><strong>Minimum:</strong> Default negative response TTL</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Recommended Values</h4>
           <div class="recommendations-table">
@@ -488,7 +508,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>Common Issues</h4>
           <ul>
@@ -517,7 +537,7 @@
   .status-item {
     border: 2px solid;
     gap: var(--spacing-md);
-    
+
     &.success {
       border-color: var(--color-success);
     }
@@ -542,7 +562,9 @@
     }
   }
 
-  .nameservers-section, .soa-section, .recommendations-section {
+  .nameservers-section,
+  .soa-section,
+  .recommendations-section {
     margin: var(--spacing-lg) 0;
 
     h4 {
@@ -551,7 +573,8 @@
     }
   }
 
-  .soa-section, .recommendations-section {
+  .soa-section,
+  .recommendations-section {
     h5 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
@@ -571,7 +594,6 @@
     padding: var(--spacing-md);
 
     &.success {
-      
       border-color: var(--border-primary);
     }
 
@@ -620,7 +642,7 @@
     margin-bottom: var(--spacing-lg);
   }
 
-  // SOA display uses shared record-display styles  
+  // SOA display uses shared record-display styles
   .soa-display {
     code {
       display: block;
@@ -687,7 +709,7 @@
   .rec-item {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    
+
     strong {
       color: var(--text-primary);
     }

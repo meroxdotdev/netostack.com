@@ -2,43 +2,43 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let asn = $state('AS15169');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { asn: 'AS15169', description: 'Google LLC - Major cloud provider' },
     { asn: 'AS13335', description: 'Cloudflare - CDN and security services' },
     { asn: 'AS16509', description: 'Amazon.com - AWS cloud infrastructure' },
     { asn: 'AS8075', description: 'Microsoft Corporation - Azure cloud' },
     { asn: 'AS32934', description: 'Meta Platforms - Facebook services' },
-    { asn: 'AS396982', description: 'Google Cloud Platform - Additional ranges' }
+    { asn: 'AS396982', description: 'Google Cloud Platform - Additional ranges' },
   ];
-  
+
   async function lookupASN() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/rdap', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'asn-lookup',
-          asn: asn.trim().toUpperCase()
-        })
+          asn: asn.trim().toUpperCase(),
+        }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: `HTTP ${response.status}` }));
         throw new Error(errorData.message || `ASN RDAP lookup failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -46,53 +46,53 @@
       loading = false;
     }
   }
-  
+
   function loadExample(example: { asn: string }, index: number) {
     asn = example.asn;
     selectedExampleIndex = index;
     lookupASN();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   async function copyResults() {
     if (!results?.raw) return;
-    
+
     try {
       await navigator.clipboard.writeText(JSON.stringify(results.raw, null, 2));
       copiedState = true;
-      setTimeout(() => copiedState = false, 1500);
+      setTimeout(() => (copiedState = false), 1500);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
   }
-  
+
   function formatDate(dateString: string | undefined): string {
     if (!dateString) return 'Not available';
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       });
     } catch {
       return dateString;
     }
   }
-  
+
   function formatContact(contact: any): string {
     const vcard = contact.vcardArray;
     if (!vcard || !vcard[1]) return contact.handle || 'Unknown';
-    
+
     const properties = vcard[1];
     const name = properties.find((p: any) => p[0] === 'fn')?.[3] || contact.handle;
     const org = properties.find((p: any) => p[0] === 'org')?.[3]?.[0];
-    
+
     return org ? `${name} (${org})` : name;
   }
-  
+
   function formatASN(asnString: string): string {
     return asnString.startsWith('AS') ? asnString : `AS${asnString}`;
   }
@@ -101,7 +101,10 @@
 <div class="card">
   <header class="card-header">
     <h1>ASN RDAP Lookup</h1>
-    <p>Query Autonomous System Number allocation and registration data using RDAP through Regional Internet Registries. ASNs identify networks on the global Internet routing table and are essential for BGP routing operations.</p>
+    <p>
+      Query Autonomous System Number allocation and registration data using RDAP through Regional Internet Registries.
+      ASNs identify networks on the global Internet routing table and are essential for BGP routing operations.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -113,8 +116,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Perform RDAP lookup for ${example.asn} (${example.description})`}
@@ -136,20 +139,23 @@
     <div class="card-content">
       <div class="form-grid">
         <div class="form-group">
-          <label for="asn" use:tooltip={"Enter an Autonomous System Number to query allocation data via RDAP"}>
+          <label for="asn" use:tooltip={'Enter an Autonomous System Number to query allocation data via RDAP'}>
             Autonomous System Number
-            <input 
-              id="asn" 
-              type="text" 
-              bind:value={asn} 
+            <input
+              id="asn"
+              type="text"
+              bind:value={asn}
               placeholder="AS15169 or 15169"
-              onchange={() => { clearExampleSelection(); if (asn.trim()) lookupASN(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (asn.trim()) lookupASN();
+              }}
             />
             <small>Supports both formats: AS15169 or 15169 (AS prefix is optional)</small>
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={lookupASN} disabled={loading || !asn.trim()}>
           {#if loading}
@@ -170,20 +176,22 @@
       <div class="card-header row">
         <h3>RDAP Data for {formatASN(results.asn)}</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Raw JSON"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Raw JSON'}
         </button>
       </div>
       <div class="card-content">
         <div class="lookup-info">
           <div class="info-item">
-            <span class="info-label" use:tooltip={"The ASN that was queried"}>ASN:</span>
+            <span class="info-label" use:tooltip={'The ASN that was queried'}>ASN:</span>
             <span class="info-value">
               <span class="asn-number">{formatASN(results.asn)}</span>
             </span>
           </div>
           <div class="info-item">
-            <span class="info-label" use:tooltip={"RDAP service used for the query"}>RDAP Service:</span>
+            <span class="info-label" use:tooltip={'RDAP service used for the query'}>RDAP Service:</span>
             <span class="info-value mono">{results.serviceUrl}</span>
           </div>
         </div>
@@ -195,10 +203,10 @@
             <dl class="definition-list">
               <dt>Organization Name:</dt>
               <dd>{results.data.name || 'Not available'}</dd>
-              
+
               <dt>Type:</dt>
               <dd>{results.data.type || 'Not available'}</dd>
-              
+
               <dt>Country:</dt>
               <dd>
                 {#if results.data.country}
@@ -207,7 +215,7 @@
                   Not available
                 {/if}
               </dd>
-              
+
               <dt>Registry:</dt>
               <dd>{results.data.registry || 'Not available'}</dd>
             </dl>
@@ -229,10 +237,10 @@
                   Not available
                 {/if}
               </dd>
-              
+
               <dt>Allocation Date:</dt>
               <dd>{formatDate(results.data.allocation)}</dd>
-              
+
               <dt>Last Changed:</dt>
               <dd>{formatDate(results.data.lastChanged)}</dd>
             </dl>
@@ -312,9 +320,13 @@
       <div class="info-grid">
         <div class="info-section">
           <h4>What is an ASN?</h4>
-          <p>Autonomous System Numbers identify networks on the global Internet routing table and are essential for BGP routing operations. Each ASN represents a collection of IP address blocks under unified administrative control.</p>
+          <p>
+            Autonomous System Numbers identify networks on the global Internet routing table and are essential for BGP
+            routing operations. Each ASN represents a collection of IP address blocks under unified administrative
+            control.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>ASN Ranges by Registry</h4>
           <ul>
@@ -325,7 +337,7 @@
             <li><strong>AFRINIC:</strong> AS36864 - AS37887, AS327680 - AS328703</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>What You'll Get</h4>
           <ul>
@@ -346,10 +358,10 @@
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }
-  
+
   .form-group label {
     flex-direction: column;
-    
+
     small {
       color: var(--text-secondary);
       font-size: var(--font-size-xs);

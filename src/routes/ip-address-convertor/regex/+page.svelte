@@ -1,5 +1,4 @@
 <script lang="ts">
-  
   import IPRegexGenerator from '$lib/components/tools/IPRegexGenerator.svelte';
   import { ipAddressValidationContent } from '$lib/content/ip-address-validation.js';
   import Icon from '$lib/components/global/Icon.svelte';
@@ -21,17 +20,29 @@
 
     <div class="ref-section">
       <h3>{ipAddressValidationContent.sections.ipv4.title}</h3>
-      <p>{@html ipAddressValidationContent.sections.ipv4.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/•/g, '&bull;')}</p>
+      <p>
+        {@html ipAddressValidationContent.sections.ipv4.content
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/•/g, '&bull;')}
+      </p>
     </div>
 
     <div class="ref-section">
       <h3>{ipAddressValidationContent.sections.ipv6.title}</h3>
-      <p>{@html ipAddressValidationContent.sections.ipv6.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/•/g, '&bull;')}</p>
+      <p>
+        {@html ipAddressValidationContent.sections.ipv6.content
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/•/g, '&bull;')}
+      </p>
     </div>
 
     <div class="ref-section">
       <h3>{ipAddressValidationContent.sections.regexValidation.title}</h3>
-      <p>{@html ipAddressValidationContent.sections.regexValidation.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/•/g, '&bull;')}</p>
+      <p>
+        {@html ipAddressValidationContent.sections.regexValidation.content
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/•/g, '&bull;')}
+      </p>
     </div>
 
     <div class="ref-section">
@@ -46,13 +57,16 @@
             <p class="example-description">{example.description}</p>
             <div class="example-details">
               <div class="matches">
-                <strong>Matches:</strong> {example.matches.join(', ')}
+                <strong>Matches:</strong>
+                {example.matches.join(', ')}
               </div>
               <div class="fails">
-                <strong>Fails:</strong> {example.fails.join(', ')}
+                <strong>Fails:</strong>
+                {example.fails.join(', ')}
               </div>
               <div class="limitation">
-                <strong>Limitation:</strong> {example.limitation}
+                <strong>Limitation:</strong>
+                {example.limitation}
               </div>
             </div>
           </div>
@@ -62,7 +76,11 @@
 
     <div class="ref-section">
       <h3>{ipAddressValidationContent.sections.practicalTips.title}</h3>
-      <p>{@html ipAddressValidationContent.sections.practicalTips.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/•/g, '&bull;')}</p>
+      <p>
+        {@html ipAddressValidationContent.sections.practicalTips.content
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/•/g, '&bull;')}
+      </p>
     </div>
 
     <div class="ref-section">
@@ -164,9 +182,15 @@
       color: var(--text-primary);
     }
 
-    .matches { color: var(--color-success); }
-    .fails { color: var(--color-error); }
-    .limitation { color: var(--color-warning); }
+    .matches {
+      color: var(--color-success);
+    }
+    .fails {
+      color: var(--color-error);
+    }
+    .limitation {
+      color: var(--color-warning);
+    }
   }
 
   .recommendations-grid {

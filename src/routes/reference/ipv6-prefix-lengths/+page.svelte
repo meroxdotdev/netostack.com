@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ipv6PrefixLengthsContent } from '$lib/content/ipv6-prefix-lengths.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -36,7 +36,7 @@
 
     <div class="ref-section">
       <h2>Usage Guidelines</h2>
-      
+
       <div class="ref-grid three-col">
         <div class="grid-item">
           <div class="item-title">{ipv6PrefixLengthsContent.usageGuidelines.residential.title}</div>
@@ -115,14 +115,15 @@
           <li>{practice}</li>
         {/each}
       </ul>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="star" size="sm" />
           Key Rule
         </div>
         <div class="highlight-content">
-          Always use /64 for end-user networks. This is required for SLAAC (Stateless Address Autoconfiguration) and many IPv6 features.
+          Always use /64 for end-user networks. This is required for SLAAC (Stateless Address Autoconfiguration) and
+          many IPv6 features.
         </div>
       </div>
     </div>

@@ -21,9 +21,7 @@ function generateBreadcrumbJsonLd(pathname: string) {
   if (pathname === '/') return null;
 
   const segs = pathname.split('/').filter(Boolean);
-  const items: any[] = [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: site.url }
-  ];
+  const items: any[] = [{ '@type': 'ListItem', position: 1, name: 'Home', item: site.url }];
   let pos = 2;
   let curr = '';
   for (const s of segs) {
@@ -41,7 +39,7 @@ function generateBreadcrumbJsonLd(pathname: string) {
       '@type': 'ListItem',
       position: pos++,
       name: label,
-      item: site.url + curr
+      item: site.url + curr,
     });
   }
 
@@ -49,7 +47,7 @@ function generateBreadcrumbJsonLd(pathname: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: items
+    itemListElement: items,
   };
 }
 

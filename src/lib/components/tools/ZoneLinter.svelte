@@ -29,7 +29,7 @@ $TTL 3600
 www	IN	A	192.0.2.1
 mail	IN	A	192.0.2.10
 	IN	MX	10 mail.example.com.`,
-      description: 'Standard zone with SOA, NS, A, and MX records'
+      description: 'Standard zone with SOA, NS, A, and MX records',
     },
     {
       name: 'Messy Zone',
@@ -40,7 +40,7 @@ mail.example.com.	IN	A	192.0.2.10
 example.com.	IN	MX	10	mail.example.com.
 example.com.		IN	NS	ns1.example.com.
 example.com.	IN	NS	ns2.example.com.`,
-      description: 'Unorganized zone with duplicates and inconsistent formatting'
+      description: 'Unorganized zone with duplicates and inconsistent formatting',
     },
     {
       name: 'Complex Zone',
@@ -63,11 +63,11 @@ mail	IN	A	192.0.2.10
 
 _http._tcp	IN	SRV	0 5 80 www.example.com.
 _https._tcp	IN	SRV	0 5 443 www.example.com.`,
-      description: 'Comprehensive zone with multiple record types'
-    }
+      description: 'Comprehensive zone with multiple record types',
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     zoneInput = example.content;
     activeExampleIndex = index;
     lintZone();
@@ -95,7 +95,7 @@ _https._tcp	IN	SRV	0 5 443 www.example.com.`,
 
       results = {
         normalized,
-        formattedZone
+        formattedZone,
       };
     } catch (error) {
       console.error('Failed to parse zone:', error);
@@ -105,7 +105,7 @@ _https._tcp	IN	SRV	0 5 443 www.example.com.`,
 
   async function copyZone() {
     if (!results) return;
-    
+
     try {
       await navigator.clipboard.writeText(results.formattedZone);
       copiedState = true;
@@ -191,7 +191,7 @@ _https._tcp	IN	SRV	0 5 443 www.example.com.`,
   <!-- Input Section -->
   <div class="card input-card">
     <div class="input-group">
-      <label for="zone-input" use:tooltip={"Paste your BIND zone file content here for analysis and normalization"}>
+      <label for="zone-input" use:tooltip={'Paste your BIND zone file content here for analysis and normalization'}>
         <Icon name="file" size="sm" />
         Zone File Content
       </label>
@@ -223,7 +223,6 @@ www	IN	A	192.0.2.1"
     <section class="results-section">
       <h3>Linting Results</h3>
       <div class="results-inner">
-        
         <!-- Errors and Warnings -->
         {#if results.normalized.errors.length > 0 || results.normalized.warnings.length > 0}
           <div class="issues-card">
@@ -231,7 +230,7 @@ www	IN	A	192.0.2.1"
               <Icon name="alert-circle" size="sm" />
               Issues Found
             </h4>
-            
+
             {#if results.normalized.errors.length > 0}
               <div class="error-list">
                 <h5>Errors ({results.normalized.errors.length})</h5>
@@ -300,10 +299,7 @@ www	IN	A	192.0.2.1"
               Normalized Zone File
             </h4>
             <div class="output-actions">
-              <button
-                class="copy-button {copiedState ? 'copied' : ''}"
-                onclick={copyZone}
-              >
+              <button class="copy-button {copiedState ? 'copied' : ''}" onclick={copyZone}>
                 <Icon name={copiedState ? 'check' : 'copy'} size="sm" />
                 {copiedState ? 'Copied!' : 'Copy'}
               </button>
@@ -313,7 +309,7 @@ www	IN	A	192.0.2.1"
               </button>
             </div>
           </div>
-          
+
           <div class="code-output">
             <pre>{results.formattedZone}</pre>
           </div>
@@ -328,36 +324,32 @@ www	IN	A	192.0.2.1"
       <div class="education-item info-panel">
         <h4>Zone File Format</h4>
         <p>
-          BIND zone files define DNS records for a domain. They include resource records (RRs)
-          with owner names, TTL values, classes, types, and data. Proper formatting ensures
-          reliable DNS operation.
+          BIND zone files define DNS records for a domain. They include resource records (RRs) with owner names, TTL
+          values, classes, types, and data. Proper formatting ensures reliable DNS operation.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Normalization Benefits</h4>
         <p>
-          Normalizing zone files improves readability, reduces errors, and ensures consistent
-          formatting. It also helps identify duplicate records and missing essential records
-          like SOA and NS.
+          Normalizing zone files improves readability, reduces errors, and ensures consistent formatting. It also helps
+          identify duplicate records and missing essential records like SOA and NS.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Common Issues</h4>
         <p>
-          Watch for missing trailing dots in FQDNs, duplicate records, incorrect TTL values,
-          and missing SOA or NS records. The linter helps catch these configuration problems
-          early.
+          Watch for missing trailing dots in FQDNs, duplicate records, incorrect TTL values, and missing SOA or NS
+          records. The linter helps catch these configuration problems early.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Best Practices</h4>
         <p>
-          Use consistent TTL values, maintain proper record ordering, include comprehensive
-          NS records, and regularly validate your zones. Consider using shorter TTLs during
-          transitions.
+          Use consistent TTL values, maintain proper record ordering, include comprehensive NS records, and regularly
+          validate your zones. Consider using shorter TTLs during transitions.
         </p>
       </div>
     </div>
@@ -394,7 +386,7 @@ www	IN	A	192.0.2.1"
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -613,7 +605,7 @@ www	IN	A	192.0.2.1"
 
   .stat-item {
     text-align: center;
-    
+
     .stat-label {
       font-size: var(--font-size-sm);
       color: var(--text-secondary);

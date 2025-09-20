@@ -39,7 +39,7 @@ export const DEFAULT_TEST_CASES: IPTestCase[] = [
   { label: 'IPv4 with leading zeros', value: '192.168.001.001', valid: false },
   { label: 'IPv4 octet too large', value: '192.168.1.256', valid: false },
   { label: 'IPv6 with multiple ::', value: '2001::db8::1', valid: false },
-  { label: 'IPv6 too many groups', value: '2001:db8:85a3:0000:0000:8a2e:0370:7334:extra', valid: false }
+  { label: 'IPv6 too many groups', value: '2001:db8:85a3:0000:0000:8a2e:0370:7334:extra', valid: false },
 ];
 
 /**
@@ -323,7 +323,7 @@ export function validateIPv6Detailed(ip: string): DetailedValidationResponse {
   }
 
   // Normalize the address
-  const normalizedGroups = groups.map(group => group.toLowerCase().padStart(4, '0'));
+  const normalizedGroups = groups.map((group) => group.toLowerCase().padStart(4, '0'));
   const fullForm = normalizedGroups.join(':');
   details.normalizedForm = fullForm;
 
@@ -423,11 +423,11 @@ export function compressIPv6(fullForm: string): string {
   }
 
   // Apply compression
-  let result = groups.map(group => group.replace(/^0+/, '') || '0').join(':');
+  let result = groups.map((group) => group.replace(/^0+/, '') || '0').join(':');
 
   if (bestStart !== -1) {
-    const beforeZeros = groups.slice(0, bestStart).map(group => group.replace(/^0+/, '') || '0');
-    const afterZeros = groups.slice(bestStart + bestLength).map(group => group.replace(/^0+/, '') || '0');
+    const beforeZeros = groups.slice(0, bestStart).map((group) => group.replace(/^0+/, '') || '0');
+    const afterZeros = groups.slice(bestStart + bestLength).map((group) => group.replace(/^0+/, '') || '0');
 
     if (beforeZeros.length === 0) {
       result = '::' + afterZeros.join(':');
@@ -463,7 +463,7 @@ export function validateIP(input: string): IPValidationResult | null {
       type: 'ipv6',
       errors: ipv6Result.errors,
       warnings: ipv6Result.warnings,
-      details: ipv6Result.details
+      details: ipv6Result.details,
     };
   } else if (hasColons) {
     // IPv6
@@ -473,7 +473,7 @@ export function validateIP(input: string): IPValidationResult | null {
       type: 'ipv6',
       errors: ipv6Result.errors,
       warnings: ipv6Result.warnings,
-      details: ipv6Result.details
+      details: ipv6Result.details,
     };
   } else if (hasDots) {
     // IPv4
@@ -483,7 +483,7 @@ export function validateIP(input: string): IPValidationResult | null {
       type: 'ipv4',
       errors: ipv4Result.errors,
       warnings: ipv4Result.warnings,
-      details: ipv4Result.details
+      details: ipv4Result.details,
     };
   } else {
     // Neither format detected
@@ -492,7 +492,7 @@ export function validateIP(input: string): IPValidationResult | null {
       type: null,
       errors: ['Input does not appear to be an IP address (no dots or colons found)'],
       warnings: [],
-      details: {}
+      details: {},
     };
   }
 }
@@ -541,7 +541,7 @@ export function validateCIDR(cidr: string): ValidationResult {
   }
 
   const parts = cidr.split('/');
-  
+
   if (parts.length !== 2) {
     return { valid: false, error: 'CIDR must be in format IP/prefix' };
   }
@@ -569,8 +569,8 @@ export function validateSubnetMask(mask: string): ValidationResult {
   }
 
   const octets = mask.split('.').map(Number);
-  const binary = octets.map(n => n.toString(2).padStart(8, '0')).join('');
-  
+  const binary = octets.map((n) => n.toString(2).padStart(8, '0')).join('');
+
   // Check if mask is contiguous (all 1s followed by all 0s)
   if (!/^1*0*$/.test(binary)) {
     return { valid: false, error: 'Subnet mask must be contiguous' };

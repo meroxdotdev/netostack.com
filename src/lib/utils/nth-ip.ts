@@ -34,7 +34,7 @@ export interface NthIPResult {
 /* IPv4/IPv6 conversion utilities */
 function ipv4ToBigInt(ip: string): bigint {
   const parts = ip.split('.').map(Number);
-  if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) {
+  if (parts.length !== 4 || parts.some((p) => isNaN(p) || p < 0 || p > 255)) {
     throw new Error('Invalid IPv4 address');
   }
   return BigInt(parts[0] * 16777216 + parts[1] * 65536 + parts[2] * 256 + parts[3]);
@@ -42,18 +42,13 @@ function ipv4ToBigInt(ip: string): bigint {
 
 function bigIntToIPv4(num: bigint): string {
   const n = Number(num);
-  return [
-    Math.floor(n / 16777216) % 256,
-    Math.floor(n / 65536) % 256,
-    Math.floor(n / 256) % 256,
-    n % 256
-  ].join('.');
+  return [Math.floor(n / 16777216) % 256, Math.floor(n / 65536) % 256, Math.floor(n / 256) % 256, n % 256].join('.');
 }
 
 function ipv6ToBigInt(ip: string): bigint {
-  let expanded = expandIPv6(ip);
+  const expanded = expandIPv6(ip);
   const groups = expanded.split(':');
-  
+
   let result = 0n;
   for (let i = 0; i < 8; i++) {
     const group = parseInt(groups[i] || '0', 16);
@@ -64,27 +59,30 @@ function ipv6ToBigInt(ip: string): bigint {
 
 function expandIPv6(ip: string): string {
   if (!ip.includes('::')) {
-    return ip.split(':').map(g => g.padStart(4, '0')).join(':');
+    return ip
+      .split(':')
+      .map((g) => g.padStart(4, '0'))
+      .join(':');
   }
-  
+
   const parts = ip.split('::');
   const left = parts[0] ? parts[0].split(':') : [];
   const right = parts[1] ? parts[1].split(':') : [];
   const missing = 8 - left.length - right.length;
   const middle = Array(missing).fill('0000');
-  
-  return [...left, ...middle, ...right].map(g => g.padStart(4, '0')).join(':');
+
+  return [...left, ...middle, ...right].map((g) => g.padStart(4, '0')).join(':');
 }
 
 function bigIntToIPv6(num: bigint): string {
   const groups = [];
   let remaining = num;
-  
+
   for (let i = 0; i < 8; i++) {
     groups.unshift((remaining & 0xffffn).toString(16));
     remaining >>= 16n;
   }
-  
+
   return groups.join(':');
 }
 
@@ -111,55 +109,55 @@ function parseNetworkInput(input: string): {
   totalSize: bigint;
 } {
   input = input.trim();
-  
+
   if (input.includes('/')) {
     // CIDR notation
     const [ip, prefixStr] = input.split('/');
     const version = detectIPVersion(ip);
     const prefix = parseInt(prefixStr);
     const maxPrefix = version === 4 ? 32 : 128;
-    
+
     if (prefix < 0 || prefix > maxPrefix) {
       throw new Error(`Invalid prefix /${prefix} for IPv${version}`);
     }
-    
+
     const ipBig = ipToNumber(ip, version);
     const hostBits = BigInt(maxPrefix - prefix);
-    const networkBig = ipBig >> hostBits << hostBits;
+    const networkBig = (ipBig >> hostBits) << hostBits;
     const totalSize = 1n << hostBits;
     const broadcastBig = networkBig + totalSize - 1n;
-    
+
     return {
       type: 'cidr',
       version,
       start: networkBig,
       end: broadcastBig,
-      totalSize
+      totalSize,
     };
   } else if (input.includes('-')) {
     // Range notation
-    const [startIP, endIP] = input.split('-').map(s => s.trim());
+    const [startIP, endIP] = input.split('-').map((s) => s.trim());
     const version = detectIPVersion(startIP);
-    
+
     if (detectIPVersion(endIP) !== version) {
       throw new Error('Start and end IPs must be the same version');
     }
-    
+
     const startBig = ipToNumber(startIP, version);
     const endBig = ipToNumber(endIP, version);
-    
+
     if (startBig > endBig) {
       throw new Error('Start IP must be less than or equal to end IP');
     }
-    
+
     const totalSize = endBig - startBig + 1n;
-    
+
     return {
       type: 'range',
       version,
       start: startBig,
       end: endBig,
-      totalSize
+      totalSize,
     };
   } else {
     throw new Error('Invalid format. Use CIDR (192.168.1.0/24) or range (192.168.1.1-192.168.1.100)');
@@ -167,24 +165,19 @@ function parseNetworkInput(input: string): {
 }
 
 /* Calculate nth IP in a network */
-function calculateNthIP(
-  networkInput: string,
-  index: number,
-  offset: number = 0
-): NthIPCalculation {
+function calculateNthIP(networkInput: string, index: number, offset: number = 0): NthIPCalculation {
   try {
     const parsed = parseNetworkInput(networkInput);
-    
+
     // Apply offset to index
     const actualIndex = index + offset;
     const maxIndex = Number(parsed.totalSize) - 1;
-    
+
     // Check if index is within bounds
     if (actualIndex < 0 || actualIndex > maxIndex) {
-      const resultIP = actualIndex < 0 
-        ? numberToIP(parsed.start, parsed.version)
-        : numberToIP(parsed.end, parsed.version);
-      
+      const resultIP =
+        actualIndex < 0 ? numberToIP(parsed.start, parsed.version) : numberToIP(parsed.end, parsed.version);
+
       return {
         input: networkInput,
         inputType: parsed.type,
@@ -201,15 +194,15 @@ function calculateNthIP(
           networkStart: numberToIP(parsed.start, parsed.version),
           networkEnd: numberToIP(parsed.end, parsed.version),
           actualIndex,
-          maxIndex
-        }
+          maxIndex,
+        },
       };
     }
-    
+
     // Calculate the IP at the specified index
     const resultBig = parsed.start + BigInt(actualIndex);
     const resultIP = numberToIP(resultBig, parsed.version);
-    
+
     return {
       input: networkInput,
       inputType: parsed.type,
@@ -225,10 +218,9 @@ function calculateNthIP(
         networkStart: numberToIP(parsed.start, parsed.version),
         networkEnd: numberToIP(parsed.end, parsed.version),
         actualIndex,
-        maxIndex
-      }
+        maxIndex,
+      },
     };
-    
   } catch (error) {
     return {
       input: networkInput,
@@ -241,57 +233,57 @@ function calculateNthIP(
       totalAddresses: '0',
       isValid: false,
       isInBounds: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
 
 /* Parse input line to extract network and index */
-function parseInputLine(line: string, globalOffset: number = 0): {
+function parseInputLine(
+  line: string,
+  globalOffset: number = 0,
+): {
   network: string;
   index: number;
   offset: number;
 } {
   const trimmed = line.trim();
-  
+
   // Try to find index specification
   const patterns = [
-    /^(.+?)\s+@\s*(\d+)(?:\s*\+\s*(\d+))?$/,  // network @ index + offset
+    /^(.+?)\s+@\s*(\d+)(?:\s*\+\s*(\d+))?$/, // network @ index + offset
     /^(.+?)\s+\[\s*(\d+)\s*\](?:\s*\+\s*(\d+))?$/, // network [index] + offset
-    /^(.+?)\s+(\d+)(?:\s*\+\s*(\d+))?$/,      // network index + offset
-    /^(.+?)#(\d+)(?:\+(\d+))?$/               // network#index+offset
+    /^(.+?)\s+(\d+)(?:\s*\+\s*(\d+))?$/, // network index + offset
+    /^(.+?)#(\d+)(?:\+(\d+))?$/, // network#index+offset
   ];
-  
+
   for (const pattern of patterns) {
     const match = trimmed.match(pattern);
     if (match) {
       return {
         network: match[1].trim(),
         index: parseInt(match[2]),
-        offset: match[3] ? parseInt(match[3]) + globalOffset : globalOffset
+        offset: match[3] ? parseInt(match[3]) + globalOffset : globalOffset,
       };
     }
   }
-  
+
   throw new Error('Invalid format. Use: network @ index, network [index], or network index');
 }
 
 /* Calculate nth IPs for multiple inputs */
-export function calculateNthIPs(
-  inputs: string[],
-  globalOffset: number = 0
-): NthIPResult {
+export function calculateNthIPs(inputs: string[], globalOffset: number = 0): NthIPResult {
   const calculations: NthIPCalculation[] = [];
   const errors: string[] = [];
-  
+
   for (const input of inputs) {
     if (!input.trim()) continue;
-    
+
     try {
       const { network, index, offset } = parseInputLine(input, globalOffset);
       const calculation = calculateNthIP(network, index, offset);
       calculations.push(calculation);
-      
+
       if (!calculation.isValid && calculation.error) {
         errors.push(`"${input}": ${calculation.error}`);
       } else if (!calculation.isInBounds && calculation.error) {
@@ -311,22 +303,22 @@ export function calculateNthIPs(
         totalAddresses: '0',
         isValid: false,
         isInBounds: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }
-  
-  const validCalculations = calculations.filter(c => c.isValid);
-  const outOfBoundsCount = validCalculations.filter(c => !c.isInBounds).length;
-  
+
+  const validCalculations = calculations.filter((c) => c.isValid);
+  const outOfBoundsCount = validCalculations.filter((c) => !c.isInBounds).length;
+
   return {
     calculations,
     summary: {
       totalCalculations: calculations.length,
       validCalculations: validCalculations.length,
       invalidCalculations: calculations.length - validCalculations.length,
-      outOfBoundsCalculations: outOfBoundsCount
+      outOfBoundsCalculations: outOfBoundsCount,
     },
-    errors
+    errors,
   };
 }

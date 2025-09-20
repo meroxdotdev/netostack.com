@@ -1,6 +1,6 @@
 <script lang="ts">
   import { specialIPv4Content } from '$lib/content/special-use-ipv4.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -45,7 +45,7 @@
 
     <div class="ref-section">
       <h2>Common Address Categories</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Private Networks (RFC 1918)</div>
@@ -91,17 +91,17 @@
           </div>
         {/each}
       </div>
-      
+
       <div class="ref-warning">
         <div class="warning-title">
           <Icon name="alert-triangle" size="sm" />
           Important Note
         </div>
         <div class="warning-content">
-          If you see 100.64.x.x addresses, your ISP is using Carrier-Grade NAT (CGNAT). This can cause issues with port forwarding, gaming, and some applications that require direct connectivity.
+          If you see 100.64.x.x addresses, your ISP is using Carrier-Grade NAT (CGNAT). This can cause issues with port
+          forwarding, gaming, and some applications that require direct connectivity.
         </div>
       </div>
     </div>
   </div>
 </div>
-

@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from '$lib/components/global/Icon.svelte';
-  
+
   export let searchQuery: string = '';
 </script>
 
@@ -18,19 +18,34 @@
     <div class="suggestions">
       <h4>Try searching for:</h4>
       <div class="suggestion-tags">
-        <button class="suggestion-tag" onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'subnet' }))}>
+        <button
+          class="suggestion-tag"
+          onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'subnet' }))}
+        >
           subnet
         </button>
-        <button class="suggestion-tag" onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'cidr' }))}>
+        <button
+          class="suggestion-tag"
+          onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'cidr' }))}
+        >
           cidr
         </button>
-        <button class="suggestion-tag" onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'ipv6' }))}>
+        <button
+          class="suggestion-tag"
+          onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'ipv6' }))}
+        >
           ipv6
         </button>
-        <button class="suggestion-tag" onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'converter' }))}>
+        <button
+          class="suggestion-tag"
+          onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'converter' }))}
+        >
           converter
         </button>
-        <button class="suggestion-tag" onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'calculator' }))}>
+        <button
+          class="suggestion-tag"
+          onclick={() => window.dispatchEvent(new CustomEvent('search-suggestion', { detail: 'calculator' }))}
+        >
           calculator
         </button>
       </div>
@@ -84,7 +99,7 @@
   .suggestions {
     margin-top: var(--spacing-lg);
     width: 100%;
-    
+
     h4 {
       font-size: var(--font-size-sm);
       color: var(--text-secondary);

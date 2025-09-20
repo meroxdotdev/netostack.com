@@ -1,6 +1,6 @@
 <script lang="ts">
   import { linkLocalApipaContent } from '$lib/content/link-local-apipa.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -18,7 +18,7 @@
 
     <div class="ref-section">
       <h2>{linkLocalApipaContent.apipa.title}</h2>
-      
+
       <div class="ref-examples">
         <div class="examples-title">Address Range</div>
         <div class="example-item">
@@ -69,7 +69,7 @@
 
     <div class="ref-section">
       <h2>{linkLocalApipaContent.ipv6LinkLocal.title}</h2>
-      
+
       <div class="ref-examples">
         <div class="examples-title">Address Range</div>
         <div class="example-item">
@@ -117,7 +117,7 @@
 
     <div class="ref-section">
       <h2>IPv4 APIPA vs IPv6 Link-Local Comparison</h2>
-      
+
       <table class="ref-table">
         <thead>
           <tr>
@@ -154,7 +154,7 @@
 
     <div class="ref-section">
       <h2>Troubleshooting Commands</h2>
-      
+
       <table class="ref-table">
         <thead>
           <tr>
@@ -210,7 +210,7 @@
 
     <div class="ref-section">
       <h2>Quick Reference</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Recognition</div>
@@ -218,7 +218,7 @@
             <div class="item-description">{item}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">Troubleshooting</div>
           {#each linkLocalApipaContent.quickReference.troubleshooting as item}
@@ -226,14 +226,15 @@
           {/each}
         </div>
       </div>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="key" size="sm" />
           Key Difference
         </div>
         <div class="highlight-content">
-          IPv4 APIPA (169.254.x.x) indicates a problem - DHCP failed. IPv6 link-local (fe80::) is normal and required - every IPv6 interface has one.
+          IPv4 APIPA (169.254.x.x) indicates a problem - DHCP failed. IPv6 link-local (fe80::) is normal and required -
+          every IPv6 interface has one.
         </div>
       </div>
     </div>

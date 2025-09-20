@@ -1,46 +1,49 @@
 <script lang="ts">
   import { normalizeIPv6Addresses, type IPv6NormalizeResult } from '$lib/utils/ipv6-normalize.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
-  let inputText = $state('2001:0db8:0000:0000:0000:ff00:0042:8329\n2001:db8:0:0:1:0:0:1\n2001:0db8:0001:0000:0000:0ab9:C0A8:0102\n2001:db8::1\nfe80::1%eth0');
+
+  let inputText = $state(
+    '2001:0db8:0000:0000:0000:ff00:0042:8329\n2001:db8:0:0:1:0:0:1\n2001:0db8:0001:0000:0000:0ab9:C0A8:0102\n2001:db8::1\nfe80::1%eth0',
+  );
   let result = $state<IPv6NormalizeResult | null>(null);
   let isLoading = $state(false);
   let copiedStates = $state<Record<string, boolean>>({});
-  
+
   function normalizeAddresses() {
     if (!inputText.trim()) {
       result = null;
       return;
     }
-    
+
     isLoading = true;
-    
+
     try {
-      const inputs = inputText.split('\n').filter(line => line.trim());
+      const inputs = inputText.split('\n').filter((line) => line.trim());
       result = normalizeIPv6Addresses(inputs);
     } catch (error) {
       result = {
         normalizations: [],
         summary: { totalInputs: 0, validInputs: 0, invalidInputs: 0, alreadyNormalizedInputs: 0 },
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
       };
     } finally {
       isLoading = false;
     }
   }
-  
+
   function exportResults(format: 'csv' | 'json' | 'txt') {
     if (!result) return;
-    
+
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
     let content = '';
     let filename = '';
     let mimeType = 'text/plain';
-    
+
     if (format === 'csv') {
       const headers = 'Input,Normalized,Valid,Compression Applied,Leading Zeros Removed,Lowercase Applied,Error';
-      const rows = result.normalizations.map(norm => 
-        `"${norm.input}","${norm.normalized}","${norm.isValid}","${norm.compressionApplied}","${norm.leadingZerosRemoved}","${norm.lowercaseApplied}","${norm.error || ''}"`
+      const rows = result.normalizations.map(
+        (norm) =>
+          `"${norm.input}","${norm.normalized}","${norm.isValid}","${norm.compressionApplied}","${norm.leadingZerosRemoved}","${norm.lowercaseApplied}","${norm.error || ''}"`,
       );
       content = [headers, ...rows].join('\n');
       filename = `ipv6-normalized-${timestamp}.csv`;
@@ -52,13 +55,13 @@
     } else {
       // Plain text format with just normalized addresses
       content = result.normalizations
-        .filter(n => n.isValid)
-        .map(n => n.normalized)
+        .filter((n) => n.isValid)
+        .map((n) => n.normalized)
         .join('\n');
       filename = `ipv6-normalized-${timestamp}.txt`;
       mimeType = 'text/plain';
     }
-    
+
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -67,7 +70,7 @@
     a.click();
     URL.revokeObjectURL(url);
   }
-  
+
   async function copyToClipboard(text: string, id?: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -81,17 +84,17 @@
       console.error('Failed to copy text: ', err);
     }
   }
-  
+
   function copyAllNormalized() {
     if (result) {
       const normalized = result.normalizations
-        .filter(n => n.isValid)
-        .map(n => n.normalized)
+        .filter((n) => n.isValid)
+        .map((n) => n.normalized)
         .join('\n');
       copyToClipboard(normalized, 'copy-all');
     }
   }
-  
+
   // Auto-normalize when inputs change
   $effect(() => {
     if (inputText.trim()) {
@@ -104,11 +107,13 @@
 <div class="card">
   <header class="card-header">
     <h2>IPv6 Normalizer</h2>
-    <p>Normalize IPv6 addresses to RFC 5952 canonical form with lowercase, zero compression, and leading zero removal</p>
+    <p>
+      Normalize IPv6 addresses to RFC 5952 canonical form with lowercase, zero compression, and leading zero removal
+    </p>
   </header>
 
   <div class="input-section">
-      <div class="input-group">
+    <div class="input-group">
       <label for="inputs">IPv6 Addresses</label>
       <textarea
         id="inputs"
@@ -121,27 +126,27 @@
       </div>
     </div>
 
-      <div class="rfc-info">
-        <h3>RFC 5952 Normalization Rules</h3>
-        <ul>
-          <li>Convert hexadecimal to lowercase</li>
-          <li>Remove leading zeros in each group</li>
-          <li>Compress longest sequence of consecutive zero groups with ::</li>
-          <li>Preserve zone identifiers (%)</li>
-          <li>Support IPv4-mapped IPv6 addresses</li>
-        </ul>
-      </div>
+    <div class="rfc-info">
+      <h3>RFC 5952 Normalization Rules</h3>
+      <ul>
+        <li>Convert hexadecimal to lowercase</li>
+        <li>Remove leading zeros in each group</li>
+        <li>Compress longest sequence of consecutive zero groups with ::</li>
+        <li>Preserve zone identifiers (%)</li>
+        <li>Support IPv4-mapped IPv6 addresses</li>
+      </ul>
     </div>
+  </div>
 
-    {#if isLoading}
-      <div class="loading">
-        <Icon name="loader" />
-        Normalizing addresses...
-      </div>
-    {/if}
+  {#if isLoading}
+    <div class="loading">
+      <Icon name="loader" />
+      Normalizing addresses...
+    </div>
+  {/if}
 
-    {#if result}
-      <div class="results">
+  {#if result}
+    <div class="results">
       {#if result.errors.length > 0}
         <div class="errors">
           <h3><Icon name="alert-triangle" /> Errors</h3>
@@ -178,10 +183,7 @@
           <div class="normalized-header">
             <h3>Normalized Addresses</h3>
             <div class="export-buttons">
-              <button
-                onclick={copyAllNormalized}
-                class:copied={copiedStates['copy-all']}
-              >
+              <button onclick={copyAllNormalized} class:copied={copiedStates['copy-all']}>
                 <Icon name={copiedStates['copy-all'] ? 'check' : 'copy'} />
                 Copy All
               </button>
@@ -204,7 +206,11 @@
         <div class="normalizations">
           <div class="normalizations-list">
             {#each result.normalizations as normalization, index}
-              <div class="normalization-card" class:valid={normalization.isValid} class:invalid={!normalization.isValid}>
+              <div
+                class="normalization-card"
+                class:valid={normalization.isValid}
+                class:invalid={!normalization.isValid}
+              >
                 <div class="status">
                   {#if normalization.isValid}
                     <Icon name="check-circle" />
@@ -217,7 +223,12 @@
                   <div class="address-info">
                     <div class="original-address">
                       <span class="address-label">Original:</span>
-                      <button type="button" class="code-button" onclick={() => copyToClipboard(normalization.input, `original-${index}`)} title="Click to copy">
+                      <button
+                        type="button"
+                        class="code-button"
+                        onclick={() => copyToClipboard(normalization.input, `original-${index}`)}
+                        title="Click to copy"
+                      >
                         {normalization.input}
                       </button>
                     </div>
@@ -226,7 +237,12 @@
                       <div class="normalized-address">
                         <span class="address-label">Normalized:</span>
                         <div class="normalized-content">
-                          <button type="button" class="code-button normalized" onclick={() => copyToClipboard(normalization.normalized, `normalized-${index}`)} title="Click to copy">
+                          <button
+                            type="button"
+                            class="code-button normalized"
+                            onclick={() => copyToClipboard(normalization.normalized, `normalized-${index}`)}
+                            title="Click to copy"
+                          >
                             {normalization.normalized}
                           </button>
                           <button
@@ -318,7 +334,6 @@
 </div>
 
 <style>
-
   /* Card styles already defined in base.scss */
 
   .card h2 {
@@ -770,7 +785,7 @@
       grid-template-columns: 1fr;
       gap: var(--spacing-xs);
     }
-    
+
     .transformation-arrow {
       justify-self: center;
     }
@@ -818,15 +833,14 @@
   }
 
   @media (max-width: 767px) {
-    
     .summary-stats {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .export-buttons {
       justify-content: stretch;
     }
-    
+
     .export-buttons button {
       flex: 1;
       justify-content: center;

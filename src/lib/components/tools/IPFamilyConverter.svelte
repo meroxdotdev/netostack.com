@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { 
-    ipv4ToIPv6, 
-    ipv6ToIPv4, 
-    validateIPv4, 
-    validateIPv6, 
-    getIPv6Info, 
-    expandIPv6, 
+  import {
+    ipv4ToIPv6,
+    ipv6ToIPv4,
+    validateIPv4,
+    validateIPv6,
+    getIPv6Info,
+    expandIPv6,
     compressIPv6,
-    type ConversionResult 
+    type ConversionResult,
   } from '$lib/utils/ip-family-conversions.js';
   import IPInput from './IPInput.svelte';
   import Tooltip from '$lib/components/global/Tooltip.svelte';
@@ -95,27 +95,25 @@
 
   <!-- Input Section -->
   <div class="form-group">
-    <IPInput
-      bind:value={inputValue}
-      label={isIPv4ToIPv6 ? 'IPv4 Address' : 'IPv6 Address'}
-      placeholder={placeholder}
-    />
+    <IPInput bind:value={inputValue} label={isIPv4ToIPv6 ? 'IPv4 Address' : 'IPv6 Address'} {placeholder} />
   </div>
 
   {#if validation.valid && conversionResult}
     <div class="results-section fade-in">
-      
       {#if conversionResult.success}
         <!-- Successful Conversion -->
         <section class="info-panel success">
           <h3>Conversion Result</h3>
-          
+
           <div class="result-display">
             <div class="result-item">
               <span class="result-label">{isIPv4ToIPv6 ? 'IPv6 Address' : 'IPv4 Address'}</span>
               <div class="result-value-container">
                 <code class="result-value">{conversionResult.result}</code>
-                <Tooltip text={copiedStates['result'] ? 'Copied!' : `Copy ${isIPv4ToIPv6 ? 'IPv6' : 'IPv4'} address`} position="left">
+                <Tooltip
+                  text={copiedStates['result'] ? 'Copied!' : `Copy ${isIPv4ToIPv6 ? 'IPv6' : 'IPv4'} address`}
+                  position="left"
+                >
                   <button
                     type="button"
                     class="copy-btn {copiedStates['result'] ? 'copied' : ''}"
@@ -139,7 +137,7 @@
         {#if conversionResult.details}
           <section class="info-panel details">
             <h3>Detailed Information</h3>
-            
+
             <div class="details-grid">
               {#if isIPv4ToIPv6}
                 <!-- IPv4 to IPv6 Details -->
@@ -211,7 +209,7 @@
         {#if !isIPv4ToIPv6 && ipv6Info}
           <section class="info-panel ipv6-info">
             <h3>IPv6 Address Information</h3>
-            
+
             <div class="ipv6-analysis">
               <div class="analysis-item">
                 <span class="analysis-label">Address Types</span>
@@ -260,17 +258,17 @@
             </div>
           </section>
         {/if}
-
       {:else}
         <!-- Conversion Error -->
         <section class="info-panel error">
           <h3>Conversion Failed</h3>
           <div class="error-content">
             <p class="error-message">{conversionResult.error}</p>
-            
+
             {#if conversionResult.details?.suggestion}
               <div class="suggestion-box">
-                <strong>Suggestion:</strong> {conversionResult.details.suggestion}
+                <strong>Suggestion:</strong>
+                {conversionResult.details.suggestion}
               </div>
             {/if}
           </div>
@@ -368,7 +366,8 @@
     border: 1px solid var(--border-primary);
   }
 
-  .copy-btn, .copy-btn-small {
+  .copy-btn,
+  .copy-btn-small {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -390,13 +389,15 @@
     height: 1.75rem;
   }
 
-  .copy-btn:hover, .copy-btn-small:hover {
+  .copy-btn:hover,
+  .copy-btn-small:hover {
     background-color: var(--surface-hover);
     color: var(--text-primary);
     border-color: var(--color-primary);
   }
 
-  .copy-btn.copied, .copy-btn-small.copied {
+  .copy-btn.copied,
+  .copy-btn-small.copied {
     background-color: var(--color-success);
     color: white;
     border-color: var(--color-success);
@@ -470,13 +471,15 @@
   }
 
   @media (max-width: 768px) {
-    .result-value-container, .detail-value-container {
+    .result-value-container,
+    .detail-value-container {
       flex-direction: column;
       align-items: stretch;
       gap: var(--spacing-xs);
     }
 
-    .copy-btn, .copy-btn-small {
+    .copy-btn,
+    .copy-btn-small {
       align-self: center;
     }
   }

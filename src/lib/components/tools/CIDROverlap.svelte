@@ -19,29 +19,29 @@
     {
       label: 'Basic Overlap',
       setA: '192.168.1.0/24',
-      setB: '192.168.1.128/25'
+      setB: '192.168.1.128/25',
     },
     {
       label: 'No Overlap',
       setA: '192.168.1.0/24',
-      setB: '192.168.2.0/24'
+      setB: '192.168.2.0/24',
     },
     {
       label: 'Partial Overlap',
       setA: `192.168.1.0/25
 192.168.2.0/24`,
       setB: `192.168.1.64/26
-192.168.3.0/24`
+192.168.3.0/24`,
     },
     {
       label: 'IPv6 Overlap',
       setA: '2001:db8::/48',
-      setB: '2001:db8:1::/64'
-    }
+      setB: '2001:db8:1::/64',
+    },
   ];
 
   /* Set example */
-  function setExample(example: typeof examples[0]) {
+  function setExample(example: (typeof examples)[0]) {
     setA = example.setA;
     setB = example.setB;
     selectedExample = example.label;
@@ -54,7 +54,7 @@
     try {
       await navigator.clipboard.writeText(text);
       copiedStates[id] = true;
-      setTimeout(() => copiedStates[id] = false, 3000);
+      setTimeout(() => (copiedStates[id] = false), 3000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -63,15 +63,19 @@
   /* Copy all results */
   function copyAllResults(format: 'text' | 'json') {
     if (!result) return;
-    
+
     let content = '';
     if (format === 'json') {
-      content = JSON.stringify({
-        hasOverlap: result.hasOverlap,
-        ipv4: result.ipv4,
-        ipv6: result.ipv6,
-        stats: result.stats
-      }, null, 2);
+      content = JSON.stringify(
+        {
+          hasOverlap: result.hasOverlap,
+          ipv4: result.ipv4,
+          ipv6: result.ipv6,
+          stats: result.stats,
+        },
+        null,
+        2,
+      );
     } else {
       const lines = [`Overlap: ${result.hasOverlap ? 'Yes' : 'No'}`];
       if (result.ipv4.length > 0) {
@@ -82,7 +86,7 @@
       }
       content = lines.join('\n');
     }
-    
+
     copyToClipboard(content, `all-${format}`);
   }
 
@@ -107,9 +111,14 @@
         hasOverlap: false,
         ipv4: [],
         ipv6: [],
-        stats: { setA: { count: 0, addresses: '0' }, setB: { count: 0, addresses: '0' }, intersection: { count: 0, addresses: '0' }, overlapPercent: 0 },
+        stats: {
+          setA: { count: 0, addresses: '0' },
+          setB: { count: 0, addresses: '0' },
+          intersection: { count: 0, addresses: '0' },
+          overlapPercent: 0,
+        },
         visualization: { setA: [], setB: [], intersection: [], version: 4, totalRange: { start: 0n, end: 0n } },
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
       };
     }
   }
@@ -131,18 +140,33 @@
   }
 
   /* Generate tooltip text for visualization segments */
-  function getSegmentTooltip(range: { start: bigint; end: bigint; cidr?: string }, type: 'A' | 'B' | 'intersection'): string {
+  function getSegmentTooltip(
+    range: { start: bigint; end: bigint; cidr?: string },
+    type: 'A' | 'B' | 'intersection',
+  ): string {
     const version = result?.visualization.version || 4;
-    const startIP = version === 4 ? 
-      [Math.floor(Number(range.start) / 16777216) % 256, Math.floor(Number(range.start) / 65536) % 256, Math.floor(Number(range.start) / 256) % 256, Number(range.start) % 256].join('.') :
-      'IPv6';
-    const endIP = version === 4 ? 
-      [Math.floor(Number(range.end) / 16777216) % 256, Math.floor(Number(range.end) / 65536) % 256, Math.floor(Number(range.end) / 256) % 256, Number(range.end) % 256].join('.') :
-      'IPv6';
+    const startIP =
+      version === 4
+        ? [
+            Math.floor(Number(range.start) / 16777216) % 256,
+            Math.floor(Number(range.start) / 65536) % 256,
+            Math.floor(Number(range.start) / 256) % 256,
+            Number(range.start) % 256,
+          ].join('.')
+        : 'IPv6';
+    const endIP =
+      version === 4
+        ? [
+            Math.floor(Number(range.end) / 16777216) % 256,
+            Math.floor(Number(range.end) / 65536) % 256,
+            Math.floor(Number(range.end) / 256) % 256,
+            Number(range.end) % 256,
+          ].join('.')
+        : 'IPv6';
     const size = range.end - range.start + 1n;
-    
+
     const label = type === 'A' ? 'Set A' : type === 'B' ? 'Set B' : 'Intersection';
-    
+
     return `${label}\nRange: ${startIP} - ${endIP}\nSize: ${size.toLocaleString()}${range.cidr ? `\nCIDR: ${range.cidr}` : ''}`;
   }
 
@@ -172,7 +196,7 @@
     <h3>Options</h3>
     <div class="options-grid">
       <label class="checkbox-label">
-        <input type="checkbox" bind:checked={mergeInputs} onchange={() => userModified = true} />
+        <input type="checkbox" bind:checked={mergeInputs} onchange={() => (userModified = true)} />
         <span class="checkbox-text">
           Merge overlapping inputs first
           <Tooltip text="Combine overlapping ranges within each set before comparison">
@@ -181,7 +205,7 @@
         </span>
       </label>
       <label class="checkbox-label">
-        <input type="checkbox" bind:checked={showOnlyBoolean} onchange={() => userModified = true} />
+        <input type="checkbox" bind:checked={showOnlyBoolean} onchange={() => (userModified = true)} />
         <span class="checkbox-text">
           Show only boolean result
           <Tooltip text="Display just yes/no overlap instead of detailed intersection blocks">
@@ -206,7 +230,7 @@
         <div class="input-wrapper">
           <textarea
             bind:value={setA}
-            oninput={() => userModified = true}
+            oninput={() => (userModified = true)}
             placeholder="192.168.1.0/24&#10;10.0.0.0-10.0.0.100"
             class="input-textarea set-a"
             rows="6"
@@ -225,7 +249,7 @@
         <div class="input-wrapper">
           <textarea
             bind:value={setB}
-            oninput={() => userModified = true}
+            oninput={() => (userModified = true)}
             placeholder="192.168.1.128/25&#10;10.0.0.50-10.0.0.150"
             class="input-textarea set-b"
             rows="6"
@@ -235,11 +259,7 @@
     </div>
 
     <div class="input-actions">
-      <button 
-        type="button" 
-        class="btn btn-secondary btn-sm"
-        onclick={clearInputs}
-      >
+      <button type="button" class="btn btn-secondary btn-sm" onclick={clearInputs}>
         <Icon name="trash" size="sm" />
         Clear All
       </button>
@@ -250,7 +270,7 @@
       <h4>Quick Examples</h4>
       <div class="examples-grid">
         {#each examples as example}
-          <button 
+          <button
             type="button"
             class="example-btn"
             class:selected={selectedExample === example.label}
@@ -286,10 +306,9 @@
           <div class="status-content">
             <h3>{result.hasOverlap ? 'Overlap Detected' : 'No Overlap'}</h3>
             <p>
-              {result.hasOverlap 
+              {result.hasOverlap
                 ? `Sets A and B have overlapping address ranges (${result.stats.overlapPercent}% of smaller set)`
-                : 'Sets A and B do not share any common address ranges'
-              }
+                : 'Sets A and B do not share any common address ranges'}
             </p>
           </div>
         </div>
@@ -301,7 +320,7 @@
           <div class="summary-header">
             <h3>Intersection Results (A ∩ B)</h3>
             <div class="export-buttons">
-              <button 
+              <button
                 type="button"
                 class="btn btn-primary btn-sm"
                 class:copied={copiedStates['all-text']}
@@ -310,7 +329,7 @@
                 <Icon name={copiedStates['all-text'] ? 'check' : 'copy'} size="sm" />
                 Text
               </button>
-              <button 
+              <button
                 type="button"
                 class="btn btn-secondary btn-sm"
                 class:copied={copiedStates['all-json']}
@@ -364,14 +383,14 @@
                 <span>Intersection (A ∩ B)</span>
               </div>
             </div>
-            
+
             <div class="visualization-stack">
               <!-- Set A Bar -->
               <div class="viz-bar set-a-bar">
                 <div class="bar-label">Set A</div>
                 <div class="bar-segments">
                   {#each result.visualization.setA as range}
-                    <div 
+                    <div
                       class="viz-segment set-a-segment"
                       style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
                       use:tooltip={{ text: getSegmentTooltip(range, 'A'), position: 'top' }}
@@ -379,13 +398,13 @@
                   {/each}
                 </div>
               </div>
-              
+
               <!-- Set B Bar -->
               <div class="viz-bar set-b-bar">
                 <div class="bar-label">Set B</div>
                 <div class="bar-segments">
                   {#each result.visualization.setB as range}
-                    <div 
+                    <div
                       class="viz-segment set-b-segment"
                       style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
                       use:tooltip={{ text: getSegmentTooltip(range, 'B'), position: 'top' }}
@@ -393,13 +412,13 @@
                   {/each}
                 </div>
               </div>
-              
+
               <!-- Intersection Highlights -->
               <div class="viz-bar intersection-bar">
                 <div class="bar-label">A ∩ B</div>
                 <div class="bar-segments">
                   {#each result.visualization.intersection as range}
-                    <div 
+                    <div
                       class="viz-segment intersection-segment"
                       style="width: {getBarWidth(range)}%; left: {getBarOffset(range)}%"
                       use:tooltip={{ text: getSegmentTooltip(range, 'intersection'), position: 'bottom' }}
@@ -418,7 +437,7 @@
             <div class="result-panel ipv4">
               <div class="panel-header">
                 <h4>IPv4 Intersection ({result.ipv4.length})</h4>
-                <button 
+                <button
                   type="button"
                   class="btn btn-icon"
                   class:copied={copiedStates['ipv4']}
@@ -431,7 +450,7 @@
                 {#each result.ipv4 as cidr}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
-                    <button 
+                    <button
                       type="button"
                       class="btn btn-icon btn-xs"
                       class:copied={copiedStates[cidr]}
@@ -450,7 +469,7 @@
             <div class="result-panel ipv6">
               <div class="panel-header">
                 <h4>IPv6 Intersection ({result.ipv6.length})</h4>
-                <button 
+                <button
                   type="button"
                   class="btn btn-icon"
                   class:copied={copiedStates['ipv6']}
@@ -463,7 +482,7 @@
                 {#each result.ipv6 as cidr}
                   <div class="cidr-item">
                     <code class="cidr-block">{cidr}</code>
-                    <button 
+                    <button
                       type="button"
                       class="btn btn-icon btn-xs"
                       class:copied={copiedStates[cidr]}
@@ -496,37 +515,41 @@
   /* Options section */
   .options-section {
     margin-bottom: var(--spacing-lg);
-    
-    h3 { @extend %section-title; }
-    
+
+    h3 {
+      @extend %section-title;
+    }
+
     .options-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: var(--spacing-sm);
     }
-    
+
     .checkbox-label {
       display: flex;
       align-items: flex-start;
       gap: var(--spacing-sm);
       cursor: pointer;
-      
-      input[type="checkbox"] {
+
+      input[type='checkbox'] {
         margin-top: 2px;
         width: 16px;
         height: 16px;
         flex-shrink: 0;
       }
-      
+
       .checkbox-text {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
-        
+
         :global(.tooltip-trigger) {
           color: var(--text-secondary);
           opacity: 0.7;
-          &:hover { opacity: 1; }
+          &:hover {
+            opacity: 1;
+          }
         }
       }
     }
@@ -535,40 +558,46 @@
   /* Input section */
   .input-section {
     margin-bottom: var(--spacing-lg);
-    
+
     .input-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--spacing-lg);
       margin-bottom: var(--spacing-md);
     }
-    
+
     .input-group {
       h3 {
         @extend %section-title;
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
-        
+
         :global(.tooltip-trigger) {
           color: var(--text-secondary);
           opacity: 0.7;
-          &:hover { opacity: 1; }
+          &:hover {
+            opacity: 1;
+          }
         }
       }
     }
-    
+
     .input-textarea {
       width: 100%;
       height: 140px;
       font-family: var(--font-mono);
       font-size: var(--font-size-sm);
       resize: vertical;
-      
-      &.set-a { border-left: 4px solid var(--color-primary); }
-      &.set-b { border-left: 4px solid var(--color-primary); }
+
+      &.set-a {
+        border-left: 4px solid var(--color-primary);
+      }
+      &.set-b {
+        border-left: 4px solid var(--color-primary);
+      }
     }
-    
+
     .input-actions {
       display: flex;
       justify-content: center;
@@ -579,15 +608,17 @@
   /* Examples */
   .examples-section {
     margin-top: var(--spacing-lg);
-    
-    h4 { @extend %section-title; }
-    
+
+    h4 {
+      @extend %section-title;
+    }
+
     .examples-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: var(--spacing-sm);
     }
-    
+
     .example-btn {
       padding: var(--spacing-sm);
       background-color: var(--bg-tertiary);
@@ -595,13 +626,13 @@
       border-radius: var(--radius-sm);
       font-size: var(--font-size-sm);
       transition: all var(--transition-fast);
-      
+
       &.selected {
         outline: 2px solid var(--color-primary);
         outline-offset: -2px;
         background-color: var(--surface-hover);
       }
-      
+
       &:hover {
         background-color: var(--surface-hover);
         border-color: var(--color-primary);
@@ -629,22 +660,26 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    
+
     &.overlap {
       border-color: var(--color-success);
-      .status-icon :global(.icon) { color: var(--color-success); }
+      .status-icon :global(.icon) {
+        color: var(--color-success);
+      }
     }
-    
+
     &.no-overlap {
       border-color: var(--color-error);
-      .status-icon :global(.icon) { color: var(--color-error); }
+      .status-icon :global(.icon) {
+        color: var(--color-error);
+      }
     }
-    
+
     .status-content h3 {
       margin: 0 0 var(--spacing-xs) 0;
       color: var(--text-primary);
     }
-    
+
     .status-content p {
       margin: 0;
       color: var(--text-secondary);
@@ -657,12 +692,12 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
-    
+
     h3 {
       color: var(--color-primary);
       margin: 0;
     }
-    
+
     .export-buttons {
       display: flex;
       gap: var(--spacing-sm);
@@ -685,11 +720,19 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    
-    &.set-a { border-left: 4px solid var(--color-primary); }
-    &.set-b { border-left: 4px solid var(--color-primary); }
-    &.intersection { border-left: 4px solid var(--color-primary); }
-    &.overlap-percent { border-left: 4px solid var(--color-primary); }
+
+    &.set-a {
+      border-left: 4px solid var(--color-primary);
+    }
+    &.set-b {
+      border-left: 4px solid var(--color-primary);
+    }
+    &.intersection {
+      border-left: 4px solid var(--color-primary);
+    }
+    &.overlap-percent {
+      border-left: 4px solid var(--color-primary);
+    }
   }
 
   .stat-label {
@@ -714,29 +757,37 @@
   /* Visualization */
   .visualization-section {
     margin-bottom: var(--spacing-lg);
-    
-    h4 { @extend %section-title; }
-    
+
+    h4 {
+      @extend %section-title;
+    }
+
     .viz-legend {
       display: flex;
       gap: var(--spacing-lg);
       margin-bottom: var(--spacing-md);
       justify-content: center;
-      
+
       .legend-item {
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
         font-size: var(--font-size-sm);
-        
+
         .legend-color {
           width: 16px;
           height: 16px;
           border-radius: var(--radius-xs);
-          
-          &.set-a-color { background-color: var(--color-info); }
-          &.set-b-color { background-color: var(--color-warning); }
-          &.intersection-color { background-color: var(--color-success); }
+
+          &.set-a-color {
+            background-color: var(--color-info);
+          }
+          &.set-b-color {
+            background-color: var(--color-warning);
+          }
+          &.intersection-color {
+            background-color: var(--color-success);
+          }
         }
       }
     }
@@ -756,7 +807,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    
+
     .bar-label {
       font-size: var(--font-size-sm);
       font-weight: 600;
@@ -764,7 +815,7 @@
       width: 60px;
       text-align: right;
     }
-    
+
     .bar-segments {
       flex: 1;
       position: relative;
@@ -780,23 +831,23 @@
     height: 100%;
     transition: all var(--transition-fast);
     cursor: pointer;
-    
+
     &.set-a-segment {
       background-color: var(--color-info);
       opacity: 0.7;
     }
-    
+
     &.set-b-segment {
       background-color: var(--color-warning);
       opacity: 0.7;
     }
-    
+
     &.intersection-segment {
       background-color: var(--color-success);
       opacity: 0.9;
       border: 1px solid var(--bg-primary);
     }
-    
+
     &:hover {
       filter: brightness(1.1);
       z-index: 10;
@@ -815,14 +866,14 @@
     border-radius: var(--radius-lg);
     overflow: hidden;
     border: 2px solid var(--color-primary);
-    
+
     .panel-header {
       padding: var(--spacing-md);
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--color-primary);
-      
+
       h4 {
         margin: 0;
         color: var(--bg-primary);
@@ -858,7 +909,7 @@
   .error-list {
     margin: var(--spacing-sm) 0;
     padding-left: var(--spacing-md);
-    
+
     li {
       color: var(--color-error);
       margin-bottom: var(--spacing-xs);
@@ -871,12 +922,12 @@
       background-color: rgba(35, 134, 54, 0.1);
       border-color: var(--color-success);
     }
-    
+
     :global(.icon) {
       width: 1rem;
       height: 1rem;
     }
-    
+
     &.btn-xs :global(.icon) {
       width: 0.75rem;
       height: 0.75rem;
@@ -888,40 +939,40 @@
     .input-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .results-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .stats-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .examples-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .summary-header,
     .status-card {
       flex-direction: column;
       gap: var(--spacing-sm);
       align-items: stretch;
     }
-    
+
     .status-card {
       text-align: center;
     }
-    
+
     .viz-legend {
       flex-direction: column;
       align-items: flex-start;
       gap: var(--spacing-sm);
     }
-    
+
     .viz-bar {
       flex-direction: column;
       gap: var(--spacing-xs);
-      
+
       .bar-label {
         width: auto;
         text-align: left;

@@ -19,7 +19,7 @@
     label = 'CIDR Notation',
     required = false,
     disabled = false,
-    class: className = ''
+    class: className = '',
   }: Props = $props();
 
   let validation: ValidationResult = $state({ valid: true });
@@ -32,7 +32,7 @@
   function getActivePreset(): number | null {
     if (!value || !value.includes('/')) return null;
     const currentCidr = parseInt(value.split('/')[1], 10);
-    return cidrPresets.find(p => p.cidr === currentCidr)?.cidr || null;
+    return cidrPresets.find((p) => p.cidr === currentCidr)?.cidr || null;
   }
 
   // Initialize active preset on load
@@ -61,7 +61,7 @@
     { cidr: 26, label: '/26', hosts: '62 hosts' },
     { cidr: 27, label: '/27', hosts: '30 hosts' },
     { cidr: 28, label: '/28', hosts: '14 hosts' },
-    { cidr: 30, label: '/30 (P2P)', hosts: '2 hosts' }
+    { cidr: 30, label: '/30 (P2P)', hosts: '2 hosts' },
   ];
 
   /**
@@ -86,7 +86,7 @@
       {#if required}<span class="required">*</span>{/if}
     </label>
   {/if}
-  
+
   <div class="field-input">
     <input
       id="cidr-input"
@@ -100,10 +100,10 @@
       class:invalid={!validation.valid && value}
       class:focused
       oninput={handleInput}
-      onfocus={() => focused = true}
-      onblur={() => focused = false}
+      onfocus={() => (focused = true)}
+      onblur={() => (focused = false)}
     />
-    
+
     <!-- Validation indicator -->
     <div class="field-icon">
       {#if value && validation.valid}
@@ -117,14 +117,14 @@
       {/if}
     </div>
   </div>
-  
+
   <!-- Error message -->
   {#if !validation.valid && validation.error}
     <p class="field-error fade-in">
       {validation.error}
     </p>
   {/if}
-  
+
   <!-- CIDR presets -->
   <div class="presets-section">
     <p class="presets-label">Quick presets:</p>
@@ -149,48 +149,46 @@
 <style lang="scss">
   .form-field {
     min-width: 300px;
-    
+
     @media (max-width: 768px) {
       min-width: auto;
     }
   }
-
 
   .input-cidr {
     font-family: var(--font-mono);
     font-size: var(--font-size-md);
     padding-right: 2.5rem;
     flex: 1;
-    
+
     &.valid {
       border-color: var(--color-success);
     }
-    
+
     &.invalid {
       border-color: var(--color-error);
     }
-    
+
     &.focused {
       box-shadow: var(--shadow-md);
     }
   }
 
-
   .presets-section {
     margin-top: var(--spacing-md);
-    
+
     .presets-label {
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
       margin-bottom: var(--spacing-sm);
     }
-    
+
     .presets-grid {
       display: flex;
       flex-wrap: wrap;
       gap: var(--spacing-sm);
     }
-    
+
     .preset-btn {
       padding: var(--spacing-xs) var(--spacing-sm);
       font-size: var(--font-size-xs);
@@ -199,13 +197,13 @@
       color: var(--text-primary);
       border: 1px solid var(--border-secondary);
       transition: all var(--transition-fast);
-      
+
       &:hover:not(:disabled) {
         background-color: var(--surface-hover);
         border-color: var(--color-primary);
         color: var(--color-primary);
       }
-      
+
       &:disabled {
         opacity: 0.6;
         cursor: not-allowed;

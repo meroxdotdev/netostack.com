@@ -2,42 +2,42 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domain = $state('gmail.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { domain: 'gmail.com', description: 'Google Gmail DMARC policy' },
     { domain: 'outlook.com', description: 'Microsoft Outlook DMARC setup' },
     { domain: 'github.com', description: 'GitHub enterprise DMARC' },
     { domain: 'paypal.com', description: 'PayPal strict DMARC policy' },
     { domain: 'amazon.com', description: 'Amazon DMARC implementation' },
-    { domain: 'salesforce.com', description: 'Salesforce DMARC configuration' }
+    { domain: 'salesforce.com', description: 'Salesforce DMARC configuration' },
   ];
-  
+
   async function checkDMARC() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'dmarc-check',
-          domain: domain.trim()
-        })
+          domain: domain.trim(),
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`DMARC check failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -45,57 +45,68 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     domain = example.domain;
     selectedExampleIndex = index;
     checkDMARC();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   function getPolicyColor(policy: string): string {
     switch (policy) {
-      case 'reject': return 'success';
-      case 'quarantine': return 'warning';
-      case 'none': return 'error';
-      default: return 'secondary';
+      case 'reject':
+        return 'success';
+      case 'quarantine':
+        return 'warning';
+      case 'none':
+        return 'error';
+      default:
+        return 'secondary';
     }
   }
-  
+
   function getPolicyIcon(policy: string): string {
     switch (policy) {
-      case 'reject': return 'shield-check';
-      case 'quarantine': return 'shield-alert';
-      case 'none': return 'shield-x';
-      default: return 'shield';
+      case 'reject':
+        return 'shield-check';
+      case 'quarantine':
+        return 'shield-alert';
+      case 'none':
+        return 'shield-x';
+      default:
+        return 'shield';
     }
   }
-  
+
   function getAlignmentColor(alignment: string): string {
     switch (alignment) {
-      case 's': return 'success';
-      case 'r': return 'warning';
-      default: return 'secondary';
+      case 's':
+        return 'success';
+      case 'r':
+        return 'warning';
+      default:
+        return 'secondary';
     }
   }
-  
+
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `DMARC Check for ${domain}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
-    
+
     if (results.record) {
       text += `DMARC Record:\n${results.record}\n\n`;
     }
-    
+
     if (results.deliverabilityHints) {
       text += `Email Deliverability Impact:\n`;
       text += `${results.deliverabilityHints.policyImpact}\n\n`;
-      
+
       if (results.deliverabilityHints.recommendations.length > 0) {
         text += `Recommendations:\n`;
         results.deliverabilityHints.recommendations.forEach((rec: string) => {
@@ -104,7 +115,7 @@
         text += `\n`;
       }
     }
-    
+
     if (results.parsed) {
       const p = results.parsed;
       text += `Policy Configuration:\n`;
@@ -116,17 +127,20 @@
       if (p.reporting.aggregate) text += `  Aggregate Reports: ${p.reporting.aggregate}\n`;
       if (p.reporting.forensic) text += `  Forensic Reports: ${p.reporting.forensic}\n`;
     }
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>Email DMARC Policy Checker</h1>
-    <p>Check DMARC (Domain-based Message Authentication, Reporting & Conformance) policies with focus on email deliverability impact. Understand how DMARC affects your email delivery and reputation.</p>
+    <p>
+      Check DMARC (Domain-based Message Authentication, Reporting & Conformance) policies with focus on email
+      deliverability impact. Understand how DMARC affects your email delivery and reputation.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -138,8 +152,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Check DMARC policy for ${example.domain}`}
@@ -159,18 +173,21 @@
     </div>
     <div class="card-content">
       <div class="form-group">
-        <label for="domain" use:tooltip={"Enter the domain to check DMARC policy for"}>
+        <label for="domain" use:tooltip={'Enter the domain to check DMARC policy for'}>
           Domain Name
-          <input 
-            id="domain" 
-            type="text" 
-            bind:value={domain} 
+          <input
+            id="domain"
+            type="text"
+            bind:value={domain}
             placeholder="example.com"
-            onchange={() => { clearExampleSelection(); if (domain) checkDMARC(); }}
+            onchange={() => {
+              clearExampleSelection();
+              if (domain) checkDMARC();
+            }}
           />
         </label>
       </div>
-      
+
       <div class="action-section">
         <button class="check-btn lookup-btn" onclick={checkDMARC} disabled={loading || !domain.trim()}>
           {#if loading}
@@ -191,8 +208,8 @@
       <div class="card-header row">
         <h3>DMARC Policy Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" />
-          {copiedState ? "Copied!" : "Copy Results"}
+          <Icon name={copiedState ? 'check' : 'copy'} size="xs" />
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
@@ -209,7 +226,7 @@
                 {/if}
               </div>
             </div>
-            
+
             <!-- Recommendations -->
             {#if results.deliverabilityHints.recommendations.length > 0}
               <div class="recommendations-section">
@@ -295,7 +312,9 @@
                 <div class="policy-value">
                   <span class="policy-text">{results.parsed.alignment.dkim === 's' ? 'Strict' : 'Relaxed'}</span>
                   <span class="policy-description">
-                    {results.parsed.alignment.dkim === 's' ? 'Exact domain match required' : 'Organizational domain match allowed'}
+                    {results.parsed.alignment.dkim === 's'
+                      ? 'Exact domain match required'
+                      : 'Organizational domain match allowed'}
                   </span>
                 </div>
               </div>
@@ -309,7 +328,9 @@
                 <div class="policy-value">
                   <span class="policy-text">{results.parsed.alignment.spf === 's' ? 'Strict' : 'Relaxed'}</span>
                   <span class="policy-description">
-                    {results.parsed.alignment.spf === 's' ? 'Exact domain match required' : 'Organizational domain match allowed'}
+                    {results.parsed.alignment.spf === 's'
+                      ? 'Exact domain match required'
+                      : 'Organizational domain match allowed'}
                   </span>
                 </div>
               </div>
@@ -441,7 +462,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>Email Delivery Best Practices</h4>
           <ul>
@@ -452,7 +473,7 @@
             <li>Consider subdomain policy for comprehensive coverage</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Alignment Modes & Delivery</h4>
           <div class="alignment-explanations">
@@ -464,7 +485,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>Common Delivery Issues</h4>
           <ul>
@@ -565,7 +586,9 @@
     }
   }
 
-  .record-section, .policy-section, .reporting-section {
+  .record-section,
+  .policy-section,
+  .reporting-section {
     margin-bottom: var(--spacing-lg);
 
     h4 {
@@ -581,17 +604,17 @@
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
     padding: var(--spacing-sm);
-    
+
     @media (max-width: 600px) {
       flex-wrap: wrap;
     }
-    
+
     .record-location {
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
       white-space: nowrap;
     }
-    
+
     code {
       flex: 1;
       word-break: break-all;
@@ -751,7 +774,8 @@
     }
   }
 
-  .policy-explanations, .alignment-explanations {
+  .policy-explanations,
+  .alignment-explanations {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -759,7 +783,7 @@
     .explanation-item {
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
-      
+
       strong {
         color: var(--text-primary);
         font-family: var(--font-mono);

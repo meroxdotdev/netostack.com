@@ -79,35 +79,35 @@ const DEFAULT_TTL = 3600;
 // Helper validation functions
 function isValidDomainName(name: string): boolean {
   if (!name || name.length > MAX_FQDN_LENGTH) return false;
-  
+
   // Allow @ as placeholder for origin
   if (name === '@') return true;
-  
+
   // Split by dots and validate each label
   const labels = name.split('.');
-  
+
   // Remove empty trailing label (for FQDN ending with .)
   if (labels[labels.length - 1] === '') {
     labels.pop();
   }
-  
+
   for (const label of labels) {
     if (!isValidLabel(label)) return false;
   }
-  
+
   return true;
 }
 
 function isValidLabel(label: string): boolean {
   if (!label || label.length > MAX_LABEL_LENGTH) return false;
-  
+
   // Must start and end with alphanumeric
   if (!/^[a-zA-Z0-9]/.test(label) || !/[a-zA-Z0-9]$/.test(label)) {
     // Exception for single character labels and wildcards
     if (label.length === 1 || label === '*') return true;
     return false;
   }
-  
+
   // Can contain hyphens in the middle
   return /^[a-zA-Z0-9-*]+$/.test(label);
 }
@@ -115,8 +115,8 @@ function isValidLabel(label: string): boolean {
 function isValidIPv4(ip: string): boolean {
   const parts = ip.split('.');
   if (parts.length !== 4) return false;
-  
-  return parts.every(part => {
+
+  return parts.every((part) => {
     const num = parseInt(part, 10);
     return !isNaN(num) && num >= 0 && num <= 255 && part === num.toString();
   });
@@ -135,13 +135,13 @@ function validateRData(type: string, rdata: string, owner: string): void {
         throw new Error(`Invalid IPv4 address in A record: "${rdata}"`);
       }
       break;
-      
+
     case 'AAAA':
       if (!isValidIPv6(rdata)) {
         throw new Error(`Invalid IPv6 address in AAAA record: "${rdata}"`);
       }
       break;
-      
+
     case 'CNAME':
     case 'NS':
     case 'PTR':
@@ -152,7 +152,7 @@ function validateRData(type: string, rdata: string, owner: string): void {
         throw new Error(`Invalid domain name in ${type} record: "${rdata}"`);
       }
       break;
-      
+
     case 'MX':
       const mxParts = rdata.trim().split(/\s+/);
       if (mxParts.length !== 2) {
@@ -166,7 +166,7 @@ function validateRData(type: string, rdata: string, owner: string): void {
         throw new Error(`Invalid MX target: "${mxParts[1]}"`);
       }
       break;
-      
+
     case 'SOA':
       const soaParts = rdata.trim().split(/\s+/);
       if (soaParts.length < 7) {
@@ -186,7 +186,7 @@ function validateRData(type: string, rdata: string, owner: string): void {
         }
       }
       break;
-      
+
     case 'SRV':
       const srvParts = rdata.trim().split(/\s+/);
       if (srvParts.length !== 4) {
@@ -195,7 +195,7 @@ function validateRData(type: string, rdata: string, owner: string): void {
       const srvPriority = parseInt(srvParts[0]);
       const srvWeight = parseInt(srvParts[1]);
       const srvPort = parseInt(srvParts[2]);
-      
+
       if (isNaN(srvPriority) || srvPriority < 0 || srvPriority > 65535) {
         throw new Error(`Invalid SRV priority: ${srvParts[0]}`);
       }
@@ -209,14 +209,14 @@ function validateRData(type: string, rdata: string, owner: string): void {
         throw new Error(`Invalid SRV target: "${srvParts[3]}"`);
       }
       break;
-      
+
     case 'TXT':
       // TXT records can contain any text, but should be properly quoted if containing spaces
       if (!rdata.trim()) {
         throw new Error('TXT record cannot be empty');
       }
       break;
-      
+
     case 'CAA':
       const caaParts = rdata.trim().split(/\s+/);
       if (caaParts.length < 3) {
@@ -227,7 +227,7 @@ function validateRData(type: string, rdata: string, owner: string): void {
         throw new Error(`Invalid CAA flags: ${caaParts[0]} (must be 0-255)`);
       }
       break;
-      
+
     default:
       // For other record types, just ensure RDATA is not empty
       if (!rdata.trim()) {
@@ -241,7 +241,7 @@ export function parseZoneFile(content: string): ParsedZone {
   const records: ResourceRecord[] = [];
   const errors: ParseError[] = [];
   const warnings: ParseWarning[] = [];
-  
+
   let currentOrigin = '';
   let defaultTTL = DEFAULT_TTL;
   let lastOwner = '';
@@ -295,7 +295,7 @@ export function parseZoneFile(content: string): ParsedZone {
       if (record) {
         records.push(record);
         lastOwner = record.owner;
-        
+
         if (record.type === 'SOA' && !soa) {
           soa = record;
         }
@@ -304,7 +304,7 @@ export function parseZoneFile(content: string): ParsedZone {
       errors.push({
         line: lineNum,
         message: error instanceof Error ? error.message : 'Unknown parsing error',
-        severity: 'error'
+        severity: 'error',
       });
     }
   }
@@ -314,7 +314,7 @@ export function parseZoneFile(content: string): ParsedZone {
     warnings.push({
       line: 0,
       message: 'No SOA record found in zone',
-      severity: 'warning'
+      severity: 'warning',
     });
   }
 
@@ -324,7 +324,7 @@ export function parseZoneFile(content: string): ParsedZone {
     warnings,
     soa,
     defaultTTL,
-    origin: currentOrigin
+    origin: currentOrigin,
   };
 }
 
@@ -333,12 +333,12 @@ function parseResourceRecord(
   lastOwner: string,
   defaultTTL: number,
   origin: string,
-  lineNum: number
+  lineNum: number,
 ): ResourceRecord | null {
   // Remove comments
   const commentIndex = line.indexOf(';');
   const cleanLine = commentIndex >= 0 ? line.substring(0, commentIndex).trim() : line;
-  
+
   if (!cleanLine) return null;
 
   const parts = cleanLine.split(/\s+/);
@@ -388,7 +388,27 @@ function parseResourceRecord(
   partIndex++;
 
   // Validate record type
-  const validTypes = ['A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT', 'CAA', 'DNAME', 'HINFO', 'LOC', 'NAPTR', 'RP', 'SSHFP', 'SVCB', 'HTTPS', 'TLSA'];
+  const validTypes = [
+    'A',
+    'AAAA',
+    'CNAME',
+    'MX',
+    'NS',
+    'PTR',
+    'SOA',
+    'SRV',
+    'TXT',
+    'CAA',
+    'DNAME',
+    'HINFO',
+    'LOC',
+    'NAPTR',
+    'RP',
+    'SSHFP',
+    'SVCB',
+    'HTTPS',
+    'TLSA',
+  ];
   if (!validTypes.includes(type)) {
     throw new Error(`Unknown or unsupported record type: "${type}"`);
   }
@@ -409,7 +429,7 @@ function parseResourceRecord(
     type,
     rdata,
     line: lineNum,
-    raw: line
+    raw: line,
   };
 }
 
@@ -431,16 +451,12 @@ export function normalizeZone(zone: ParsedZone): ParsedZone {
     .filter((record, index, array) => {
       if (index === 0) return true;
       const prev = array[index - 1];
-      return !(
-        record.owner === prev.owner &&
-        record.type === prev.type &&
-        record.rdata === prev.rdata
-      );
+      return !(record.owner === prev.owner && record.type === prev.type && record.rdata === prev.rdata);
     });
 
   return {
     ...zone,
-    records: normalizedRecords
+    records: normalizedRecords,
   };
 }
 
@@ -448,26 +464,26 @@ export function generateZoneStats(zone: ParsedZone): ZoneStats {
   const recordsByType: Record<string, number> = {};
   const ttlDistribution: Record<number, number> = {};
   const nameLengths: number[] = [];
-  
+
   let largestRecord = { record: zone.records[0], size: 0 };
   let longestName = { name: '', length: 0 };
 
   for (const record of zone.records) {
     // Count by type
     recordsByType[record.type] = (recordsByType[record.type] || 0) + 1;
-    
+
     // Count TTL distribution
     const ttl = record.ttl || 0;
     ttlDistribution[ttl] = (ttlDistribution[ttl] || 0) + 1;
-    
+
     // Track name lengths and depths
     const nameLength = record.owner.length;
     nameLengths.push(nameLength);
-    
+
     if (nameLength > longestName.length) {
       longestName = { name: record.owner, length: nameLength };
     }
-    
+
     // Track largest record
     const recordSize = (record.raw || '').length;
     if (recordSize > largestRecord.size) {
@@ -479,13 +495,13 @@ export function generateZoneStats(zone: ParsedZone): ZoneStats {
   const nameDepths = {
     min: Math.min(...nameLengths),
     max: Math.max(...nameLengths),
-    average: nameLengths.reduce((sum, len) => sum + len, 0) / nameLengths.length || 0
+    average: nameLengths.reduce((sum, len) => sum + len, 0) / nameLengths.length || 0,
   };
 
   // Find duplicates
   const duplicates: ResourceRecord[] = [];
   const seen = new Set<string>();
-  
+
   for (const record of zone.records) {
     const key = `${record.owner}:${record.type}:${record.rdata}`;
     if (seen.has(key)) {
@@ -496,19 +512,14 @@ export function generateZoneStats(zone: ParsedZone): ZoneStats {
   }
 
   // Basic sanity checks
-  const hasSoa = zone.records.some(r => r.type === 'SOA');
-  const hasNs = zone.records.some(r => r.type === 'NS');
-  
+  const hasSoa = zone.records.some((r) => r.type === 'SOA');
+  const hasNs = zone.records.some((r) => r.type === 'NS');
+
   // Find orphaned glue records (A/AAAA records for NS that don't exist)
-  const nsTargets = new Set(
-    zone.records
-      .filter(r => r.type === 'NS')
-      .map(r => r.rdata.trim())
-  );
-  
-  const orphanedGlue = zone.records.filter(record => {
-    return (record.type === 'A' || record.type === 'AAAA') &&
-           !nsTargets.has(record.owner);
+  const nsTargets = new Set(zone.records.filter((r) => r.type === 'NS').map((r) => r.rdata.trim()));
+
+  const orphanedGlue = zone.records.filter((record) => {
+    return (record.type === 'A' || record.type === 'AAAA') && !nsTargets.has(record.owner);
   });
 
   return {
@@ -522,31 +533,31 @@ export function generateZoneStats(zone: ParsedZone): ZoneStats {
       hasSoa,
       hasNs,
       duplicates,
-      orphanedGlue
-    }
+      orphanedGlue,
+    },
   };
 }
 
 export function compareZones(oldZone: ParsedZone, newZone: ParsedZone): ZoneDiff {
   const oldRecords = new Map<string, ResourceRecord>();
   const newRecords = new Map<string, ResourceRecord>();
-  
+
   // Create maps for easy comparison
-  oldZone.records.forEach(record => {
+  oldZone.records.forEach((record) => {
     const key = `${record.owner}:${record.type}`;
     oldRecords.set(key, record);
   });
-  
-  newZone.records.forEach(record => {
+
+  newZone.records.forEach((record) => {
     const key = `${record.owner}:${record.type}`;
     newRecords.set(key, record);
   });
-  
+
   const added: ResourceRecord[] = [];
   const removed: ResourceRecord[] = [];
   const changed: Array<{ before: ResourceRecord; after: ResourceRecord }> = [];
   const unchanged: ResourceRecord[] = [];
-  
+
   // Find added and changed records
   newRecords.forEach((newRecord, key) => {
     const oldRecord = oldRecords.get(key);
@@ -558,42 +569,42 @@ export function compareZones(oldZone: ParsedZone, newZone: ParsedZone): ZoneDiff
       unchanged.push(newRecord);
     }
   });
-  
+
   // Find removed records
   oldRecords.forEach((oldRecord, key) => {
     if (!newRecords.has(key)) {
       removed.push(oldRecord);
     }
   });
-  
+
   return {
     added,
     removed,
     changed,
-    unchanged
+    unchanged,
   };
 }
 
 export function checkNameLengths(zone: ParsedZone): NameLengthViolation[] {
   const violations: NameLengthViolation[] = [];
   const checkedNames = new Set<string>();
-  
+
   for (const record of zone.records) {
     const name = record.owner;
-    
+
     if (checkedNames.has(name)) continue;
     checkedNames.add(name);
-    
+
     // Check FQDN length
     if (name.length > MAX_FQDN_LENGTH) {
       violations.push({
         name,
         type: 'fqdn',
         length: name.length,
-        limit: MAX_FQDN_LENGTH
+        limit: MAX_FQDN_LENGTH,
       });
     }
-    
+
     // Check individual label lengths
     const labels = name.split('.');
     for (const label of labels) {
@@ -603,32 +614,32 @@ export function checkNameLengths(zone: ParsedZone): NameLengthViolation[] {
           type: 'label',
           length: label.length,
           limit: MAX_LABEL_LENGTH,
-          labels
+          labels,
         });
         break; // Only report once per name
       }
     }
   }
-  
+
   return violations;
 }
 
 export function formatZoneFile(zone: ParsedZone): string {
   const lines: string[] = [];
-  
+
   // Add directives
   if (zone.origin) {
     lines.push(`$ORIGIN ${zone.origin}`);
   }
-  
+
   if (zone.defaultTTL) {
     lines.push(`$TTL ${zone.defaultTTL}`);
   }
-  
+
   if (lines.length > 0) {
     lines.push(''); // Empty line after directives
   }
-  
+
   // Add records
   let lastOwner = '';
   for (const record of zone.records) {
@@ -638,6 +649,6 @@ export function formatZoneFile(zone: ParsedZone): string {
     lines.push(parts.join('\t'));
     lastOwner = record.owner;
   }
-  
+
   return lines.join('\n');
 }

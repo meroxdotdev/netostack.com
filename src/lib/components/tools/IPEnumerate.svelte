@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
+
   let input = $state('192.168.1.0/28');
   let maxDisplayLimit = $state(1000);
   let includeNetwork = $state(true);
@@ -35,31 +35,31 @@
     {
       label: 'Small Subnet /28',
       input: '192.168.1.0/28',
-      description: '16 addresses'
+      description: '16 addresses',
     },
     {
       label: 'Point-to-Point /30',
       input: '10.0.0.0/30',
-      description: '4 addresses'
+      description: '4 addresses',
     },
     {
       label: 'IP Range',
       input: '172.16.1.1-172.16.1.10',
-      description: '10 addresses'
+      description: '10 addresses',
     },
     {
       label: 'Class C /24',
       input: '192.168.0.0/24',
-      description: '256 addresses'
+      description: '256 addresses',
     },
     {
       label: 'IPv6 /126',
       input: '2001:db8::/126',
-      description: '4 addresses'
-    }
+      description: '4 addresses',
+    },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     input = example.input;
     selectedExample = example.label;
     userModified = false;
@@ -71,19 +71,14 @@
   }
 
   function ipToString(ip: number): string {
-    return [
-      (ip >>> 24) & 0xff,
-      (ip >>> 16) & 0xff,
-      (ip >>> 8) & 0xff,
-      ip & 0xff
-    ].join('.');
+    return [(ip >>> 24) & 0xff, (ip >>> 16) & 0xff, (ip >>> 8) & 0xff, ip & 0xff].join('.');
   }
 
   function parseIPv6(ip: string): bigint {
     // Simplified IPv6 parsing for basic cases
     const parts = ip.split(':');
     let result = 0n;
-    
+
     for (let i = 0; i < 8; i++) {
       if (i < parts.length && parts[i]) {
         const hexValue = parseInt(parts[i], 16);
@@ -92,7 +87,7 @@
         result = result << 16n;
       }
     }
-    
+
     return result;
   }
 
@@ -122,7 +117,7 @@
   }
 
   function parseRange(range: string): { start: number; end: number; count: number } {
-    const [startStr, endStr] = range.split('-').map(s => s.trim());
+    const [startStr, endStr] = range.split('-').map((s) => s.trim());
     const start = parseIP(startStr);
     const end = parseIP(endStr);
     return { start, end, count: end - start + 1 };
@@ -132,7 +127,7 @@
     // Rough estimate: each IP string ~15 bytes + overhead
     const bytesPerIP = 20;
     const totalBytes = count * bytesPerIP;
-    
+
     if (totalBytes < 1024) return `${totalBytes} B`;
     if (totalBytes < 1024 * 1024) return `${Math.round(totalBytes / 1024)} KB`;
     return `${Math.round(totalBytes / (1024 * 1024))} MB`;
@@ -145,7 +140,7 @@
     }
 
     isGenerating = true;
-    
+
     try {
       const trimmed = input.trim();
       let addresses: string[] = [];
@@ -158,16 +153,18 @@
         if (trimmed.includes(':')) {
           // IPv6 CIDR
           const { network, size, prefixLength } = parseIPv6CIDR(trimmed);
-          
+
           if (size > BigInt(ABSOLUTE_MAX_GENERATION)) {
-            throw new Error(`IPv6 /${prefixLength} would generate ${size.toLocaleString()} addresses. Maximum allowed: ${ABSOLUTE_MAX_GENERATION.toLocaleString()}`);
+            throw new Error(
+              `IPv6 /${prefixLength} would generate ${size.toLocaleString()} addresses. Maximum allowed: ${ABSOLUTE_MAX_GENERATION.toLocaleString()}`,
+            );
           }
-          
+
           totalCount = Number(size);
           networkInfo = {
             type: 'cidr' as const,
             network: ipv6ToString(network),
-            totalHosts: totalCount
+            totalHosts: totalCount,
           };
 
           // Generate IPv6 addresses
@@ -178,30 +175,32 @@
         } else {
           // IPv4 CIDR
           const { network, size, prefixLength } = parseCIDR(trimmed);
-          
+
           if (size > ABSOLUTE_MAX_GENERATION) {
-            throw new Error(`/${prefixLength} would generate ${size.toLocaleString()} addresses. Maximum allowed: ${ABSOLUTE_MAX_GENERATION.toLocaleString()}`);
+            throw new Error(
+              `/${prefixLength} would generate ${size.toLocaleString()} addresses. Maximum allowed: ${ABSOLUTE_MAX_GENERATION.toLocaleString()}`,
+            );
           }
-          
+
           totalCount = size;
           const broadcast = network + size - 1;
-          
+
           networkInfo = {
             type: 'cidr' as const,
             network: ipToString(network),
             broadcast: ipToString(broadcast),
             firstUsable: size > 2 ? ipToString(network + 1) : ipToString(network),
             lastUsable: size > 2 ? ipToString(broadcast - 1) : ipToString(broadcast),
-            totalHosts: Math.max(0, size - 2)
+            totalHosts: Math.max(0, size - 2),
           };
 
           // Generate addresses based on inclusion options
           let startAddr = network;
           let endAddr = network + size;
-          
+
           if (!includeNetwork && size > 1) startAddr += 1;
           if (!includeBroadcast && size > 1) endAddr -= 1;
-          
+
           const displayLimit = Math.min(maxDisplayLimit, ABSOLUTE_MAX_DISPLAY, endAddr - startAddr);
           for (let i = 0; i < displayLimit; i++) {
             addresses.push(ipToString(startAddr + i));
@@ -210,16 +209,18 @@
       } else if (trimmed.includes('-')) {
         // IP range
         const { start, end, count } = parseRange(trimmed);
-        
+
         if (count > ABSOLUTE_MAX_GENERATION) {
-          throw new Error(`Range would generate ${count.toLocaleString()} addresses. Maximum allowed: ${ABSOLUTE_MAX_GENERATION.toLocaleString()}`);
+          throw new Error(
+            `Range would generate ${count.toLocaleString()} addresses. Maximum allowed: ${ABSOLUTE_MAX_GENERATION.toLocaleString()}`,
+          );
         }
-        
+
         totalCount = count;
         networkInfo = {
           type: 'range' as const,
           firstUsable: ipToString(start),
-          lastUsable: ipToString(end)
+          lastUsable: ipToString(end),
         };
 
         const displayLimit = Math.min(maxDisplayLimit, ABSOLUTE_MAX_DISPLAY, count);
@@ -234,7 +235,7 @@
       }
 
       // Add small delay for UX (shows loading state)
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       result = {
         success: true,
@@ -242,9 +243,8 @@
         totalCount,
         displayCount: addresses.length,
         truncated: addresses.length < totalCount,
-        networkInfo
+        networkInfo,
       };
-
     } catch (error) {
       result = {
         success: false,
@@ -253,7 +253,7 @@
         totalCount: 0,
         displayCount: 0,
         truncated: false,
-        networkInfo: { type: 'single' as const }
+        networkInfo: { type: 'single' as const },
       };
     } finally {
       isGenerating = false;
@@ -283,7 +283,7 @@
 
     // For large datasets, generate on-the-fly to avoid memory issues
     let csvContent = 'ip_address\n';
-    
+
     if (result.totalCount <= 10000) {
       // Small dataset - include all addresses
       for (const ip of result.addresses) {
@@ -319,7 +319,7 @@
       displayCount: result.displayCount,
       truncated: result.truncated,
       networkInfo: result.networkInfo,
-      addresses: result.addresses
+      addresses: result.addresses,
     };
 
     const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
@@ -344,7 +344,7 @@
       <h2>IP Enumerate</h2>
       <p>Safely enumerate all IP addresses in CIDR blocks and ranges</p>
     </header>
-    
+
     <input
       type="text"
       bind:value={input}
@@ -407,7 +407,8 @@
     <div class="safety-warning">
       <Icon name="alert-triangle" size="sm" />
       <div>
-        <strong>Safety:</strong> Max {ABSOLUTE_MAX_DISPLAY.toLocaleString()} displayed, {ABSOLUTE_MAX_GENERATION.toLocaleString()} generated
+        <strong>Safety:</strong> Max {ABSOLUTE_MAX_DISPLAY.toLocaleString()} displayed, {ABSOLUTE_MAX_GENERATION.toLocaleString()}
+        generated
       </div>
     </div>
   </div>
@@ -428,13 +429,13 @@
       {#if result.success}
         <!-- Summary Card -->
         <div class="card summary-card">
-          <div class="card-header">            
+          <div class="card-header">
             <h3>
               <Icon name="list" size="sm" />
               Results
             </h3>
           </div>
-          
+
           <div class="export-actions">
             <button class="export-btn" onclick={exportToJSON}>
               <Icon name="json-file" size="sm" />
@@ -452,7 +453,7 @@
               Copy All
             </button>
           </div>
-          
+
           <div class="summary-stats">
             <div class="stat">
               <span class="stat-value">{result.totalCount.toLocaleString()}</span>
@@ -492,10 +493,12 @@
               IP Addresses
             </h3>
             {#if result.truncated}
-              <span class="truncated-notice">Showing {result.displayCount.toLocaleString()} of {result.totalCount.toLocaleString()}</span>
+              <span class="truncated-notice"
+                >Showing {result.displayCount.toLocaleString()} of {result.totalCount.toLocaleString()}</span
+              >
             {/if}
           </div>
-          
+
           <div class="addresses-list">
             {#each result.addresses as address, index}
               <div class="address-item">
@@ -511,7 +514,6 @@
             {/each}
           </div>
         </div>
-
       {:else}
         <div class="card error-card">
           <div class="error-content">
@@ -539,15 +541,15 @@
 
   .main-input-card {
     margin-bottom: var(--spacing-xl);
-    
+
     .card-header {
       margin-bottom: var(--spacing-lg);
-      
+
       h2 {
         margin-bottom: var(--spacing-sm);
         font-size: var(--font-size-xl);
       }
-      
+
       p {
         color: var(--text-secondary);
         margin: 0;
@@ -584,7 +586,7 @@
       align-items: center;
       gap: var(--spacing-lg);
       margin-bottom: var(--spacing-lg);
-      
+
       @media (max-width: 768px) {
         flex-direction: column;
         align-items: stretch;
@@ -600,12 +602,12 @@
       display: flex;
       flex-direction: column;
       gap: var(--spacing-xs);
-      
+
       label {
         font-size: var(--font-size-sm);
         color: var(--text-secondary);
       }
-      
+
       .limit-input {
         width: 100px;
         padding: var(--spacing-xs);
@@ -618,7 +620,7 @@
     .checkbox-group {
       display: flex;
       gap: var(--spacing-md);
-      
+
       @media (max-width: 768px) {
         justify-content: space-around;
       }
@@ -629,11 +631,11 @@
       align-items: center;
       gap: var(--spacing-xs);
       cursor: pointer;
-      
-      input[type="checkbox"] {
+
+      input[type='checkbox'] {
         display: none;
       }
-      
+
       .checkmark {
         width: 16px;
         height: 16px;
@@ -641,7 +643,7 @@
         border-radius: var(--radius-sm);
         background: var(--bg-primary);
         position: relative;
-        
+
         &::after {
           content: '✓';
           position: absolute;
@@ -653,11 +655,11 @@
           transition: opacity var(--transition-fast);
         }
       }
-      
-      input[type="checkbox"]:checked + .checkmark {
+
+      input[type='checkbox']:checked + .checkmark {
         background: var(--color-primary);
         border-color: var(--color-primary);
-        
+
         &::after {
           opacity: 1;
           color: white;
@@ -673,15 +675,15 @@
       gap: var(--spacing-xs);
       cursor: pointer;
       list-style: none;
-      
+
       &::-webkit-details-marker {
         display: none;
       }
-      
+
       :global(.icon) {
         transition: transform var(--transition-fast);
       }
-      
+
       h4 {
         margin: 0;
       }
@@ -705,18 +707,18 @@
     background: var(--bg-primary);
     cursor: pointer;
     transition: all var(--transition-fast);
-    
+
     &:hover,
     &.active {
       border-color: var(--color-primary);
       background: var(--surface-hover);
     }
-    
+
     .example-label {
       font-weight: 600;
       font-size: var(--font-size-sm);
     }
-    
+
     .example-input {
       font-family: var(--font-mono);
       font-size: var(--font-size-xs);
@@ -725,13 +727,12 @@
       padding: 2px var(--spacing-xs);
       border-radius: var(--radius-sm);
     }
-    
+
     .example-desc {
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
     }
   }
-
 
   .loading-card {
     text-align: center;
@@ -750,7 +751,7 @@
     .card {
       width: 100%;
     }
-    
+
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
     }
@@ -762,12 +763,12 @@
       gap: var(--spacing-sm);
       margin-bottom: var(--spacing-lg);
       justify-content: center;
-      
+
       @media (max-width: 768px) {
         flex-direction: column;
       }
     }
-    
+
     .export-btn,
     .copy-btn {
       display: flex;
@@ -791,45 +792,45 @@
         color: var(--color-success);
       }
     }
-    
+
     .summary-stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
       gap: var(--spacing-md);
       margin: var(--spacing-lg) 0;
     }
-    
+
     .stat {
       text-align: center;
-      
+
       .stat-value {
         display: block;
         font-size: var(--font-size-lg);
         font-weight: 700;
         color: var(--text-primary);
       }
-      
+
       .stat-label {
         font-size: var(--font-size-xs);
         color: var(--text-secondary);
         text-transform: uppercase;
       }
     }
-    
+
     .network-info {
       border-top: 1px solid var(--border-secondary);
       padding-top: var(--spacing-md);
-      
+
       .info-item {
         display: flex;
         justify-content: space-between;
         margin-bottom: var(--spacing-xs);
-        
+
         span {
           font-size: var(--font-size-sm);
           color: var(--text-secondary);
         }
-        
+
         code {
           font-family: var(--font-mono);
           background: var(--bg-tertiary);
@@ -846,7 +847,7 @@
       color: var(--color-warning);
       margin-left: auto;
     }
-    
+
     .addresses-list {
       max-height: 400px;
       overflow-y: auto;
@@ -854,7 +855,7 @@
       border-radius: var(--radius-md);
       background: var(--bg-primary);
     }
-    
+
     .address-item {
       display: grid;
       grid-template-columns: auto 1fr auto;
@@ -862,26 +863,26 @@
       gap: var(--spacing-sm);
       padding: var(--spacing-xs) var(--spacing-sm);
       border-bottom: 1px solid var(--border-secondary);
-      
+
       &:last-child {
         border-bottom: none;
       }
-      
+
       &:hover {
         background: var(--surface-hover);
       }
-      
+
       .address-index {
         font-size: var(--font-size-xs);
         color: var(--text-secondary);
         width: 40px;
       }
-      
+
       .address-code {
         font-family: var(--font-mono);
         font-size: var(--font-size-sm);
       }
-      
+
       .copy-btn-small {
         padding: var(--spacing-xs);
         border: none;
@@ -889,11 +890,11 @@
         cursor: pointer;
         color: var(--text-secondary);
         transition: color var(--transition-fast);
-        
+
         &:hover {
           color: var(--text-primary);
         }
-        
+
         &.copied {
           color: var(--color-success);
         }
@@ -905,7 +906,7 @@
     .error-content {
       text-align: center;
       color: var(--color-error);
-      
+
       h3 {
         margin: var(--spacing-md) 0;
       }

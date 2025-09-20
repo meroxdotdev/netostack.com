@@ -7,46 +7,49 @@
   let activeExampleIndex = $state<number | null>(null);
   let isActiveExample = $state(true);
   let copiedState = $state(false);
-  
+
   const examples = [
     {
       title: 'KSK Example (Algorithm 8 - RSASHA256)',
-      dnskey: 'example.org. 3600 IN DNSKEY 257 3 8 AwEAAag/8pPvt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
-      description: 'Key Signing Key with SEP flag set'
+      dnskey:
+        'example.org. 3600 IN DNSKEY 257 3 8 AwEAAag/8pPvt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
+      description: 'Key Signing Key with SEP flag set',
     },
     {
       title: 'ZSK Example (Algorithm 13 - ECDSAP256SHA256)',
-      dnskey: 'example.org. 3600 IN DNSKEY 256 3 13 kC1gJ+0qtVgdl0VAO/6t9vRaB15v4PclEV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
-      description: 'Zone Signing Key for data signing'
+      dnskey:
+        'example.org. 3600 IN DNSKEY 256 3 13 kC1gJ+0qtVgdl0VAO/6t9vRaB15v4PclEV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
+      description: 'Zone Signing Key for data signing',
     },
     {
       title: 'RDATA Only Format',
-      dnskey: '257 3 8 AwEAAag/8pPvt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
-      description: 'DNSKEY record data without owner name'
-    }
+      dnskey:
+        '257 3 8 AwEAAag/8pPvt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
+      description: 'DNSKEY record data without owner name',
+    },
   ];
 
   const result = $derived.by(() => {
     if (!dnskeyInput.trim()) return null;
-    
+
     const validation = validateDNSKEY(dnskeyInput);
     if (!validation.valid) {
       return { error: validation.error };
     }
-    
+
     const dnskey = parseDNSKEYRecord(dnskeyInput);
     if (!dnskey) {
       return { error: 'Failed to parse DNSKEY record' };
     }
-    
+
     const keyTag = calculateKeyTag(dnskey);
-    
+
     return {
-      dnskey: { 
-        ...dnskey, 
-        keyTag
+      dnskey: {
+        ...dnskey,
+        keyTag,
       },
-      keyTag
+      keyTag,
     };
   });
 
@@ -57,7 +60,11 @@
   }
 
   function handleInputChange() {
-    if (isActiveExample && dnskeyInput !== 'example.org. 3600 IN DNSKEY 257 3 8 AwEAAcvvJUWJNrPOTMmNhZmJLk85n4Pz+KqvfxJ1X0O+fJ4GJNdqsNvP1mQJJv8A4dNn...') {
+    if (
+      isActiveExample &&
+      dnskeyInput !==
+        'example.org. 3600 IN DNSKEY 257 3 8 AwEAAcvvJUWJNrPOTMmNhZmJLk85n4Pz+KqvfxJ1X0O+fJ4GJNdqsNvP1mQJJv8A4dNn...'
+    ) {
       isActiveExample = false;
     }
     activeExampleIndex = null;
@@ -81,7 +88,10 @@
 <div class="card">
   <header class="card-header">
     <h1>DNSKEY Key Tag Calculator</h1>
-    <p>Compute the DNSKEY key tag from a DNSKEY RR (RFC 4034 algorithm) and display it alongside key metadata for DNSSEC validation purposes.</p>
+    <p>
+      Compute the DNSKEY key tag from a DNSKEY RR (RFC 4034 algorithm) and display it alongside key metadata for DNSSEC
+      validation purposes.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -109,7 +119,10 @@
   <!-- Input Form -->
   <div class="card input-card">
     <div class="form-group">
-      <label for="dnskey-input" use:tooltip={"Enter a DNSKEY record in standard format (e.g., 'example.org. 3600 IN DNSKEY 257 3 8 AwEAAag') to calculate its key tag"}>
+      <label
+        for="dnskey-input"
+        use:tooltip={"Enter a DNSKEY record in standard format (e.g., 'example.org. 3600 IN DNSKEY 257 3 8 AwEAAag') to calculate its key tag"}
+      >
         <Icon name="key" size="sm" />
         DNSKEY Record
       </label>
@@ -134,7 +147,8 @@
         <div class="error-content">
           <Icon name="alert-triangle" size="sm" />
           <div>
-            <strong>Validation Error:</strong> {result.error}
+            <strong>Validation Error:</strong>
+            {result.error}
           </div>
         </div>
       </div>
@@ -142,45 +156,69 @@
       <div class="card results-card">
         <div class="results-header">
           <h3>Key Tag Calculation</h3>
-          <button
-            class="copy-button {copiedState ? 'copied' : ''}"
-            onclick={copyKeyTag}
-          >
+          <button class="copy-button {copiedState ? 'copied' : ''}" onclick={copyKeyTag}>
             <Icon name={copiedState ? 'check' : 'copy'} size="sm" />
             Copy Key Tag
           </button>
         </div>
-        
+
         <!-- Key Tag Display -->
         <div class="key-tag-display">
-          <div class="key-tag-label" use:tooltip={"A 16-bit identifier calculated from the DNSKEY used to quickly identify which key was used to generate a signature"}>Key Tag</div>
+          <div
+            class="key-tag-label"
+            use:tooltip={'A 16-bit identifier calculated from the DNSKEY used to quickly identify which key was used to generate a signature'}
+          >
+            Key Tag
+          </div>
           <div class="key-tag-value">{result.keyTag}</div>
         </div>
-        
+
         <!-- DNSKEY Metadata -->
         <div class="metadata-section">
           <h4>DNSKEY Metadata</h4>
           <div class="metadata-grid">
             <div class="metadata-item">
-              <span class="metadata-label" use:tooltip={"KSK (Key Signing Key) signs other keys and has the SEP flag set (257). ZSK (Zone Signing Key) signs zone data and has no SEP flag (256)."}>Key Type</span>
-              <span class="metadata-value key-type-{result.dnskey.keyType?.toLowerCase()}">{result.dnskey.keyType || 'Unknown'}</span>
+              <span
+                class="metadata-label"
+                use:tooltip={'KSK (Key Signing Key) signs other keys and has the SEP flag set (257). ZSK (Zone Signing Key) signs zone data and has no SEP flag (256).'}
+                >Key Type</span
+              >
+              <span class="metadata-value key-type-{result.dnskey.keyType?.toLowerCase()}"
+                >{result.dnskey.keyType || 'Unknown'}</span
+              >
             </div>
             <div class="metadata-item">
-              <span class="metadata-label" use:tooltip={"16-bit flags field. Bit 15 (SEP flag) indicates if this is a Key Signing Key. 257 = KSK, 256 = ZSK."}>Flags</span>
+              <span
+                class="metadata-label"
+                use:tooltip={'16-bit flags field. Bit 15 (SEP flag) indicates if this is a Key Signing Key. 257 = KSK, 256 = ZSK.'}
+                >Flags</span
+              >
               <span class="metadata-value mono">{result.dnskey.flags}</span>
             </div>
             <div class="metadata-item">
-              <span class="metadata-label" use:tooltip={"Protocol field for DNSKEY records. Must always be 3 (DNSSEC)."}>Protocol</span>
+              <span class="metadata-label" use:tooltip={'Protocol field for DNSKEY records. Must always be 3 (DNSSEC).'}
+                >Protocol</span
+              >
               <span class="metadata-value mono">{result.dnskey.protocol}</span>
             </div>
             <div class="metadata-item">
-              <span class="metadata-label" use:tooltip={"Cryptographic algorithm used by this key. Common values: 8 (RSASHA256), 13 (ECDSA P-256), 15 (Ed25519)."}>Algorithm</span>
-              <span class="metadata-value mono">{result.dnskey.algorithm} ({(DNSSEC_ALGORITHMS as any)[result.dnskey.algorithm] || 'Unknown'})</span>
+              <span
+                class="metadata-label"
+                use:tooltip={'Cryptographic algorithm used by this key. Common values: 8 (RSASHA256), 13 (ECDSA P-256), 15 (Ed25519).'}
+                >Algorithm</span
+              >
+              <span class="metadata-value mono"
+                >{result.dnskey.algorithm} ({(DNSSEC_ALGORITHMS as any)[result.dnskey.algorithm] || 'Unknown'})</span
+              >
             </div>
           </div>
-          
+
           <div class="public-key-section">
-            <h5 use:tooltip={"The actual cryptographic public key data encoded in Base64 format. This is used for signature verification."}>Public Key (Base64)</h5>
+            <h5
+              use:tooltip={'The actual cryptographic public key data encoded in Base64 format. This is used for signature verification.'}
+            >
+              Public Key (Base64)
+            </h5>
             <div class="public-key">{result.dnskey.publicKey}</div>
           </div>
         </div>
@@ -194,16 +232,16 @@
       <div class="education-item info-panel">
         <h4>Key Tag Purpose</h4>
         <p>
-          The key tag is a short identifier used to quickly identify which DNSKEY was used to generate a signature. 
-          It's calculated using a checksum algorithm defined in RFC 4034 and helps optimize DNSSEC validation 
-          by avoiding the need to test every key.
+          The key tag is a short identifier used to quickly identify which DNSKEY was used to generate a signature. It's
+          calculated using a checksum algorithm defined in RFC 4034 and helps optimize DNSSEC validation by avoiding the
+          need to test every key.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Key Types</h4>
         <p>
-          <strong>KSK (Key Signing Key):</strong> Used to sign other keys (ZSKs). Has the SEP flag set (bit 15). 
+          <strong>KSK (Key Signing Key):</strong> Used to sign other keys (ZSKs). Has the SEP flag set (bit 15).
           <strong>ZSK (Zone Signing Key):</strong> Used to sign zone data. Does not have the SEP flag set.
         </p>
       </div>
@@ -211,16 +249,16 @@
       <div class="education-item info-panel">
         <h4>Algorithm Support</h4>
         <p>
-          Supports all modern DNSSEC algorithms including RSASHA256 (8), RSASHA512 (10), ECDSA P-256 (13), 
-          ECDSA P-384 (14), and Ed25519 (15). Legacy algorithms like RSAMD5 are deprecated and should not be used.
+          Supports all modern DNSSEC algorithms including RSASHA256 (8), RSASHA512 (10), ECDSA P-256 (13), ECDSA P-384
+          (14), and Ed25519 (15). Legacy algorithms like RSAMD5 are deprecated and should not be used.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Validation Process</h4>
         <p>
-          The tool validates DNSKEY format, checks protocol compliance (must be 3), verifies algorithm support, 
-          and ensures proper base64 encoding of the public key before calculating the key tag.
+          The tool validates DNSKEY format, checks protocol compliance (must be 3), verifies algorithm support, and
+          ensures proper base64 encoding of the public key before calculating the key tag.
         </p>
       </div>
     </div>
@@ -238,7 +276,6 @@
     gap: var(--spacing-sm);
   }
 
-
   .examples-card {
     background: var(--bg-tertiary);
     margin-bottom: var(--spacing-md);
@@ -248,7 +285,7 @@
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -387,9 +424,11 @@
   .error-card {
     margin-bottom: var(--spacing-lg);
     border-color: var(--color-error);
-    background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--color-error), transparent 95%), 
-      color-mix(in srgb, var(--color-error), transparent 98%));
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-error), transparent 95%),
+      color-mix(in srgb, var(--color-error), transparent 98%)
+    );
   }
 
   .error-content {
@@ -446,9 +485,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--color-primary), transparent 95%), 
-      color-mix(in srgb, var(--color-primary), transparent 98%));
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary), transparent 95%),
+      color-mix(in srgb, var(--color-primary), transparent 98%)
+    );
     border: 1px solid color-mix(in srgb, var(--color-primary), transparent 80%);
     border-radius: var(--radius-lg);
     margin-bottom: var(--spacing-lg);

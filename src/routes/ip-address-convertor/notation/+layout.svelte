@@ -7,7 +7,7 @@
 
 <div class="container">
   <slot />
-  
+
   <!-- IPv6 Notation Information Section -->
   <div class="info-cards-section">
     <div class="explainer-card no-hover">
@@ -17,7 +17,6 @@
       </h3>
       <div class="explainer-content">
         <div class="format-explanations">
-          
           <!-- Expanded Form -->
           <div class="format-explanation">
             <h4><span class="format-badge expanded">Expanded (Full) Format</span></h4>
@@ -151,12 +150,12 @@
     color: var(--color-primary);
   }
 
-  .usage-scenarios, 
-  .format-explanations, 
+  .usage-scenarios,
+  .format-explanations,
   .explainer-card {
     display: grid;
     gap: var(--spacing-md);
-    
+
     h3 {
       margin-bottom: 0;
       color: var(--color-primary);
@@ -164,23 +163,23 @@
       align-items: center;
       gap: var(--spacing-sm);
     }
-    
-    .usage-scenario, 
-    .format-explanation, 
+
+    .usage-scenario,
+    .format-explanation,
     .example-item {
       padding: var(--spacing-md);
       background-color: var(--bg-tertiary);
       border-radius: var(--radius-md);
       border-left: 4px solid var(--border-primary);
-      
+
       h4 {
         color: var(--text-primary);
         margin-bottom: var(--spacing-sm);
       }
-      
+
       ul {
         margin: var(--spacing-sm) 0 0 var(--spacing-md);
-        
+
         li {
           margin-bottom: var(--spacing-xs);
           color: var(--text-primary);
@@ -201,15 +200,15 @@
     border-radius: var(--radius-xs);
     padding: 0.1rem 0.25rem;
     font-weight: 600;
-    
-    &.expanded { 
-      background-color: var(--color-info); 
+
+    &.expanded {
+      background-color: var(--color-info);
     }
-    &.compressed { 
-      background-color: var(--color-success); 
+    &.compressed {
+      background-color: var(--color-success);
     }
-    &.rules { 
-      background-color: var(--color-warning); 
+    &.rules {
+      background-color: var(--color-warning);
     }
   }
 
@@ -245,7 +244,7 @@
     align-items: center;
     gap: var(--spacing-sm);
     flex-wrap: wrap;
-    
+
     code {
       font-family: var(--font-mono);
       background-color: var(--bg-primary);
@@ -253,16 +252,16 @@
       border-radius: var(--radius-xs);
       border: 1px solid var(--border-primary);
       font-size: var(--font-size-xs);
-      
+
       &.expanded {
         color: var(--color-info);
       }
-      
+
       &.compressed {
         color: var(--color-success);
       }
     }
-    
+
     .arrow {
       color: var(--text-secondary);
       font-weight: bold;
@@ -274,11 +273,11 @@
     .examples-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .code-block {
       flex-direction: column;
       align-items: stretch;
-      
+
       .arrow {
         text-align: center;
       }

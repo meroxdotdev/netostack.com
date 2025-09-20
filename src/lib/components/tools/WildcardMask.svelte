@@ -3,7 +3,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../styles/diagnostics-pages.scss';
-  
+
   let inputText = $state('192.168.1.0/24\n10.0.0.0 255.255.255.0\n172.16.0.0 0.0.255.255');
   let result = $state<WildcardResult | null>(null);
   let isLoading = $state(false);
@@ -18,89 +18,91 @@
       input: `192.168.1.0/24
 10.0.0.0/16
 172.16.0.0/20`,
-      generateACL: false
+      generateACL: false,
     },
     {
       label: 'Subnet Mask Format',
       input: `192.168.1.0 255.255.255.0
 10.0.0.0 255.255.0.0
 172.16.0.0 255.255.240.0`,
-      generateACL: false
+      generateACL: false,
     },
     {
       label: 'Wildcard Mask Input',
       input: `192.168.0.0 0.0.255.255
 10.0.0.0 0.255.255.255
 172.16.0.0 0.0.15.255`,
-      generateACL: false
+      generateACL: false,
     },
     {
       label: 'Mixed Formats',
       input: `192.168.1.0/24
 10.0.0.0 255.255.0.0
 172.16.0.0 0.0.255.255`,
-      generateACL: false
+      generateACL: false,
     },
     {
       label: 'Cisco ACL Generation',
       input: `192.168.1.0/24
 10.0.0.0/16`,
-      generateACL: true
+      generateACL: true,
     },
     {
       label: 'Complex Network ACLs',
       input: `192.168.0.0/22
 10.1.0.0/20
 172.16.100.0/24`,
-      generateACL: true
-    }
+      generateACL: true,
+    },
   ];
-  
+
   // ACL options
   let generateACL = $state(false);
   let aclType = $state<'permit' | 'deny'>('permit');
   let protocol = $state('ip');
   let destination = $state('any');
-  
+
   function convertMasks() {
     if (!inputText.trim()) {
       result = null;
       return;
     }
-    
+
     isLoading = true;
-    
+
     try {
-      const inputs = inputText.split('\n').filter(line => line.trim());
+      const inputs = inputText.split('\n').filter((line) => line.trim());
       result = convertWildcardMasks(inputs, {
         type: aclType,
         protocol: protocol || 'ip',
         destination: destination || 'any',
-        generateACL
+        generateACL,
       });
     } catch (error) {
       result = {
         conversions: [],
         aclRules: { cisco: [], juniper: [], generic: [] },
         summary: { totalInputs: 0, validInputs: 0, invalidInputs: 0 },
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
       };
     } finally {
       isLoading = false;
     }
   }
-  
+
   function exportResults(format: 'csv' | 'json') {
     if (!result) return;
-    
+
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
     let content = '';
     let filename = '';
-    
+
     if (format === 'csv') {
-      const headers = 'Input,Type,CIDR,Subnet Mask,Wildcard Mask,Prefix,Host Bits,Network,Broadcast,Total Hosts,Usable Hosts,Valid,Error';
-      const rows = result.conversions.map(conv => 
-        `"${conv.input}","${conv.inputType}","${conv.cidr}","${conv.subnetMask}","${conv.wildcardMask}","${conv.prefixLength}","${conv.hostBits}","${conv.networkAddress}","${conv.broadcastAddress}","${conv.totalHosts}","${conv.usableHosts}","${conv.isValid}","${conv.error || ''}"`
+      const headers =
+        'Input,Type,CIDR,Subnet Mask,Wildcard Mask,Prefix,Host Bits,Network,Broadcast,Total Hosts,Usable Hosts,Valid,Error';
+      const rows = result.conversions.map(
+        (conv) =>
+          `"${conv.input}","${conv.inputType}","${conv.cidr}","${conv.subnetMask}","${conv.wildcardMask}","${conv.prefixLength}","${conv.hostBits}","${conv.networkAddress}","${conv.broadcastAddress}","${conv.totalHosts}","${conv.usableHosts}","${conv.isValid}","${conv.error || ''}"`,
       );
       content = [headers, ...rows].join('\n');
       filename = `wildcard-masks-${timestamp}.csv`;
@@ -108,7 +110,7 @@
       content = JSON.stringify(result, null, 2);
       filename = `wildcard-masks-${timestamp}.json`;
     }
-    
+
     const blob = new Blob([content], { type: format === 'csv' ? 'text/csv' : 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -117,17 +119,17 @@
     a.click();
     URL.revokeObjectURL(url);
   }
-  
+
   async function copyToClipboard(text: string, id: string = text) {
     try {
       await navigator.clipboard.writeText(text);
       copiedStates[id] = true;
-      setTimeout(() => copiedStates[id] = false, 3000);
+      setTimeout(() => (copiedStates[id] = false), 3000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
   }
-  
+
   function copyACLRules(type: 'cisco' | 'juniper' | 'generic') {
     if (!result) return;
     const rules = result.aclRules[type];
@@ -136,7 +138,7 @@
     }
   }
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     inputText = example.input;
     generateACL = example.generateACL;
     selectedExample = example.label;
@@ -149,7 +151,7 @@
     selectedExample = null;
     selectedExampleIndex = null;
   }
-  
+
   // Auto-convert when inputs or ACL settings change
   $effect(() => {
     if (inputText.trim()) {
@@ -199,12 +201,9 @@
 
   <div class="input-section">
     <div class="inputs-section">
-      <h3 use:tooltip={"Enter networks in various formats for wildcard mask conversion"}>Network Inputs</h3>
+      <h3 use:tooltip={'Enter networks in various formats for wildcard mask conversion'}>Network Inputs</h3>
       <div class="input-group">
-        <label
-          for="inputs"
-          use:tooltip={"Enter networks in CIDR, subnet mask, or wildcard mask format"}
-        >
+        <label for="inputs" use:tooltip={'Enter networks in CIDR, subnet mask, or wildcard mask format'}>
           IP Addresses, CIDRs, or Ranges
         </label>
         <textarea
@@ -215,32 +214,25 @@
           rows="6"
         ></textarea>
         <div class="input-help">
-          Enter one per line: CIDR (192.168.1.0/24), network + subnet mask (10.0.0.0 255.255.255.0), or network + wildcard mask (172.16.0.0 0.0.255.255)
+          Enter one per line: CIDR (192.168.1.0/24), network + subnet mask (10.0.0.0 255.255.255.0), or network +
+          wildcard mask (172.16.0.0 0.0.255.255)
         </div>
       </div>
     </div>
 
     <div class="acl-section">
-      <h3 use:tooltip={"Configure access control list rule generation for network devices"}>ACL Options</h3>
+      <h3 use:tooltip={'Configure access control list rule generation for network devices'}>ACL Options</h3>
       <div class="checkbox-group">
-        <label
-          class="checkbox-label"
-          use:tooltip={"Generate access control list rules for network devices"}
-        >
+        <label class="checkbox-label" use:tooltip={'Generate access control list rules for network devices'}>
           <input type="checkbox" bind:checked={generateACL} onchange={handleInputChange} />
           <span class="checkbox-text">Generate ACL Rules</span>
         </label>
       </div>
-      
+
       {#if generateACL}
         <div class="acl-settings">
           <div class="input-group">
-            <label
-              for="acl-type"
-              use:tooltip={"Whether to permit or deny traffic matching this rule"}
-            >
-              Action
-            </label>
+            <label for="acl-type" use:tooltip={'Whether to permit or deny traffic matching this rule'}> Action </label>
             <select id="acl-type" bind:value={aclType} onchange={handleInputChange}>
               <option value="permit">Permit</option>
               <option value="deny">Deny</option>
@@ -248,26 +240,12 @@
           </div>
 
           <div class="input-group">
-            <label
-              for="protocol"
-              use:tooltip={"Network protocol (ip, tcp, udp, icmp, etc.)"}
-            >
-              Protocol
-            </label>
-            <input
-              id="protocol"
-              type="text"
-              bind:value={protocol}
-              oninput={handleInputChange}
-              placeholder="ip"
-            />
+            <label for="protocol" use:tooltip={'Network protocol (ip, tcp, udp, icmp, etc.)'}> Protocol </label>
+            <input id="protocol" type="text" bind:value={protocol} oninput={handleInputChange} placeholder="ip" />
           </div>
 
           <div class="input-group">
-            <label
-              for="destination"
-              use:tooltip={"Destination network or 'any' for all destinations"}
-            >
+            <label for="destination" use:tooltip={"Destination network or 'any' for all destinations"}>
               Destination
             </label>
             <input
@@ -303,26 +281,26 @@
 
       {#if result.conversions.length > 0}
         <div class="summary">
-          <h3 use:tooltip={"Overview of wildcard mask conversion results"}>Conversion Summary</h3>
+          <h3 use:tooltip={'Overview of wildcard mask conversion results'}>Conversion Summary</h3>
           <div class="summary-stats">
             <div class="stat">
               <span class="stat-value">{result.summary.totalInputs}</span>
-              <span class="stat-label" use:tooltip={"Total number of network inputs processed"}>Total Inputs</span>
+              <span class="stat-label" use:tooltip={'Total number of network inputs processed'}>Total Inputs</span>
             </div>
             <div class="stat aligned">
               <span class="stat-value">{result.summary.validInputs}</span>
-              <span class="stat-label" use:tooltip={"Successfully converted network inputs"}>Valid</span>
+              <span class="stat-label" use:tooltip={'Successfully converted network inputs'}>Valid</span>
             </div>
             <div class="stat misaligned">
               <span class="stat-value">{result.summary.invalidInputs}</span>
-              <span class="stat-label" use:tooltip={"Network inputs that could not be converted"}>Invalid</span>
+              <span class="stat-label" use:tooltip={'Network inputs that could not be converted'}>Invalid</span>
             </div>
           </div>
         </div>
 
         <div class="conversions">
           <div class="conversions-header">
-            <h3 use:tooltip={"Detailed conversion results for each network input"}>Mask Conversions</h3>
+            <h3 use:tooltip={'Detailed conversion results for each network input'}>Mask Conversions</h3>
             <div class="export-buttons">
               <button onclick={() => exportResults('csv')}>
                 <Icon name="csv-file" />
@@ -357,10 +335,10 @@
                 {#if conversion.isValid}
                   <div class="conversion-details">
                     <div class="detail-row">
-                      <span class="label" use:tooltip={"Classless Inter-Domain Routing notation"}>CIDR:</span>
+                      <span class="label" use:tooltip={'Classless Inter-Domain Routing notation'}>CIDR:</span>
                       <div class="code-container">
                         <code>{conversion.cidr}</code>
-                        <button 
+                        <button
                           type="button"
                           class="btn btn-icon btn-xs"
                           class:copied={copiedStates[conversion.cidr]}
@@ -371,12 +349,14 @@
                         </button>
                       </div>
                     </div>
-                    
+
                     <div class="detail-row">
-                      <span class="label" use:tooltip={"Standard subnet mask in dotted decimal notation"}>Subnet Mask:</span>
+                      <span class="label" use:tooltip={'Standard subnet mask in dotted decimal notation'}
+                        >Subnet Mask:</span
+                      >
                       <div class="code-container">
                         <code>{conversion.subnetMask}</code>
-                        <button 
+                        <button
                           type="button"
                           class="btn btn-icon btn-xs"
                           class:copied={copiedStates[conversion.subnetMask]}
@@ -387,12 +367,14 @@
                         </button>
                       </div>
                     </div>
-                    
+
                     <div class="detail-row">
-                      <span class="label" use:tooltip={"Inverse subnet mask used in Cisco ACLs and OSPF"}>Wildcard Mask:</span>
+                      <span class="label" use:tooltip={'Inverse subnet mask used in Cisco ACLs and OSPF'}
+                        >Wildcard Mask:</span
+                      >
                       <div class="code-container">
                         <code>{conversion.wildcardMask}</code>
-                        <button 
+                        <button
                           type="button"
                           class="btn btn-icon btn-xs"
                           class:copied={copiedStates[conversion.wildcardMask]}
@@ -403,23 +385,29 @@
                         </button>
                       </div>
                     </div>
-                    
+
                     <div class="network-info">
                       <div class="info-grid">
                         <div>
-                          <span class="info-label" use:tooltip={"First address in the network range"}>Network:</span>
+                          <span class="info-label" use:tooltip={'First address in the network range'}>Network:</span>
                           <span class="info-value">{conversion.networkAddress}</span>
                         </div>
                         <div>
-                          <span class="info-label" use:tooltip={"Last address in the network range"}>Broadcast:</span>
+                          <span class="info-label" use:tooltip={'Last address in the network range'}>Broadcast:</span>
                           <span class="info-value">{conversion.broadcastAddress}</span>
                         </div>
                         <div>
-                          <span class="info-label" use:tooltip={"Number of bits available for host addresses"}>Host Bits:</span>
+                          <span class="info-label" use:tooltip={'Number of bits available for host addresses'}
+                            >Host Bits:</span
+                          >
                           <span class="info-value">{conversion.hostBits}</span>
                         </div>
                         <div>
-                          <span class="info-label" use:tooltip={"Total assignable host addresses (excluding network and broadcast)"}>Usable Hosts:</span>
+                          <span
+                            class="info-label"
+                            use:tooltip={'Total assignable host addresses (excluding network and broadcast)'}
+                            >Usable Hosts:</span
+                          >
                           <span class="info-value">{conversion.usableHosts.toLocaleString()}</span>
                         </div>
                       </div>
@@ -438,16 +426,16 @@
 
         {#if generateACL && (result.aclRules.cisco.length > 0 || result.aclRules.juniper.length > 0 || result.aclRules.generic.length > 0)}
           <div class="acl-rules-container">
-            <h3 use:tooltip={"Access control list rules generated for network devices"}>Generated ACL Rules</h3>
+            <h3 use:tooltip={'Access control list rules generated for network devices'}>Generated ACL Rules</h3>
 
             {#if result.aclRules.cisco.length > 0}
               <div class="acl-section">
                 <div class="acl-header">
-                  <h4 use:tooltip={"Cisco IOS access control list format"}>Cisco ACL</h4>
+                  <h4 use:tooltip={'Cisco IOS access control list format'}>Cisco ACL</h4>
                   <button
                     onclick={() => copyACLRules('cisco')}
                     class="copy-btn {copiedStates['acl-cisco'] ? 'copied' : ''}"
-                    use:tooltip={"Copy all Cisco ACL rules to clipboard"}
+                    use:tooltip={'Copy all Cisco ACL rules to clipboard'}
                   >
                     <Icon name={copiedStates['acl-cisco'] ? 'check' : 'copy'} size="xs" />
                     {copiedStates['acl-cisco'] ? 'Copied!' : 'Copy'}
@@ -464,11 +452,11 @@
             {#if result.aclRules.juniper.length > 0}
               <div class="acl-section">
                 <div class="acl-header">
-                  <h4 use:tooltip={"Juniper JunOS firewall filter format"}>Juniper ACL</h4>
+                  <h4 use:tooltip={'Juniper JunOS firewall filter format'}>Juniper ACL</h4>
                   <button
                     onclick={() => copyACLRules('juniper')}
                     class="copy-btn {copiedStates['acl-juniper'] ? 'copied' : ''}"
-                    use:tooltip={"Copy all Juniper ACL rules to clipboard"}
+                    use:tooltip={'Copy all Juniper ACL rules to clipboard'}
                   >
                     <Icon name={copiedStates['acl-juniper'] ? 'check' : 'copy'} size="xs" />
                     {copiedStates['acl-juniper'] ? 'Copied!' : 'Copy'}
@@ -485,11 +473,11 @@
             {#if result.aclRules.generic.length > 0}
               <div class="acl-section">
                 <div class="acl-header">
-                  <h4 use:tooltip={"Generic access control list format"}>Generic ACL</h4>
+                  <h4 use:tooltip={'Generic access control list format'}>Generic ACL</h4>
                   <button
                     onclick={() => copyACLRules('generic')}
                     class="copy-btn {copiedStates['acl-generic'] ? 'copied' : ''}"
-                    use:tooltip={"Copy all generic ACL rules to clipboard"}
+                    use:tooltip={'Copy all generic ACL rules to clipboard'}
                   >
                     <Icon name={copiedStates['acl-generic'] ? 'check' : 'copy'} size="xs" />
                     {copiedStates['acl-generic'] ? 'Copied!' : 'Copy'}
@@ -553,7 +541,7 @@
         background-color: var(--surface-hover);
       }
 
-      input[type="checkbox"] {
+      input[type='checkbox'] {
         width: 18px;
         height: 18px;
         flex-shrink: 0;
@@ -569,7 +557,6 @@
       }
     }
   }
-
 
   .input-group {
     display: flex;

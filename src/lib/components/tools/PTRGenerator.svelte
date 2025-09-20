@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
+
   let inputValue = $state('192.168.1.100');
   let inputType = $state<'single' | 'cidr'>('single');
   let results = $state<{
@@ -35,41 +35,41 @@
       label: 'Single IPv4',
       input: '192.168.1.100',
       type: 'single' as const,
-      description: 'Generate PTR for single IPv4 address'
+      description: 'Generate PTR for single IPv4 address',
     },
     {
       label: 'Single IPv6',
       input: '2001:db8::1',
       type: 'single' as const,
-      description: 'Generate PTR for single IPv6 address'
+      description: 'Generate PTR for single IPv6 address',
     },
     {
       label: 'IPv4 /24 Subnet',
       input: '192.168.1.0/24',
       type: 'cidr' as const,
-      description: 'Generate PTRs for entire /24 subnet'
+      description: 'Generate PTRs for entire /24 subnet',
     },
     {
       label: 'IPv4 /28 Small Block',
       input: '10.0.0.16/28',
       type: 'cidr' as const,
-      description: 'Generate PTRs for /28 block (16 addresses)'
+      description: 'Generate PTRs for /28 block (16 addresses)',
     },
     {
       label: 'IPv6 /64 Network',
       input: '2001:db8::/64',
       type: 'cidr' as const,
-      description: 'Generate IPv6 PTR zone structure'
+      description: 'Generate IPv6 PTR zone structure',
     },
     {
       label: 'IPv6 /48 Prefix',
       input: '2001:db8:1000::/48',
       type: 'cidr' as const,
-      description: 'Generate IPv6 /48 PTR zone'
-    }
+      description: 'Generate IPv6 /48 PTR zone',
+    },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     inputValue = example.input;
     inputType = example.type;
     selectedExample = example.label;
@@ -80,8 +80,8 @@
   function isValidIPv4(ip: string): boolean {
     const parts = ip.split('.');
     if (parts.length !== 4) return false;
-    
-    return parts.every(part => {
+
+    return parts.every((part) => {
       const num = parseInt(part, 10);
       return !isNaN(num) && num >= 0 && num <= 255 && part === num.toString();
     });
@@ -92,47 +92,46 @@
     if (ip.includes('::')) {
       const parts = ip.split('::');
       if (parts.length > 2) return false;
-      
-      const leftParts = parts[0] ? parts[0].split(':').filter(p => p) : [];
-      const rightParts = parts[1] ? parts[1].split(':').filter(p => p) : [];
-      
+
+      const leftParts = parts[0] ? parts[0].split(':').filter((p) => p) : [];
+      const rightParts = parts[1] ? parts[1].split(':').filter((p) => p) : [];
+
       if (leftParts.length + rightParts.length >= 8) return false;
-      
-      return [...leftParts, ...rightParts].every(part => 
-        part.length <= 4 && /^[0-9a-fA-F]*$/.test(part)
-      );
+
+      return [...leftParts, ...rightParts].every((part) => part.length <= 4 && /^[0-9a-fA-F]*$/.test(part));
     } else {
       const parts = ip.split(':');
-      return parts.length === 8 && parts.every(part => 
-        part.length <= 4 && /^[0-9a-fA-F]+$/.test(part)
-      );
+      return parts.length === 8 && parts.every((part) => part.length <= 4 && /^[0-9a-fA-F]+$/.test(part));
     }
   }
 
   function expandIPv6(ip: string): string {
     if (!ip.includes('::')) {
-      return ip.split(':').map(part => part.padStart(4, '0')).join(':');
+      return ip
+        .split(':')
+        .map((part) => part.padStart(4, '0'))
+        .join(':');
     }
-    
+
     const parts = ip.split('::');
-    const leftParts = parts[0] ? parts[0].split(':').filter(p => p) : [];
-    const rightParts = parts[1] ? parts[1].split(':').filter(p => p) : [];
-    
+    const leftParts = parts[0] ? parts[0].split(':').filter((p) => p) : [];
+    const rightParts = parts[1] ? parts[1].split(':').filter((p) => p) : [];
+
     const missingParts = 8 - leftParts.length - rightParts.length;
     const middleParts = Array(missingParts).fill('0000');
-    
+
     const allParts = [...leftParts, ...middleParts, ...rightParts];
-    return allParts.map(part => part.padStart(4, '0')).join(':');
+    return allParts.map((part) => part.padStart(4, '0')).join(':');
   }
 
   function generateIPv4PTR(ip: string): { ptrName: string; zone: string } {
     const parts = ip.split('.');
     const reversed = parts.reverse().join('.');
     const ptrName = `${reversed}.in-addr.arpa`;
-    
+
     // Determine the zone based on class boundaries
     const zone = `${parts[1]}.${parts[2]}.${parts[3]}.in-addr.arpa`;
-    
+
     return { ptrName, zone };
   }
 
@@ -141,57 +140,57 @@
     const hex = expanded.replace(/:/g, '');
     const reversed = hex.split('').reverse().join('.');
     const ptrName = `${reversed}.ip6.arpa`;
-    
+
     // For zone, typically use /64 boundary (first 16 hex chars)
     const zoneHex = hex.substring(0, 16).split('').reverse().join('.');
     const zone = `${zoneHex}.ip6.arpa`;
-    
+
     return { ptrName, zone };
   }
 
   function parseIPv4CIDR(cidr: string): string[] {
     const [network, prefixStr] = cidr.split('/');
     const prefix = parseInt(prefixStr);
-    
+
     if (!isValidIPv4(network) || prefix < 0 || prefix > 32) {
       throw new Error('Invalid IPv4 CIDR notation');
     }
 
-    const networkParts = network.split('.').map(p => parseInt(p));
+    const networkParts = network.split('.').map((p) => parseInt(p));
     const hostBits = 32 - prefix;
-    
+
     // Limit to reasonable sizes
     if (hostBits > 16) {
       throw new Error('CIDR block too large (more than 65536 addresses). Please use a smaller block.');
     }
-    
+
     const totalHosts = Math.pow(2, hostBits);
     const ips: string[] = [];
-    
+
     // Calculate network base
     let baseIP = (networkParts[0] << 24) + (networkParts[1] << 16) + (networkParts[2] << 8) + networkParts[3];
-    const mask = 0xFFFFFFFF << hostBits;
+    const mask = 0xffffffff << hostBits;
     baseIP = baseIP & mask;
-    
+
     for (let i = 0; i < totalHosts; i++) {
       const currentIP = baseIP + i;
       const ip = [
-        (currentIP >>> 24) & 0xFF,
-        (currentIP >>> 16) & 0xFF,
-        (currentIP >>> 8) & 0xFF,
-        currentIP & 0xFF
+        (currentIP >>> 24) & 0xff,
+        (currentIP >>> 16) & 0xff,
+        (currentIP >>> 8) & 0xff,
+        currentIP & 0xff,
       ].join('.');
-      
+
       ips.push(ip);
     }
-    
+
     return ips;
   }
 
   function parseIPv6CIDR(cidr: string): string[] {
     const [network, prefixStr] = cidr.split('/');
     const prefix = parseInt(prefixStr);
-    
+
     if (!isValidIPv6(network) || prefix < 0 || prefix > 128) {
       throw new Error('Invalid IPv6 CIDR notation');
     }
@@ -205,30 +204,34 @@
     // For demonstration, return just the network address and a few examples
     const expanded = expandIPv6(network);
     const networkIP = expanded.replace(/:/g, '');
-    
+
     // Generate some representative addresses
     const ips: string[] = [];
-    
+
     // Add the network address
     ips.push(network);
-    
+
     // Add ::1, ::2, ::10, etc for demonstration
     const baseHex = networkIP.substring(0, prefix / 4);
     const examples = ['0001', '0002', '0010', '00ff', 'ffff'];
-    
-    examples.forEach(suffix => {
+
+    examples.forEach((suffix) => {
       const fullHex = baseHex + suffix.padEnd(32 - baseHex.length, '0');
       const formatted = fullHex.match(/.{4}/g)?.join(':') || fullHex;
       ips.push(formatted);
     });
-    
+
     return ips.slice(0, 10); // Limit to 10 examples
   }
 
-  function generateZoneFileStub(zone: string, entries: Array<{ip: string; ptrName: string; type: 'IPv4' | 'IPv6'}>, type: 'IPv4' | 'IPv6'): string {
+  function generateZoneFileStub(
+    zone: string,
+    entries: Array<{ ip: string; ptrName: string; type: 'IPv4' | 'IPv6' }>,
+    type: 'IPv4' | 'IPv6',
+  ): string {
     const timestamp = new Date().toISOString().split('T')[0];
     const serial = new Date().toISOString().replace(/[-:T]/g, '').substring(0, 10);
-    
+
     let content = `; PTR Zone file for ${zone}
 ; Generated on ${timestamp}
 $TTL 86400
@@ -248,7 +251,7 @@ $TTL 86400
 ; PTR Records
 `;
 
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       if (entry.type === type) {
         const recordName = entry.ptrName.replace(`.${zone}`, '').replace(/\.$/, '');
         const hostname = `host-${entry.ip.replace(/[:.]/g, '-')}.example.com.`;
@@ -267,8 +270,8 @@ $TTL 86400
 
     try {
       const trimmed = inputValue.trim();
-      const entries: Array<{ip: string; ptrName: string; type: 'IPv4' | 'IPv6'; zone: string}> = [];
-      
+      const entries: Array<{ ip: string; ptrName: string; type: 'IPv4' | 'IPv6'; zone: string }> = [];
+
       if (inputType === 'single') {
         // Single IP address
         if (isValidIPv4(trimmed)) {
@@ -287,16 +290,16 @@ $TTL 86400
         }
 
         const [network] = trimmed.split('/');
-        
+
         if (isValidIPv4(network)) {
           const ips = parseIPv4CIDR(trimmed);
-          ips.forEach(ip => {
+          ips.forEach((ip) => {
             const { ptrName, zone } = generateIPv4PTR(ip);
             entries.push({ ip, ptrName, type: 'IPv4', zone });
           });
         } else if (isValidIPv6(network)) {
           const ips = parseIPv6CIDR(trimmed);
-          ips.forEach(ip => {
+          ips.forEach((ip) => {
             const { ptrName, zone } = generateIPv6PTR(ip);
             entries.push({ ip, ptrName, type: 'IPv6', zone });
           });
@@ -306,40 +309,39 @@ $TTL 86400
       }
 
       // Generate zone files
-      const uniqueZones = [...new Set(entries.map(e => e.zone))];
-      const zoneFiles = uniqueZones.map(zone => {
-        const zoneEntries = entries.filter(e => e.zone === zone);
+      const uniqueZones = [...new Set(entries.map((e) => e.zone))];
+      const zoneFiles = uniqueZones.map((zone) => {
+        const zoneEntries = entries.filter((e) => e.zone === zone);
         const type = zoneEntries[0].type;
-        
+
         return {
           zone,
           type,
-          content: generateZoneFileStub(zone, entries, type)
+          content: generateZoneFileStub(zone, entries, type),
         };
       });
 
       // Generate summary
       const summary = {
         totalEntries: entries.length,
-        ipv4Entries: entries.filter(e => e.type === 'IPv4').length,
-        ipv6Entries: entries.filter(e => e.type === 'IPv6').length,
-        uniqueZones: uniqueZones.length
+        ipv4Entries: entries.filter((e) => e.type === 'IPv4').length,
+        ipv6Entries: entries.filter((e) => e.type === 'IPv6').length,
+        uniqueZones: uniqueZones.length,
       };
 
       results = {
         success: true,
         entries,
         zoneFiles,
-        summary
+        summary,
       };
-
     } catch (error) {
       results = {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
         entries: [],
         zoneFiles: [],
-        summary: { totalEntries: 0, ipv4Entries: 0, ipv6Entries: 0, uniqueZones: 0 }
+        summary: { totalEntries: 0, ipv4Entries: 0, ipv6Entries: 0, uniqueZones: 0 },
       };
     }
   }
@@ -390,7 +392,8 @@ $TTL 86400
       <div class="overview-item">
         <Icon name="server" size="sm" />
         <div>
-          <strong>Zone Structure:</strong> IPv4 uses <code>in-addr.arpa</code> and IPv6 uses <code>ip6.arpa</code> for reverse DNS zones.
+          <strong>Zone Structure:</strong> IPv4 uses <code>in-addr.arpa</code> and IPv6 uses <code>ip6.arpa</code> for reverse
+          DNS zones.
         </div>
       </div>
       <div class="overview-item">
@@ -436,24 +439,14 @@ $TTL 86400
       <h3 class="type-label">Input Type</h3>
       <div class="type-options">
         <label class="type-option">
-          <input
-            type="radio"
-            bind:group={inputType}
-            value="single"
-            onchange={handleTypeChange}
-          />
+          <input type="radio" bind:group={inputType} value="single" onchange={handleTypeChange} />
           <div class="type-content">
             <Icon name="target" size="sm" />
             <span>Single IP</span>
           </div>
         </label>
         <label class="type-option">
-          <input
-            type="radio"
-            bind:group={inputType}
-            value="cidr"
-            onchange={handleTypeChange}
-          />
+          <input type="radio" bind:group={inputType} value="cidr" onchange={handleTypeChange} />
           <div class="type-content">
             <Icon name="network" size="sm" />
             <span>CIDR Block</span>
@@ -464,12 +457,11 @@ $TTL 86400
 
     <!-- IP/CIDR Input -->
     <div class="input-group">
-      <label 
+      <label
         for="ip-input"
-        use:tooltip={inputType === 'single' 
-          ? "Enter a single IPv4 or IPv6 address"
-          : "Enter an IPv4 or IPv6 CIDR block (e.g., 192.168.1.0/24)"
-        }
+        use:tooltip={inputType === 'single'
+          ? 'Enter a single IPv4 or IPv6 address'
+          : 'Enter an IPv4 or IPv6 CIDR block (e.g., 192.168.1.0/24)'}
       >
         <Icon name={inputType === 'single' ? 'target' : 'network'} size="sm" />
         {inputType === 'single' ? 'IP Address' : 'CIDR Block'}
@@ -488,10 +480,7 @@ $TTL 86400
     <!-- Options -->
     <div class="options-section">
       <label class="checkbox-option">
-        <input
-          type="checkbox"
-          bind:checked={showZoneFiles}
-        />
+        <input type="checkbox" bind:checked={showZoneFiles} />
         <div class="checkbox-custom"></div>
         <div class="checkbox-content">
           <span class="checkbox-label">Generate zone file stubs</span>
@@ -506,9 +495,7 @@ $TTL 86400
     <div class="card results-card">
       {#if results.success}
         <div class="results-header">
-          <h3>
-            PTR Records Generated
-          </h3>
+          <h3>PTR Records Generated</h3>
           <div class="summary-stats">
             <div class="stat-item">
               <span class="stat-value">{results.summary.totalEntries}</span>
@@ -603,7 +590,6 @@ $TTL 86400
             {/each}
           </div>
         {/if}
-
       {:else}
         <div class="error-result">
           <Icon name="alert-triangle" size="lg" />
@@ -627,42 +613,34 @@ $TTL 86400
   <div class="education-card">
     <div class="education-grid">
       <div class="education-item info-panel">
-        <h4>
-          What are PTR Records?
-        </h4>
+        <h4>What are PTR Records?</h4>
         <p>
-          PTR (Pointer) records provide reverse DNS lookups, allowing you to resolve an IP address 
-          back to a domain name. They're essential for mail servers, logging, and network diagnostics.
+          PTR (Pointer) records provide reverse DNS lookups, allowing you to resolve an IP address back to a domain
+          name. They're essential for mail servers, logging, and network diagnostics.
         </p>
       </div>
 
       <div class="education-item info-panel">
-        <h4>
-          Zone Structure
-        </h4>
+        <h4>Zone Structure</h4>
         <p>
-          IPv4 reverse zones use <code>in-addr.arpa</code> with octets reversed (e.g., 1.168.192.in-addr.arpa for 192.168.1.x). 
-          IPv6 uses <code>ip6.arpa</code> with individual hex digits reversed.
+          IPv4 reverse zones use <code>in-addr.arpa</code> with octets reversed (e.g., 1.168.192.in-addr.arpa for
+          192.168.1.x). IPv6 uses <code>ip6.arpa</code> with individual hex digits reversed.
         </p>
       </div>
 
       <div class="education-item info-panel">
-        <h4>
-          Zone Delegation
-        </h4>
+        <h4>Zone Delegation</h4>
         <p>
-          PTR zones are typically delegated by your ISP or hosting provider. The zone files generated 
-          here provide templates that can be customized for your specific DNS infrastructure.
+          PTR zones are typically delegated by your ISP or hosting provider. The zone files generated here provide
+          templates that can be customized for your specific DNS infrastructure.
         </p>
       </div>
 
       <div class="education-item info-panel">
-        <h4>
-          Best Practices
-        </h4>
+        <h4>Best Practices</h4>
         <p>
-          Ensure PTR records match forward DNS (A/AAAA) records. Use descriptive hostnames that 
-          include the IP address or subnet information for easier network management.
+          Ensure PTR records match forward DNS (A/AAAA) records. Use descriptive hostnames that include the IP address
+          or subnet information for easier network management.
         </p>
       </div>
     </div>
@@ -685,7 +663,7 @@ $TTL 86400
     align-items: flex-start;
     gap: var(--spacing-sm);
     color: var(--text-secondary);
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
@@ -707,7 +685,7 @@ $TTL 86400
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -794,12 +772,12 @@ $TTL 86400
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
     font-weight: 600;
-    
+
     &.single {
       background-color: rgba(34, 197, 94, 0.1);
       color: var(--color-success);
     }
-    
+
     &.cidr {
       background-color: rgba(59, 130, 246, 0.1);
       color: var(--color-primary);
@@ -847,7 +825,7 @@ $TTL 86400
     position: relative;
     cursor: pointer;
 
-    input[type="radio"] {
+    input[type='radio'] {
       position: absolute;
       opacity: 0;
       pointer-events: none;
@@ -871,7 +849,7 @@ $TTL 86400
       border-color: var(--border-primary);
     }
 
-    input[type="radio"]:checked + .type-content {
+    input[type='radio']:checked + .type-content {
       background-color: var(--surface-hover);
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
@@ -937,7 +915,7 @@ $TTL 86400
       background-color: var(--surface-hover);
     }
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       position: absolute;
       opacity: 0;
       pointer-events: none;
@@ -969,7 +947,7 @@ $TTL 86400
       }
     }
 
-    input[type="checkbox"]:checked + .checkbox-custom {
+    input[type='checkbox']:checked + .checkbox-custom {
       background-color: var(--color-primary);
       border-color: var(--color-primary);
 
@@ -979,7 +957,7 @@ $TTL 86400
       }
     }
 
-    input[type="checkbox"]:focus + .checkbox-custom {
+    input[type='checkbox']:focus + .checkbox-custom {
       box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2);
     }
 
@@ -1066,7 +1044,8 @@ $TTL 86400
     overflow: hidden;
   }
 
-  .table-header, .table-row {
+  .table-header,
+  .table-row {
     display: grid;
     grid-template-columns: 1.2fr 2fr auto 1.3fr;
     gap: var(--spacing-md);
@@ -1083,7 +1062,7 @@ $TTL 86400
 
   .table-row {
     border-bottom: 1px solid var(--border-secondary);
-    
+
     &:last-child {
       border-bottom: none;
     }
@@ -1124,12 +1103,12 @@ $TTL 86400
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
     font-weight: 600;
-    
+
     &.ipv4 {
       background-color: rgba(34, 197, 94, 0.1);
       color: var(--color-success);
     }
-    
+
     &.ipv6 {
       background-color: rgba(147, 51, 234, 0.1);
       color: var(--color-accent);
@@ -1191,12 +1170,12 @@ $TTL 86400
     padding: 2px var(--spacing-xs);
     border-radius: var(--radius-sm);
     font-weight: 600;
-    
+
     &.ipv4 {
       background-color: rgba(34, 197, 94, 0.1);
       color: var(--color-success);
     }
-    
+
     &.ipv6 {
       background-color: rgba(147, 51, 234, 0.1);
       color: var(--color-accent);
@@ -1288,7 +1267,7 @@ $TTL 86400
       line-height: 1.6;
       margin: 0;
     }
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
@@ -1312,13 +1291,15 @@ $TTL 86400
       gap: var(--spacing-md);
     }
 
-    .table-header, .table-row {
+    .table-header,
+    .table-row {
       grid-template-columns: 1fr 1fr;
       gap: var(--spacing-sm);
       font-size: var(--font-size-sm);
     }
-    
-    .col-type, .col-zone {
+
+    .col-type,
+    .col-zone {
       order: 3;
     }
 

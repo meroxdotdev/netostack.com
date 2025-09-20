@@ -2,42 +2,42 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domain = $state('gmail.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { domain: 'gmail.com', description: 'Google Gmail SPF policy' },
     { domain: 'outlook.com', description: 'Microsoft Outlook SPF setup' },
     { domain: 'salesforce.com', description: 'Salesforce SPF configuration' },
     { domain: 'mailchimp.com', description: 'MailChimp email service SPF' },
     { domain: 'github.com', description: 'GitHub enterprise SPF policy' },
-    { domain: 'sendgrid.com', description: 'SendGrid email platform SPF' }
+    { domain: 'sendgrid.com', description: 'SendGrid email platform SPF' },
   ];
-  
+
   async function checkSPF() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'spf-check',
-          domain: domain.trim()
-        })
+          domain: domain.trim(),
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`SPF check failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -45,45 +45,53 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     domain = example.domain;
     selectedExampleIndex = index;
     checkSPF();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   function getDeliverabilityColor(risk: string): string {
     switch (risk) {
-      case 'low': return 'success';
-      case 'medium': return 'warning';
-      case 'high': return 'error';
-      default: return 'secondary';
+      case 'low':
+        return 'success';
+      case 'medium':
+        return 'warning';
+      case 'high':
+        return 'error';
+      default:
+        return 'secondary';
     }
   }
-  
+
   function getDeliverabilityIcon(risk: string): string {
     switch (risk) {
-      case 'low': return 'shield-check';
-      case 'medium': return 'shield-alert';
-      case 'high': return 'shield-x';
-      default: return 'shield';
+      case 'low':
+        return 'shield-check';
+      case 'medium':
+        return 'shield-alert';
+      case 'high':
+        return 'shield-x';
+      default:
+        return 'shield';
     }
   }
-  
+
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `SPF Check for ${domain}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
-    
+
     if (results.record) {
       text += `SPF Record:\n${results.record}\n\n`;
     }
-    
+
     if (results.emailAnalysis) {
       text += `Email Deliverability Analysis:\n`;
       text += `  Risk Level: ${results.emailAnalysis.deliverabilityRisk}\n`;
@@ -91,7 +99,7 @@
       text += `  Soft Fail (~all): ${results.emailAnalysis.hasSoftFail ? 'Yes' : 'No'}\n`;
       text += `  Allows All (+all): ${results.emailAnalysis.allowsAll ? 'Yes' : 'No'}\n\n`;
     }
-    
+
     if (results.expanded) {
       text += `Expanded SPF Analysis:\n`;
       text += `  Total DNS lookups: ${results.lookupCount || 0}\n`;
@@ -100,17 +108,20 @@
         text += `  Includes: ${results.expanded.includes.map((inc: any) => inc.domain).join(', ')}\n`;
       }
     }
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>Email SPF Policy Checker</h1>
-    <p>Check SPF (Sender Policy Framework) records for email authentication and deliverability. Analyze which servers are authorized to send email for your domain and assess delivery risk.</p>
+    <p>
+      Check SPF (Sender Policy Framework) records for email authentication and deliverability. Analyze which servers are
+      authorized to send email for your domain and assess delivery risk.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -122,8 +133,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Check SPF policy for ${example.domain}`}
@@ -143,18 +154,21 @@
     </div>
     <div class="card-content">
       <div class="form-group">
-        <label for="domain" use:tooltip={"Enter the domain to check SPF policy for"}>
+        <label for="domain" use:tooltip={'Enter the domain to check SPF policy for'}>
           Domain Name
-          <input 
-            id="domain" 
-            type="text" 
-            bind:value={domain} 
+          <input
+            id="domain"
+            type="text"
+            bind:value={domain}
             placeholder="example.com"
-            onchange={() => { clearExampleSelection(); if (domain) checkSPF(); }}
+            onchange={() => {
+              clearExampleSelection();
+              if (domain) checkSPF();
+            }}
           />
         </label>
       </div>
-      
+
       <div class="action-section">
         <button class="check-btn lookup-btn" onclick={checkSPF} disabled={loading || !domain.trim()}>
           {#if loading}
@@ -175,8 +189,8 @@
       <div class="card-header row">
         <h3>SPF Policy Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" />
-          {copiedState ? "Copied!" : "Copy Results"}
+          <Icon name={copiedState ? 'check' : 'copy'} size="xs" />
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
@@ -199,7 +213,7 @@
                   </p>
                 </div>
               </div>
-              
+
               <div class="deliverability-details">
                 <div class="detail-item {results.emailAnalysis.hasHardFail ? 'success' : 'warning'}">
                   <Icon name={results.emailAnalysis.hasHardFail ? 'check-circle' : 'alert-circle'} size="sm" />
@@ -207,22 +221,41 @@
                     <span class="detail-label">Hard Fail (-all)</span>
                     <span class="detail-value">{results.emailAnalysis.hasHardFail ? 'Enabled' : 'Disabled'}</span>
                     <span class="detail-description">
-                      {results.emailAnalysis.hasHardFail ? 'Unauthorized emails will be rejected' : 'Consider upgrading to -all for better security'}
+                      {results.emailAnalysis.hasHardFail
+                        ? 'Unauthorized emails will be rejected'
+                        : 'Consider upgrading to -all for better security'}
                     </span>
                   </div>
                 </div>
-                
-                <div class="detail-item {results.emailAnalysis.hasSoftFail ? 'warning' : results.emailAnalysis.hasHardFail ? 'success' : 'error'}">
-                  <Icon name={results.emailAnalysis.hasSoftFail ? 'alert-triangle' : results.emailAnalysis.hasHardFail ? 'check-circle' : 'x-circle'} size="sm" />
+
+                <div
+                  class="detail-item {results.emailAnalysis.hasSoftFail
+                    ? 'warning'
+                    : results.emailAnalysis.hasHardFail
+                      ? 'success'
+                      : 'error'}"
+                >
+                  <Icon
+                    name={results.emailAnalysis.hasSoftFail
+                      ? 'alert-triangle'
+                      : results.emailAnalysis.hasHardFail
+                        ? 'check-circle'
+                        : 'x-circle'}
+                    size="sm"
+                  />
                   <div>
                     <span class="detail-label">Soft Fail (~all)</span>
                     <span class="detail-value">{results.emailAnalysis.hasSoftFail ? 'Enabled' : 'Disabled'}</span>
                     <span class="detail-description">
-                      {results.emailAnalysis.hasSoftFail ? 'Unauthorized emails marked as suspicious' : results.emailAnalysis.hasHardFail ? 'Using stronger hard fail instead' : 'No SPF enforcement configured'}
+                      {results.emailAnalysis.hasSoftFail
+                        ? 'Unauthorized emails marked as suspicious'
+                        : results.emailAnalysis.hasHardFail
+                          ? 'Using stronger hard fail instead'
+                          : 'No SPF enforcement configured'}
                     </span>
                   </div>
                 </div>
-                
+
                 {#if results.emailAnalysis.allowsAll}
                   <div class="detail-item error">
                     <Icon name="alert-triangle" size="sm" />
@@ -250,14 +283,17 @@
           {#if results.expanded}
             <div class="analysis-section">
               <h4>SPF Policy Breakdown</h4>
-              
+
               <!-- Lookup Count Warning -->
               {#if results.lookupCount > 8}
                 <div class="warning-box">
                   <Icon name="alert-triangle" size="sm" />
                   <div>
                     <strong>DNS Lookup Limit Exceeded</strong>
-                    <p>This SPF record requires {results.lookupCount} DNS lookups, which exceeds the RFC limit of 10. This may cause delivery failures.</p>
+                    <p>
+                      This SPF record requires {results.lookupCount} DNS lookups, which exceeds the RFC limit of 10. This
+                      may cause delivery failures.
+                    </p>
                   </div>
                 </div>
               {:else if results.lookupCount > 6}
@@ -265,11 +301,14 @@
                   <Icon name="info" size="sm" />
                   <div>
                     <strong>High DNS Lookup Count</strong>
-                    <p>This SPF record requires {results.lookupCount} DNS lookups. Consider optimizing to stay well below the 10-lookup limit.</p>
+                    <p>
+                      This SPF record requires {results.lookupCount} DNS lookups. Consider optimizing to stay well below
+                      the 10-lookup limit.
+                    </p>
                   </div>
                 </div>
               {/if}
-              
+
               <!-- Mechanisms -->
               {#if results.expanded.mechanisms.length > 0}
                 <div class="mechanisms-section">
@@ -312,7 +351,7 @@
                   </div>
                 </div>
               {/if}
-              
+
               <!-- Includes -->
               {#if results.expanded.includes.length > 0}
                 <div class="includes-section">
@@ -349,7 +388,10 @@
               <div>
                 <h4>No SPF Record Found</h4>
                 <p>Domain <code>{domain}</code> does not have an SPF record configured.</p>
-                <p class="risk-warning">This means anyone can send email claiming to be from this domain, significantly increasing spoofing risk.</p>
+                <p class="risk-warning">
+                  This means anyone can send email claiming to be from this domain, significantly increasing spoofing
+                  risk.
+                </p>
               </div>
             </div>
           </div>
@@ -396,7 +438,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>Email Deliverability</h4>
           <ul>
@@ -406,7 +448,7 @@
             <li><strong>Too many lookups:</strong> Can cause delivery failures</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Best Practices</h4>
           <ul>
@@ -416,7 +458,7 @@
             <li>Monitor email delivery after SPF changes</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Common SPF Examples</h4>
           <div class="spf-examples">
@@ -503,17 +545,23 @@
 
     &.success {
       border-left-color: var(--color-success);
-      :global(svg) { color: var(--color-success); }
+      :global(svg) {
+        color: var(--color-success);
+      }
     }
 
     &.warning {
       border-left-color: var(--color-warning);
-      :global(svg) { color: var(--color-warning); }
+      :global(svg) {
+        color: var(--color-warning);
+      }
     }
 
     &.error {
       border-left-color: var(--color-error);
-      :global(svg) { color: var(--color-error); }
+      :global(svg) {
+        color: var(--color-error);
+      }
     }
 
     div {
@@ -557,17 +605,17 @@
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
     padding: var(--spacing-sm);
-    
+
     @media (max-width: 600px) {
       flex-wrap: wrap;
     }
-    
+
     .record-location {
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
       white-space: nowrap;
     }
-    
+
     code {
       flex: 1;
       word-break: break-all;
@@ -575,7 +623,8 @@
     }
   }
 
-  .warning-box, .info-box {
+  .warning-box,
+  .info-box {
     display: flex;
     align-items: flex-start;
     gap: var(--spacing-sm);
@@ -599,17 +648,22 @@
   .warning-box {
     background: color-mix(in srgb, var(--color-warning), transparent 95%);
     border: 1px solid var(--color-warning);
-    :global(svg) { color: var(--color-warning); }
+    :global(svg) {
+      color: var(--color-warning);
+    }
   }
 
   .info-box {
     background: color-mix(in srgb, var(--color-primary), transparent 95%);
     border: 1px solid var(--color-primary);
-    :global(svg) { color: var(--color-primary); }
+    :global(svg) {
+      color: var(--color-primary);
+    }
   }
 
   .analysis-section {
-    h4, h5 {
+    h4,
+    h5 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
     }
@@ -620,11 +674,13 @@
     }
   }
 
-  .mechanisms-section, .includes-section {
+  .mechanisms-section,
+  .includes-section {
     margin-bottom: var(--spacing-lg);
   }
 
-  .mechanism-list, .include-list {
+  .mechanism-list,
+  .include-list {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
@@ -671,7 +727,7 @@
 
     .include-record {
       margin-bottom: var(--spacing-sm);
-      
+
       code {
         font-family: var(--font-mono);
         font-size: var(--font-size-xs);
@@ -731,7 +787,7 @@
     .mechanism-explanation {
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
-      
+
       strong {
         color: var(--text-primary);
         font-family: var(--font-mono);
@@ -747,7 +803,7 @@
     .spf-example {
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
-      
+
       code {
         background: var(--bg-secondary);
         padding: 2px 4px;

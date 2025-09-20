@@ -3,7 +3,7 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import { isValidDomainName, formatDNSError } from '$lib/utils/dns-validation.js';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domainName = $state('github.com');
   let loading = $state(false);
   let results = $state<any>(null);
@@ -16,21 +16,21 @@
     const domain = domainName.trim();
     return domain.length > 0 && isValidDomainName(domain);
   });
-  
+
   const examples = [
     { domain: 'github.com', description: 'GitHub CAA configuration' },
     { domain: 'www.google.com', description: 'Google subdomain CAA inheritance' },
     { domain: 'api.stripe.com', description: 'Stripe API subdomain CAA' },
     { domain: 'blog.cloudflare.com', description: 'Cloudflare blog CAA setup' },
     { domain: 'microsoft.com', description: 'Microsoft CAA settings' },
-    { domain: 'amazon.com', description: 'Amazon CAA implementation' }
+    { domain: 'amazon.com', description: 'Amazon CAA implementation' },
   ];
-  
+
   async function checkCAA() {
     loading = true;
     error = null;
     results = null;
-    
+
     // Client-side validation
     const domain = domainName.trim();
     if (!domain) {
@@ -38,27 +38,27 @@
       loading = false;
       return;
     }
-    
+
     if (!isValidDomainName(domain)) {
       error = 'Invalid domain name format. Use valid domain names like "example.com"';
       loading = false;
       return;
     }
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/dns', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'caa-effective',
-          name: domain
-        })
+          name: domain,
+        }),
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         let errorMessage = `CAA check failed (${response.status})`;
-        
+
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.error) {
@@ -72,10 +72,10 @@
             errorMessage = 'CAA check service temporarily unavailable. Please try again.';
           }
         }
-        
+
         throw new Error(errorMessage);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = formatDNSError(err);
@@ -83,63 +83,75 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     domainName = example.domain;
     selectedExampleIndex = index;
     checkCAA();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
-  function parseCAA(record: string): { flag: number, tag: string, value: string } | null {
+
+  function parseCAA(record: string): { flag: number; tag: string; value: string } | null {
     // CAA format: flag tag "value"
     const match = record.match(/^(\d+)\s+(\w+)\s+["]?([^"]+)["]?$/);
     if (match) {
       return {
         flag: parseInt(match[1]),
         tag: match[2],
-        value: match[3]
+        value: match[3],
       };
     }
     return null;
   }
-  
+
   function getTagColor(tag: string): string {
     switch (tag) {
-      case 'issue': return 'primary';
-      case 'issuewild': return 'warning';
-      case 'iodef': return 'secondary';
-      default: return 'secondary';
+      case 'issue':
+        return 'primary';
+      case 'issuewild':
+        return 'warning';
+      case 'iodef':
+        return 'secondary';
+      default:
+        return 'secondary';
     }
   }
-  
+
   function getTagIcon(tag: string): string {
     switch (tag) {
-      case 'issue': return 'shield-check';
-      case 'issuewild': return 'shield-alert';
-      case 'iodef': return 'mail';
-      default: return 'help-circle';
+      case 'issue':
+        return 'shield-check';
+      case 'issuewild':
+        return 'shield-alert';
+      case 'iodef':
+        return 'mail';
+      default:
+        return 'help-circle';
     }
   }
-  
+
   function getTagDescription(tag: string): string {
     switch (tag) {
-      case 'issue': return 'Authorized to issue certificates';
-      case 'issuewild': return 'Authorized to issue wildcard certificates';
-      case 'iodef': return 'Incident reporting contact';
-      default: return 'Unknown CAA tag';
+      case 'issue':
+        return 'Authorized to issue certificates';
+      case 'issuewild':
+        return 'Authorized to issue wildcard certificates';
+      case 'iodef':
+        return 'Incident reporting contact';
+      default:
+        return 'Unknown CAA tag';
     }
   }
-  
+
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `CAA Check for ${domainName}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
-    
+
     if (results.effective) {
       text += `Effective CAA Policy:\n`;
       text += `Domain: ${results.effective.domain}\n`;
@@ -151,7 +163,7 @@
     } else {
       text += `No CAA records found in the domain chain.\n\n`;
     }
-    
+
     if (results.chain?.length > 0) {
       text += `CAA Chain (walked up from ${domainName}):\n`;
       results.chain.forEach((item: any, index: number) => {
@@ -161,12 +173,12 @@
         });
       });
     }
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
-  
+
   function getDomainDepth(domain: string, baseDomain: string): number {
     const domainParts = domain.split('.');
     const baseParts = baseDomain.split('.');
@@ -177,7 +189,10 @@
 <div class="card">
   <header class="card-header">
     <h1>CAA Effective Policy Checker</h1>
-    <p>Check effective CAA (Certificate Authority Authorization) policies by walking up the domain label chain. Determine which Certificate Authorities are authorized to issue certificates for a domain.</p>
+    <p>
+      Check effective CAA (Certificate Authority Authorization) policies by walking up the domain label chain. Determine
+      which Certificate Authorities are authorized to issue certificates for a domain.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -189,8 +204,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Check CAA policy for ${example.domain}`}
@@ -210,22 +225,25 @@
     </div>
     <div class="card-content">
       <div class="form-group">
-        <label for="domain" use:tooltip={"Enter the domain name to check effective CAA policy for"}>
+        <label for="domain" use:tooltip={'Enter the domain name to check effective CAA policy for'}>
           Domain Name
-          <input 
-            id="domain" 
-            type="text" 
-            bind:value={domainName} 
+          <input
+            id="domain"
+            type="text"
+            bind:value={domainName}
             placeholder="example.com"
             class:invalid={domainName && !isValidDomainName(domainName.trim())}
-            onchange={() => { clearExampleSelection(); if (isInputValid()) checkCAA(); }}
+            onchange={() => {
+              clearExampleSelection();
+              if (isInputValid()) checkCAA();
+            }}
           />
           {#if domainName && !isValidDomainName(domainName.trim())}
             <span class="error-text">Invalid domain name format</span>
           {/if}
         </label>
       </div>
-      
+
       <div class="action-section">
         <button class="check-btn lookup-btn" onclick={checkCAA} disabled={loading || !isInputValid}>
           {#if loading}
@@ -246,8 +264,10 @@
       <div class="card-header row">
         <h3>CAA Policy Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Results"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
@@ -263,7 +283,7 @@
                   <p>This domain has CAA records that control certificate issuance</p>
                 </div>
               </div>
-              
+
               <div class="caa-records">
                 {#each results.effective.records as record}
                   {@const parsed = parseCAA(record)}
@@ -275,7 +295,12 @@
                           <span class="caa-tag">{parsed.tag}</span>
                           <span class="caa-description">{getTagDescription(parsed.tag)}</span>
                         </div>
-                        <span class="caa-flag" use:tooltip={parsed.flag === 128 ? "Critical flag set - unknown properties must be ignored" : "Standard flag"}>
+                        <span
+                          class="caa-flag"
+                          use:tooltip={parsed.flag === 128
+                            ? 'Critical flag set - unknown properties must be ignored'
+                            : 'Standard flag'}
+                        >
                           Flag: {parsed.flag}
                         </span>
                       </div>
@@ -312,7 +337,9 @@
               <Icon name="info" size="sm" />
               <div>
                 <h5>Top-level CAA Policy</h5>
-                <p>CAA records found directly on <code>{results.effective.domain}</code> - no domain tree traversal required.</p>
+                <p>
+                  CAA records found directly on <code>{results.effective.domain}</code> - no domain tree traversal required.
+                </p>
               </div>
             </div>
           </div>
@@ -323,9 +350,10 @@
           <div class="chain-section">
             <h4>CAA Lookup Chain</h4>
             <p class="chain-description">
-              CAA records are looked up by walking up the domain tree until a CAA record is found or the root is reached.
+              CAA records are looked up by walking up the domain tree until a CAA record is found or the root is
+              reached.
             </p>
-            
+
             <div class="domain-chain">
               {#each results.chain as item, index}
                 {@const isEffective = item.domain === results.effective?.domain}
@@ -336,13 +364,18 @@
                       <Icon name="arrow-up" size="xs" />
                     {/if}
                   </div>
-                  
+
                   <div class="chain-content">
                     <div class="chain-header">
                       <div class="domain-info">
                         <span class="domain-name">{item.domain}</span>
                         <span class="domain-depth">
-                          {getDomainDepth(item.domain, results.chain[results.chain.length - 1].domain)} level{getDomainDepth(item.domain, results.chain[results.chain.length - 1].domain) !== 1 ? 's' : ''} up
+                          {getDomainDepth(item.domain, results.chain[results.chain.length - 1].domain)} level{getDomainDepth(
+                            item.domain,
+                            results.chain[results.chain.length - 1].domain,
+                          ) !== 1
+                            ? 's'
+                            : ''} up
                         </span>
                       </div>
                       {#if isEffective}
@@ -357,7 +390,7 @@
                         </span>
                       {/if}
                     </div>
-                    
+
                     {#if item.records?.length > 0}
                       <div class="chain-records">
                         {#each item.records as record}
@@ -409,7 +442,7 @@
             <li><strong>Value:</strong> CA domain or contact information</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>CAA Tags</h4>
           <div class="tag-explanations">
@@ -424,7 +457,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>CAA Lookup Process</h4>
           <ol>
@@ -434,7 +467,7 @@
             <li>If no CAA records exist, any CA can issue certificates</li>
           </ol>
         </div>
-        
+
         <div class="info-section">
           <h4>Common CAA Examples</h4>
           <div class="caa-examples">
@@ -458,7 +491,6 @@
 </div>
 
 <style lang="scss">
-
   // Page-specific styles - shared styles removed
   // Use shared .lookup-btn instead of .check-btn
 
@@ -468,7 +500,8 @@
     margin-top: var(--spacing-xl);
   }
 
-  .effective-section, .chain-section {
+  .effective-section,
+  .chain-section {
     margin-bottom: var(--spacing-lg);
 
     h4 {
@@ -493,7 +526,7 @@
     h5 {
       margin: 0;
       color: var(--text-primary);
-      
+
       .domain-name {
         font-family: var(--font-mono);
         color: var(--color-success);
@@ -588,7 +621,7 @@
     p {
       margin: 0 0 var(--spacing-xs) 0;
       color: var(--text-secondary);
-      
+
       code {
         background: var(--bg-secondary);
         padding: 2px 4px;
@@ -611,18 +644,18 @@
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    
+
     h5 {
       margin: 0 0 var(--spacing-xs) 0;
       color: var(--text-primary);
       font-size: var(--font-size-sm);
     }
-    
+
     p {
       margin: 0;
       color: var(--text-secondary);
       font-size: var(--font-size-xs);
-      
+
       code {
         background: var(--bg-primary);
         padding: 2px 4px;
@@ -744,7 +777,7 @@
     padding: var(--spacing-xs);
     background: var(--bg-primary);
     border-radius: var(--radius-sm);
-    
+
     code {
       font-family: var(--font-mono);
       color: var(--text-primary);
@@ -769,13 +802,15 @@
     }
   }
 
-  .tag-explanations, .caa-examples {
+  .tag-explanations,
+  .caa-examples {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
   }
 
-  .tag-explanation, .caa-example {
+  .tag-explanation,
+  .caa-example {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
     code {

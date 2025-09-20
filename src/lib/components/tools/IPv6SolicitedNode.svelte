@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
+
   let input = $state('2001:db8::1234:5678');
   let result = $state<{
     success: boolean;
@@ -23,31 +23,31 @@
     {
       label: 'Standard Unicast',
       address: '2001:db8::1234:5678',
-      description: 'Regular IPv6 unicast address'
+      description: 'Regular IPv6 unicast address',
     },
     {
       label: 'Link-Local',
       address: 'fe80::1234:5678:9abc:def0',
-      description: 'Link-local unicast address'
+      description: 'Link-local unicast address',
     },
     {
       label: 'Compressed Form',
       address: '2001:db8::1',
-      description: 'Heavily compressed address'
+      description: 'Heavily compressed address',
     },
     {
       label: 'Full Form',
       address: '2001:0db8:0000:0000:0000:0000:1234:5678',
-      description: 'Uncompressed IPv6 address'
+      description: 'Uncompressed IPv6 address',
     },
     {
       label: 'Interface ID Only',
       address: '::1234:5678:9abc:def0',
-      description: 'Only interface identifier specified'
-    }
+      description: 'Only interface identifier specified',
+    },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     input = example.address;
     selectedExample = example.label;
     userModified = false;
@@ -57,26 +57,26 @@
   function expandIPv6(address: string): string {
     // Remove zone ID if present
     const cleanAddress = address.split('%')[0];
-    
+
     // Handle :: compression
     let expanded = cleanAddress;
     if (cleanAddress.includes('::')) {
       const parts = cleanAddress.split('::');
       const leftParts = parts[0] ? parts[0].split(':') : [];
       const rightParts = parts[1] ? parts[1].split(':') : [];
-      
+
       const totalParts = leftParts.length + rightParts.length;
       const missingParts = 8 - totalParts;
-      
+
       const middleParts = Array(missingParts).fill('0000');
       const allParts = [...leftParts, ...middleParts, ...rightParts];
       expanded = allParts.join(':');
     }
-    
+
     // Pad each group to 4 characters
     return expanded
       .split(':')
-      .map(group => group.padStart(4, '0'))
+      .map((group) => group.padStart(4, '0'))
       .join(':');
   }
 
@@ -84,14 +84,14 @@
     try {
       const expanded = expandIPv6(address);
       const groups = expanded.split(':');
-      
+
       if (groups.length !== 8) return false;
-      
+
       for (const group of groups) {
         if (group.length !== 4) return false;
         if (!/^[0-9a-fA-F]{4}$/.test(group)) return false;
       }
-      
+
       return true;
     } catch {
       return false;
@@ -101,21 +101,21 @@
   function calculateSolicitedNodeMulticast(unicastAddress: string): string {
     const expanded = expandIPv6(unicastAddress);
     const groups = expanded.split(':');
-    
+
     // Get the last 24 bits (last 3 hex digits of the last two groups)
     const secondLastGroup = groups[6]; // e.g., "1234"
-    const lastGroup = groups[7];       // e.g., "5678"
-    
+    const lastGroup = groups[7]; // e.g., "5678"
+
     // Take last digit of second-last group and all digits of last group
     const last24Bits = secondLastGroup.slice(-1) + lastGroup; // "45678"
-    
+
     // Solicited-node multicast prefix is ff02::1:ff00:0/104
     const solicitedNodePrefix = 'ff02:0000:0000:0000:0000:0001:ff';
-    
+
     // Insert the 24 bits into the last group
     const lastTwoHex = last24Bits.slice(0, 2); // "45"
-    const lastFourHex = last24Bits.slice(1);   // "5678"
-    
+    const lastFourHex = last24Bits.slice(1); // "5678"
+
     return `${solicitedNodePrefix}${lastTwoHex}:${lastFourHex}`;
   }
 
@@ -127,7 +127,7 @@
 
     try {
       const trimmed = input.trim();
-      
+
       // Basic format validation
       if (!trimmed.includes(':')) {
         throw new Error('IPv6 addresses must contain colons (:)');
@@ -154,7 +154,7 @@
         `1. Take the last 24 bits of the unicast address: ${groups[6]}:${groups[7]} → ${last24Bits}`,
         `2. Prepend the solicited-node multicast prefix: ff02::1:ff`,
         `3. Insert the 24 bits: ff02::1:ff${last24Bits.slice(0, 2)}:${last24Bits.slice(1)}`,
-        `4. Result: ${solicitedNodeAddress.toLowerCase()}`
+        `4. Result: ${solicitedNodeAddress.toLowerCase()}`,
       ];
 
       result = {
@@ -165,10 +165,9 @@
           normalizedUnicast,
           last24Bits,
           multicastPrefix: 'ff02::1:ff',
-          explanation
-        }
+          explanation,
+        },
       };
-
     } catch (error) {
       result = {
         success: false,
@@ -179,8 +178,8 @@
           normalizedUnicast: '',
           last24Bits: '',
           multicastPrefix: '',
-          explanation: []
-        }
+          explanation: [],
+        },
       };
     }
   }
@@ -219,7 +218,8 @@
       <div class="overview-item">
         <Icon name="info" size="sm" />
         <div>
-          <strong>Purpose:</strong> Solicited-node multicast addresses enable efficient IPv6 Neighbor Discovery by targeting specific network nodes instead of all nodes.
+          <strong>Purpose:</strong> Solicited-node multicast addresses enable efficient IPv6 Neighbor Discovery by targeting
+          specific network nodes instead of all nodes.
         </div>
       </div>
       <div class="overview-item">
@@ -231,7 +231,8 @@
       <div class="overview-item">
         <Icon name="network" size="sm" />
         <div>
-          <strong>Usage:</strong> Used in NDP Neighbor Solicitation messages for address resolution and duplicate address detection.
+          <strong>Usage:</strong> Used in NDP Neighbor Solicitation messages for address resolution and duplicate address
+          detection.
         </div>
       </div>
     </div>
@@ -262,9 +263,9 @@
   <!-- Input Section -->
   <section class="input-section">
     <div class="input-group">
-      <label 
+      <label
         for="ipv6-input"
-        use:tooltip={"Enter a valid IPv6 unicast address (not multicast) to calculate its solicited-node multicast address"}
+        use:tooltip={'Enter a valid IPv6 unicast address (not multicast) to calculate its solicited-node multicast address'}
       >
         <Icon name="globe-2" size="sm" />
         IPv6 Unicast Address
@@ -278,9 +279,7 @@
         class="ipv6-input {result?.success === true ? 'valid' : result?.success === false ? 'invalid' : ''}"
         spellcheck="false"
       />
-      <div class="input-hint">
-        Enter any valid IPv6 unicast address in any format (compressed or full)
-      </div>
+      <div class="input-hint">Enter any valid IPv6 unicast address in any format (compressed or full)</div>
     </div>
   </section>
 
@@ -375,7 +374,6 @@
             </div>
           </div>
         </div>
-
       {:else}
         <div class="error-result">
           <Icon name="alert-triangle" size="lg" />
@@ -403,8 +401,8 @@
           What is NDP?
         </h4>
         <p>
-          Neighbor Discovery Protocol (NDP) is IPv6's equivalent to IPv4's ARP. It's used for address resolution, 
-          router discovery, and duplicate address detection on local network segments.
+          Neighbor Discovery Protocol (NDP) is IPv6's equivalent to IPv4's ARP. It's used for address resolution, router
+          discovery, and duplicate address detection on local network segments.
         </p>
       </div>
 
@@ -414,8 +412,8 @@
           Why Solicited-Node?
         </h4>
         <p>
-          Instead of broadcasting to all nodes (like ARP), IPv6 uses solicited-node multicast to efficiently 
-          target only nodes that might have the specific address, reducing network traffic.
+          Instead of broadcasting to all nodes (like ARP), IPv6 uses solicited-node multicast to efficiently target only
+          nodes that might have the specific address, reducing network traffic.
         </p>
       </div>
 
@@ -425,8 +423,8 @@
           Address Collision
         </h4>
         <p>
-          Multiple unicast addresses can map to the same solicited-node multicast address. This is acceptable 
-          since nodes will ignore solicitations for addresses they don't own.
+          Multiple unicast addresses can map to the same solicited-node multicast address. This is acceptable since
+          nodes will ignore solicitations for addresses they don't own.
         </p>
       </div>
 
@@ -436,8 +434,8 @@
           Multicast Membership
         </h4>
         <p>
-          Every IPv6 node automatically joins the solicited-node multicast group for each of its unicast 
-          addresses, enabling it to receive neighbor solicitations.
+          Every IPv6 node automatically joins the solicited-node multicast group for each of its unicast addresses,
+          enabling it to receive neighbor solicitations.
         </p>
       </div>
     </div>
@@ -464,7 +462,7 @@
     align-items: flex-start;
     gap: var(--spacing-sm);
     color: var(--text-secondary);
-    
+
     code {
       background-color: var(--bg-tertiary);
       color: var(--color-primary-light);
@@ -486,7 +484,7 @@
     border: 1px solid var(--border-secondary);
     border-radius: var(--radius-md);
     background-color: var(--bg-secondary);
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -730,7 +728,7 @@
 
     .result-item.highlight & {
       color: var(--bg-primary);
-      
+
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);
       }
@@ -743,9 +741,19 @@
   }
 
   @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
   }
 
   .calculation-steps {

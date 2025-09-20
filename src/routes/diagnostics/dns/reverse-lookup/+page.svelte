@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let ipAddress = $state('8.8.8.8');
   let resolver = $state('cloudflare');
   let customResolver = $state('');
@@ -12,100 +12,98 @@
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const resolvers = [
     { value: 'cloudflare', label: 'Cloudflare (1.1.1.1)' },
     { value: 'google', label: 'Google (8.8.8.8)' },
     { value: 'quad9', label: 'Quad9 (9.9.9.9)' },
-    { value: 'opendns', label: 'OpenDNS (208.67.222.222)' }
+    { value: 'opendns', label: 'OpenDNS (208.67.222.222)' },
   ];
-  
+
   const examples = [
     { ip: '8.8.8.8', description: 'Google DNS server' },
     { ip: '1.1.1.1', description: 'Cloudflare DNS server' },
     { ip: '2001:4860:4860::8888', description: 'Google IPv6 DNS' },
-    { ip: '2606:4700:4700::1111', description: 'Cloudflare IPv6 DNS' }
+    { ip: '2606:4700:4700::1111', description: 'Cloudflare IPv6 DNS' },
   ];
-  
+
   function isValidIP(ip: string): boolean {
     // Basic IPv4 validation
     const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-    
+
     if (ipv4Regex.test(ip)) return true;
-    
+
     // IPv6 validation - comprehensive approach
     try {
       // Remove any zone identifier (e.g., %eth0)
       const cleanIp = ip.split('%')[0].toLowerCase();
-      
+
       // Special cases
       if (cleanIp === '::' || cleanIp === '::1') return true;
-      
+
       // Check for invalid characters
       if (!/^[0-9a-f:]+$/.test(cleanIp)) return false;
-      
+
       // Check for double colon (can only appear once)
       const doubleColonCount = (cleanIp.match(/::/g) || []).length;
       if (doubleColonCount > 1) return false;
-      
+
       // Split by double colon if present
       const parts = cleanIp.split('::');
-      
+
       if (parts.length === 1) {
         // No compression - must be full format with exactly 8 groups
         const groups = cleanIp.split(':');
         if (groups.length !== 8) return false;
-        
+
         // Each group must be 1-4 hex digits
-        return groups.every(group => /^[0-9a-f]{1,4}$/.test(group));
-        
+        return groups.every((group) => /^[0-9a-f]{1,4}$/.test(group));
       } else if (parts.length === 2) {
         // Has compression
-        const leftGroups = parts[0] ? parts[0].split(':').filter(g => g !== '') : [];
-        const rightGroups = parts[1] ? parts[1].split(':').filter(g => g !== '') : [];
-        
+        const leftGroups = parts[0] ? parts[0].split(':').filter((g) => g !== '') : [];
+        const rightGroups = parts[1] ? parts[1].split(':').filter((g) => g !== '') : [];
+
         // Total groups must be less than 8 (compression fills the gap)
         if (leftGroups.length + rightGroups.length >= 8) return false;
-        
+
         // Each group must be 1-4 hex digits
         const allGroups = [...leftGroups, ...rightGroups];
-        return allGroups.every(group => /^[0-9a-f]{1,4}$/.test(group));
+        return allGroups.every((group) => /^[0-9a-f]{1,4}$/.test(group));
       }
-      
+
       return false;
     } catch {
       return false;
     }
   }
-  
+
   async function performReverseLookup() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       if (!isValidIP(ipAddress.trim())) {
         throw new Error('Invalid IP address format');
       }
-      
-      const resolverOpts = useCustomResolver && customResolver 
-        ? { server: customResolver, preferDoH: false }
-        : { doh: resolver };
-        
+
+      const resolverOpts =
+        useCustomResolver && customResolver ? { server: customResolver, preferDoH: false } : { doh: resolver };
+
       const response = await fetch('/api/internal/diagnostics/dns', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'reverse-lookup',
           ip: ipAddress.trim(),
-          resolverOpts
-        })
+          resolverOpts,
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Reverse lookup failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -113,31 +111,34 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     ipAddress = example.ip;
     selectedExampleIndex = index;
     performReverseLookup();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   async function copyResults() {
     if (!results?.Answer?.length) return;
-    
+
     const text = results.Answer.map((r: any) => r.data).join('\n');
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>Reverse DNS Lookup</h1>
-    <p>Perform reverse DNS lookups (PTR records) to find hostnames associated with IP addresses. Automatically handles both IPv4 and IPv6 addresses with proper .in-addr.arpa and .ip6.arpa zone formatting.</p>
+    <p>
+      Perform reverse DNS lookups (PTR records) to find hostnames associated with IP addresses. Automatically handles
+      both IPv4 and IPv6 addresses with proper .in-addr.arpa and .ip6.arpa zone formatting.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -149,8 +150,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Perform reverse lookup for ${example.ip} (${example.description})`}
@@ -171,45 +172,59 @@
     <div class="card-content">
       <div class="form-grid">
         <div class="form-group">
-          <label for="ip" use:tooltip={"Enter an IPv4 or IPv6 address to perform reverse lookup"}>
+          <label for="ip" use:tooltip={'Enter an IPv4 or IPv6 address to perform reverse lookup'}>
             IP Address
-            <input 
-              id="ip" 
-              type="text" 
-              bind:value={ipAddress} 
+            <input
+              id="ip"
+              type="text"
+              bind:value={ipAddress}
               placeholder="8.8.8.8 or 2001:db8::1"
               class:invalid={ipAddress && !isValidIP(ipAddress.trim())}
-              onchange={() => { clearExampleSelection(); if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup();
+              }}
             />
             {#if ipAddress && !isValidIP(ipAddress.trim())}
               <span class="error-text">Invalid IP address format</span>
             {/if}
           </label>
         </div>
-        
+
         <div class="form-group resolver-group">
-          <label use:tooltip={"Choose a DNS resolver to use for the query"}>
+          <label use:tooltip={'Choose a DNS resolver to use for the query'}>
             DNS Resolver
             <div class="resolver-options">
               {#if useCustomResolver}
-                <input 
-                  type="text" 
-                  bind:value={customResolver} 
+                <input
+                  type="text"
+                  bind:value={customResolver}
                   placeholder="8.8.8.8 or custom IP"
-                  onchange={() => { clearExampleSelection(); if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}
+                  onchange={() => {
+                    clearExampleSelection();
+                    if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup();
+                  }}
                 />
               {:else}
-                <select bind:value={resolver} onchange={() => { if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}>
+                <select
+                  bind:value={resolver}
+                  onchange={() => {
+                    if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup();
+                  }}
+                >
                   {#each resolvers as res}
                     <option value={res.value}>{res.label}</option>
                   {/each}
                 </select>
               {/if}
               <label class="checkbox-group">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   bind:checked={useCustomResolver}
-                  onchange={() => { clearExampleSelection(); if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup(); }}
+                  onchange={() => {
+                    clearExampleSelection();
+                    if (ipAddress && isValidIP(ipAddress.trim())) performReverseLookup();
+                  }}
                 />
                 Use custom resolver
               </label>
@@ -217,9 +232,13 @@
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
-        <button class="lookup-btn" onclick={performReverseLookup} disabled={loading || !ipAddress.trim() || !isValidIP(ipAddress.trim())}>
+        <button
+          class="lookup-btn"
+          onclick={performReverseLookup}
+          disabled={loading || !ipAddress.trim() || !isValidIP(ipAddress.trim())}
+        >
           {#if loading}
             <Icon name="loader-2" size="sm" animate="spin" />
             Performing Reverse Lookup...
@@ -255,23 +274,27 @@
         <h3>Reverse DNS Results</h3>
         {#if results.Answer?.length > 0}
           <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-            <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-            {copiedState ? "Copied!" : "Copy Results"}
+            <span class={copiedState ? 'text-green-500' : ''}
+              ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+            >
+            {copiedState ? 'Copied!' : 'Copy Results'}
           </button>
         {/if}
       </div>
       <div class="card-content">
         <div class="lookup-info">
           <div class="info-item">
-            <span class="info-label" use:tooltip={"The IP address that was queried"}>IP Address:</span>
+            <span class="info-label" use:tooltip={'The IP address that was queried'}>IP Address:</span>
             <span class="info-value mono">{ipAddress}</span>
           </div>
           <div class="info-item">
-            <span class="info-label" use:tooltip={"The reverse DNS zone that was queried (automatically generated)"}>Reverse Zone:</span>
+            <span class="info-label" use:tooltip={'The reverse DNS zone that was queried (automatically generated)'}
+              >Reverse Zone:</span
+            >
             <span class="info-value mono">{results.reverseName}</span>
           </div>
         </div>
-        
+
         {#if results.Answer?.length > 0}
           <div class="records-list">
             <h4>PTR Records Found:</h4>
@@ -279,7 +302,7 @@
               <div class="record-item">
                 <div class="record-data mono">{record.data}</div>
                 {#if record.TTL}
-                  <div class="record-ttl" use:tooltip={"Time To Live - how long this record can be cached"}>
+                  <div class="record-ttl" use:tooltip={'Time To Live - how long this record can be cached'}>
                     TTL: {record.TTL}s
                   </div>
                 {/if}
@@ -320,9 +343,12 @@
       <div class="info-grid">
         <div class="info-section">
           <h4>How it Works</h4>
-          <p>Reverse DNS converts IP addresses to hostnames using PTR records. IPv4 addresses use .in-addr.arpa zones, while IPv6 addresses use .ip6.arpa zones with each nibble reversed.</p>
+          <p>
+            Reverse DNS converts IP addresses to hostnames using PTR records. IPv4 addresses use .in-addr.arpa zones,
+            while IPv6 addresses use .ip6.arpa zones with each nibble reversed.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>Common Use Cases</h4>
           <ul>
@@ -332,7 +358,7 @@
             <li>Identifying server ownership</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Zone Format Examples</h4>
           <div class="format-examples">
@@ -395,8 +421,8 @@
       flex-direction: row !important;
       align-items: center;
       gap: var(--spacing-xs) !important;
-      
-      input[type="checkbox"] {
+
+      input[type='checkbox'] {
         width: auto;
         margin: 0;
       }

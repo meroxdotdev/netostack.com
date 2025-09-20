@@ -16,13 +16,13 @@
     {
       value: 'count' as const,
       label: 'By Count',
-      description: 'Split into N equal subnets'
+      description: 'Split into N equal subnets',
     },
     {
       value: 'prefix' as const,
       label: 'By Prefix',
-      description: 'Split to target prefix length'
-    }
+      description: 'Split to target prefix length',
+    },
   ];
 
   const examples = [
@@ -30,30 +30,30 @@
       label: 'Split /24 → 4 subnets',
       cidr: '192.168.1.0/24',
       mode: 'count' as const,
-      count: 4
+      count: 4,
     },
     {
       label: 'Split /16 → /20',
       cidr: '10.0.0.0/16',
       mode: 'prefix' as const,
-      prefix: 20
+      prefix: 20,
     },
     {
       label: 'IPv6 /48 → 16 subnets',
       cidr: '2001:db8::/48',
       mode: 'count' as const,
-      count: 16
+      count: 16,
     },
     {
       label: 'IPv6 /32 → /40',
       cidr: '2001:db8::/32',
       mode: 'prefix' as const,
-      prefix: 40
-    }
+      prefix: 40,
+    },
   ];
 
   /* Set example */
-  function setExample(example: typeof examples[0], index: number) {
+  function setExample(example: (typeof examples)[0], index: number) {
     inputCIDR = example.cidr;
     splitMode = example.mode;
     if (example.mode === 'count') {
@@ -75,7 +75,7 @@
     try {
       await navigator.clipboard.writeText(text);
       copiedStates[id] = true;
-      setTimeout(() => copiedStates[id] = false, 1500);
+      setTimeout(() => (copiedStates[id] = false), 1500);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -84,7 +84,7 @@
   /* Copy all subnets */
   function copyAllSubnets() {
     if (!result?.subnets) return;
-    const text = result.subnets.map(s => s.cidr).join('\n');
+    const text = result.subnets.map((s) => s.cidr).join('\n');
     copyToClipboard(text, 'all-subnets');
   }
 
@@ -102,15 +102,14 @@
     }
 
     try {
-      result = splitMode === 'count' 
-        ? splitCIDRByCount(inputCIDR, subnetCount)
-        : splitCIDRByPrefix(inputCIDR, targetPrefix);
+      result =
+        splitMode === 'count' ? splitCIDRByCount(inputCIDR, subnetCount) : splitCIDRByPrefix(inputCIDR, targetPrefix);
     } catch (error) {
       result = {
         subnets: [],
         stats: {} as any,
         visualization: {} as any,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -134,10 +133,10 @@
   /* Generate tooltip text for subnet segment */
   function getSubnetTooltipText(childRange: any): string {
     if (!result?.subnets) return childRange.cidr;
-    
-    const subnet = result.subnets.find(s => s.cidr === childRange.cidr);
+
+    const subnet = result.subnets.find((s) => s.cidr === childRange.cidr);
     if (!subnet) return childRange.cidr;
-    
+
     return `${subnet.cidr}\nRange: ${subnet.network} - ${subnet.broadcast}\nHosts: ${subnet.totalHosts}`;
   }
 
@@ -148,10 +147,11 @@
     }
 
     // Check if current input matches any example
-    const matchingIndex = examples.findIndex(example =>
-      example.cidr === inputCIDR &&
-      example.mode === splitMode &&
-      (example.mode === 'count' ? example.count === subnetCount : example.prefix === targetPrefix)
+    const matchingIndex = examples.findIndex(
+      (example) =>
+        example.cidr === inputCIDR &&
+        example.mode === splitMode &&
+        (example.mode === 'count' ? example.count === subnetCount : example.prefix === targetPrefix),
     );
 
     if (matchingIndex !== -1 && selectedExampleIndex !== matchingIndex) {
@@ -177,7 +177,7 @@
           type="button"
           class="tab"
           class:active={splitMode === modeOption.value}
-          onclick={() => splitMode = modeOption.value}
+          onclick={() => (splitMode = modeOption.value)}
           use:tooltip={modeOption.description}
         >
           {modeOption.label}
@@ -190,22 +190,16 @@
   <div class="input-section">
     <h3>Parent Network</h3>
     <div class="form-group">
-      <label for="input-cidr" use:tooltip={"Enter IPv4 or IPv6 network in CIDR notation (e.g., 192.168.1.0/24)"}>
+      <label for="input-cidr" use:tooltip={'Enter IPv4 or IPv6 network in CIDR notation (e.g., 192.168.1.0/24)'}>
         Parent CIDR block
       </label>
       <div class="input-wrapper">
-        <input
-          id="input-cidr"
-          type="text"
-          bind:value={inputCIDR}
-          placeholder="192.168.1.0/24"
-          class="input-field"
-        />
+        <input id="input-cidr" type="text" bind:value={inputCIDR} placeholder="192.168.1.0/24" class="input-field" />
         <button
           type="button"
           class="btn btn-secondary btn-sm clear-btn"
           onclick={clearInput}
-          use:tooltip={"Clear input"}
+          use:tooltip={'Clear input'}
         >
           <Icon name="trash" size="sm" />
         </button>
@@ -215,32 +209,23 @@
     <!-- Split Parameters -->
     <div class="form-group">
       {#if splitMode === 'count'}
-        <label for="subnet-count" use:tooltip={"How many equal subnets to create (will be rounded to nearest power of 2)"}>
+        <label
+          for="subnet-count"
+          use:tooltip={'How many equal subnets to create (will be rounded to nearest power of 2)'}
+        >
           Number of subnets
         </label>
-        <input
-          id="subnet-count"
-          type="number"
-          bind:value={subnetCount}
-          min="1"
-          max="1024"
-          class="input-field"
-        />
+        <input id="subnet-count" type="number" bind:value={subnetCount} min="1" max="1024" class="input-field" />
       {:else}
-        <label for="target-prefix" use:tooltip={"The prefix length for child subnets (must be larger than parent prefix)"}>
+        <label
+          for="target-prefix"
+          use:tooltip={'The prefix length for child subnets (must be larger than parent prefix)'}
+        >
           Target prefix length
         </label>
-        <input
-          id="target-prefix"
-          type="number"
-          bind:value={targetPrefix}
-          min="1"
-          max="128"
-          class="input-field"
-        />
+        <input id="target-prefix" type="number" bind:value={targetPrefix} min="1" max="128" class="input-field" />
       {/if}
     </div>
-
   </div>
 
   <!-- Examples -->
@@ -292,24 +277,27 @@
 
           <div class="stats-grid">
             <div class="stat-card">
-              <span class="stat-label" use:tooltip={"The original network that was split"}>Parent Network</span>
+              <span class="stat-label" use:tooltip={'The original network that was split'}>Parent Network</span>
               <span class="stat-value">{result.stats.parentCIDR}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label" use:tooltip={"Number of child subnets created"}>Child Subnets</span>
+              <span class="stat-label" use:tooltip={'Number of child subnets created'}>Child Subnets</span>
               <span class="stat-value">{result.stats.childCount}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label" use:tooltip={"Prefix length of each child subnet"}>Child Prefix</span>
+              <span class="stat-label" use:tooltip={'Prefix length of each child subnet'}>Child Prefix</span>
               <span class="stat-value">/{result.stats.childPrefix}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label" use:tooltip={"Total IP addresses in each child subnet"}>Addresses per Child</span>
+              <span class="stat-label" use:tooltip={'Total IP addresses in each child subnet'}>Addresses per Child</span
+              >
               <span class="stat-value">{result.stats.addressesPerChild}</span>
             </div>
             {#if result.stats.utilizationPercent < 100}
               <div class="stat-card">
-                <span class="stat-label" use:tooltip={"Percentage of parent network's address space used"}>Utilization</span>
+                <span class="stat-label" use:tooltip={"Percentage of parent network's address space used"}
+                  >Utilization</span
+                >
                 <span class="stat-value">{result.stats.utilizationPercent}%</span>
               </div>
             {/if}
@@ -321,7 +309,7 @@
           <h4>Address Space Visualization</h4>
           <div class="address-bar">
             {#each result.visualization.childRanges as childRange}
-              <div 
+              <div
                 class="subnet-segment"
                 style="width: {getBarWidth(childRange)}%; left: {getBarOffset(childRange)}%"
                 use:tooltip={{ text: getSubnetTooltipText(childRange), position: 'top', delay: 300 }}
@@ -377,22 +365,22 @@
 <style>
   .mode-section {
     margin-bottom: var(--spacing-lg);
-    
+
     h3 {
       color: var(--color-primary);
       margin-bottom: var(--spacing-md);
     }
-    
+
     .tabs {
       .tab {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
-        
+
         :global(.tooltip-trigger) {
           opacity: 0.7;
           transition: opacity var(--transition-fast);
-          
+
           &:hover {
             opacity: 1;
           }
@@ -403,15 +391,15 @@
 
   .input-section {
     margin-bottom: var(--spacing-lg);
-    
+
     h3 {
       color: var(--color-primary);
       margin-bottom: var(--spacing-md);
     }
-    
+
     .input-wrapper {
       position: relative;
-      
+
       .clear-btn {
         position: absolute;
         top: 50%;
@@ -419,13 +407,12 @@
         transform: translateY(-50%);
       }
     }
-    
+
     .input-field {
       width: 100%;
       padding-right: 3rem;
     }
   }
-
 
   .results-section {
     border-top: 2px solid var(--border-secondary);
@@ -437,7 +424,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
-    
+
     h3 {
       color: var(--color-primary);
       margin: 0;
@@ -484,7 +471,7 @@
 
   .visualization-section {
     margin-bottom: var(--spacing-lg);
-    
+
     h4 {
       color: var(--color-primary);
       margin-bottom: var(--spacing-md);
@@ -509,18 +496,17 @@
     transition: all var(--transition-fast);
     opacity: 0.85;
     cursor: pointer;
-    
+
     &:hover {
       filter: brightness(1.1);
       opacity: 1;
       z-index: 2;
     }
-    
+
     &:last-child {
       border-right: none;
     }
   }
-
 
   .subnets-section {
     h4 {
@@ -597,12 +583,12 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    
+
     :global(.tooltip-trigger) {
       color: var(--text-secondary);
       opacity: 0.7;
       transition: opacity var(--transition-fast);
-      
+
       &:hover {
         opacity: 1;
         color: var(--color-info);
@@ -616,12 +602,12 @@
       background-color: rgba(35, 134, 54, 0.1);
       border-color: var(--color-success);
     }
-    
+
     :global(.icon) {
       width: 1rem;
       height: 1rem;
     }
-    
+
     &.btn-xs :global(.icon) {
       width: 0.75rem;
       height: 0.75rem;
@@ -632,21 +618,21 @@
     .stats-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .subnets-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .examples-grid {
       grid-template-columns: 1fr;
     }
-    
+
     .summary-header {
       flex-direction: column;
       gap: var(--spacing-sm);
       align-items: stretch;
     }
-    
+
     .detail-row {
       flex-direction: column;
       align-items: flex-start;

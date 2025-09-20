@@ -17,66 +17,73 @@
   const examples = [
     {
       input: '192.168.1.0/24 x 5',
-      description: 'Generate 5 random IPs from a /24 subnet'
+      description: 'Generate 5 random IPs from a /24 subnet',
     },
     {
       input: '10.0.0.0-10.0.0.255 * 3\n172.16.0.0/16 [8]',
-      description: 'Multiple formats: range and CIDR with different counts'
+      description: 'Multiple formats: range and CIDR with different counts',
     },
     {
       input: '2001:db8::/64 # 10\nfe80::/10 x 5',
-      description: 'IPv6 networks with various syntax formats'
+      description: 'IPv6 networks with various syntax formats',
     },
     {
       input: '192.168.0.0/16 100\n203.0.113.0/24 * 20',
-      description: 'Large generation counts from different networks'
+      description: 'Large generation counts from different networks',
     },
     {
       input: '127.0.0.0/8\n::1/128 x 1\n169.254.0.0/16 [10]',
-      description: 'Special-use addresses: loopback and link-local'
+      description: 'Special-use addresses: loopback and link-local',
     },
     {
       input: '198.51.100.0/24 * 15\n198.18.0.0/15 [25]',
-      description: 'Test networks for documentation and benchmarking'
-    }
+      description: 'Test networks for documentation and benchmarking',
+    },
   ];
-  
+
   function generateIPs() {
     if (!inputText.trim()) {
       result = null;
       return;
     }
-    
+
     isLoading = true;
-    
+
     try {
-      const inputs = inputText.split('\n').filter(line => line.trim());
+      const inputs = inputText.split('\n').filter((line) => line.trim());
       const actualSeed = seed.trim() || undefined;
       result = generateRandomIPAddresses(inputs, defaultCount, unique, actualSeed);
     } catch (error) {
       result = {
         generations: [],
-        summary: { totalNetworks: 0, validNetworks: 0, invalidNetworks: 0, totalIPsGenerated: 0, uniqueIPsGenerated: 0 },
+        summary: {
+          totalNetworks: 0,
+          validNetworks: 0,
+          invalidNetworks: 0,
+          totalIPsGenerated: 0,
+          uniqueIPsGenerated: 0,
+        },
         errors: [error instanceof Error ? error.message : 'Unknown error'],
-        allGeneratedIPs: []
+        allGeneratedIPs: [],
       };
     } finally {
       isLoading = false;
     }
   }
-  
+
   function exportResults(format: 'csv' | 'json' | 'txt') {
     if (!result) return;
-    
+
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
     let content = '';
     let filename = '';
     let mimeType = 'text/plain';
-    
+
     if (format === 'csv') {
       const headers = 'Network,Type,Version,Requested,Generated,Seed,Valid,Error';
-      const rows = result.generations.map(gen => 
-        `"${gen.network}","${gen.networkType}","IPv${gen.version}","${gen.requestedCount}","${gen.generatedIPs.length}","${gen.seed || ''}","${gen.isValid}","${gen.error || ''}"`
+      const rows = result.generations.map(
+        (gen) =>
+          `"${gen.network}","${gen.networkType}","IPv${gen.version}","${gen.requestedCount}","${gen.generatedIPs.length}","${gen.seed || ''}","${gen.isValid}","${gen.error || ''}"`,
       );
       content = [headers, ...rows].join('\n');
       filename = `random-ips-${timestamp}.csv`;
@@ -91,7 +98,7 @@
       filename = `random-ips-${timestamp}.txt`;
       mimeType = 'text/plain';
     }
-    
+
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -100,7 +107,7 @@
     a.click();
     URL.revokeObjectURL(url);
   }
-  
+
   async function copyToClipboard(text: string, key: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -112,17 +119,17 @@
       console.error('Failed to copy text: ', err);
     }
   }
-  
+
   function copyAllIPs() {
     if (result && result.allGeneratedIPs.length > 0) {
       copyToClipboard(result.allGeneratedIPs.join('\n'), 'all-ips');
     }
   }
-  
+
   function generateNewSeed() {
     seed = Math.random().toString(36).substring(2, 15);
   }
-  
+
   function selectExample(index: number) {
     const example = examples[index];
     if (example) {
@@ -154,7 +161,7 @@
 
   <div class="card examples-card">
     <details class="examples-details">
-      <summary class="examples-summary" use:tooltip={"Click to see example inputs"}>
+      <summary class="examples-summary" use:tooltip={'Click to see example inputs'}>
         <Icon name="chevron-right" size="xs" />
         <h4>Quick Examples</h4>
       </summary>
@@ -179,14 +186,16 @@
     <div class="form-row">
       <div class="textarea-group">
         <div class="form-group">
-          <label for="inputs" use:tooltip={"Enter networks with generation counts using various formats"}>Networks and Counts</label>
+          <label for="inputs" use:tooltip={'Enter networks with generation counts using various formats'}
+            >Networks and Counts</label
+          >
           <textarea
             id="inputs"
             bind:value={inputText}
             oninput={handleInputChange}
             placeholder="192.168.1.0/24 x 10&#10;10.0.0.0-10.0.0.255 5&#10;172.16.0.0/16 * 3&#10;2001:db8::/64[15]"
             rows="6"
-            use:tooltip={"Specify networks and generation counts"}
+            use:tooltip={'Specify networks and generation counts'}
           ></textarea>
           <div class="input-help">
             Formats: network x count, network * count, network count, network#count, network[count]
@@ -196,7 +205,9 @@
 
       <div class="options-group">
         <div class="option-card">
-          <label for="default-count" use:tooltip={"Number of IPs to generate when count is not specified"}>Default Count</label>
+          <label for="default-count" use:tooltip={'Number of IPs to generate when count is not specified'}
+            >Default Count</label
+          >
           <input
             id="default-count"
             type="number"
@@ -204,12 +215,12 @@
             min="1"
             max="1000"
             placeholder="5"
-            use:tooltip={"Default generation count"}
+            use:tooltip={'Default generation count'}
           />
         </div>
 
         <div class="checkbox-group">
-          <label class="checkbox-label" use:tooltip={"Ensure all generated IPs are unique within each network"}>
+          <label class="checkbox-label" use:tooltip={'Ensure all generated IPs are unique within each network'}>
             <input type="checkbox" bind:checked={unique} />
             <span class="checkmark"></span>
             Unique IPs Only
@@ -217,20 +228,16 @@
         </div>
 
         <div class="option-card">
-          <label for="seed" use:tooltip={"Use the same seed for reproducible random results"}>Random Seed</label>
+          <label for="seed" use:tooltip={'Use the same seed for reproducible random results'}>Random Seed</label>
           <div class="seed-input">
             <input
               id="seed"
               type="text"
               bind:value={seed}
               placeholder="Optional seed for reproducible results"
-              use:tooltip={"Enter seed for reproducible randomness"}
+              use:tooltip={'Enter seed for reproducible randomness'}
             />
-            <button
-              onclick={generateNewSeed}
-              type="button"
-              use:tooltip={"Generate new random seed"}
-            >
+            <button onclick={generateNewSeed} type="button" use:tooltip={'Generate new random seed'}>
               <Icon name="refresh" size="sm" />
             </button>
           </div>
@@ -271,8 +278,14 @@
             <button
               class="copy-btn"
               class:copied={copiedStates['summary']}
-              onclick={() => result && result.summary && copyToClipboard(`Total Networks: ${result.summary.totalNetworks}\nValid: ${result.summary.validNetworks}\nInvalid: ${result.summary.invalidNetworks}\nTotal IPs: ${result.summary.totalIPsGenerated}\nUnique IPs: ${result.summary.uniqueIPsGenerated}`, 'summary')}
-              use:tooltip={"Copy summary to clipboard"}
+              onclick={() =>
+                result &&
+                result.summary &&
+                copyToClipboard(
+                  `Total Networks: ${result.summary.totalNetworks}\nValid: ${result.summary.validNetworks}\nInvalid: ${result.summary.invalidNetworks}\nTotal IPs: ${result.summary.totalIPsGenerated}\nUnique IPs: ${result.summary.uniqueIPsGenerated}`,
+                  'summary',
+                )}
+              use:tooltip={'Copy summary to clipboard'}
             >
               <Icon name={copiedStates['summary'] ? 'check' : 'copy'} size="xs" />
               {copiedStates['summary'] ? 'Copied!' : 'Copy'}
@@ -281,23 +294,23 @@
           <div class="card-content">
             <div class="summary-stats">
               <div class="info-card">
-                <div class="info-label" use:tooltip={"Total number of networks processed"}>Total Networks</div>
+                <div class="info-label" use:tooltip={'Total number of networks processed'}>Total Networks</div>
                 <div class="metric-value">{result.summary.totalNetworks}</div>
               </div>
               <div class="info-card">
-                <div class="info-label" use:tooltip={"Networks that were processed successfully"}>Valid</div>
+                <div class="info-label" use:tooltip={'Networks that were processed successfully'}>Valid</div>
                 <div class="metric-value success">{result.summary.validNetworks}</div>
               </div>
               <div class="info-card">
-                <div class="info-label" use:tooltip={"Networks that had processing errors"}>Invalid</div>
+                <div class="info-label" use:tooltip={'Networks that had processing errors'}>Invalid</div>
                 <div class="metric-value error">{result.summary.invalidNetworks}</div>
               </div>
               <div class="info-card">
-                <div class="info-label" use:tooltip={"Total IP addresses generated across all networks"}>Total IPs</div>
+                <div class="info-label" use:tooltip={'Total IP addresses generated across all networks'}>Total IPs</div>
                 <div class="metric-value info">{result.summary.totalIPsGenerated}</div>
               </div>
               <div class="info-card">
-                <div class="info-label" use:tooltip={"Number of unique IP addresses generated"}>Unique IPs</div>
+                <div class="info-label" use:tooltip={'Number of unique IP addresses generated'}>Unique IPs</div>
                 <div class="metric-value">{result.summary.uniqueIPsGenerated}</div>
               </div>
             </div>
@@ -312,29 +325,20 @@
                 class="copy-btn"
                 class:copied={copiedStates['all-ips']}
                 onclick={copyAllIPs}
-                use:tooltip={"Copy all generated IPs to clipboard"}
+                use:tooltip={'Copy all generated IPs to clipboard'}
               >
                 <Icon name={copiedStates['all-ips'] ? 'check' : 'copy'} size="xs" />
                 {copiedStates['all-ips'] ? 'Copied!' : 'Copy All'}
               </button>
-              <button
-                onclick={() => exportResults('txt')}
-                use:tooltip={"Export as plain text file"}
-              >
+              <button onclick={() => exportResults('txt')} use:tooltip={'Export as plain text file'}>
                 <Icon name="download" size="xs" />
                 TXT
               </button>
-              <button
-                onclick={() => exportResults('csv')}
-                use:tooltip={"Export as CSV file"}
-              >
+              <button onclick={() => exportResults('csv')} use:tooltip={'Export as CSV file'}>
                 <Icon name="csv-file" size="xs" />
                 CSV
               </button>
-              <button
-                onclick={() => exportResults('json')}
-                use:tooltip={"Export as JSON file"}
-              >
+              <button onclick={() => exportResults('json')} use:tooltip={'Export as JSON file'}>
                 <Icon name="json-file" size="xs" />
                 JSON
               </button>
@@ -349,7 +353,7 @@
                     class="ip-tag"
                     class:copied={copiedStates[`ip-${index}`]}
                     onclick={() => copyToClipboard(ip, `ip-${index}`)}
-                    use:tooltip={"Click to copy IP address"}
+                    use:tooltip={'Click to copy IP address'}
                   >
                     {ip}
                     <Icon name={copiedStates[`ip-${index}`] ? 'check' : 'copy'} size="xs" />
@@ -362,7 +366,7 @@
 
         <div class="generations">
           <h3>Network Generations</h3>
-          
+
           <div class="generations-list">
             {#each result.generations as generation, index}
               <div class="generation-card" class:valid={generation.isValid} class:invalid={!generation.isValid}>
@@ -374,7 +378,7 @@
                       <span class="ip-version">IPv{generation.version}</span>
                     </div>
                   </div>
-                  
+
                   <div class="status">
                     {#if generation.isValid}
                       <Icon name="check-circle" />
@@ -392,21 +396,26 @@
                           <span class="info-label">Requested:</span>
                           <span class="info-value">{generation.requestedCount}</span>
                         </div>
-                        
+
                         <div class="info-item">
                           <span class="info-label">Generated:</span>
                           <span class="info-value">{generation.generatedIPs.length}</span>
                         </div>
-                        
+
                         <div class="info-item">
                           <span class="info-label">Unique:</span>
                           <span class="info-value">{generation.uniqueIPs ? 'Yes' : 'No'}</span>
                         </div>
-                        
+
                         {#if generation.seed}
                           <div class="info-item">
                             <span class="info-label">Seed:</span>
-                            <button type="button" class="code-button info-code" onclick={() => copyToClipboard(generation.seed!, 'seed')} title="Click to copy">
+                            <button
+                              type="button"
+                              class="code-button info-code"
+                              onclick={() => copyToClipboard(generation.seed!, 'seed')}
+                              title="Click to copy"
+                            >
                               {generation.seed}
                             </button>
                           </div>
@@ -420,18 +429,28 @@
                         <div class="range-info">
                           <div class="range-item">
                             <span class="range-label">Start:</span>
-                            <button type="button" class="code-button range-code" onclick={() => copyToClipboard(generation.networkDetails!.start, 'start')} title="Click to copy">
+                            <button
+                              type="button"
+                              class="code-button range-code"
+                              onclick={() => copyToClipboard(generation.networkDetails!.start, 'start')}
+                              title="Click to copy"
+                            >
                               {generation.networkDetails.start}
                             </button>
                           </div>
-                          
+
                           <div class="range-item">
                             <span class="range-label">End:</span>
-                            <button type="button" class="code-button range-code" onclick={() => copyToClipboard(generation.networkDetails!.end, 'end')} title="Click to copy">
+                            <button
+                              type="button"
+                              class="code-button range-code"
+                              onclick={() => copyToClipboard(generation.networkDetails!.end, 'end')}
+                              title="Click to copy"
+                            >
                               {generation.networkDetails.end}
                             </button>
                           </div>
-                          
+
                           <div class="range-item">
                             <span class="range-label">Total:</span>
                             <span class="range-value">{generation.networkDetails.totalAddresses}</span>
@@ -440,38 +459,38 @@
                       </div>
                     {/if}
 
-                      {#if generation.generatedIPs.length > 0}
-                        <div class="generated-ips">
-                          <div class="details-header">
-                            <h4>Generated IPs ({generation.generatedIPs.length})</h4>
-                          </div>
-                          <div class="ips-list">
-                            {#each generation.generatedIPs as ip, ipIndex}
-                              <button
-                                type="button"
-                                class="ip-tag"
-                                class:copied={copiedStates[`gen-${index}-ip-${ipIndex}`]}
-                                onclick={() => copyToClipboard(ip, `gen-${index}-ip-${ipIndex}`)}
-                                use:tooltip={"Click to copy IP address"}
-                              >
-                                {ip}
-                                <Icon name={copiedStates[`gen-${index}-ip-${ipIndex}`] ? 'check' : 'copy'} size="xs" />
-                              </button>
-                            {/each}
-                          </div>
+                    {#if generation.generatedIPs.length > 0}
+                      <div class="generated-ips">
+                        <div class="details-header">
+                          <h4>Generated IPs ({generation.generatedIPs.length})</h4>
                         </div>
-                      {/if}
-                    </div>
-                  {:else}
-                    <div class="error-message">
-                      <Icon name="alert-triangle" size="sm" />
-                      <span>{generation.error}</span>
-                    </div>
-                  {/if}
-                </div>
-              {/each}
-            </div>
+                        <div class="ips-list">
+                          {#each generation.generatedIPs as ip, ipIndex}
+                            <button
+                              type="button"
+                              class="ip-tag"
+                              class:copied={copiedStates[`gen-${index}-ip-${ipIndex}`]}
+                              onclick={() => copyToClipboard(ip, `gen-${index}-ip-${ipIndex}`)}
+                              use:tooltip={'Click to copy IP address'}
+                            >
+                              {ip}
+                              <Icon name={copiedStates[`gen-${index}-ip-${ipIndex}`] ? 'check' : 'copy'} size="xs" />
+                            </button>
+                          {/each}
+                        </div>
+                      </div>
+                    {/if}
+                  </div>
+                {:else}
+                  <div class="error-message">
+                    <Icon name="alert-triangle" size="sm" />
+                    <span>{generation.error}</span>
+                  </div>
+                {/if}
+              </div>
+            {/each}
           </div>
+        </div>
       {/if}
     </div>
   {/if}
@@ -545,8 +564,8 @@
         font-size: var(--font-size-sm);
       }
 
-      input[type="number"],
-      input[type="text"] {
+      input[type='number'],
+      input[type='text'] {
         padding: var(--spacing-sm);
         background: var(--bg-tertiary);
         border: 1px solid var(--border-primary);
@@ -678,7 +697,6 @@
     }
   }
 
-
   .status {
     color: var(--color-success);
 
@@ -704,7 +722,6 @@
       }
     }
   }
-
 
   .generated-ips {
     background: var(--bg-secondary);

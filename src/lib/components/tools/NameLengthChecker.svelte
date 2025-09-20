@@ -19,20 +19,20 @@
 www.example.com.	IN	A	192.0.2.1
 mail.example.com.	IN	A	192.0.2.10
 blog.example.com.	IN	CNAME	www.example.com.`,
-      description: 'Zone with all names within DNS limits'
+      description: 'Zone with all names within DNS limits',
     },
     {
       name: 'Long Labels',
       content: `example.com.	IN	SOA	ns1.example.com. admin.example.com. 2023010101 3600 1800 1209600 86400
 this-is-a-very-long-subdomain-name-that-exceeds-the-sixty-three-character-label-limit.example.com.	IN	A	192.0.2.1
 another-extremely-long-label-name-that-is-definitely-over-the-limit.example.com.	IN	A	192.0.2.2`,
-      description: 'Zone with labels exceeding 63-character limit'
+      description: 'Zone with labels exceeding 63-character limit',
     },
     {
       name: 'Very Long FQDN',
       content: `example.com.	IN	SOA	ns1.example.com. admin.example.com. 2023010101 3600 1800 1209600 86400
 this.is.a.very.deep.subdomain.structure.with.many.labels.that.together.create.a.fully.qualified.domain.name.that.might.exceed.the.maximum.allowed.length.of.two.hundred.fifty.five.characters.which.could.cause.issues.in.dns.resolution.and.should.be.avoided.example.com.	IN	A	192.0.2.1`,
-      description: 'Zone with FQDN exceeding 255-character limit'
+      description: 'Zone with FQDN exceeding 255-character limit',
     },
     {
       name: 'Mixed Issues',
@@ -41,11 +41,11 @@ www.example.com.	IN	A	192.0.2.1
 this-label-is-exactly-sixty-three-characters-long-and-should-be-valid-ok.example.com.	IN	A	192.0.2.2
 this-label-is-definitely-over-sixty-three-characters-and-will-cause-a-violation.example.com.	IN	A	192.0.2.3
 very.deep.nested.subdomain.with.lots.of.labels.creating.a.domain.name.that.is.extremely.long.and.definitely.over.the.limit.of.two.hundred.fifty.five.characters.which.makes.it.invalid.according.to.dns.specifications.example.com.	IN	CNAME	www.example.com.`,
-      description: 'Mix of valid names and various violations'
-    }
+      description: 'Mix of valid names and various violations',
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     zoneInput = example.content;
     activeExampleIndex = index;
     checkNames();
@@ -69,14 +69,14 @@ very.deep.nested.subdomain.with.lots.of.labels.creating.a.domain.name.that.is.ex
     try {
       const parsed = parseZoneFile(zoneInput);
       const violations = checkNameLengths(parsed);
-      
+
       // Count unique names
-      const uniqueNames = new Set(parsed.records.map(r => r.owner));
-      
+      const uniqueNames = new Set(parsed.records.map((r) => r.owner));
+
       results = {
         violations,
         totalNames: uniqueNames.size,
-        validNames: uniqueNames.size - new Set(violations.map(v => v.name)).size
+        validNames: uniqueNames.size - new Set(violations.map((v) => v.name)).size,
       };
     } catch (error) {
       console.error('Failed to check names:', error);
@@ -88,7 +88,7 @@ very.deep.nested.subdomain.with.lots.of.labels.creating.a.domain.name.that.is.ex
     if (!results) return;
 
     const reportText = formatReportForCopy(results);
-    
+
     try {
       await navigator.clipboard.writeText(reportText);
       copiedState = true;
@@ -104,28 +104,28 @@ very.deep.nested.subdomain.with.lots.of.labels.creating.a.domain.name.that.is.ex
     if (!data) return '';
 
     const lines: string[] = [];
-    
+
     lines.push(`DNS Name Length Validation Report`);
     lines.push(`===============================\n`);
-    
+
     lines.push(`Total Names Checked: ${data.totalNames}`);
     lines.push(`Valid Names: ${data.validNames}`);
     lines.push(`Names with Violations: ${data.violations.length}\n`);
-    
+
     if (data.violations.length > 0) {
       lines.push(`Violations Found:`);
       lines.push(`-----------------`);
-      
-      const labelViolations = data.violations.filter(v => v.type === 'label');
-      const fqdnViolations = data.violations.filter(v => v.type === 'fqdn');
-      
+
+      const labelViolations = data.violations.filter((v) => v.type === 'label');
+      const fqdnViolations = data.violations.filter((v) => v.type === 'fqdn');
+
       if (labelViolations.length > 0) {
         lines.push(`\nLabel Length Violations (${labelViolations.length}):`);
         for (const violation of labelViolations) {
           lines.push(`  ${violation.name} - ${violation.length} characters (limit: ${violation.limit})`);
         }
       }
-      
+
       if (fqdnViolations.length > 0) {
         lines.push(`\nFQDN Length Violations (${fqdnViolations.length}):`);
         for (const violation of fqdnViolations) {
@@ -155,11 +155,16 @@ very.deep.nested.subdomain.with.lots.of.labels.creating.a.domain.name.that.is.ex
   function getViolationColor(violation: NameLengthViolation): string {
     const severity = getViolationSeverity(violation);
     switch (severity) {
-      case 'severe': return 'var(--color-error)';
-      case 'high': return 'var(--color-error)';
-      case 'medium': return 'var(--color-warning)';
-      case 'low': return 'var(--color-warning)';
-      default: return 'var(--color-warning)';
+      case 'severe':
+        return 'var(--color-error)';
+      case 'high':
+        return 'var(--color-error)';
+      case 'medium':
+        return 'var(--color-warning)';
+      case 'low':
+        return 'var(--color-warning)';
+      default:
+        return 'var(--color-warning)';
     }
   }
 </script>
@@ -218,7 +223,10 @@ very.deep.nested.subdomain.with.lots.of.labels.creating.a.domain.name.that.is.ex
   <!-- Input Section -->
   <div class="card input-card">
     <div class="input-group">
-      <label for="zone-input" use:tooltip={"Paste DNS zone file content to validate all domain names against length limits"}>
+      <label
+        for="zone-input"
+        use:tooltip={'Paste DNS zone file content to validate all domain names against length limits'}
+      >
         <Icon name="file" size="sm" />
         Zone File Content
       </label>
@@ -240,10 +248,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
     <section class="results-section">
       <div class="results-header">
         <h3>Name Length Validation Results</h3>
-        <button
-          class="copy-button {copiedState ? 'copied' : ''}"
-          onclick={copyResults}
-        >
+        <button class="copy-button {copiedState ? 'copied' : ''}" onclick={copyResults}>
           <Icon name={copiedState ? 'check' : 'copy'} size="sm" />
           {copiedState ? 'Copied!' : 'Copy Report'}
         </button>
@@ -289,7 +294,9 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
               </div>
               <div class="stat-info">
                 <div class="stat-value">
-                  {results.violations.length === 0 ? '100%' : `${((results.validNames / results.totalNames) * 100).toFixed(1)}%`}
+                  {results.violations.length === 0
+                    ? '100%'
+                    : `${((results.validNames / results.totalNames) * 100).toFixed(1)}%`}
                 </div>
                 <div class="stat-label">Compliance</div>
               </div>
@@ -312,16 +319,16 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
           <!-- Violations List -->
           <div class="violations-section">
             <h4>Length Limit Violations</h4>
-            
+
             <!-- Label Violations -->
-            {#if results.violations.filter(v => v.type === 'label').length > 0}
+            {#if results.violations.filter((v) => v.type === 'label').length > 0}
               <div class="violation-category">
                 <h5>
                   <Icon name="tag" size="sm" />
-                  Label Length Violations ({results.violations.filter(v => v.type === 'label').length})
+                  Label Length Violations ({results.violations.filter((v) => v.type === 'label').length})
                 </h5>
                 <div class="violations-list">
-                  {#each results.violations.filter(v => v.type === 'label') as violation}
+                  {#each results.violations.filter((v) => v.type === 'label') as violation}
                     <div class="violation-item" style="border-left-color: {getViolationColor(violation)}">
                       <div class="violation-header">
                         <div class="violation-name">{violation.name}</div>
@@ -355,14 +362,14 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
             {/if}
 
             <!-- FQDN Violations -->
-            {#if results.violations.filter(v => v.type === 'fqdn').length > 0}
+            {#if results.violations.filter((v) => v.type === 'fqdn').length > 0}
               <div class="violation-category">
                 <h5>
                   <Icon name="globe" size="sm" />
-                  FQDN Length Violations ({results.violations.filter(v => v.type === 'fqdn').length})
+                  FQDN Length Violations ({results.violations.filter((v) => v.type === 'fqdn').length})
                 </h5>
                 <div class="violations-list">
-                  {#each results.violations.filter(v => v.type === 'fqdn') as violation}
+                  {#each results.violations.filter((v) => v.type === 'fqdn') as violation}
                     <div class="violation-item" style="border-left-color: {getViolationColor(violation)}">
                       <div class="violation-header">
                         <div class="violation-name">{violation.name}</div>
@@ -395,36 +402,32 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
       <div class="education-item info-panel">
         <h4>DNS Name Limits</h4>
         <p>
-          DNS names have strict length limits defined by RFC specifications. Each label (part
-          between dots) must be 63 octets or less, and the complete FQDN must not exceed
-          255 octets including the length encoding.
+          DNS names have strict length limits defined by RFC specifications. Each label (part between dots) must be 63
+          octets or less, and the complete FQDN must not exceed 255 octets including the length encoding.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Impact of Violations</h4>
         <p>
-          Names exceeding these limits will cause DNS resolution failures. Some resolvers
-          may truncate names, while others will reject them entirely. This can break
-          applications and services relying on these names.
+          Names exceeding these limits will cause DNS resolution failures. Some resolvers may truncate names, while
+          others will reject them entirely. This can break applications and services relying on these names.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Common Causes</h4>
         <p>
-          Long names often result from deep subdomain structures, verbose naming conventions,
-          or automated name generation. Consider shorter alternatives or restructuring
-          your DNS hierarchy to stay within limits.
+          Long names often result from deep subdomain structures, verbose naming conventions, or automated name
+          generation. Consider shorter alternatives or restructuring your DNS hierarchy to stay within limits.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Best Practices</h4>
         <p>
-          Use concise, descriptive names. Avoid unnecessary subdomains and overly verbose
-          labels. Regularly validate zone files during development. Consider using aliases
-          or redirects for shorter public-facing names.
+          Use concise, descriptive names. Avoid unnecessary subdomains and overly verbose labels. Regularly validate
+          zone files during development. Consider using aliases or redirects for shorter public-facing names.
         </p>
       </div>
     </div>
@@ -461,7 +464,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
   .examples-details {
     border: none;
     background: var(--bg-tertiary);
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -686,7 +689,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
 
     .stat-info {
       flex: 1;
-      
+
       .stat-value {
         font-size: var(--font-size-xl);
         font-weight: 700;
@@ -705,7 +708,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
       .stat-icon {
         color: var(--color-primary);
       }
-      
+
       .stat-value,
       .stat-label {
         color: var(--color-primary);
@@ -716,7 +719,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
       .stat-icon {
         color: var(--color-success);
       }
-      
+
       .stat-value,
       .stat-label {
         color: var(--color-success);
@@ -727,7 +730,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
       .stat-icon {
         color: var(--color-error);
       }
-      
+
       .stat-value,
       .stat-label {
         color: var(--color-error);
@@ -738,7 +741,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
       .stat-icon {
         color: var(--color-info);
       }
-      
+
       .stat-value,
       .stat-label {
         color: var(--color-info);
@@ -883,7 +886,7 @@ very-long-subdomain-name.example.com.	IN	A	192.0.2.2"
 
     .label-item {
       font-family: var(--font-mono);
-      
+
       &.valid {
         color: var(--text-secondary);
       }

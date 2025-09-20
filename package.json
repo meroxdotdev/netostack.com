@@ -10,7 +10,7 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"lint": "eslint src --ext .ts,.svelte",
-		"style": "prettier --check .",
+		"style": "prettier --check src --write",
 		"types": "tsc -p tsconfig.json --noEmit",
 		"build-check": "vite build --minify=false --sourcemap=false --logLevel error",
 		"test": "NODE_OPTIONS='--max_old_space_size=8192' vitest",

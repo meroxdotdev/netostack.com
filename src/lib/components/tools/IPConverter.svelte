@@ -10,7 +10,7 @@
     binary: '',
     decimal: '',
     hex: '',
-    octal: ''
+    octal: '',
   });
   let ipClass = $state({ class: '', type: '', description: '' });
   let copiedStates = $state<Record<string, boolean>>({});
@@ -34,24 +34,24 @@
   function handleDecimalInput(event: Event) {
     const target = event.target as HTMLInputElement;
     const value = target.value.trim();
-    
+
     if (!value) {
       formatErrors = { ...formatErrors, decimal: '' };
       return;
     }
-    
+
     const decimal = parseInt(value);
-    
+
     if (isNaN(decimal)) {
       formatErrors = { ...formatErrors, decimal: 'Must be a valid number' };
       return;
     }
-    
+
     if (decimal < 0 || decimal > 4294967295) {
       formatErrors = { ...formatErrors, decimal: 'Must be between 0 and 4,294,967,295' };
       return;
     }
-    
+
     try {
       ipAddress = decimalToIP(decimal);
       formatErrors = { ...formatErrors, decimal: '' };
@@ -67,33 +67,33 @@
   function handleBinaryInput(event: Event) {
     const target = event.target as HTMLInputElement;
     const value = target.value.trim();
-    
+
     if (!value) {
       formatErrors = { ...formatErrors, binary: '' };
       return;
     }
-    
+
     // Remove invalid characters and check format
     const cleanBinary = value.replace(/[^01.\s]/g, '');
     const binaryDigits = cleanBinary.replace(/[.\s]/g, '');
-    
+
     if (cleanBinary !== value) {
       formatErrors = { ...formatErrors, binary: 'Only 0, 1, dots, and spaces allowed' };
       return;
     }
-    
+
     if (binaryDigits.length !== 32) {
       formatErrors = { ...formatErrors, binary: 'Must be exactly 32 binary digits (8 digits per octet)' };
       return;
     }
-    
+
     // Validate octet structure (should be 8.8.8.8 format)
     const parts = cleanBinary.split('.');
     if (parts.length !== 4) {
       formatErrors = { ...formatErrors, binary: 'Must use dotted format: 8bits.8bits.8bits.8bits' };
       return;
     }
-    
+
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i].replace(/\s/g, '');
       if (part.length !== 8) {
@@ -101,7 +101,7 @@
         return;
       }
     }
-    
+
     try {
       ipAddress = binaryToIP(cleanBinary);
       formatErrors = { ...formatErrors, binary: '' };
@@ -117,52 +117,52 @@
   function handleHexInput(event: Event) {
     const target = event.target as HTMLInputElement;
     const value = target.value.trim();
-    
+
     if (!value) {
       formatErrors = { ...formatErrors, hex: '' };
       return;
     }
-    
+
     // Remove invalid characters and check format
     const cleanHex = value.replace(/[^0-9a-fA-F.x]/g, '');
     const hexDigits = cleanHex.replace(/[.x]/g, '');
-    
+
     if (cleanHex !== value) {
       formatErrors = { ...formatErrors, hex: 'Only hex digits (0-9, A-F), dots, and x allowed' };
       return;
     }
-    
+
     if (hexDigits.length !== 8) {
       formatErrors = { ...formatErrors, hex: 'Must be exactly 8 hex digits (2 digits per octet)' };
       return;
     }
-    
+
     // Validate format (should be 0xXX.0xXX.0xXX.0xXX or XX.XX.XX.XX)
     const parts = cleanHex.split('.');
     if (parts.length !== 4) {
       formatErrors = { ...formatErrors, hex: 'Must use dotted format: 0xXX.0xXX.0xXX.0xXX' };
       return;
     }
-    
+
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
       let hexPart = part;
-      
+
       if (part.startsWith('0x') || part.startsWith('0X')) {
         hexPart = part.slice(2);
       }
-      
+
       if (hexPart.length !== 2) {
         formatErrors = { ...formatErrors, hex: `Octet ${i + 1} must be exactly 2 hex digits` };
         return;
       }
-      
+
       if (!/^[0-9a-fA-F]{2}$/.test(hexPart)) {
         formatErrors = { ...formatErrors, hex: `Octet ${i + 1} contains invalid hex digits` };
         return;
       }
     }
-    
+
     try {
       ipAddress = hexToIP(cleanHex);
       formatErrors = { ...formatErrors, hex: '' };
@@ -196,11 +196,7 @@
 
   <!-- Main IP Input -->
   <div class="form-group">
-    <IPInput 
-      bind:value={ipAddress}
-      label="IP Address"
-      placeholder="192.168.1.1"
-    />
+    <IPInput bind:value={ipAddress} label="IP Address" placeholder="192.168.1.1" />
   </div>
 
   {#if validateIPv4(ipAddress).valid}
@@ -247,12 +243,18 @@
               >
                 {#if copiedStates['binary']}
                   <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 {:else}
                   <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path
+                      d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
+                    />
                   </svg>
                 {/if}
               </button>
@@ -284,12 +286,18 @@
               >
                 {#if copiedStates['decimal']}
                   <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 {:else}
                   <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path
+                      d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
+                    />
                   </svg>
                 {/if}
               </button>
@@ -321,12 +329,18 @@
               >
                 {#if copiedStates['hex']}
                   <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 {:else}
                   <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path
+                      d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
+                    />
                   </svg>
                 {/if}
               </button>
@@ -358,12 +372,18 @@
               >
                 {#if copiedStates['octal']}
                   <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 {:else}
                   <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path
+                      d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
+                    />
                   </svg>
                 {/if}
               </button>
@@ -384,13 +404,16 @@
     </h3>
     <div class="explainer-content">
       <div class="format-explanations">
-        
         <!-- Binary Format -->
         <div class="format-explanation">
           <h4><span class="format-badge binary">Binary (Base-2)</span></h4>
-          <p><strong>What it is:</strong> Uses only digits 0 and 1, representing how computers internally store IP addresses.</p>
+          <p>
+            <strong>What it is:</strong> Uses only digits 0 and 1, representing how computers internally store IP addresses.
+          </p>
           <p><strong>Example:</strong> <code>192.168.1.1 = 11000000.10101000.00000001.00000001</code></p>
-          <p><strong>Usage:</strong> Low-level networking, subnet calculations, understanding network/host boundaries.</p>
+          <p>
+            <strong>Usage:</strong> Low-level networking, subnet calculations, understanding network/host boundaries.
+          </p>
           <p><strong>How to read:</strong> Each octet is 8 bits. Binary 11000000 = 128+64 = 192 in decimal.</p>
         </div>
 
@@ -406,7 +429,9 @@
         <!-- Hexadecimal Format -->
         <div class="format-explanation">
           <h4><span class="format-badge hex">Hexadecimal (Base-16)</span></h4>
-          <p><strong>What it is:</strong> Uses digits 0-9 and letters A-F, common in programming and system administration.</p>
+          <p>
+            <strong>What it is:</strong> Uses digits 0-9 and letters A-F, common in programming and system administration.
+          </p>
           <p><strong>Example:</strong> <code>192.168.1.1 = 0xC0.0xA8.0x01.0x01</code></p>
           <p><strong>Usage:</strong> Programming, system logs, network debugging, firmware configuration.</p>
           <p><strong>Conversion:</strong> 192 = C0 hex, 168 = A8 hex. Each hex digit represents 4 bits.</p>
@@ -423,55 +448,53 @@
       </div>
     </div>
   </div>
-  
 
-<!-- IP Classes Explanation -->
-<div class="card">
-  <h3>
-    <Icon name="info" size="md" />
-    IP Address Classes
-  </h3>
-  <div class="explainer-content">
-    <p>IP address classes are historical categories that determine network size and usage patterns:</p>
-    
-    <div class="class-explanations">
-      <div class="class-explanation">
-        <h4><span class="class-badge class-a">Class A</span></h4>
-        <p><strong>Range:</strong> 1.0.0.0 to 126.255.255.255</p>
-        <p><strong>Default Mask:</strong> 255.0.0.0 (/8)</p>
-        <p><strong>Networks:</strong> 126 networks, 16.7 million hosts each</p>
-        <p><strong>Usage:</strong> Large organizations, ISPs, government networks</p>
+  <!-- IP Classes Explanation -->
+  <div class="card">
+    <h3>
+      <Icon name="info" size="md" />
+      IP Address Classes
+    </h3>
+    <div class="explainer-content">
+      <p>IP address classes are historical categories that determine network size and usage patterns:</p>
+
+      <div class="class-explanations">
+        <div class="class-explanation">
+          <h4><span class="class-badge class-a">Class A</span></h4>
+          <p><strong>Range:</strong> 1.0.0.0 to 126.255.255.255</p>
+          <p><strong>Default Mask:</strong> 255.0.0.0 (/8)</p>
+          <p><strong>Networks:</strong> 126 networks, 16.7 million hosts each</p>
+          <p><strong>Usage:</strong> Large organizations, ISPs, government networks</p>
+        </div>
+
+        <div class="class-explanation">
+          <h4><span class="class-badge class-b">Class B</span></h4>
+          <p><strong>Range:</strong> 128.0.0.0 to 191.255.255.255</p>
+          <p><strong>Default Mask:</strong> 255.255.0.0 (/16)</p>
+          <p><strong>Networks:</strong> 16,384 networks, 65,534 hosts each</p>
+          <p><strong>Usage:</strong> Universities, medium-large organizations</p>
+        </div>
+
+        <div class="class-explanation">
+          <h4><span class="class-badge class-c">Class C</span></h4>
+          <p><strong>Range:</strong> 192.0.0.0 to 223.255.255.255</p>
+          <p><strong>Default Mask:</strong> 255.255.255.0 (/24)</p>
+          <p><strong>Networks:</strong> 2.1 million networks, 254 hosts each</p>
+          <p><strong>Usage:</strong> Small businesses, home networks</p>
+        </div>
       </div>
 
-      <div class="class-explanation">
-        <h4><span class="class-badge class-b">Class B</span></h4>
-        <p><strong>Range:</strong> 128.0.0.0 to 191.255.255.255</p>
-        <p><strong>Default Mask:</strong> 255.255.0.0 (/16)</p>
-        <p><strong>Networks:</strong> 16,384 networks, 65,534 hosts each</p>
-        <p><strong>Usage:</strong> Universities, medium-large organizations</p>
+      <div class="class-notes">
+        <h4>Special Ranges</h4>
+        <ul>
+          <li><strong>Class D (224-239):</strong> Multicast addresses for group communication</li>
+          <li><strong>Class E (240-255):</strong> Reserved for experimental use</li>
+          <li><strong>Private Networks:</strong> 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16</li>
+          <li><strong>Loopback:</strong> 127.0.0.0/8 (localhost addresses)</li>
+        </ul>
       </div>
-
-      <div class="class-explanation">
-        <h4><span class="class-badge class-c">Class C</span></h4>
-        <p><strong>Range:</strong> 192.0.0.0 to 223.255.255.255</p>
-        <p><strong>Default Mask:</strong> 255.255.255.0 (/24)</p>
-        <p><strong>Networks:</strong> 2.1 million networks, 254 hosts each</p>
-        <p><strong>Usage:</strong> Small businesses, home networks</p>
-      </div>
-    </div>
-
-    <div class="class-notes">
-      <h4>Special Ranges</h4>
-      <ul>
-        <li><strong>Class D (224-239):</strong> Multicast addresses for group communication</li>
-        <li><strong>Class E (240-255):</strong> Reserved for experimental use</li>
-        <li><strong>Private Networks:</strong> 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16</li>
-        <li><strong>Loopback:</strong> 127.0.0.0/8 (localhost addresses)</li>
-      </ul>
     </div>
   </div>
-</div>
-
 
   <!-- Usage Guide -->
   <div class="card">
@@ -511,7 +534,6 @@
     </div>
   </div>
 </div>
-
 
 <style>
   h3 {
@@ -699,9 +721,15 @@
     color: var(--bg-primary);
     width: fit-content;
     display: flex;
-    &.class-a { background-color: var(--color-info); }
-    &.class-b { background-color: var(--color-success); }
-    &.class-c { background-color: var(--color-warning); }
+    &.class-a {
+      background-color: var(--color-info);
+    }
+    &.class-b {
+      background-color: var(--color-success);
+    }
+    &.class-c {
+      background-color: var(--color-warning);
+    }
   }
   .class-notes {
     margin-top: var(--spacing-md);

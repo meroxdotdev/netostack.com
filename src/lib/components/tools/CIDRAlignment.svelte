@@ -3,7 +3,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../styles/diagnostics-pages.scss';
-  
+
   let inputText = $state('192.168.1.0/24\n10.0.0.0-10.0.0.255\n172.16.1.5');
   let targetPrefix = $state(24);
   let result = $state<AlignmentResult | null>(null);
@@ -20,14 +20,14 @@
       input: `192.168.1.0/24
 192.168.2.0/24
 192.168.3.0/24`,
-      targetPrefix: 22
+      targetPrefix: 22,
     },
     {
       label: 'Mixed IP Types',
       input: `10.0.0.0-10.0.0.255
 172.16.5.100
 192.168.1.0/25`,
-      targetPrefix: 24
+      targetPrefix: 24,
     },
     {
       label: 'Subnet Aggregation Check',
@@ -35,7 +35,7 @@
 192.168.0.64/26
 192.168.0.128/26
 192.168.0.192/26`,
-      targetPrefix: 24
+      targetPrefix: 24,
     },
     {
       label: 'Network Consolidation',
@@ -43,7 +43,7 @@
 10.1.1.0/24
 10.1.2.0/24
 10.1.3.0/24`,
-      targetPrefix: 22
+      targetPrefix: 22,
     },
     {
       label: 'VLAN Alignment Check',
@@ -51,7 +51,7 @@
 172.16.11.0/24
 172.16.15.0/24
 172.16.20.0/24`,
-      targetPrefix: 20
+      targetPrefix: 20,
     },
     {
       label: 'Point-to-Point Links',
@@ -59,10 +59,10 @@
 192.168.100.4/30
 192.168.100.8/30
 192.168.100.12/30`,
-      targetPrefix: 28
-    }
+      targetPrefix: 28,
+    },
   ];
-  
+
   function validateTargetPrefix(): string[] {
     const errors: string[] = [];
 
@@ -84,7 +84,7 @@
     }
 
     // Analyze input types to determine valid prefix ranges
-    const inputs = inputText.split('\n').filter(line => line.trim());
+    const inputs = inputText.split('\n').filter((line) => line.trim());
     let hasIPv4 = false;
     let hasIPv6 = false;
 
@@ -135,7 +135,7 @@
       result = {
         checks: [],
         summary: { totalInputs: 0, alignedInputs: 0, misalignedInputs: 0, alignmentRate: 0 },
-        errors: prefixErrors
+        errors: prefixErrors,
       };
       return;
     }
@@ -143,7 +143,7 @@
     isLoading = true;
 
     try {
-      const inputs = inputText.split('\n').filter(line => line.trim());
+      const inputs = inputText.split('\n').filter((line) => line.trim());
       result = checkCIDRAlignment(inputs, targetPrefix);
       validationErrors = []; // Clear validation errors on success
     } catch (error) {
@@ -152,24 +152,25 @@
       result = {
         checks: [],
         summary: { totalInputs: 0, alignedInputs: 0, misalignedInputs: 0, alignmentRate: 0 },
-        errors: [errorMessage]
+        errors: [errorMessage],
       };
     } finally {
       isLoading = false;
     }
   }
-  
+
   function exportResults(format: 'csv' | 'json') {
     if (!result) return;
-    
+
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
     let content = '';
     let filename = '';
-    
+
     if (format === 'csv') {
       const headers = 'Input,Type,Is Aligned,Target Prefix,Aligned CIDR,Reason';
-      const rows = result.checks.map(check => 
-        `"${check.input}","${check.type}","${check.isAligned}","${check.targetPrefix}","${check.alignedCIDR || ''}","${check.reason || ''}"`
+      const rows = result.checks.map(
+        (check) =>
+          `"${check.input}","${check.type}","${check.isAligned}","${check.targetPrefix}","${check.alignedCIDR || ''}","${check.reason || ''}"`,
       );
       content = [headers, ...rows].join('\n');
       filename = `cidr-alignment-${timestamp}.csv`;
@@ -177,7 +178,7 @@
       content = JSON.stringify(result, null, 2);
       filename = `cidr-alignment-${timestamp}.json`;
     }
-    
+
     const blob = new Blob([content], { type: format === 'csv' ? 'text/csv' : 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -186,7 +187,7 @@
     a.click();
     URL.revokeObjectURL(url);
   }
-  
+
   async function copyToClipboard(text: string, id: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -199,7 +200,7 @@
     }
   }
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     inputText = example.input;
     targetPrefix = example.targetPrefix;
     selectedExample = example.label;
@@ -212,7 +213,7 @@
     selectedExample = null;
     selectedExampleIndex = null;
   }
-  
+
   // Auto-check when inputs change
   $effect(() => {
     if (inputText.trim() && targetPrefix > 0) {
@@ -254,12 +255,9 @@
 
   <div class="input-section">
     <div class="inputs-card">
-      <h3 use:tooltip={"Enter IP addresses, CIDR blocks, or ranges to check alignment"}>Network Inputs</h3>
+      <h3 use:tooltip={'Enter IP addresses, CIDR blocks, or ranges to check alignment'}>Network Inputs</h3>
       <div class="input-group">
-        <label
-          for="inputs"
-          use:tooltip={"Enter one per line: CIDR blocks, IP ranges, or individual IP addresses"}
-        >
+        <label for="inputs" use:tooltip={'Enter one per line: CIDR blocks, IP ranges, or individual IP addresses'}>
           IP Addresses, CIDRs, or Ranges
         </label>
         <textarea
@@ -277,7 +275,7 @@
       <div class="input-group">
         <label
           for="prefix"
-          use:tooltip={"The prefix length boundary to check alignment against (e.g., 24 for /24 boundaries)"}
+          use:tooltip={'The prefix length boundary to check alignment against (e.g., 24 for /24 boundaries)'}
         >
           Target Prefix Length
         </label>
@@ -291,9 +289,7 @@
           placeholder="24"
           class:error={validationErrors.length > 0}
         />
-        <div class="input-help">
-          Prefix length to check alignment against (0-32 for IPv4, 0-128 for IPv6)
-        </div>
+        <div class="input-help">Prefix length to check alignment against (0-32 for IPv4, 0-128 for IPv6)</div>
         {#if validationErrors.length > 0}
           <div class="validation-errors">
             {#each validationErrors as error}
@@ -328,30 +324,34 @@
 
       {#if result.checks.length > 0}
         <div class="summary">
-          <h3 use:tooltip={"Overview of alignment results across all inputs"}>Alignment Summary</h3>
+          <h3 use:tooltip={'Overview of alignment results across all inputs'}>Alignment Summary</h3>
           <div class="summary-stats">
             <div class="stat">
               <span class="stat-value">{result.summary.totalInputs}</span>
-              <span class="stat-label" use:tooltip={"Total number of network inputs processed"}>Total Inputs</span>
+              <span class="stat-label" use:tooltip={'Total number of network inputs processed'}>Total Inputs</span>
             </div>
             <div class="stat aligned">
               <span class="stat-value">{result.summary.alignedInputs}</span>
-              <span class="stat-label" use:tooltip={"Networks that align to the target prefix boundary"}>Aligned</span>
+              <span class="stat-label" use:tooltip={'Networks that align to the target prefix boundary'}>Aligned</span>
             </div>
             <div class="stat misaligned">
               <span class="stat-value">{result.summary.misalignedInputs}</span>
-              <span class="stat-label" use:tooltip={"Networks that do not align to the target prefix boundary"}>Misaligned</span>
+              <span class="stat-label" use:tooltip={'Networks that do not align to the target prefix boundary'}
+                >Misaligned</span
+              >
             </div>
             <div class="stat">
               <span class="stat-value">{result.summary.alignmentRate}%</span>
-              <span class="stat-label" use:tooltip={"Percentage of inputs that align to the target boundary"}>Alignment Rate</span>
+              <span class="stat-label" use:tooltip={'Percentage of inputs that align to the target boundary'}
+                >Alignment Rate</span
+              >
             </div>
           </div>
         </div>
 
         <div class="checks">
           <div class="checks-header">
-            <h3 use:tooltip={"Detailed results for each network input"}>Alignment Checks</h3>
+            <h3 use:tooltip={'Detailed results for each network input'}>Alignment Checks</h3>
             <div class="export-buttons">
               <button onclick={() => exportResults('csv')}>
                 <Icon name="csv-file" />
@@ -385,14 +385,18 @@
 
                 {#if check.alignedCIDR}
                   <div class="aligned-cidr">
-                    <span class="aligned-label" use:tooltip={"The CIDR block that properly aligns to the target prefix boundary"}>Aligned CIDR:</span>
+                    <span
+                      class="aligned-label"
+                      use:tooltip={'The CIDR block that properly aligns to the target prefix boundary'}
+                      >Aligned CIDR:</span
+                    >
                     <div class="cidr-with-copy">
                       <code class="aligned-code">{check.alignedCIDR}</code>
                       <button
                         type="button"
                         class="copy-button {copiedStates[`cidr-${check.input}`] ? 'copied' : ''}"
                         onclick={() => copyToClipboard(check.alignedCIDR!, `cidr-${check.input}`)}
-                        use:tooltip={"Copy aligned CIDR to clipboard"}
+                        use:tooltip={'Copy aligned CIDR to clipboard'}
                       >
                         <Icon name={copiedStates[`cidr-${check.input}`] ? 'check' : 'copy'} size="xs" />
                       </button>
@@ -402,14 +406,20 @@
 
                 {#if check.reason}
                   <div class="reason">
-                    <span class="reason-label" use:tooltip={"Explanation of why this input aligns or doesn't align"}>Reason:</span>
+                    <span class="reason-label" use:tooltip={"Explanation of why this input aligns or doesn't align"}
+                      >Reason:</span
+                    >
                     <span class="reason-text">{check.reason}</span>
                   </div>
                 {/if}
 
                 {#if check.suggestions.length > 0}
                   <div class="suggestions">
-                    <span class="suggestions-label" use:tooltip={"Alternative CIDR configurations that would align to the target boundary"}>Suggestions:</span>
+                    <span
+                      class="suggestions-label"
+                      use:tooltip={'Alternative CIDR configurations that would align to the target boundary'}
+                      >Suggestions:</span
+                    >
                     {#each check.suggestions as suggestion}
                       <div class="suggestion">
                         <div class="suggestion-type">
@@ -430,15 +440,21 @@
                                 type="button"
                                 class="copy-button {copiedStates[`suggestion-${check.input}-${idx}`] ? 'copied' : ''}"
                                 onclick={() => copyToClipboard(cidr, `suggestion-${check.input}-${idx}`)}
-                                use:tooltip={"Copy suggested CIDR to clipboard"}
+                                use:tooltip={'Copy suggested CIDR to clipboard'}
                               >
-                                <Icon name={copiedStates[`suggestion-${check.input}-${idx}`] ? 'check' : 'copy'} size="xs" />
+                                <Icon
+                                  name={copiedStates[`suggestion-${check.input}-${idx}`] ? 'check' : 'copy'}
+                                  size="xs"
+                                />
                               </button>
                             </div>
                           {/each}
                         </div>
                         {#if suggestion.efficiency}
-                          <div class="suggestion-efficiency" use:tooltip={"Address space utilization efficiency of this suggestion"}>
+                          <div
+                            class="suggestion-efficiency"
+                            use:tooltip={'Address space utilization efficiency of this suggestion'}
+                          >
                             Efficiency: {suggestion.efficiency}%
                           </div>
                         {/if}
@@ -817,7 +833,6 @@
     font-size: var(--font-size-sm);
     line-height: 1.5;
   }
-
 
   .suggestions {
     margin-top: var(--spacing-md);

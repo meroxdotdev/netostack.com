@@ -1,52 +1,50 @@
-
 /* Theme Colors */
 :root {
   /* Background colors */
   --bg-primary: #0d1117;
   --bg-secondary: #161b22;
   --bg-tertiary: #21262d;
-  
+
   /* Text colors */
   --text-primary: #c9d1d9;
   --text-secondary: #7d8590;
   --text-tertiary: #6272a4;
-  
+
   /* Primary brand color */
   --color-primary: #e3ed70; // was #f1fa8c;
-  --color-primary-hover: #FFFFA5;
+  --color-primary-hover: #ffffa5;
   --color-primary-dark: #a8c237;
-  
+
   /* Action colors */
   --color-success: #50fa7b;
-  --color-success-light: #69FF94;
+  --color-success-light: #69ff94;
   --color-warning: #ffb86c;
-  --color-warning-light: #FFFFA5;
+  --color-warning-light: #ffffa5;
   --color-error: #ff5555;
-  --color-error-light: #FF6E6E;
+  --color-error-light: #ff6e6e;
   --color-info: #8be9fd;
-  --color-info-light: #A4FFFF;
+  --color-info-light: #a4ffff;
 
-  --color-purple: #BD93F9;
+  --color-purple: #bd93f9;
   --color-pink: #ff79c6;
 
-  
   /* Border and surface colors */
   --border-primary: #30363d;
   --border-secondary: #21262d;
   --surface-hover: #262c36;
   --surface-active: #2f3640;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
-  
+
   /* Border radius */
   --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
-  
+
   /* Spacing */
   --spacing-2xs: 0.125rem;
   --spacing-xs: 0.25rem;
@@ -55,7 +53,7 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
-  
+
   /* Font */
   --font-mono: 'Noto Sans Mono', 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
   --font-size-2xs: 0.6rem;
@@ -66,7 +64,7 @@
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 2rem;
-  
+
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.2s ease;
@@ -78,46 +76,45 @@
 // --bg-secondary: #212c3d;
 // --bg-tertiary: #151e2f;
 
-
 /* Light theme */
-.theme-light, html[data-theme="light"] {
+.theme-light,
+html[data-theme='light'] {
   /* Background colors */
---bg-primary: #f4f2fa;
---bg-secondary: #fff;   /* cards */
---bg-tertiary: #f6f2fc;    /* subtle panels / code blocks */
+  --bg-primary: #f4f2fa;
+  --bg-secondary: #fff; /* cards */
+  --bg-tertiary: #f6f2fc; /* subtle panels / code blocks */
 
-/* Text colors (AA on light backgrounds) */
---text-primary: #0b1220;   /* ~19:1 on white */
---text-secondary: #364152; /* ~15:1 on white */
---text-tertiary: #6b7280;  /* ~12:1 on white */
+  /* Text colors (AA on light backgrounds) */
+  --text-primary: #0b1220; /* ~19:1 on white */
+  --text-secondary: #364152; /* ~15:1 on white */
+  --text-tertiary: #6b7280; /* ~12:1 on white */
 
-/* Primary brand (use *-dark for filled buttons) */
---color-primary: #af55fc;
---color-primary-hover: #c581ff;
---color-primary-dark: #872bd5;
+  /* Primary brand (use *-dark for filled buttons) */
+  --color-primary: #af55fc;
+  --color-primary-hover: #c581ff;
+  --color-primary-dark: #872bd5;
 
-/* Action colors (chosen so white label text is AA) */
---color-success: #15803d;        /* white text ≥ 13:1 */
---color-success-light: #40DC6C;
---color-warning: #a16207;        /* white text ≥ 7:1 */
---color-warning-light: #BCBC1C;
---color-error: #b91c1c;          /* white text ≥ 6.5:1 */
---color-error-light: #FF6E6E;
---color-info: #0369a1;           /* white text ≥ 10.6:1 */
---color-info-light: #2CB5B5;
+  /* Action colors (chosen so white label text is AA) */
+  --color-success: #15803d; /* white text ≥ 13:1 */
+  --color-success-light: #40dc6c;
+  --color-warning: #a16207; /* white text ≥ 7:1 */
+  --color-warning-light: #bcbc1c;
+  --color-error: #b91c1c; /* white text ≥ 6.5:1 */
+  --color-error-light: #ff6e6e;
+  --color-info: #0369a1; /* white text ≥ 10.6:1 */
+  --color-info-light: #2cb5b5;
 
---color-purple: #7c3aed;         /* works on white with white text in fills */
---color-pink: #db2777;
+  --color-purple: #7c3aed; /* works on white with white text in fills */
+  --color-pink: #db2777;
 
-/* Border & surface */
---border-primary: #e5e7eb;  /* default hairline */
---border-secondary: #d1d5db;/* dividers on white */
---surface-hover: #f2f5f9;   /* interactive hover */
---surface-active: #e9eef5;  /* pressed/selected */
+  /* Border & surface */
+  --border-primary: #e5e7eb; /* default hairline */
+  --border-secondary: #d1d5db; /* dividers on white */
+  --surface-hover: #f2f5f9; /* interactive hover */
+  --surface-active: #e9eef5; /* pressed/selected */
 
-/* Shadows (softer for light UI) */
---shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
---shadow-md: 0 4px 10px rgba(0, 0, 0, 0.10);
---shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.16);
-
+  /* Shadows (softer for light UI) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.16);
 }

@@ -3,7 +3,7 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import { formatDNSError } from '$lib/utils/dns-validation.js';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let url = $state('https://www.google.com');
   let method = $state('GET');
   let loading = $state(false);
@@ -17,7 +17,7 @@
     { url: 'https://www.google.com', description: 'Google homepage performance' },
     { url: 'https://httpbin.org/delay/2', description: 'Delayed response (2s)' },
     { url: 'https://api.github.com', description: 'GitHub API response time' },
-    { url: 'https://www.cloudflare.com', description: 'Cloudflare CDN performance' }
+    { url: 'https://www.cloudflare.com', description: 'Cloudflare CDN performance' },
   ];
 
   // Reactive validation
@@ -60,19 +60,19 @@
         body: JSON.stringify({
           action: 'perf',
           url: trimmedUrl,
-          method
-        })
+          method,
+        }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         let errorMessage = `Performance test failed (${response.status})`;
-        
+
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) errorMessage = errorData.message;
         } catch {}
-        
+
         throw new Error(errorMessage);
       }
 
@@ -84,37 +84,37 @@
     }
   }
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     url = example.url;
     measurePerformance();
   }
 
   async function copyResults() {
     if (!results?.timings) return;
-    
+
     let text = `HTTP Performance Analysis\nURL: ${results.url}\nMethod: ${method}\nStatus: ${results.status}\n\n`;
-    
+
     text += `Performance Timing:\n`;
     text += `DNS Resolution: ${results.timings.dns.toFixed(1)}ms ${results.timings.dns_note ? `(${results.timings.dns_note})` : ''}\n`;
     text += `TCP Connect: ${results.timings.tcp.toFixed(1)}ms ${results.timings.tcp_note ? `(${results.timings.tcp_note})` : ''}\n`;
-    
+
     if (results.timings.tls > 0) {
       text += `TLS Handshake: ${results.timings.tls.toFixed(1)}ms ${results.timings.tls_note ? `(${results.timings.tls_note})` : ''}\n`;
     }
-    
+
     text += `Time to First Byte: ${results.timings.ttfb.toFixed(1)}ms\n`;
     text += `Total Time: ${results.timings.total.toFixed(1)}ms\n\n`;
-    
+
     if (results.size) {
       text += `Response Size: ${formatBytes(results.size)}\n`;
     }
-    
+
     text += `HTTPS: ${results.performance.isHTTPS ? 'Yes' : 'No'}\n`;
     text += `Compression: ${results.performance.hasCompression ? 'Yes' : 'No'}\n`;
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 
   function formatBytes(bytes: number): string {
@@ -150,7 +150,10 @@
 <div class="card">
   <header class="card-header">
     <h1>HTTP Performance Analyzer</h1>
-    <p>Measure HTTP request performance including DNS resolution, TCP connection, TLS handshake, and response times. Get detailed timing breakdowns and performance insights.</p>
+    <p>
+      Measure HTTP request performance including DNS resolution, TCP connection, TLS handshake, and response times. Get
+      detailed timing breakdowns and performance insights.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -179,15 +182,17 @@
     <div class="card-content">
       <div class="form-grid">
         <div class="form-group">
-          <label for="url" use:tooltip={"Enter the URL to measure performance for"}>
+          <label for="url" use:tooltip={'Enter the URL to measure performance for'}>
             URL
-            <input 
-              id="url" 
-              type="url" 
-              bind:value={url} 
+            <input
+              id="url"
+              type="url"
+              bind:value={url}
               placeholder="https://example.com"
               class:invalid={url && !isInputValid()}
-              onchange={() => { if (isInputValid()) measurePerformance(); }}
+              onchange={() => {
+                if (isInputValid()) measurePerformance();
+              }}
             />
             {#if url && !isInputValid()}
               <span class="error-text">Invalid URL format</span>
@@ -196,9 +201,15 @@
         </div>
 
         <div class="form-group">
-          <label for="method" use:tooltip={"HTTP method to use for the request"}>
+          <label for="method" use:tooltip={'HTTP method to use for the request'}>
             Method
-            <select id="method" bind:value={method} onchange={() => { if (isInputValid()) measurePerformance(); }}>
+            <select
+              id="method"
+              bind:value={method}
+              onchange={() => {
+                if (isInputValid()) measurePerformance();
+              }}
+            >
               {#each methods as methodOption}
                 <option value={methodOption}>{methodOption}</option>
               {/each}
@@ -206,7 +217,7 @@
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={measurePerformance} disabled={loading || !isInputValid}>
           {#if loading}
@@ -228,8 +239,10 @@
       <div class="card-header">
         <h3>Performance Analysis</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Results"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
@@ -415,7 +428,7 @@
             <li><strong>TTFB:</strong> Server processing and response start</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Performance Grades</h4>
           <ul>
@@ -425,10 +438,13 @@
             <li><strong>D/F (>1000ms):</strong> Poor performance</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Optimization Tips</h4>
-          <p>Use CDN for faster response times, enable compression, implement HTTP/2, optimize DNS resolution, and consider connection keep-alive for multiple requests.</p>
+          <p>
+            Use CDN for faster response times, enable compression, implement HTTP/2, optimize DNS resolution, and
+            consider connection keep-alive for multiple requests.
+          </p>
         </div>
       </div>
     </div>

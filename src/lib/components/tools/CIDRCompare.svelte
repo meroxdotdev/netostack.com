@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../styles/diagnostics-pages.scss';
-  
+
   let listA = $state(`192.168.0.0/16
 10.0.0.0/8
 172.16.0.0/12`);
@@ -39,7 +39,7 @@
       listB: `192.168.1.0/24
 10.0.0.0/16
 172.16.0.0/24`,
-      description: 'Added 172.16.0.0/24'
+      description: 'Added 172.16.0.0/24',
     },
     {
       label: 'Network Removal',
@@ -48,7 +48,7 @@
 172.16.0.0/12`,
       listB: `192.168.0.0/16
 10.0.0.0/8`,
-      description: 'Removed 172.16.0.0/12'
+      description: 'Removed 172.16.0.0/12',
     },
     {
       label: 'Mixed Changes',
@@ -58,7 +58,7 @@
       listB: `192.168.1.0/24
 10.0.1.0/24
 172.16.2.0/24`,
-      description: 'Swapped subnets'
+      description: 'Swapped subnets',
     },
     {
       label: 'VLAN Reconfiguration',
@@ -68,7 +68,7 @@
       listB: `192.168.10.0/24
 192.168.25.0/24
 192.168.35.0/24`,
-      description: 'Replaced VLANs 20,30 with 25,35'
+      description: 'Replaced VLANs 20,30 with 25,35',
     },
     {
       label: 'Network Consolidation',
@@ -77,7 +77,7 @@
 10.1.2.0/24
 10.1.3.0/24`,
       listB: `10.1.0.0/22`,
-      description: 'Merged 4 /24s into 1 /22'
+      description: 'Merged 4 /24s into 1 /22',
     },
     {
       label: 'Branch Office Migration',
@@ -87,11 +87,11 @@
       listB: `10.10.1.0/24
 10.10.2.0/24
 192.168.100.0/24`,
-      description: 'Migrated 172.16.x.x to 10.10.x.x'
-    }
+      description: 'Migrated 172.16.x.x to 10.10.x.x',
+    },
   ];
 
-  function loadExample(example: typeof examples[0], index: number) {
+  function loadExample(example: (typeof examples)[0], index: number) {
     listA = example.listA;
     listB = example.listB;
     selectedExample = example.label;
@@ -105,12 +105,7 @@
   }
 
   function ipToString(ip: number): string {
-    return [
-      (ip >>> 24) & 0xff,
-      (ip >>> 16) & 0xff,
-      (ip >>> 8) & 0xff,
-      ip & 0xff
-    ].join('.');
+    return [(ip >>> 24) & 0xff, (ip >>> 16) & 0xff, (ip >>> 8) & 0xff, ip & 0xff].join('.');
   }
 
   function normalizeCIDR(cidr: string): string {
@@ -121,7 +116,7 @@
 
     const [ipStr, prefixStr] = cidr.split('/');
     const prefixLength = parseInt(prefixStr);
-    
+
     if (prefixLength < 0 || prefixLength > 32) {
       throw new Error(`Invalid prefix length: /${prefixLength}`);
     }
@@ -137,7 +132,10 @@
   function parseAndNormalizeList(input: string): string[] {
     if (!input.trim()) return [];
 
-    const lines = input.trim().split('\n').filter(line => line.trim());
+    const lines = input
+      .trim()
+      .split('\n')
+      .filter((line) => line.trim());
     const normalized = new Set<string>();
 
     for (const line of lines) {
@@ -147,10 +145,10 @@
       try {
         if (trimmed.includes('-')) {
           // IP range - convert to CIDR blocks
-          const [startStr, endStr] = trimmed.split('-').map(s => s.trim());
+          const [startStr, endStr] = trimmed.split('-').map((s) => s.trim());
           const startIP = parseIP(startStr);
           const endIP = parseIP(endStr);
-          
+
           if (startIP > endIP) {
             throw new Error(`Invalid range: start IP is greater than end IP in ${trimmed}`);
           }
@@ -161,7 +159,7 @@
             // Find the largest CIDR block that fits
             let prefixLength = 32;
             let blockSize = 1;
-            
+
             // Find largest power of 2 that fits
             for (let p = 0; p <= 32; p++) {
               const size = Math.pow(2, 32 - p);
@@ -172,7 +170,7 @@
                 break;
               }
             }
-            
+
             normalized.add(`${ipToString(current)}/${prefixLength}`);
             current += blockSize;
           }
@@ -209,9 +207,9 @@
       const setA = new Set(normalizedA);
       const setB = new Set(normalizedB);
 
-      const added = normalizedB.filter(item => !setA.has(item));
-      const removed = normalizedA.filter(item => !setB.has(item));
-      const unchanged = normalizedA.filter(item => setB.has(item));
+      const added = normalizedB.filter((item) => !setA.has(item));
+      const removed = normalizedA.filter((item) => !setB.has(item));
+      const unchanged = normalizedA.filter((item) => setB.has(item));
 
       result = {
         success: true,
@@ -225,8 +223,8 @@
           totalB: normalizedB.length,
           addedCount: added.length,
           removedCount: removed.length,
-          unchangedCount: unchanged.length
-        }
+          unchangedCount: unchanged.length,
+        },
       };
     } catch (error) {
       result = {
@@ -242,8 +240,8 @@
           totalB: 0,
           addedCount: 0,
           removedCount: 0,
-          unchangedCount: 0
-        }
+          unchangedCount: 0,
+        },
       };
     }
   }
@@ -269,7 +267,7 @@
 
   async function copyCategory(items: string[], category: string) {
     if (!items.length) return;
-    
+
     const text = items.join('\n');
     await copyToClipboard(text, `category-${category}`);
   }
@@ -319,12 +317,10 @@
   <!-- Input Section -->
   <section class="input-section">
     <div class="input-header">
-      <h3 use:tooltip={"Compare two network lists to identify additions, removals, and unchanged items"}>Network Lists</h3>
-      <button
-        class="swap-button"
-        onclick={swapLists}
-        use:tooltip={"Swap List A and List B"}
-      >
+      <h3 use:tooltip={'Compare two network lists to identify additions, removals, and unchanged items'}>
+        Network Lists
+      </h3>
+      <button class="swap-button" onclick={swapLists} use:tooltip={'Swap List A and List B'}>
         <Icon name="swap" size="sm" />
         Swap
       </button>
@@ -332,10 +328,7 @@
 
     <div class="input-grid">
       <div class="input-group">
-        <label 
-          for="list-a"
-          use:tooltip="{"Original or 'before' state - CIDR blocks, IP ranges, or individual IPs"}"
-        >
+        <label for="list-a" use:tooltip={"Original or 'before' state - CIDR blocks, IP ranges, or individual IPs"}>
           <Icon name="list" size="sm" />
           List A (Before)
         </label>
@@ -349,10 +342,7 @@
       </div>
 
       <div class="input-group">
-        <label 
-          for="list-b"
-          use:tooltip="{"Updated or 'after' state - CIDR blocks, IP ranges, or individual IPs"}"
-        >
+        <label for="list-b" use:tooltip={"Updated or 'after' state - CIDR blocks, IP ranges, or individual IPs"}>
           <Icon name="list-check" size="sm" />
           List B (After)
         </label>
@@ -373,7 +363,7 @@
       {#if result.success}
         <!-- Summary -->
         <div class="comparison-summary">
-          <h3 use:tooltip={"Overview of changes between the two network lists"}>Comparison Summary</h3>
+          <h3 use:tooltip={'Overview of changes between the two network lists'}>Comparison Summary</h3>
           <div class="summary-grid">
             <div class="summary-card">
               <div class="summary-icon added">
@@ -384,7 +374,7 @@
                 <div class="summary-label">Added</div>
               </div>
             </div>
-            
+
             <div class="summary-card">
               <div class="summary-icon removed">
                 <Icon name="minus-circle" />
@@ -394,7 +384,7 @@
                 <div class="summary-label">Removed</div>
               </div>
             </div>
-            
+
             <div class="summary-card">
               <div class="summary-icon unchanged">
                 <Icon name="check-circle" />
@@ -405,7 +395,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="list-totals">
             <span class="total-item">
               List A: {result.summary.totalA} items
@@ -421,7 +411,7 @@
           <!-- Added -->
           <div class="change-category added">
             <div class="category-header">
-              <h4 use:tooltip={"Networks present in List B but not in List A"}>
+              <h4 use:tooltip={'Networks present in List B but not in List A'}>
                 <Icon name="plus-circle" size="sm" />
                 Added Networks ({result.added.length})
               </h4>
@@ -434,7 +424,7 @@
                 </button>
               {/if}
             </div>
-            
+
             {#if result.added.length > 0}
               <div class="networks-list">
                 {#each result.added as network}
@@ -460,7 +450,7 @@
           <!-- Removed -->
           <div class="change-category removed">
             <div class="category-header">
-              <h4 use:tooltip={"Networks present in List A but not in List B"}>
+              <h4 use:tooltip={'Networks present in List A but not in List B'}>
                 <Icon name="minus-circle" size="sm" />
                 Removed Networks ({result.removed.length})
               </h4>
@@ -473,7 +463,7 @@
                 </button>
               {/if}
             </div>
-            
+
             {#if result.removed.length > 0}
               <div class="networks-list">
                 {#each result.removed as network}
@@ -499,7 +489,7 @@
           <!-- Unchanged -->
           <div class="change-category unchanged">
             <div class="category-header">
-              <h4 use:tooltip={"Networks present in both List A and List B"}>
+              <h4 use:tooltip={'Networks present in both List A and List B'}>
                 <Icon name="check-circle" size="sm" />
                 Unchanged Networks ({result.unchanged.length})
               </h4>
@@ -512,7 +502,7 @@
                 </button>
               {/if}
             </div>
-            
+
             {#if result.unchanged.length > 0}
               <div class="networks-list">
                 {#each result.unchanged as network}
@@ -535,7 +525,6 @@
             {/if}
           </div>
         </div>
-
       {:else}
         <div class="error-message">
           <Icon name="alert-triangle" />
@@ -548,7 +537,6 @@
 </div>
 
 <style lang="scss">
-
   .input-section {
     margin-bottom: var(--spacing-lg);
   }
@@ -754,7 +742,7 @@
     &.added {
       background-color: var(--color-success);
       color: var(--bg-primary);
-      
+
       .network-cidr {
         background-color: rgba(255, 255, 255, 0.1);
       }
@@ -763,7 +751,7 @@
     &.removed {
       background-color: var(--color-error);
       color: var(--bg-primary);
-      
+
       .network-cidr {
         background-color: rgba(255, 255, 255, 0.1);
       }
@@ -841,7 +829,6 @@
     .input-grid {
       grid-template-columns: 1fr;
     }
-
 
     .summary-grid {
       grid-template-columns: 1fr;

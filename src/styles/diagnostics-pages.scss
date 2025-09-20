@@ -5,29 +5,29 @@
 .card {
   margin: 0 auto;
   border-radius: var(--radius-md);
-  
+
   &.input-card {
     background: var(--bg-tertiary);
     margin-bottom: var(--spacing-lg);
   }
-  
+
   &.results-card {
     background: var(--bg-tertiary);
     margin-bottom: var(--spacing-lg);
   }
-  
+
   &.examples-card {
     margin-bottom: var(--spacing-md);
     background: var(--bg-tertiary);
     padding: 0;
   }
-  
+
   &.info-card {
     flex-direction: column;
     align-items: normal;
     background: var(--bg-tertiary);
   }
-  
+
   &.warning-card {
     border: 1px solid var(--color-warning);
     background: color-mix(in srgb, var(--color-warning), transparent 90%);
@@ -37,13 +37,14 @@
       height: 2rem;
     }
   }
-  
+
   &.error-card {
     border: 1px solid var(--color-error);
     background: color-mix(in srgb, var(--color-error), transparent 90%);
     margin-bottom: var(--spacing-lg);
   }
-  .warning-content, .error-content {
+  .warning-content,
+  .error-content {
     display: flex;
     align-items: flex-start;
     gap: var(--spacing-md);
@@ -74,7 +75,7 @@
   &.row {
     flex-direction: row;
   }
-  
+
   h3 {
     margin: 0;
     color: var(--text-primary);
@@ -85,7 +86,7 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  
+
   label {
     margin-bottom: var(--spacing-xs);
     color: var(--text-primary);
@@ -93,7 +94,9 @@
     font-weight: 500;
   }
 
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     width: 100%;
     padding: var(--spacing-sm) var(--spacing-md);
     border: 1px solid var(--border-primary);
@@ -106,20 +109,20 @@
       outline: none;
       border-color: var(--color-primary);
     }
-    
+
     &.invalid {
       border-color: var(--color-error);
     }
-    
+
     // Checkbox styling
-    &[type="checkbox"] {
+    &[type='checkbox'] {
       width: auto;
       height: 18px;
       width: 18px;
       margin: 0;
       accent-color: var(--color-primary);
       cursor: pointer;
-      
+
       &:focus {
         outline: 2px solid var(--color-primary);
         outline-offset: 2px;
@@ -143,12 +146,12 @@
     gap: var(--spacing-sm);
     cursor: pointer;
   }
-  
+
   &:hover {
     color: var(--color-primary);
   }
-  
-  input[type="checkbox"] {
+
+  input[type='checkbox'] {
     cursor: pointer;
   }
 }
@@ -317,7 +320,8 @@
       transition: all var(--transition-fast);
       text-align: left;
 
-      &:hover, &.selected {
+      &:hover,
+      &.selected {
         background: var(--bg-primary);
         border-color: var(--color-primary);
       }
@@ -339,44 +343,42 @@
   }
 }
 
-
-
-
 // Info sections
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: var(--spacing-md);
-  
+
   .info-section {
     background: var(--bg-secondary);
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-primary);
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-sm) 0;
     }
-    
+
     p {
       color: var(--text-secondary);
       line-height: 1.6;
       margin: 0 0 var(--spacing-sm) 0;
     }
-    
-    ul, ol {
+
+    ul,
+    ol {
       color: var(--text-secondary);
       margin: 0;
       padding-left: var(--spacing-md);
-      
+
       li {
         margin-bottom: var(--spacing-xs);
-        
+
         strong {
           color: var(--text-primary);
         }
-        
+
         code {
           background: var(--bg-tertiary);
           padding: 2px 4px;
@@ -416,19 +418,23 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // Form layout
 .form-row {
   margin-bottom: var(--spacing-md);
-  
+
   &.two-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-md);
-    
+
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
     }
@@ -494,11 +500,11 @@
   padding: var(--spacing-lg);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-primary);
-  
+
   &.full-width {
     grid-column: 1 / -1;
   }
-  
+
   h4 {
     margin: 0 0 var(--spacing-md) 0;
     color: var(--color-primary);
@@ -511,19 +517,19 @@
   display: grid;
   gap: var(--spacing-sm);
   margin: 0;
-  
+
   dt {
     color: var(--text-secondary);
     font-size: var(--font-size-xs);
     font-weight: 500;
     margin: 0;
   }
-  
+
   dd {
     color: var(--text-primary);
     margin: 0 0 var(--spacing-md) 0;
     font-size: var(--font-size-sm);
-    
+
     code {
       background: var(--bg-tertiary);
       padding: 2px 6px;
@@ -552,7 +558,8 @@
 }
 
 // Special badges
-.ip-version, .asn-number {
+.ip-version,
+.asn-number {
   background: var(--color-primary);
   color: var(--bg-secondary);
   padding: 2px 6px;
@@ -590,18 +597,18 @@
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-secondary);
-  
+
   h5 {
     margin: 0 0 var(--spacing-sm) 0;
     color: var(--color-primary);
     font-size: var(--font-size-sm);
     font-weight: 600;
   }
-  
+
   p {
     margin: 0 0 var(--spacing-xs) 0;
     font-size: var(--font-size-sm);
-    
+
     small {
       color: var(--text-secondary);
       font-size: var(--font-size-xs);
@@ -633,13 +640,13 @@
   margin: 0;
   display: grid;
   gap: var(--spacing-xs);
-  
+
   li {
     padding: var(--spacing-xs) var(--spacing-sm);
     background: var(--bg-tertiary);
     border-radius: var(--radius-md);
     border-left: 3px solid var(--color-primary);
-    
+
     code {
       font-family: var(--font-mono);
       font-size: var(--font-size-sm);
@@ -662,11 +669,11 @@
 // Troubleshooting
 .troubleshooting {
   margin-top: var(--spacing-sm);
-  
+
   ul {
     margin-top: var(--spacing-xs);
     padding-left: var(--spacing-md);
-    
+
     li {
       margin-bottom: var(--spacing-xs);
       font-size: var(--font-size-xs);

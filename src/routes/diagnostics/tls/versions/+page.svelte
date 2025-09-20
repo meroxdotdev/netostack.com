@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let host = $state('google.com:443');
   let servername = $state('');
   let useCustomServername = $state(false);
@@ -11,35 +11,35 @@
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { host: 'google.com:443', description: 'Google TLS version support' },
     { host: 'github.com:443', description: 'GitHub TLS versions' },
     { host: 'cloudflare.com:443', description: 'Cloudflare TLS support' },
     { host: 'microsoft.com:443', description: 'Microsoft TLS versions' },
     { host: 'amazon.com:443', description: 'Amazon TLS configuration' },
-    { host: 'facebook.com:443', description: 'Facebook TLS versions' }
+    { host: 'facebook.com:443', description: 'Facebook TLS versions' },
   ];
-  
+
   const tlsVersions = [
     { version: 'TLSv1', name: 'TLS 1.0', deprecated: true },
     { version: 'TLSv1.1', name: 'TLS 1.1', deprecated: true },
     { version: 'TLSv1.2', name: 'TLS 1.2', deprecated: false },
-    { version: 'TLSv1.3', name: 'TLS 1.3', deprecated: false }
+    { version: 'TLSv1.3', name: 'TLS 1.3', deprecated: false },
   ];
-  
+
   // Reactive validation
   const isInputValid = $derived(() => {
     const trimmedHost = host.trim();
     if (!trimmedHost) return false;
     return /^[a-zA-Z0-9.-]+(?::\d+)?$/.test(trimmedHost);
   });
-  
+
   async function probeTLSVersions() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/tls', {
         method: 'POST',
@@ -47,10 +47,10 @@
         body: JSON.stringify({
           action: 'versions',
           host: host.trim(),
-          servername: useCustomServername && servername ? servername.trim() : undefined
-        })
+          servername: useCustomServername && servername ? servername.trim() : undefined,
+        }),
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         try {
@@ -60,7 +60,7 @@
           throw new Error(`TLS versions probe failed (${response.status})`);
         }
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -68,20 +68,24 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     host = example.host;
     servername = '';
     useCustomServername = false;
     selectedExampleIndex = index;
     probeTLSVersions();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
-  function getVersionStatus(version: string, supported: boolean, deprecated: boolean): { status: string, icon: string, class: string } {
+
+  function getVersionStatus(
+    version: string,
+    supported: boolean,
+    deprecated: boolean,
+  ): { status: string; icon: string; class: string } {
     if (!supported) {
       return { status: 'Not Supported', icon: 'x-circle', class: 'error' };
     }
@@ -90,38 +94,49 @@
     }
     return { status: 'Supported', icon: 'check-circle', class: 'success' };
   }
-  
-  function getOverallSecurity(): { level: string, class: string, icon: string, description: string } {
-    if (!results) return { level: 'Unknown', class: 'secondary', icon: 'help-circle', description: 'No results available' };
-    
+
+  function getOverallSecurity(): { level: string; class: string; icon: string; description: string } {
+    if (!results)
+      return { level: 'Unknown', class: 'secondary', icon: 'help-circle', description: 'No results available' };
+
     const supportedVersions = results.supportedVersions || [];
     const hasDeprecated = supportedVersions.some((v: string) => v === 'TLSv1' || v === 'TLSv1.1');
     const hasModern = supportedVersions.includes('TLSv1.3');
     const hasSecure = supportedVersions.includes('TLSv1.2');
-    
+
     if (hasModern && hasSecure && !hasDeprecated) {
-      return { level: 'Excellent', class: 'success', icon: 'shield-check', description: 'Only modern TLS versions supported' };
+      return {
+        level: 'Excellent',
+        class: 'success',
+        icon: 'shield-check',
+        description: 'Only modern TLS versions supported',
+      };
     }
     if (hasSecure && !hasDeprecated) {
       return { level: 'Good', class: 'success', icon: 'shield', description: 'Secure TLS versions only' };
     }
     if (hasDeprecated && hasSecure) {
-      return { level: 'Warning', class: 'warning', icon: 'shield-alert', description: 'Deprecated versions still supported' };
+      return {
+        level: 'Warning',
+        class: 'warning',
+        icon: 'shield-alert',
+        description: 'Deprecated versions still supported',
+      };
     }
     if (supportedVersions.length === 0) {
       return { level: 'Critical', class: 'error', icon: 'shield-off', description: 'No TLS versions detected' };
     }
     return { level: 'Poor', class: 'error', icon: 'shield-x', description: 'Only deprecated versions supported' };
   }
-  
+
   async function copyVersionsInfo() {
     if (!results) return;
-    
+
     let text = `TLS Versions Analysis for ${host}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
     text += `Supported Versions (${results.totalSupported}):\n`;
-    
-    tlsVersions.forEach(tlsVer => {
+
+    tlsVersions.forEach((tlsVer) => {
       const supported = results.supported[tlsVer.version];
       text += `  ${tlsVer.name} (${tlsVer.version}): ${supported ? 'Supported' : 'Not Supported'}`;
       if (supported && tlsVer.deprecated) {
@@ -129,27 +144,30 @@
       }
       text += '\n';
     });
-    
+
     const security = getOverallSecurity();
     text += `\nSecurity Level: ${security.level}\n`;
     text += `Description: ${security.description}\n`;
-    
+
     if (results.minVersion || results.maxVersion) {
       text += `\nVersion Range:\n`;
       text += `  Minimum: ${results.minVersion || 'Unknown'}\n`;
       text += `  Maximum: ${results.maxVersion || 'Unknown'}\n`;
     }
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>TLS Versions Probe</h1>
-    <p>Test which TLS protocol versions a server supports by attempting connections with different TLS version constraints. Identify deprecated versions and assess overall TLS security posture.</p>
+    <p>
+      Test which TLS protocol versions a server supports by attempting connections with different TLS version
+      constraints. Identify deprecated versions and assess overall TLS security posture.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -161,8 +179,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Probe TLS versions for ${example.host} (${example.description})`}
@@ -183,15 +201,18 @@
     <div class="card-content">
       <div class="form-row">
         <div class="form-group">
-          <label for="host" use:tooltip={"Enter hostname:port (e.g., google.com:443)"}>
+          <label for="host" use:tooltip={'Enter hostname:port (e.g., google.com:443)'}>
             Host:Port
-            <input 
-              id="host" 
-              type="text" 
-              bind:value={host} 
+            <input
+              id="host"
+              type="text"
+              bind:value={host}
               placeholder="google.com:443"
               class:invalid={host && !isInputValid}
-              onchange={() => { clearExampleSelection(); if (isInputValid()) probeTLSVersions(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) probeTLSVersions();
+              }}
             />
             {#if host && !isInputValid}
               <span class="error-text">Invalid host:port format</span>
@@ -199,29 +220,35 @@
           </label>
         </div>
       </div>
-      
+
       <div class="form-row">
         <div class="form-group">
           <label class="checkbox-group">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               bind:checked={useCustomServername}
-              onchange={() => { clearExampleSelection(); if (isInputValid()) probeTLSVersions(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) probeTLSVersions();
+              }}
             />
             Use custom SNI servername
           </label>
           {#if useCustomServername}
-            <input 
-              type="text" 
-              bind:value={servername} 
+            <input
+              type="text"
+              bind:value={servername}
               placeholder="example.com"
-              use:tooltip={"Custom servername for SNI (Server Name Indication)"}
-              onchange={() => { clearExampleSelection(); if (isInputValid()) probeTLSVersions(); }}
+              use:tooltip={'Custom servername for SNI (Server Name Indication)'}
+              onchange={() => {
+                clearExampleSelection();
+                if (isInputValid()) probeTLSVersions();
+              }}
             />
           {/if}
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={probeTLSVersions} disabled={loading || !isInputValid}>
           {#if loading}
@@ -242,16 +269,15 @@
       <div class="card-header row">
         <h3>TLS Versions Probe Results</h3>
         <button class="copy-btn" onclick={copyVersionsInfo} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" />
-          {copiedState ? "Copied!" : "Copy Results"}
+          <Icon name={copiedState ? 'check' : 'copy'} size="xs" />
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
-        
         <!-- Security Overview -->
         {#if results.supported}
           {@const security = getOverallSecurity()}
-          
+
           <div class="security-overview">
             <div class="status-overview">
               <div class="status-item {security.class}">
@@ -278,7 +304,7 @@
               {#each tlsVersions as tlsVer}
                 {@const supported = results.supported[tlsVer.version]}
                 {@const status = getVersionStatus(tlsVer.version, supported, tlsVer.deprecated)}
-                
+
                 <div class="version-item {status.class}">
                   <div class="version-header">
                     <div class="version-info">
@@ -290,13 +316,13 @@
                     </div>
                     <span class="version-status">{status.status}</span>
                   </div>
-                  
+
                   {#if !supported && results.errors[tlsVer.version]}
                     <div class="version-error">
                       <span class="error-detail">{results.errors[tlsVer.version]}</span>
                     </div>
                   {/if}
-                  
+
                   {#if tlsVer.deprecated}
                     <div class="version-warning">
                       <Icon name="alert-triangle" size="xs" />
@@ -359,7 +385,7 @@
             <li><strong>TLS 1.0:</strong> Deprecated, contains security vulnerabilities</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Best Practices</h4>
           <ul>
@@ -369,10 +395,13 @@
             <li>Use strong cipher suites</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Compliance Requirements</h4>
-          <p>Many compliance standards (PCI DSS, HIPAA) require disabling deprecated TLS versions. Check your specific requirements.</p>
+          <p>
+            Many compliance standards (PCI DSS, HIPAA) require disabling deprecated TLS versions. Check your specific
+            requirements.
+          </p>
         </div>
       </div>
     </div>
@@ -397,7 +426,7 @@
 
   .versions-section {
     margin-bottom: var(--spacing-lg);
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;
@@ -416,17 +445,17 @@
     border: 2px solid;
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
-    
+
     &.success {
       border-color: var(--color-success);
       background: color-mix(in srgb, var(--color-success), transparent 95%);
     }
-    
+
     &.warning {
       border-color: var(--color-warning);
       background: color-mix(in srgb, var(--color-warning), transparent 95%);
     }
-    
+
     &.error {
       border-color: var(--color-error);
       background: color-mix(in srgb, var(--color-error), transparent 95%);
@@ -444,7 +473,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    
+
     div {
       display: flex;
       flex-direction: column;
@@ -496,7 +525,7 @@
 
   .range-section {
     margin-bottom: var(--spacing-lg);
-    
+
     h4 {
       color: var(--text-primary);
       margin: 0 0 var(--spacing-md) 0;

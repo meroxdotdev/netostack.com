@@ -12,14 +12,14 @@
     type IPv6Options,
     type CrossOptions,
     type RegexResult,
-    type AdvancedOption
+    type AdvancedOption,
   } from '$lib/utils/ip-regex-gen.js';
   import { validateRegexInput, type RegexValidation } from '$lib/utils/ip-regex-validator.js';
-  
+
   let mode = $state<Mode>('simple');
   let regexType = $state<RegexType>('ipv4');
   let copiedStates = $state<Record<string, boolean>>({});
-  
+
   // Advanced options
   let ipv4Options = $state<IPv4Options>({
     allowLeadingZeros: false,
@@ -27,7 +27,7 @@
     allowPrivateOnly: false,
     allowPublicOnly: false,
     wordBoundaries: true,
-    caseInsensitive: false
+    caseInsensitive: false,
   });
 
   let ipv6Options = $state<IPv6Options>({
@@ -37,7 +37,7 @@
     allowEmbeddedIPv4: true,
     wordBoundaries: true,
     caseInsensitive: true,
-    allowBrackets: false
+    allowBrackets: false,
   });
 
   let crossOptions = $state<CrossOptions>({
@@ -45,7 +45,7 @@
     engineSafeBoundaries: false,
     allowPort: false,
     allowCIDR: false,
-    namedCaptures: false
+    namedCaptures: false,
   });
 
   let openLanguageExample = $state<string | null>(null);
@@ -80,12 +80,12 @@
     // Combine default test cases with custom ones
     const combinedTestCases = {
       valid: [...newResult.testCases.valid, ...customValidCases],
-      invalid: [...newResult.testCases.invalid, ...customInvalidCases]
+      invalid: [...newResult.testCases.invalid, ...customInvalidCases],
     };
 
     result = {
       ...newResult,
-      testCases: combinedTestCases
+      testCases: combinedTestCases,
     };
 
     // Reset editing state when generating new regex
@@ -171,7 +171,7 @@
       ...result,
       pattern: editablePattern,
       flags: editableFlags,
-      description: `Custom ${result.description.includes('IPv4') ? 'IPv4' : result.description.includes('IPv6') ? 'IPv6' : 'IP'} pattern`
+      description: `Custom ${result.description.includes('IPv4') ? 'IPv4' : result.description.includes('IPv6') ? 'IPv6' : 'IP'} pattern`,
     };
 
     // Re-validate test cases against new pattern
@@ -237,8 +237,8 @@
         ...result,
         testCases: {
           valid: editableValidCases,
-          invalid: editableInvalidCases
-        }
+          invalid: editableInvalidCases,
+        },
       };
 
       // Update live validation
@@ -271,7 +271,7 @@
       const invalidCases = isEditingTestCases ? editableInvalidCases : result.testCases.invalid;
 
       testCaseResults = {
-        valid: validCases.map(text => {
+        valid: validCases.map((text) => {
           try {
             const matches = regex.test(text);
             return { text, matches };
@@ -279,14 +279,14 @@
             return { text, matches: false, error: String(error) };
           }
         }),
-        invalid: invalidCases.map(text => {
+        invalid: invalidCases.map((text) => {
           try {
             const matches = regex.test(text);
             return { text, matches };
           } catch (error) {
             return { text, matches: false, error: String(error) };
           }
-        })
+        }),
       };
     } catch (err) {
       // If regex compilation fails, mark all as errors
@@ -294,8 +294,8 @@
       const invalidCases = isEditingTestCases ? editableInvalidCases : result.testCases.invalid;
 
       testCaseResults = {
-        valid: validCases.map(text => ({ text, matches: false, error: 'Invalid regex' })),
-        invalid: invalidCases.map(text => ({ text, matches: false, error: 'Invalid regex' }))
+        valid: validCases.map((text) => ({ text, matches: false, error: 'Invalid regex' })),
+        invalid: invalidCases.map((text) => ({ text, matches: false, error: 'Invalid regex' })),
       };
     }
   }
@@ -307,12 +307,8 @@
     const defaultResult = generateRegex(regexType, mode, ipv4Options, ipv6Options, crossOptions);
 
     // Identify custom test cases (ones not in the default set)
-    customValidCases = editableValidCases.filter(testCase =>
-      !defaultResult.testCases.valid.includes(testCase)
-    );
-    customInvalidCases = editableInvalidCases.filter(testCase =>
-      !defaultResult.testCases.invalid.includes(testCase)
-    );
+    customValidCases = editableValidCases.filter((testCase) => !defaultResult.testCases.valid.includes(testCase));
+    customInvalidCases = editableInvalidCases.filter((testCase) => !defaultResult.testCases.invalid.includes(testCase));
 
     // Update result with all test cases
     result.testCases.valid = [...editableValidCases];
@@ -371,7 +367,6 @@
     }
   });
 
-
   // Generate initial regex
   handleRegexGeneration();
 </script>
@@ -387,14 +382,20 @@
     <div class="mode-toggle">
       <button
         class="mode-button {mode === 'simple' ? 'active' : ''}"
-        onclick={() => { mode = 'simple'; handleRegexGeneration(); }}
+        onclick={() => {
+          mode = 'simple';
+          handleRegexGeneration();
+        }}
       >
         <Icon name="zap" size="sm" />
         Simple Mode
       </button>
       <button
         class="mode-button {mode === 'advanced' ? 'active' : ''}"
-        onclick={() => { mode = 'advanced'; handleRegexGeneration(); }}
+        onclick={() => {
+          mode = 'advanced';
+          handleRegexGeneration();
+        }}
       >
         <Icon name="settings" size="sm" />
         Advanced Mode
@@ -407,12 +408,7 @@
     <h4>IP Address Type</h4>
     <div class="type-options">
       <label class="type-option">
-        <input
-          type="radio"
-          bind:group={regexType}
-          value="ipv4"
-          onchange={handleRegexGeneration}
-        />
+        <input type="radio" bind:group={regexType} value="ipv4" onchange={handleRegexGeneration} />
         <div class="option-content">
           <Icon name="ipv6-ipv4" size="sm" />
           <span>IPv4 Only</span>
@@ -420,12 +416,7 @@
       </label>
 
       <label class="type-option">
-        <input
-          type="radio"
-          bind:group={regexType}
-          value="ipv6"
-          onchange={handleRegexGeneration}
-        />
+        <input type="radio" bind:group={regexType} value="ipv6" onchange={handleRegexGeneration} />
         <div class="option-content">
           <Icon name="ipv4-ipv6" size="sm" />
           <span>IPv6 Only</span>
@@ -433,12 +424,7 @@
       </label>
 
       <label class="type-option">
-        <input
-          type="radio"
-          bind:group={regexType}
-          value="both"
-          onchange={handleRegexGeneration}
-        />
+        <input type="radio" bind:group={regexType} value="both" onchange={handleRegexGeneration} />
         <div class="option-content">
           <Icon name="network" size="sm" />
           <span>Both IPv4 & IPv6</span>
@@ -496,16 +482,12 @@
                   class="apply-button"
                   onclick={applyRegexEdits}
                   disabled={!regexValidation?.ok}
-                  use:tooltip={regexValidation?.ok ? "Apply changes" : "Fix validation errors first"}
+                  use:tooltip={regexValidation?.ok ? 'Apply changes' : 'Fix validation errors first'}
                 >
                   <Icon name="check" size="sm" />
                   Apply
                 </button>
-                <button
-                  class="cancel-button"
-                  onclick={cancelRegexEditing}
-                  use:tooltip={"Cancel editing"}
-                >
+                <button class="cancel-button" onclick={cancelRegexEditing} use:tooltip={'Cancel editing'}>
                   <Icon name="x" size="sm" />
                   Cancel
                 </button>
@@ -564,11 +546,7 @@
 
               <div class="results-actions">
                 {#if !isEditingRegex}
-                  <button
-                    class="edit-button"
-                    onclick={enableRegexEditing}
-                    use:tooltip={"Edit this regex pattern"}
-                  >
+                  <button class="edit-button" onclick={enableRegexEditing} use:tooltip={'Edit this regex pattern'}>
                     <Icon name="edit" size="xs" />
                     Edit Pattern
                   </button>
@@ -578,7 +556,7 @@
                   target="_blank"
                   rel="noopener noreferrer"
                   class="regexr-button"
-                  use:tooltip={"Test this pattern on RegexR.com"}
+                  use:tooltip={'Test this pattern on RegexR.com'}
                 >
                   <Icon name="regexr" size="xs" />
                   Test on RegexR
@@ -620,30 +598,18 @@
           <h4 class="pattern-label">Test Cases</h4>
           {#if !isEditingTestCases}
             <div class="results-actions">
-              <button
-                class="edit-button"
-                onclick={enableTestCaseEditing}
-                use:tooltip={"Edit test cases"}
-              >
+              <button class="edit-button" onclick={enableTestCaseEditing} use:tooltip={'Edit test cases'}>
                 <Icon name="edit" size="xs" />
                 Edit Test Cases
               </button>
             </div>
           {:else}
             <div class="editor-actions">
-              <button
-                class="apply-button"
-                onclick={applyTestCaseEdits}
-                use:tooltip={"Apply test case changes"}
-              >
+              <button class="apply-button" onclick={applyTestCaseEdits} use:tooltip={'Apply test case changes'}>
                 <Icon name="check" size="sm" />
                 Apply
               </button>
-              <button
-                class="cancel-button"
-                onclick={cancelTestCaseEditing}
-                use:tooltip={"Cancel editing"}
-              >
+              <button class="cancel-button" onclick={cancelTestCaseEditing} use:tooltip={'Cancel editing'}>
                 <Icon name="x" size="sm" />
                 Cancel
               </button>
@@ -672,7 +638,7 @@
                     class="add-button"
                     onclick={addValidTestCase}
                     disabled={!newValidCase.trim()}
-                    use:tooltip={"Add test case"}
+                    use:tooltip={'Add test case'}
                   >
                     <Icon name="plus" size="sm" />
                   </button>
@@ -684,7 +650,7 @@
                       <button
                         class="remove-button"
                         onclick={() => removeValidTestCase(index)}
-                        use:tooltip={"Remove test case"}
+                        use:tooltip={'Remove test case'}
                       >
                         <Icon name="x" size="xs" />
                       </button>
@@ -726,7 +692,7 @@
                     class="add-button"
                     onclick={addInvalidTestCase}
                     disabled={!newInvalidCase.trim()}
-                    use:tooltip={"Add test case"}
+                    use:tooltip={'Add test case'}
                   >
                     <Icon name="plus" size="sm" />
                   </button>
@@ -738,7 +704,7 @@
                       <button
                         class="remove-button"
                         onclick={() => removeInvalidTestCase(index)}
-                        use:tooltip={"Remove test case"}
+                        use:tooltip={'Remove test case'}
                       >
                         <Icon name="x" size="xs" />
                       </button>
@@ -818,21 +784,13 @@
             <div class="language-item">
               <button
                 class="language-header"
-                onclick={() => openLanguageExample = openLanguageExample === example.name ? null : example.name}
+                onclick={() => (openLanguageExample = openLanguageExample === example.name ? null : example.name)}
               >
                 <div class="language-info">
-                  <img
-                    src="https://cdn.simpleicons.org/{example.icon}"
-                    alt="{example.name}"
-                    class="language-icon"
-                  />
+                  <img src="https://cdn.simpleicons.org/{example.icon}" alt={example.name} class="language-icon" />
                   <span class="language-name">{example.name}</span>
                 </div>
-                <Icon
-                  name="chevron-down"
-                  size="sm"
-                  rotate={openLanguageExample === example.name ? 180 : 0}
-                />
+                <Icon name="chevron-down" size="sm" rotate={openLanguageExample === example.name ? 180 : 0} />
               </button>
 
               <div class="language-content" class:open={openLanguageExample === example.name}>
@@ -840,7 +798,7 @@
                   <button
                     class="copy-code-btn {copiedStates[example.name.toLowerCase()] ? 'copied' : ''}"
                     onclick={() => copyToClipboard(example.code, example.name.toLowerCase())}
-                    use:tooltip={"Copy code snippet"}
+                    use:tooltip={'Copy code snippet'}
                   >
                     <Icon name={copiedStates[example.name.toLowerCase()] ? 'check' : 'copy'} size="xs" />
                   </button>
@@ -904,7 +862,9 @@
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: var(--spacing-md);
 
-      input { display: none; }
+      input {
+        display: none;
+      }
     }
 
     .type-option {
@@ -916,7 +876,9 @@
       transition: all var(--transition-fast);
       cursor: pointer;
 
-      &:hover { border-color: var(--color-primary); }
+      &:hover {
+        border-color: var(--color-primary);
+      }
       &:has(input:checked) {
         border-color: var(--color-primary);
         background-color: var(--surface-hover);
@@ -950,7 +912,9 @@
       .checkbox-label {
         input {
           padding: var(--spacing-sm);
-          &::after { font-size: var(--font-size-sm); }
+          &::after {
+            font-size: var(--font-size-sm);
+          }
         }
 
         .checkbox-text {
@@ -995,7 +959,9 @@
         border-radius: var(--radius-md);
         transition: all var(--transition-fast);
 
-        &:hover { background-color: var(--surface-hover); }
+        &:hover {
+          background-color: var(--surface-hover);
+        }
         &.selected {
           border-color: var(--color-primary);
           background-color: color-mix(in srgb, var(--color-primary), transparent 95%);
@@ -1019,45 +985,46 @@
       }
     }
 
-      .results-actions {
+    .results-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      .edit-button,
+      .regexr-button {
         display: flex;
         align-items: center;
-        gap: var(--spacing-sm);
-        .edit-button, .regexr-button {
-          display: flex;
-          align-items: center;
-          gap: var(--spacing-xs);
-          padding: var(--spacing-xs) var(--spacing-sm);
-          // background-color: var(--color-primary);
-          background: var(--bg-secondary);
-          color: var(--text-secondary);
-          text-decoration: none;
-          border-radius: var(--radius-md);
-          font-weight: 600;
-          transition: all var(--transition-fast);
-          &:hover {
-            filter: brightness(0.9);
-            transform: translateY(-1px);
-          }
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        // background-color: var(--color-primary);
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        transition: all var(--transition-fast);
+        &:hover {
+          filter: brightness(0.9);
+          transform: translateY(-1px);
         }
-
-        .edit-button {
-          background: var(--color-info);
-          color: var(--bg-primary);
-        }
-        .regexr-button {
-          background: var(--color-warning);
-          color: var(--bg-primary);
-        }
-        .copy-button {
-          background: var(--color-success);
-          color: var(--bg-primary);
-        }
-
       }
 
+      .edit-button {
+        background: var(--color-info);
+        color: var(--bg-primary);
+      }
+      .regexr-button {
+        background: var(--color-warning);
+        color: var(--bg-primary);
+      }
+      .copy-button {
+        background: var(--color-success);
+        color: var(--bg-primary);
+      }
+    }
+
     // Shared button styles
-    .apply-button, .cancel-button {
+    .apply-button,
+    .cancel-button {
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
@@ -1092,7 +1059,7 @@
     }
 
     .regex-output {
-      background: var(--bg-tertiary);;
+      background: var(--bg-tertiary);
       border: 1px solid var(--border-primary);
       border-radius: var(--radius-lg);
       padding: var(--spacing-lg);
@@ -1189,7 +1156,8 @@
               color: var(--text-primary);
             }
 
-            .pattern-input, .flags-input {
+            .pattern-input,
+            .flags-input {
               padding: var(--spacing-sm);
               border: 2px solid var(--border-primary);
               border-radius: var(--radius-sm);
@@ -1218,7 +1186,8 @@
           }
         }
 
-        .validation-success, .validation-error {
+        .validation-success,
+        .validation-error {
           display: flex;
           align-items: center;
           gap: var(--spacing-xs);
@@ -1347,7 +1316,6 @@
               color: var(--text-primary);
             }
           }
-
         }
 
         .language-content {
@@ -1419,7 +1387,6 @@
       }
     }
 
-
     .test-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1435,8 +1402,12 @@
           font-weight: 600;
         }
 
-        &.valid h5 { color: var(--color-success-light); }
-        &.invalid h5 { color: var(--color-error-light); }
+        &.valid h5 {
+          color: var(--color-success-light);
+        }
+        &.invalid h5 {
+          color: var(--color-error-light);
+        }
 
         .test-list {
           display: flex;
@@ -1603,7 +1574,6 @@
         color: var(--color-warning-light);
       }
 
-
       .doc-list {
         list-style: none;
         padding: 0;
@@ -1624,18 +1594,24 @@
           }
         }
       }
-
-
     }
   }
 
   @media (max-width: 768px) {
-    .mode-section .mode-toggle { flex-direction: column; }
-    .type-section .type-options { grid-template-columns: 1fr; }
-    .options-section .options-grid { grid-template-columns: 1fr; }
+    .mode-section .mode-toggle {
+      flex-direction: column;
+    }
+    .type-section .type-options {
+      grid-template-columns: 1fr;
+    }
+    .options-section .options-grid {
+      grid-template-columns: 1fr;
+    }
     .results-section {
       .test-grid,
-      .doc-grid { grid-template-columns: 1fr; }
+      .doc-grid {
+        grid-template-columns: 1fr;
+      }
 
       .results-header,
       .regex-output .pattern-header {
@@ -1644,7 +1620,9 @@
         align-items: stretch;
       }
 
-      .results-header { gap: var(--spacing-md); }
+      .results-header {
+        gap: var(--spacing-md);
+      }
     }
   }
 </style>

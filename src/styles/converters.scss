@@ -7,17 +7,18 @@
   justify-content: space-between;
   gap: var(--spacing-lg);
   margin: var(--spacing-lg) 0;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     gap: var(--spacing-md);
   }
 }
 
-.input-group, .output-group {
+.input-group,
+.output-group {
   flex: 1;
   // max-width: 300px;
-  
+
   @media (max-width: 768px) {
     width: 100%;
     max-width: none;
@@ -27,7 +28,7 @@
 .conversion-arrow {
   color: var(--color-primary);
   flex-shrink: 0;
-  
+
   @media (max-width: 768px) {
     transform: rotate(90deg);
   }
@@ -55,11 +56,11 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-lg);
   padding-right: 2.5rem;
-  
+
   &.valid {
     border-color: var(--color-success);
   }
-  
+
   &.invalid {
     border-color: var(--color-error);
   }
@@ -73,8 +74,8 @@
   color: var(--color-success);
   font-weight: 600;
   text-align: center;
-  
-  &[type="text"] {
+
+  &[type='text'] {
     padding-right: 4rem;
   }
 }
@@ -82,21 +83,19 @@
 /* Preset styles */
 .presets-section {
   margin: var(--spacing-lg) 0;
-  
+
   h3 {
     margin-bottom: var(--spacing-sm);
   }
-  
+
   .presets-grid {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-sm);
   }
-  
+
   /* Preset button styles moved to base.scss for reuse */
 }
-
-
 
 /* Reference component styles */
 .reference-section {
@@ -111,7 +110,7 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: var(--spacing-sm);
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
@@ -134,10 +133,16 @@
   justify-content: center;
   font-weight: 700;
   color: var(--bg-primary);
-  
-  &.a { background-color: var(--color-info); }
-  &.b { background-color: var(--color-success); }
-  &.c { background-color: var(--color-warning); }
+
+  &.a {
+    background-color: var(--color-info);
+  }
+  &.b {
+    background-color: var(--color-success);
+  }
+  &.c {
+    background-color: var(--color-warning);
+  }
 }
 
 .class-details {
@@ -200,7 +205,7 @@
   background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-secondary);
-  
+
   .tips-header {
     display: flex;
     align-items: center;
@@ -208,14 +213,14 @@
     font-weight: 600;
     color: var(--text-primary);
   }
-  
+
   .tips-content {
     p {
       color: var(--text-primary);
       margin: 0;
     }
   }
-  
+
   .tips-list {
     list-style: none;
     font-size: var(--font-size-sm);
@@ -224,9 +229,6 @@
     flex-direction: column;
   }
 }
-
-
-
 
 /* Table styles moved to CommonSubnetsReference component where they're used */
 

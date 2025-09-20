@@ -45,17 +45,12 @@ function ipToInt(ip: string): number {
 
 /* Convert 32-bit integer to IP address */
 function intToIp(int: number): string {
-  return [
-    (int >>> 24) & 0xFF,
-    (int >>> 16) & 0xFF,
-    (int >>> 8) & 0xFF,
-    int & 0xFF
-  ].join('.');
+  return [(int >>> 24) & 0xff, (int >>> 16) & 0xff, (int >>> 8) & 0xff, int & 0xff].join('.');
 }
 
 /* Calculate subnet mask from CIDR */
 function cidrToSubnetMask(cidr: number): string {
-  const mask = 0xFFFFFFFF << (32 - cidr);
+  const mask = 0xffffffff << (32 - cidr);
   return intToIp(mask >>> 0);
 }
 
@@ -67,9 +62,12 @@ function cidrToWildcardMask(cidr: number): string {
 
 /* Convert subnet mask to binary representation */
 function subnetMaskToBinary(mask: string): string {
-  return mask.split('.').map(octet => {
-    return parseInt(octet).toString(2).padStart(8, '0');
-  }).join('.');
+  return mask
+    .split('.')
+    .map((octet) => {
+      return parseInt(octet).toString(2).padStart(8, '0');
+    })
+    .join('.');
 }
 
 /* Calculate the number of hosts in a network */
@@ -81,8 +79,8 @@ function calculateHosts(cidr: number): number {
 function isValidIP(ip: string): boolean {
   const parts = ip.split('.');
   if (parts.length !== 4) return false;
-  
-  return parts.every(part => {
+
+  return parts.every((part) => {
     const num = parseInt(part);
     return !isNaN(num) && num >= 0 && num <= 255;
   });
@@ -96,7 +94,7 @@ function isValidCIDR(cidr: number): boolean {
 /* Calculate network address from IP and CIDR */
 function getNetworkAddress(ip: string, cidr: number): string {
   const ipInt = ipToInt(ip);
-  const mask = 0xFFFFFFFF << (32 - cidr);
+  const mask = 0xffffffff << (32 - cidr);
   const networkInt = ipInt & (mask >>> 0);
   return intToIp(networkInt);
 }
@@ -138,22 +136,24 @@ function findSupernet(networks: NetworkInput[]): { network: string; cidr: number
   if (networks.length === 0) return null;
 
   // Get all network addresses
-  const networkAddresses = networks.map(net => {
+  const networkAddresses = networks.map((net) => {
     const networkAddr = getNetworkAddress(net.network, net.cidr);
     return ipToInt(networkAddr);
   });
 
   const minAddress = Math.min(...networkAddresses);
-  const maxAddress = Math.max(...networkAddresses.map((addr, idx) => {
-    const cidr = networks[idx].cidr;
-    const networkSize = Math.pow(2, 32 - cidr);
-    return addr + networkSize - 1;
-  }));
+  const maxAddress = Math.max(
+    ...networkAddresses.map((addr, idx) => {
+      const cidr = networks[idx].cidr;
+      const networkSize = Math.pow(2, 32 - cidr);
+      return addr + networkSize - 1;
+    }),
+  );
 
   // Find the smallest CIDR that can contain all networks
   let supernetCidr = 32;
   for (let cidr = 1; cidr <= 30; cidr++) {
-    const mask = 0xFFFFFFFF << (32 - cidr);
+    const mask = 0xffffffff << (32 - cidr);
     const supernetStart = minAddress & (mask >>> 0);
     const supernetEnd = supernetStart + Math.pow(2, 32 - cidr) - 1;
 
@@ -165,7 +165,7 @@ function findSupernet(networks: NetworkInput[]): { network: string; cidr: number
 
   if (supernetCidr === 32) return null;
 
-  const supernetNetwork = intToIp(minAddress & (0xFFFFFFFF << (32 - supernetCidr)) >>> 0);
+  const supernetNetwork = intToIp(minAddress & ((0xffffffff << (32 - supernetCidr)) >>> 0));
   return { network: supernetNetwork, cidr: supernetCidr };
 }
 
@@ -186,9 +186,9 @@ export function validateNetworkInput(input: NetworkInput): ValidationResult {
   // Verify the IP is actually a network address
   const networkAddr = getNetworkAddress(input.network, input.cidr);
   if (networkAddr !== input.network) {
-    return { 
-      valid: false, 
-      error: `IP address should be ${networkAddr}/${input.cidr} (network address)` 
+    return {
+      valid: false,
+      error: `IP address should be ${networkAddr}/${input.cidr} (network address)`,
     };
   }
 
@@ -203,7 +203,7 @@ export function calculateSupernet(networks: NetworkInput[]): SupernetResult {
       return {
         success: false,
         inputNetworks: networks,
-        error: 'At least one network is required'
+        error: 'At least one network is required',
       };
     }
 
@@ -214,19 +214,19 @@ export function calculateSupernet(networks: NetworkInput[]): SupernetResult {
         return {
           success: false,
           inputNetworks: networks,
-          error: `${network.network}/${network.cidr}: ${validation.error}`
+          error: `${network.network}/${network.cidr}: ${validation.error}`,
         };
       }
     }
 
     // Check for duplicate networks
-    const networkStrings = networks.map(n => `${n.network}/${n.cidr}`);
+    const networkStrings = networks.map((n) => `${n.network}/${n.cidr}`);
     const uniqueNetworks = new Set(networkStrings);
     if (networkStrings.length !== uniqueNetworks.size) {
       return {
         success: false,
         inputNetworks: networks,
-        error: 'Duplicate networks are not allowed'
+        error: 'Duplicate networks are not allowed',
       };
     }
 
@@ -236,7 +236,7 @@ export function calculateSupernet(networks: NetworkInput[]): SupernetResult {
       return {
         success: false,
         inputNetworks: networks,
-        error: 'Unable to calculate supernet for the given networks'
+        error: 'Unable to calculate supernet for the given networks',
       };
     }
 
@@ -258,7 +258,7 @@ export function calculateSupernet(networks: NetworkInput[]): SupernetResult {
     const originalRoutes = networks.length;
     const aggregatedRoutes = aggregatedNetworks.length;
     const routeReduction = originalRoutes - aggregatedRoutes;
-    const reductionPercentage = ((routeReduction / originalRoutes) * 100);
+    const reductionPercentage = (routeReduction / originalRoutes) * 100;
 
     return {
       success: true,
@@ -271,8 +271,8 @@ export function calculateSupernet(networks: NetworkInput[]): SupernetResult {
         totalHosts,
         addressRange: {
           first: firstAddress,
-          last: lastAddress
-        }
+          last: lastAddress,
+        },
       },
       inputNetworks: networks,
       aggregatedNetworks,
@@ -280,15 +280,14 @@ export function calculateSupernet(networks: NetworkInput[]): SupernetResult {
         originalRoutes,
         aggregatedRoutes,
         routeReduction,
-        reductionPercentage
-      }
+        reductionPercentage,
+      },
     };
-
   } catch (error) {
     return {
       success: false,
       inputNetworks: networks,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
     };
   }
 }
@@ -305,30 +304,32 @@ export function analyzeAggregation(networks: NetworkInput[]): {
   recommendations: string[];
 } {
   const recommendations: string[] = [];
-  
+
   if (networks.length < 2) {
     return {
       canAggregate: false,
       efficiency: 0,
-      recommendations: ['Add more networks to perform aggregation']
+      recommendations: ['Add more networks to perform aggregation'],
     };
   }
 
   // Check for same-sized contiguous networks
-  const byCidr = networks.reduce((acc, net) => {
-    if (!acc[net.cidr]) acc[net.cidr] = [];
-    acc[net.cidr].push(net);
-    return acc;
-  }, {} as Record<number, NetworkInput[]>);
+  const byCidr = networks.reduce(
+    (acc, net) => {
+      if (!acc[net.cidr]) acc[net.cidr] = [];
+      acc[net.cidr].push(net);
+      return acc;
+    },
+    {} as Record<number, NetworkInput[]>,
+  );
 
   let canAggregate = false;
   let totalEfficiency = 0;
 
   Object.entries(byCidr).forEach(([cidr, nets]) => {
     if (nets.length >= 2) {
-      const sorted = nets.sort((a, b) => 
-        ipToInt(getNetworkAddress(a.network, a.cidr)) - 
-        ipToInt(getNetworkAddress(b.network, b.cidr))
+      const sorted = nets.sort(
+        (a, b) => ipToInt(getNetworkAddress(a.network, a.cidr)) - ipToInt(getNetworkAddress(b.network, b.cidr)),
       );
 
       let contiguousGroups = 0;
@@ -358,6 +359,6 @@ export function analyzeAggregation(networks: NetworkInput[]): {
   return {
     canAggregate,
     efficiency: Math.min(totalEfficiency / Object.keys(byCidr).length, 100),
-    recommendations
+    recommendations,
   };
 }

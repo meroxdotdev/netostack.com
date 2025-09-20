@@ -2,45 +2,45 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domainName = $state('example.com');
   let recordType = $state('A');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
-  let lastQuery = $state<{domain: string, type: string} | null>(null);
+  let lastQuery = $state<{ domain: string; type: string } | null>(null);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const recordTypes = [
     { value: 'A', label: 'A', description: 'IPv4 address records' },
     { value: 'AAAA', label: 'AAAA', description: 'IPv6 address records' },
     { value: 'CNAME', label: 'CNAME', description: 'Canonical name records' },
     { value: 'MX', label: 'MX', description: 'Mail exchange records' },
     { value: 'TXT', label: 'TXT', description: 'Text records' },
-    { value: 'NS', label: 'NS', description: 'Name server records' }
+    { value: 'NS', label: 'NS', description: 'Name server records' },
   ];
-  
+
   const resolverInfo = {
     cloudflare: { name: 'Cloudflare', ip: '1.1.1.1', location: 'Global' },
     google: { name: 'Google', ip: '8.8.8.8', location: 'Global' },
     quad9: { name: 'Quad9', ip: '9.9.9.9', location: 'Global' },
-    opendns: { name: 'OpenDNS', ip: '208.67.222.222', location: 'Global' }
+    opendns: { name: 'OpenDNS', ip: '208.67.222.222', location: 'Global' },
   };
-  
+
   const examples = [
     { domain: 'google.com', type: 'A', description: 'Check A record propagation' },
     { domain: 'github.com', type: 'AAAA', description: 'IPv6 propagation check' },
     { domain: 'gmail.com', type: 'MX', description: 'Mail server propagation' },
-    { domain: '_dmarc.google.com', type: 'TXT', description: 'DMARC policy propagation' }
+    { domain: '_dmarc.google.com', type: 'TXT', description: 'DMARC policy propagation' },
   ];
-  
+
   async function checkPropagation() {
     loading = true;
     error = null;
     results = null;
     lastQuery = { domain: domainName.trim(), type: recordType };
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/dns', {
         method: 'POST',
@@ -48,14 +48,14 @@
         body: JSON.stringify({
           action: 'propagation',
           name: domainName.trim(),
-          type: recordType
-        })
+          type: recordType,
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Propagation check failed: ${response.status}`);
       }
-      
+
       const data = await response.json();
       results = data.results;
     } catch (err: any) {
@@ -64,53 +64,53 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     domainName = example.domain;
     recordType = example.type;
     selectedExampleIndex = index;
     checkPropagation();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   function getStatusColor(result: any): string {
     if (result.error) return 'error';
     if (!result.result?.Answer?.length) return 'warning';
     return 'success';
   }
-  
+
   function getStatusIcon(result: any): string {
     if (result.error) return 'x-circle';
     if (!result.result?.Answer?.length) return 'alert-triangle';
     return 'check-circle';
   }
-  
+
   function areResultsConsistent(): boolean {
     if (!results || results.length === 0) return false;
-    
+
     const successfulResults = results.filter((r: any) => !r.error && r.result?.Answer?.length > 0);
     if (successfulResults.length === 0) return false;
-    
+
     const firstAnswer = successfulResults[0].result.Answer.map((a: any) => a.data).sort();
     return successfulResults.every((r: any) => {
       const answers = r.result.Answer.map((a: any) => a.data).sort();
       return JSON.stringify(answers) === JSON.stringify(firstAnswer);
     });
   }
-  
+
   async function copyAllResults() {
     if (!results?.length) return;
-    
+
     let text = `DNS Propagation Check for ${lastQuery?.domain} (${lastQuery?.type})\n`;
     text += `Checked at: ${new Date().toISOString()}\n\n`;
-    
+
     results.forEach((result: any) => {
       const info = resolverInfo[result.resolver as keyof typeof resolverInfo];
       text += `${info?.name || result.resolver} (${info?.ip || 'N/A'}):\n`;
-      
+
       if (result.error) {
         text += `  Error: ${result.error}\n`;
       } else if (result.result?.Answer?.length > 0) {
@@ -122,17 +122,20 @@
       }
       text += '\n';
     });
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>DNS Propagation Checker</h1>
-    <p>Check DNS record propagation across multiple public DNS resolvers. Compare responses from Cloudflare, Google, Quad9, and OpenDNS to verify consistent DNS propagation worldwide.</p>
+    <p>
+      Check DNS record propagation across multiple public DNS resolvers. Compare responses from Cloudflare, Google,
+      Quad9, and OpenDNS to verify consistent DNS propagation worldwide.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -144,8 +147,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Check ${example.type} record propagation for ${example.domain}`}
@@ -166,22 +169,32 @@
     <div class="card-content">
       <div class="form-row two-columns">
         <div class="form-group">
-          <label for="domain" use:tooltip={"Enter the domain name to check propagation for"}>
+          <label for="domain" use:tooltip={'Enter the domain name to check propagation for'}>
             Domain Name
-            <input 
-              id="domain" 
-              type="text" 
-              bind:value={domainName} 
+            <input
+              id="domain"
+              type="text"
+              bind:value={domainName}
               placeholder="example.com"
-              onchange={() => { clearExampleSelection(); if (domainName) checkPropagation(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (domainName) checkPropagation();
+              }}
             />
           </label>
         </div>
-        
+
         <div class="form-group">
-          <label for="type" use:tooltip={"Select the DNS record type to check"}>
+          <label for="type" use:tooltip={'Select the DNS record type to check'}>
             Record Type
-            <select id="type" bind:value={recordType} onchange={() => { clearExampleSelection(); if (domainName) checkPropagation(); }}>
+            <select
+              id="type"
+              bind:value={recordType}
+              onchange={() => {
+                clearExampleSelection();
+                if (domainName) checkPropagation();
+              }}
+            >
               {#each recordTypes as type}
                 <option value={type.value} title={type.description}>{type.label}</option>
               {/each}
@@ -189,7 +202,7 @@
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="check-btn" onclick={checkPropagation} disabled={loading || !domainName.trim()}>
           {#if loading}
@@ -225,10 +238,10 @@
           </div>
         </div>
         <button class="copy-btn" onclick={copyAllResults} disabled={copiedState}>
-          <div class={copiedState ? "status-success" : ""}>
-            <Icon name={copiedState ? "check" : "copy"} size="xs" />
+          <div class={copiedState ? 'status-success' : ''}>
+            <Icon name={copiedState ? 'check' : 'copy'} size="xs" />
           </div>
-          {copiedState ? "Copied!" : "Copy All Results"}
+          {copiedState ? 'Copied!' : 'Copy All Results'}
         </button>
       </div>
       <div class="card-content">
@@ -237,7 +250,7 @@
             {@const info = resolverInfo[result.resolver as keyof typeof resolverInfo]}
             {@const status = getStatusColor(result)}
             {@const icon = getStatusIcon(result)}
-            
+
             <div class="resolver-card card {status}">
               <div class="resolver-header">
                 <div class="resolver-info">
@@ -248,7 +261,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <div class="resolver-content">
                 {#if result.error}
                   <div class="error-message">
@@ -261,7 +274,7 @@
                       <div class="record">
                         <span class="record-data mono">{record.data}</span>
                         {#if record.TTL}
-                          <span class="record-ttl" use:tooltip={"Time To Live"}>TTL: {record.TTL}s</span>
+                          <span class="record-ttl" use:tooltip={'Time To Live'}>TTL: {record.TTL}s</span>
                         {/if}
                       </div>
                     {/each}
@@ -276,7 +289,7 @@
             </div>
           {/each}
         </div>
-        
+
         {#if lastQuery}
           <div class="query-info">
             <span>Last checked: {lastQuery.domain} ({lastQuery.type}) at {new Date().toLocaleString()}</span>
@@ -309,9 +322,12 @@
       <div class="info-grid">
         <div class="info-section">
           <h4>What is DNS Propagation?</h4>
-          <p>DNS propagation refers to the time it takes for DNS changes to spread across the internet. Different resolvers may cache records for different periods, leading to temporary inconsistencies.</p>
+          <p>
+            DNS propagation refers to the time it takes for DNS changes to spread across the internet. Different
+            resolvers may cache records for different periods, leading to temporary inconsistencies.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>Factors Affecting Propagation</h4>
           <ul>
@@ -321,7 +337,7 @@
             <li><strong>DNS Infrastructure:</strong> Authoritative server response time</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Interpreting Results</h4>
           <div class="status-legend">
@@ -345,7 +361,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>DNS Resolvers Tested</h4>
           <div class="resolvers-info">
@@ -365,15 +381,15 @@
 <style lang="scss">
   // Page-specific styles not covered by shared diagnostics-pages.scss
 
-.resolvers-grid {
-  gap: var(--spacing-md);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  .resolver-card {
-    width: 100%;
-    padding: var(--spacing-sm);
+  .resolvers-grid {
+    gap: var(--spacing-md);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    .resolver-card {
+      width: 100%;
+      padding: var(--spacing-sm);
+    }
   }
-}
 
   .form-group {
     label {
@@ -484,7 +500,7 @@
       justify-content: center;
       margin-bottom: var(--spacing-sm);
       font-size: var(--font-size-md);
-      color: var(--color-info)
+      color: var(--color-info);
     }
   }
 
@@ -499,7 +515,7 @@
     justify-content: space-between;
     align-items: center;
     gap: var(--spacing-sm);
-    
+
     @media (max-width: 768px) {
       flex-direction: column;
       align-items: flex-start;
@@ -520,7 +536,7 @@
     gap: var(--spacing-xs);
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    
+
     strong {
       color: var(--text-primary);
     }
@@ -538,7 +554,7 @@
     align-items: center;
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    
+
     strong {
       color: var(--text-primary);
       font-family: var(--font-mono);
@@ -548,5 +564,4 @@
   .mono {
     font-family: var(--font-mono);
   }
-
 </style>

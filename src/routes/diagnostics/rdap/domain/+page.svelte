@@ -2,43 +2,43 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domain = $state('example.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { domain: 'example.com', description: 'Example domain for testing' },
     { domain: 'google.com', description: 'Popular domain with comprehensive records' },
     { domain: 'github.com', description: 'Tech company domain' },
     { domain: 'stackoverflow.com', description: 'Community platform domain' },
     { domain: 'cloudflare.com', description: 'CDN provider domain' },
-    { domain: 'iana.org', description: 'Internet registry domain' }
+    { domain: 'iana.org', description: 'Internet registry domain' },
   ];
-  
+
   async function lookupDomain() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/rdap', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'domain-lookup',
-          domain: domain.trim().toLowerCase()
-        })
+          domain: domain.trim().toLowerCase(),
+        }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: `HTTP ${response.status}` }));
         throw new Error(errorData.message || `Domain RDAP lookup failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -46,50 +46,50 @@
       loading = false;
     }
   }
-  
+
   function loadExample(example: { domain: string }, index: number) {
     domain = example.domain;
     selectedExampleIndex = index;
     lookupDomain();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   async function copyResults() {
     if (!results?.raw) return;
-    
+
     try {
       await navigator.clipboard.writeText(JSON.stringify(results.raw, null, 2));
       copiedState = true;
-      setTimeout(() => copiedState = false, 1500);
+      setTimeout(() => (copiedState = false), 1500);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
   }
-  
+
   function formatDate(dateString: string | undefined): string {
     if (!dateString) return 'Not available';
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       });
     } catch {
       return dateString;
     }
   }
-  
+
   function formatContact(contact: any): string {
     const vcard = contact.vcardArray;
     if (!vcard || !vcard[1]) return contact.handle || 'Unknown';
-    
+
     const properties = vcard[1];
     const name = properties.find((p: any) => p[0] === 'fn')?.[3] || contact.handle;
     const org = properties.find((p: any) => p[0] === 'org')?.[3]?.[0];
-    
+
     return org ? `${name} (${org})` : name;
   }
 </script>
@@ -97,7 +97,10 @@
 <div class="card">
   <header class="card-header">
     <h1>Domain RDAP Lookup</h1>
-    <p>Query domain registration data using RDAP (Registration Data Access Protocol). RDAP is the modern successor to WHOIS, providing structured JSON responses through IANA bootstrap registry routing.</p>
+    <p>
+      Query domain registration data using RDAP (Registration Data Access Protocol). RDAP is the modern successor to
+      WHOIS, providing structured JSON responses through IANA bootstrap registry routing.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -109,8 +112,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Perform RDAP lookup for ${example.domain} (${example.description})`}
@@ -131,19 +134,22 @@
     <div class="card-content">
       <div class="form-grid">
         <div class="form-group">
-          <label for="domain" use:tooltip={"Enter a domain name to query registration data via RDAP"}>
+          <label for="domain" use:tooltip={'Enter a domain name to query registration data via RDAP'}>
             Domain Name
-            <input 
-              id="domain" 
-              type="text" 
-              bind:value={domain} 
+            <input
+              id="domain"
+              type="text"
+              bind:value={domain}
               placeholder="example.com"
-              onchange={() => { clearExampleSelection(); if (domain.trim()) lookupDomain(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (domain.trim()) lookupDomain();
+              }}
             />
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={lookupDomain} disabled={loading || !domain.trim()}>
           {#if loading}
@@ -164,18 +170,20 @@
       <div class="card-header row">
         <h3>RDAP Data for {results.domain}</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Raw JSON"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Raw JSON'}
         </button>
       </div>
       <div class="card-content">
         <div class="lookup-info">
           <div class="info-item">
-            <span class="info-label" use:tooltip={"The domain name that was queried"}>Domain:</span>
+            <span class="info-label" use:tooltip={'The domain name that was queried'}>Domain:</span>
             <span class="info-value mono">{results.data.domain || results.domain}</span>
           </div>
           <div class="info-item">
-            <span class="info-label" use:tooltip={"RDAP service used for the query"}>RDAP Service:</span>
+            <span class="info-label" use:tooltip={'RDAP service used for the query'}>RDAP Service:</span>
             <span class="info-value mono">{results.serviceUrl}</span>
           </div>
         </div>
@@ -187,7 +195,7 @@
             <dl class="definition-list">
               <dt>Domain Name:</dt>
               <dd><code>{results.data.domain || results.domain}</code></dd>
-              
+
               <dt>Status:</dt>
               <dd>
                 {#if results.data.status?.length}
@@ -200,7 +208,7 @@
                   Not available
                 {/if}
               </dd>
-              
+
               <dt>Registrar:</dt>
               <dd>{results.data.registrar || 'Not available'}</dd>
             </dl>
@@ -212,12 +220,15 @@
             <dl class="definition-list">
               <dt>Registration Date:</dt>
               <dd>{formatDate(results.data.created)}</dd>
-              
+
               <dt>Last Updated:</dt>
               <dd>{formatDate(results.data.updated)}</dd>
-              
+
               <dt>Expiration Date:</dt>
-              <dd class:expires-soon={results.data.expires && new Date(results.data.expires) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}>
+              <dd
+                class:expires-soon={results.data.expires &&
+                  new Date(results.data.expires) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
+              >
                 {formatDate(results.data.expires)}
                 {#if results.data.expires && new Date(results.data.expires) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
                   <span class="warning-badge">Expires Soon!</span>
@@ -302,9 +313,12 @@
       <div class="info-grid">
         <div class="info-section">
           <h4>What is RDAP?</h4>
-          <p>RDAP (Registration Data Access Protocol) is the modern successor to WHOIS, providing structured JSON responses for domain registration information through IANA bootstrap registry routing.</p>
+          <p>
+            RDAP (Registration Data Access Protocol) is the modern successor to WHOIS, providing structured JSON
+            responses for domain registration information through IANA bootstrap registry routing.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>What You'll Get</h4>
           <ul>
@@ -314,7 +328,7 @@
             <li>Contact information (if available)</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>RDAP vs WHOIS</h4>
           <ul>
@@ -335,7 +349,7 @@
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }
-  
+
   .form-group label {
     flex-direction: column;
   }

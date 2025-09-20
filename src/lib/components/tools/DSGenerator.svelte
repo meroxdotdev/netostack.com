@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { parseDNSKEYRecord, generateDSRecord, validateDNSKEY, formatDSRecord, DNSSEC_ALGORITHMS, DS_DIGEST_TYPES } from '$lib/utils/dnssec';
+  import {
+    parseDNSKEYRecord,
+    generateDSRecord,
+    validateDNSKEY,
+    formatDSRecord,
+    DNSSEC_ALGORITHMS,
+    DS_DIGEST_TYPES,
+  } from '$lib/utils/dnssec';
   import type { DSRecord } from '$lib/utils/dnssec';
   import Icon from '$lib/components/global/Icon.svelte';
 
@@ -7,29 +14,32 @@
   let ownerName = $state('example.com.');
   let selectedDigestTypes = $state([2]); // SHA-256 by default
   let activeExampleIndex = $state(-1);
-  
+
   const examples = [
     {
       title: 'KSK for Root Zone',
-      dnskey: '. IN DNSKEY 257 3 8 AwEAAag/8pPvt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
-      owner: '.'
+      dnskey:
+        '. IN DNSKEY 257 3 8 AwEAAag/8pPvt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
+      owner: '.',
     },
     {
       title: 'Example.com KSK',
-      dnskey: 'example.com. IN DNSKEY 257 3 13 kC1gJ+0qtVgdl0VAO/6t9vRaB15v4PclEV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
-      owner: 'example.com.'
+      dnskey:
+        'example.com. IN DNSKEY 257 3 13 kC1gJ+0qtVgdl0VAO/6t9vRaB15v4PclEV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
+      owner: 'example.com.',
     },
     {
       title: 'Subdomain KSK',
-      dnskey: 'secure.example.org. IN DNSKEY 257 3 8 AwEAAag/8pPvt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
-      owner: 'secure.example.org.'
-    }
+      dnskey:
+        'secure.example.org. IN DNSKEY 257 3 8 AwEAAag/8pPvt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuPt1p1YKzY7mD5oCwrTDQeF3jhFV9h4n9JfCuP',
+      owner: 'secure.example.org.',
+    },
   ];
 
   const digestTypeOptions = [
     { value: 1, label: 'SHA-1', recommended: false },
     { value: 2, label: 'SHA-256', recommended: true },
-    { value: 4, label: 'SHA-384', recommended: true }
+    { value: 4, label: 'SHA-384', recommended: true },
   ];
 
   let generatingDS = $state(false);
@@ -95,7 +105,7 @@
 
   function toggleDigestType(type: number) {
     if (selectedDigestTypes.includes(type)) {
-      selectedDigestTypes = selectedDigestTypes.filter(t => t !== type);
+      selectedDigestTypes = selectedDigestTypes.filter((t) => t !== type);
     } else {
       selectedDigestTypes = [...selectedDigestTypes, type];
     }
@@ -104,28 +114,34 @@
     }
   }
 
-  let copiedStates = $state<{[key: string]: boolean}>({});
+  let copiedStates = $state<{ [key: string]: boolean }>({});
 
   function copyDS(ds: DSRecord) {
     const formatted = formatDSRecord(ds, ownerName);
     navigator.clipboard.writeText(formatted);
     const key = `ds-${ds.keyTag}-${ds.digestType}`;
     copiedStates[key] = true;
-    setTimeout(() => { copiedStates[key] = false; }, 1500);
+    setTimeout(() => {
+      copiedStates[key] = false;
+    }, 1500);
   }
 
   function copyAllDS() {
-    const formatted = dsRecords.map(ds => formatDSRecord(ds, ownerName)).join('\n');
+    const formatted = dsRecords.map((ds) => formatDSRecord(ds, ownerName)).join('\n');
     navigator.clipboard.writeText(formatted);
     copiedStates['all'] = true;
-    setTimeout(() => { copiedStates['all'] = false; }, 1500);
+    setTimeout(() => {
+      copiedStates['all'] = false;
+    }, 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>DS Record Generator</h1>
-    <p>Generate DS records (SHA-1/256/384) from a DNSKEY or public key, with copyable output for parent zone submission.</p>
+    <p>
+      Generate DS records (SHA-1/256/384) from a DNSKEY or public key, with copyable output for parent zone submission.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -137,11 +153,7 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
-            class:active={activeExampleIndex === i}
-            onclick={() => loadExample(i)}
-          >
+          <button class="example-card" class:active={activeExampleIndex === i} onclick={() => loadExample(i)}>
             <div class="example-title">{example.title}</div>
             <div class="example-owner">Owner: <code>{example.owner}</code></div>
             <div class="example-dnskey"><code>{example.dnskey}</code></div>
@@ -160,13 +172,7 @@
             <Icon name="globe" size="sm" />
             Owner Name (FQDN)
           </label>
-          <input
-            id="owner-input"
-            type="text"
-            bind:value={ownerName}
-            oninput={handleInput}
-            placeholder="example.com."
-          />
+          <input id="owner-input" type="text" bind:value={ownerName} oninput={handleInput} placeholder="example.com." />
         </div>
 
         <div class="input-group">
@@ -210,12 +216,7 @@
       </div>
     </div>
 
-    <button 
-      class="generate-btn" 
-      class:loading={generatingDS}
-      disabled={!isValid || generatingDS}
-      onclick={generateDS}
-    >
+    <button class="generate-btn" class:loading={generatingDS} disabled={!isValid || generatingDS} onclick={generateDS}>
       {#if generatingDS}
         <Icon name="loader" size="sm" />
         <span>Generating DS Records...</span>
@@ -249,7 +250,7 @@
             Copy All
           </button>
         </div>
-        
+
         <div class="ds-records">
           {#each dsRecords as ds}
             <div class="ds-record">
@@ -258,23 +259,33 @@
                   <span class="digest-type">{DS_DIGEST_TYPES[ds.digestType as keyof typeof DS_DIGEST_TYPES]}</span>
                   <span class="key-tag">Key Tag: {ds.keyTag}</span>
                 </div>
-                <button class="copy-btn small" class:copied={copiedStates[`ds-${ds.keyTag}-${ds.digestType}`]} onclick={() => copyDS(ds)} title="Copy this DS record">
+                <button
+                  class="copy-btn small"
+                  class:copied={copiedStates[`ds-${ds.keyTag}-${ds.digestType}`]}
+                  onclick={() => copyDS(ds)}
+                  title="Copy this DS record"
+                >
                   <Icon name={copiedStates[`ds-${ds.keyTag}-${ds.digestType}`] ? 'check' : 'copy'} />
                 </button>
               </div>
-              
+
               <div class="ds-content">
                 <code>{formatDSRecord(ds, ownerName)}</code>
               </div>
-              
+
               <div class="ds-details">
                 <div class="detail-item">
                   <span class="label">Algorithm:</span>
-                  <span class="value">{ds.algorithm} ({DNSSEC_ALGORITHMS[ds.algorithm as keyof typeof DNSSEC_ALGORITHMS] || 'Unknown'})</span>
+                  <span class="value"
+                    >{ds.algorithm} ({DNSSEC_ALGORITHMS[ds.algorithm as keyof typeof DNSSEC_ALGORITHMS] ||
+                      'Unknown'})</span
+                  >
                 </div>
                 <div class="detail-item">
                   <span class="label">Digest Type:</span>
-                  <span class="value">{ds.digestType} ({DS_DIGEST_TYPES[ds.digestType as keyof typeof DS_DIGEST_TYPES]})</span>
+                  <span class="value"
+                    >{ds.digestType} ({DS_DIGEST_TYPES[ds.digestType as keyof typeof DS_DIGEST_TYPES]})</span
+                  >
                 </div>
                 <div class="detail-item">
                   <span class="label">Digest:</span>
@@ -293,27 +304,38 @@
       <div class="card-header">
         <h4>DS Record Purpose</h4>
       </div>
-      <p>DS (Delegation Signer) records are published in the parent zone to establish a secure delegation to the child zone. They contain a hash of the child's KSK (Key Signing Key) and enable DNSSEC validators to verify the authenticity of the child zone's DNSKEY records.</p>
+      <p>
+        DS (Delegation Signer) records are published in the parent zone to establish a secure delegation to the child
+        zone. They contain a hash of the child's KSK (Key Signing Key) and enable DNSSEC validators to verify the
+        authenticity of the child zone's DNSKEY records.
+      </p>
     </div>
 
     <div class="card warning">
       <div class="card-header">
         <h4>Digest Algorithm Recommendations</h4>
       </div>
-      <p><strong>SHA-256 and SHA-384</strong> are recommended for new deployments. <strong>SHA-1</strong> is deprecated but may still be required for compatibility with older systems. Most registrars accept multiple DS records with different digest types for redundancy.</p>
+      <p>
+        <strong>SHA-256 and SHA-384</strong> are recommended for new deployments. <strong>SHA-1</strong> is deprecated but
+        may still be required for compatibility with older systems. Most registrars accept multiple DS records with different
+        digest types for redundancy.
+      </p>
     </div>
 
     <div class="card info">
       <div class="card-header">
         <h4>Parent Zone Submission</h4>
       </div>
-      <p>Submit the generated DS records to your parent zone operator (registrar for TLDs, hosting provider for subdomains). The DS records must be published in the parent zone before enabling DNSSEC signing in the child zone to maintain the chain of trust.</p>
+      <p>
+        Submit the generated DS records to your parent zone operator (registrar for TLDs, hosting provider for
+        subdomains). The DS records must be published in the parent zone before enabling DNSSEC signing in the child
+        zone to maintain the chain of trust.
+      </p>
     </div>
   </div>
 </div>
 
 <style lang="scss">
-
   .examples-card {
     padding: 0;
     background: var(--bg-tertiary);
@@ -322,13 +344,12 @@
   .input-card {
     background: var(--bg-tertiary);
     margin-bottom: var(--spacing-md);
-  
   }
 
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -444,7 +465,8 @@
     }
   }
 
-  input, textarea {
+  input,
+  textarea {
     width: 100%;
     padding: var(--spacing-sm);
     border: 1px solid var(--border-secondary);
@@ -501,7 +523,7 @@
     &:hover {
       background: var(--surface-hover);
     }
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       display: none;
     }
   }
@@ -756,7 +778,9 @@
       background: var(--bg-tertiary);
       .card-header {
         margin-bottom: var(--spacing-sm);
-        h4 { margin: 0; }
+        h4 {
+          margin: 0;
+        }
       }
       p {
         margin: 0;

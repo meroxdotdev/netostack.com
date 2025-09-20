@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mtuMssContent } from '$lib/content/mtu-mss.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -14,14 +14,14 @@
     <div class="ref-section">
       <h2>{mtuMssContent.sections.overview.title}</h2>
       <p>{mtuMssContent.sections.overview.content}</p>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="formula" size="sm" />
           Key Formula
         </div>
         <div class="highlight-content">
-          MSS = MTU - IP Header - TCP Header<br>
+          MSS = MTU - IP Header - TCP Header<br />
           For IPv4: MSS = MTU - 20 - 20 = MTU - 40 bytes
         </div>
       </div>
@@ -94,7 +94,7 @@
     <div class="ref-section">
       <h2>{mtuMssContent.discovery.title}</h2>
       <p>{mtuMssContent.discovery.description}</p>
-      
+
       <h3>PMTU Discovery Process</h3>
       <ol>
         {#each mtuMssContent.discovery.process as step}
@@ -128,7 +128,7 @@
 
     <div class="ref-section">
       <h2>Useful Commands</h2>
-      
+
       <h3>Checking MTU Settings</h3>
       <table class="ref-table">
         <thead>
@@ -177,14 +177,15 @@
           <li>{practice}</li>
         {/each}
       </ul>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="zap" size="sm" />
           Performance Tip
         </div>
         <div class="highlight-content">
-          Mismatched MTU sizes can cause significant performance issues. Always ensure consistent MTU values across your network path, especially for high-throughput applications.
+          Mismatched MTU sizes can cause significant performance issues. Always ensure consistent MTU values across your
+          network path, especially for high-throughput applications.
         </div>
       </div>
     </div>
@@ -199,14 +200,15 @@
           </div>
         {/each}
       </div>
-      
+
       <div class="ref-warning">
         <div class="warning-title">
           <Icon name="alert-circle" size="sm" />
           Important Note
         </div>
         <div class="warning-content">
-          When troubleshooting connectivity issues, especially with VPNs or tunnels, MTU/MSS mismatches are often the culprit. Test with smaller packet sizes if large transfers fail but small ones succeed.
+          When troubleshooting connectivity issues, especially with VPNs or tunnels, MTU/MSS mismatches are often the
+          culprit. Test with smaller packet sizes if large transfers fail but small ones succeed.
         </div>
       </div>
     </div>

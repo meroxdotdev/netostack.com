@@ -1,6 +1,6 @@
 <script lang="ts">
   import { reverseZonesContent } from '$lib/content/reverse-zones.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -23,7 +23,7 @@
 
     <div class="ref-section">
       <h2>{reverseZonesContent.ipv4Zones.title}</h2>
-      
+
       <h3>Classful Boundaries (Octet-Aligned)</h3>
       <table class="ref-table">
         <thead>
@@ -91,7 +91,7 @@
 
     <div class="ref-section">
       <h2>{reverseZonesContent.ipv6Zones.title}</h2>
-      
+
       <h3>Nibble Boundaries (4-bit Aligned)</h3>
       <table class="ref-table">
         <thead>
@@ -135,15 +135,15 @@
 
     <div class="ref-section">
       <h2>{reverseZonesContent.zoneCreation.title}</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">IPv4 Example ({reverseZonesContent.zoneCreation.ipv4Example.network})</div>
           <div><strong>Zone Name:</strong> <code>{reverseZonesContent.zoneCreation.ipv4Example.zoneName}</code></div>
-          
+
           <h4>Zone File:</h4>
           <pre><code>{reverseZonesContent.zoneCreation.ipv4Example.zoneFile}</code></pre>
-          
+
           <h4>Explanation:</h4>
           <ul>
             {#each reverseZonesContent.zoneCreation.ipv4Example.explanation as point}
@@ -155,10 +155,10 @@
         <div class="grid-item">
           <div class="item-title">IPv6 Example ({reverseZonesContent.zoneCreation.ipv6Example.network})</div>
           <div><strong>Zone Name:</strong> <code>{reverseZonesContent.zoneCreation.ipv6Example.zoneName}</code></div>
-          
+
           <h4>Zone File:</h4>
           <pre><code>{reverseZonesContent.zoneCreation.ipv6Example.zoneFile}</code></pre>
-          
+
           <h4>Explanation:</h4>
           <ul>
             {#each reverseZonesContent.zoneCreation.ipv6Example.explanation as point}
@@ -176,7 +176,7 @@
           <div class="examples-title">{scenario.scenario}</div>
           <div class="example-item">
             <div><strong>Delegation:</strong> {scenario.delegation}</div>
-            
+
             {#if scenario.customerActions}
               <div><strong>Customer Actions:</strong></div>
               <ul>
@@ -184,7 +184,7 @@
                   <li>{action}</li>
                 {/each}
               </ul>
-              
+
               <div><strong>ISP Actions:</strong></div>
               <ul>
                 {#each scenario.ispActions as action}
@@ -232,7 +232,7 @@
 
     <div class="ref-section">
       <h2>Quick Reference</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Zone Name Formulas</div>
@@ -240,7 +240,7 @@
             <div class="item-code">{formula}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">Essential Records</div>
           {#each reverseZonesContent.quickReference.essentialRecords as record}
@@ -248,14 +248,15 @@
           {/each}
         </div>
       </div>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="key" size="sm" />
           Key Rule
         </div>
         <div class="highlight-content">
-          IPv4 reverse zones reverse the octets (192.0.2.0/24 → 2.0.192.in-addr.arpa). IPv6 reverse zones reverse the nibbles (2001:db8::/32 → 8.b.d.0.1.0.0.2.ip6.arpa).
+          IPv4 reverse zones reverse the octets (192.0.2.0/24 → 2.0.192.in-addr.arpa). IPv6 reverse zones reverse the
+          nibbles (2001:db8::/32 → 8.b.d.0.1.0.0.2.ip6.arpa).
         </div>
       </div>
     </div>

@@ -25,7 +25,7 @@
 
   let showExamples = $state(false);
   let selectedExample = $state<string | null>(null);
-  
+
   // Button success states
   let buttonStates = $state<Record<string, boolean>>({});
 
@@ -37,19 +37,19 @@
     { type: 'include', qualifier: '+', value: '', enabled: false },
     { type: 'ptr', qualifier: '~', value: '', enabled: false },
     { type: 'exists', qualifier: '+', value: '', enabled: false },
-    { type: 'all', qualifier: '~', value: '', enabled: true }
+    { type: 'all', qualifier: '~', value: '', enabled: true },
   ]);
 
   let modifiers = $state<SPFModifier[]>([
     { type: 'redirect', value: '', enabled: false },
-    { type: 'exp', value: '', enabled: false }
+    { type: 'exp', value: '', enabled: false },
   ]);
 
   const qualifierLabels = {
     '+': 'Pass',
     '-': 'Fail',
     '~': 'SoftFail',
-    '?': 'Neutral'
+    '?': 'Neutral',
   };
 
   const mechanismDescriptions = {
@@ -60,19 +60,19 @@
     ptr: 'Match PTR records (discouraged)',
     ip4: 'Match specific IPv4 address/range',
     ip6: 'Match specific IPv6 address/range',
-    exists: 'Check if domain exists'
+    exists: 'Check if domain exists',
   };
 
   const spfRecord = $derived.by(() => {
-    const enabledMechanisms = mechanisms.filter(m => m.enabled);
-    const enabledModifiers = modifiers.filter(m => m.enabled);
-    
+    const enabledMechanisms = mechanisms.filter((m) => m.enabled);
+    const enabledModifiers = modifiers.filter((m) => m.enabled);
+
     let record = 'v=spf1';
-    
+
     // Add mechanisms
     for (const mech of enabledMechanisms) {
       let mechString = '';
-      
+
       if (mech.type === 'all') {
         mechString = `${mech.qualifier}all`;
       } else if (mech.type === 'a' || mech.type === 'mx' || mech.type === 'ptr') {
@@ -85,34 +85,34 @@
           mechString = `${mech.qualifier}${mech.type}:${mech.value.trim()}`;
         }
       }
-      
+
       if (mechString) {
         record += ` ${mechString}`;
       }
     }
-    
+
     // Add modifiers
     for (const mod of enabledModifiers) {
       if (mod.value.trim()) {
         record += ` ${mod.type}=${mod.value.trim()}`;
       }
     }
-    
+
     return record;
   });
 
   const validation = $derived.by((): ValidationResult => {
-    const enabledMechanisms = mechanisms.filter(m => m.enabled);
-    const enabledModifiers = modifiers.filter(m => m.enabled);
+    const enabledMechanisms = mechanisms.filter((m) => m.enabled);
+    const enabledModifiers = modifiers.filter((m) => m.enabled);
     const messages: string[] = [];
     const warnings: string[] = [];
     let dnsLookups = 0;
-    
+
     // Check for required elements
     if (enabledMechanisms.length === 0) {
       messages.push('At least one mechanism must be enabled');
     }
-    
+
     // Count DNS lookups
     for (const mech of enabledMechanisms) {
       if (['include', 'a', 'mx', 'exists'].includes(mech.type)) {
@@ -122,24 +122,24 @@
         dnsLookups += 2; // PTR requires reverse and forward lookup
       }
     }
-    
+
     // Check DNS lookup limit
     if (dnsLookups > 10) {
       messages.push(`Too many DNS lookups (${dnsLookups}). SPF limit is 10.`);
     } else if (dnsLookups > 8) {
       warnings.push(`High DNS lookup count (${dnsLookups}). Consider consolidating.`);
     }
-    
+
     // Validate mechanism values
     for (const mech of enabledMechanisms) {
       if ((mech.type === 'include' || mech.type === 'exists') && !mech.value.trim()) {
         messages.push(`${mech.type} mechanism requires a domain value`);
       }
-      
+
       if ((mech.type === 'ip4' || mech.type === 'ip6') && !mech.value.trim()) {
         messages.push(`${mech.type} mechanism requires an IP address`);
       }
-      
+
       // Basic IP validation
       if (mech.type === 'ip4' && mech.value.trim()) {
         const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
@@ -147,7 +147,7 @@
           messages.push(`Invalid IPv4 address/range: ${mech.value}`);
         }
       }
-      
+
       if (mech.type === 'ip6' && mech.value.trim()) {
         // Basic IPv6 validation (simplified)
         if (!mech.value.includes(':')) {
@@ -155,18 +155,18 @@
         }
       }
     }
-    
+
     // Check for 'all' mechanism position
-    const allIndex = enabledMechanisms.findIndex(m => m.type === 'all');
+    const allIndex = enabledMechanisms.findIndex((m) => m.type === 'all');
     if (allIndex >= 0 && allIndex < enabledMechanisms.length - 1) {
       warnings.push("'all' mechanism should typically be last");
     }
-    
+
     // Check for PTR usage
-    if (enabledMechanisms.some(m => m.type === 'ptr')) {
+    if (enabledMechanisms.some((m) => m.type === 'ptr')) {
       warnings.push('PTR mechanism is discouraged (slow and unreliable)');
     }
-    
+
     // Check record length
     const recordLength = spfRecord.length;
     if (recordLength > 255) {
@@ -174,19 +174,19 @@
     } else if (recordLength > 200) {
       warnings.push(`SPF record is long (${recordLength} chars). Consider shortening.`);
     }
-    
+
     // Check for conflicting modifiers
-    const redirectEnabled = modifiers.find(m => m.type === 'redirect' && m.enabled);
+    const redirectEnabled = modifiers.find((m) => m.type === 'redirect' && m.enabled);
     if (redirectEnabled && enabledMechanisms.length > 0) {
       warnings.push('redirect modifier should not be used with mechanisms');
     }
-    
+
     return {
       isValid: messages.length === 0,
       messages,
       warnings,
       dnsLookups,
-      recordLength
+      recordLength,
     };
   });
 
@@ -195,7 +195,7 @@
       type: 'include',
       qualifier: '+',
       value: '',
-      enabled: true
+      enabled: true,
     });
     mechanisms = mechanisms;
   }
@@ -231,11 +231,11 @@
     showButtonSuccess('export-spf');
   }
 
-  function loadExample(example: typeof examplePolicies[0]) {
-    mechanisms = mechanisms.map(m => ({ ...m, enabled: false }));
-    
+  function loadExample(example: (typeof examplePolicies)[0]) {
+    mechanisms = mechanisms.map((m) => ({ ...m, enabled: false }));
+
     for (const exampleMech of example.mechanisms) {
-      const existing = mechanisms.find(m => m.type === exampleMech.type && !m.enabled);
+      const existing = mechanisms.find((m) => m.type === exampleMech.type && !m.enabled);
       if (existing) {
         existing.enabled = exampleMech.enabled;
         existing.qualifier = exampleMech.qualifier as any;
@@ -252,8 +252,8 @@
       description: 'Simple SPF policy for Google Workspace',
       mechanisms: [
         { type: 'include', qualifier: '+', value: '_spf.google.com', enabled: true },
-        { type: 'all', qualifier: '~', value: '', enabled: true }
-      ]
+        { type: 'all', qualifier: '~', value: '', enabled: true },
+      ],
     },
     {
       name: 'Multiple Providers',
@@ -262,8 +262,8 @@
         { type: 'include', qualifier: '+', value: '_spf.google.com', enabled: true },
         { type: 'include', qualifier: '+', value: 'mailgun.org', enabled: true },
         { type: 'include', qualifier: '+', value: 'servers.mcsv.net', enabled: true },
-        { type: 'all', qualifier: '~', value: '', enabled: true }
-      ]
+        { type: 'all', qualifier: '~', value: '', enabled: true },
+      ],
     },
     {
       name: 'Server + Provider',
@@ -272,8 +272,8 @@
         { type: 'ip4', qualifier: '+', value: '203.0.113.1', enabled: true },
         { type: 'mx', qualifier: '+', value: '', enabled: true },
         { type: 'include', qualifier: '+', value: '_spf.google.com', enabled: true },
-        { type: 'all', qualifier: '-', value: '', enabled: true }
-      ]
+        { type: 'all', qualifier: '-', value: '', enabled: true },
+      ],
     },
     {
       name: 'Strict Policy',
@@ -281,9 +281,9 @@
       mechanisms: [
         { type: 'ip4', qualifier: '+', value: '203.0.113.0/24', enabled: true },
         { type: 'include', qualifier: '+', value: '_spf.google.com', enabled: true },
-        { type: 'all', qualifier: '-', value: '', enabled: true }
-      ]
-    }
+        { type: 'all', qualifier: '-', value: '', enabled: true },
+      ],
+    },
   ];
 </script>
 
@@ -299,7 +299,7 @@
     <div class="input-section">
       <div class="mechanisms-section">
         <div class="section-header">
-          <h3 use:tooltip={"Configure SPF mechanisms that define which servers can send email"}>
+          <h3 use:tooltip={'Configure SPF mechanisms that define which servers can send email'}>
             <Icon name="settings" size="sm" />
             SPF Mechanisms
           </h3>
@@ -308,7 +308,7 @@
             Add Custom
           </button>
         </div>
-        
+
         <div class="mechanisms-list">
           {#each mechanisms as mechanism, index}
             <div class="mechanism-item" class:enabled={mechanism.enabled}>
@@ -320,7 +320,7 @@
                     {mechanismDescriptions[mechanism.type]}
                   </span>
                 </label>
-                
+
                 <div class="mechanism-controls">
                   <div class="qualifier-select">
                     <select bind:value={mechanism.qualifier} disabled={!mechanism.enabled}>
@@ -330,30 +330,34 @@
                       <option value="?">? Neutral</option>
                     </select>
                   </div>
-                  
+
                   {#if !['all', 'a', 'mx', 'ptr', 'ip4', 'ip6', 'include', 'exists'].includes(mechanism.type) || index < 3}
                     <button
                       type="button"
                       class="remove-btn"
                       onclick={() => removeMechanism(index)}
-                      use:tooltip={"Remove this mechanism"}
+                      use:tooltip={'Remove this mechanism'}
                     >
                       <Icon name="x" size="sm" />
                     </button>
                   {/if}
                 </div>
               </div>
-              
+
               {#if !['all'].includes(mechanism.type)}
                 <input
                   type="text"
                   bind:value={mechanism.value}
                   disabled={!mechanism.enabled}
-                  placeholder={mechanism.type === 'ip4' ? '203.0.113.1 or 203.0.113.0/24' :
-                              mechanism.type === 'ip6' ? '2001:db8::1 or 2001:db8::/32' :
-                              mechanism.type === 'include' ? '_spf.google.com' :
-                              mechanism.type === 'exists' ? 'check.example.com' :
-                              'domain.com (optional)'}
+                  placeholder={mechanism.type === 'ip4'
+                    ? '203.0.113.1 or 203.0.113.0/24'
+                    : mechanism.type === 'ip6'
+                      ? '2001:db8::1 or 2001:db8::/32'
+                      : mechanism.type === 'include'
+                        ? '_spf.google.com'
+                        : mechanism.type === 'exists'
+                          ? 'check.example.com'
+                          : 'domain.com (optional)'}
                   class="mechanism-input"
                 />
               {/if}
@@ -364,12 +368,12 @@
 
       <div class="modifiers-section">
         <div class="section-header">
-          <h3 use:tooltip={"Optional SPF modifiers for advanced configuration"}>
+          <h3 use:tooltip={'Optional SPF modifiers for advanced configuration'}>
             <Icon name="wrench" size="sm" />
             SPF Modifiers
           </h3>
         </div>
-        
+
         <div class="modifiers-list">
           {#each modifiers as modifier}
             <div class="modifier-item" class:enabled={modifier.enabled}>
@@ -377,7 +381,7 @@
                 <input type="checkbox" bind:checked={modifier.enabled} />
                 <span class="modifier-type">{modifier.type}=</span>
               </label>
-              
+
               <input
                 type="text"
                 bind:value={modifier.value}
@@ -401,9 +405,9 @@
               class="copy-btn"
               class:success={buttonStates['copy-spf']}
               onclick={() => copyToClipboard(spfRecord, 'copy-spf')}
-              use:tooltip={"Copy SPF record to clipboard"}
+              use:tooltip={'Copy SPF record to clipboard'}
             >
-              <Icon name={buttonStates['copy-spf'] ? "check" : "copy"} size="sm" />
+              <Icon name={buttonStates['copy-spf'] ? 'check' : 'copy'} size="sm" />
               {buttonStates['copy-spf'] ? 'Copied!' : 'Copy'}
             </button>
             <button
@@ -411,14 +415,14 @@
               class="export-btn"
               class:success={buttonStates['export-spf']}
               onclick={exportAsZoneFile}
-              use:tooltip={"Download as zone file"}
+              use:tooltip={'Download as zone file'}
             >
-              <Icon name={buttonStates['export-spf'] ? "check" : "download"} size="sm" />
+              <Icon name={buttonStates['export-spf'] ? 'check' : 'download'} size="sm" />
               {buttonStates['export-spf'] ? 'Downloaded!' : 'Export'}
             </button>
           </div>
         </div>
-        
+
         <div class="record-output">
           <div class="code-block">
             <code>{spfRecord}</code>
@@ -440,7 +444,7 @@
             Policy Validation
           </h3>
         </div>
-        
+
         <div class="stats-grid">
           <div class="stat-item">
             <span class="stat-label">DNS Lookups:</span>
@@ -450,7 +454,11 @@
           </div>
           <div class="stat-item">
             <span class="stat-label">Record Length:</span>
-            <span class="stat-value" class:warning={validation.recordLength > 200} class:error={validation.recordLength > 255}>
+            <span
+              class="stat-value"
+              class:warning={validation.recordLength > 200}
+              class:error={validation.recordLength > 255}
+            >
               {validation.recordLength}/255 chars
             </span>
           </div>
@@ -513,7 +521,7 @@
             </div>
             <p class="example-description">{example.description}</p>
             <div class="example-preview">
-              {example.mechanisms.map(m => `${m.qualifier}${m.type}${m.value ? `:${m.value}` : ''}`).join(' ')}
+              {example.mechanisms.map((m) => `${m.qualifier}${m.type}${m.value ? `:${m.value}` : ''}`).join(' ')}
             </div>
           </button>
         {/each}
@@ -523,7 +531,8 @@
 </div>
 
 <style lang="scss">
-  .mechanisms-section, .modifiers-section {
+  .mechanisms-section,
+  .modifiers-section {
     margin-bottom: var(--spacing-lg);
   }
 
@@ -565,13 +574,15 @@
     }
   }
 
-  .mechanisms-list, .modifiers-list {
+  .mechanisms-list,
+  .modifiers-list {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
   }
 
-  .mechanism-item, .modifier-item {
+  .mechanism-item,
+  .modifier-item {
     padding: var(--spacing-sm);
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-md);
@@ -585,7 +596,6 @@
       border-width: 1px;
       filter: brightness(1.1);
       border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
-      
     }
   }
 
@@ -611,7 +621,7 @@
     flex: 1;
     min-width: 0;
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       width: 16px;
       height: 16px;
       accent-color: var(--color-primary);
@@ -710,14 +720,13 @@
     }
   }
 
-
   .modifier-toggle {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
     cursor: pointer;
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       width: 16px;
       height: 16px;
       accent-color: var(--color-primary);
@@ -745,7 +754,8 @@
     }
   }
 
-  .spf-record-section, .validation-section {
+  .spf-record-section,
+  .validation-section {
     margin-bottom: var(--spacing-lg);
   }
 
@@ -808,15 +818,15 @@
   .stat-value {
     font-weight: 600;
     font-family: var(--font-mono);
-    
+
     &.success {
       color: var(--color-success);
     }
-    
+
     &.warning {
       color: var(--color-warning);
     }
-    
+
     &.error {
       color: var(--color-error);
     }
@@ -947,7 +957,8 @@
     }
   }
 
-  .copy-btn, .export-btn {
+  .copy-btn,
+  .export-btn {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -969,7 +980,7 @@
       background: var(--color-success) !important;
       color: var(--bg-secondary) !important;
       transform: scale(1.05);
-      
+
       &:hover {
         background: var(--color-success) !important;
       }

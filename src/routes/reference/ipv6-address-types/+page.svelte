@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ipv6AddressTypesContent } from '$lib/content/ipv6-address-types.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -59,7 +59,7 @@
     <div class="ref-section">
       <h2>Multicast Address Scopes</h2>
       <p>All multicast addresses start with <code>ff</code>. The second byte indicates scope:</p>
-      
+
       {#each ipv6AddressTypesContent.multicastTypes as scope}
         <div class="ref-examples">
           <div class="examples-title">{scope.scope} Scope</div>
@@ -80,7 +80,7 @@
     <div class="ref-section">
       <h2>{ipv6AddressTypesContent.anycast.title}</h2>
       <p>{ipv6AddressTypesContent.anycast.description}</p>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="share" size="sm" />
@@ -90,7 +90,7 @@
           {ipv6AddressTypesContent.anycast.example}
         </div>
       </div>
-      
+
       <h3>Common Anycast Uses</h3>
       <ul>
         {#each ipv6AddressTypesContent.anycast.commonUses as use}
@@ -132,4 +132,3 @@
     </div>
   </div>
 </div>
-

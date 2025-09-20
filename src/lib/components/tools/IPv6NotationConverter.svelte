@@ -22,9 +22,13 @@
     { label: 'Documentation Prefix', compressed: '2001:db8::', expanded: '2001:0db8:0000:0000:0000:0000:0000:0000' },
     { label: 'Loopback Address', compressed: '::1', expanded: '0000:0000:0000:0000:0000:0000:0000:0001' },
     { label: 'Link-Local Address', compressed: 'fe80::1', expanded: 'fe80:0000:0000:0000:0000:0000:0000:0001' },
-    { label: 'Global Unicast', compressed: '2001:db8:85a3::8a2e:370:7334', expanded: '2001:0db8:85a3:0000:0000:8a2e:0370:7334' },
+    {
+      label: 'Global Unicast',
+      compressed: '2001:db8:85a3::8a2e:370:7334',
+      expanded: '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
+    },
     { label: 'IPv4-mapped IPv6', compressed: '::ffff:192.0.2.1', expanded: '0000:0000:0000:0000:0000:ffff:c000:0201' },
-    { label: 'Multicast Address', compressed: 'ff02::1', expanded: 'ff02:0000:0000:0000:0000:0000:0000:0001' }
+    { label: 'Multicast Address', compressed: 'ff02::1', expanded: 'ff02:0000:0000:0000:0000:0000:0000:0001' },
   ];
 
   /* Set example address */
@@ -109,7 +113,9 @@
       </div>
       <div class="header-actions">
         <a
-          href={mode === 'expand' ? '/ip-address-convertor/notation/ipv6-compress' : '/ip-address-convertor/notation/ipv6-expand'}
+          href={mode === 'expand'
+            ? '/ip-address-convertor/notation/ipv6-compress'
+            : '/ip-address-convertor/notation/ipv6-expand'}
           class="mode-switch-btn"
           title="Switch to {mode === 'expand' ? 'Compress' : 'Expand'} mode"
         >
@@ -123,12 +129,16 @@
   <!-- Input Section -->
   <div class="converter-section">
     <h3>Input IPv6 Address</h3>
-    
+
     <div class="input-group">
       <div class="form-group">
         <label for="ipv6-input">
           IPv6 Address
-          <Tooltip text={mode === 'expand' ? 'Enter compressed IPv6 address to expand' : 'Enter expanded IPv6 address to compress'}>
+          <Tooltip
+            text={mode === 'expand'
+              ? 'Enter compressed IPv6 address to expand'
+              : 'Enter expanded IPv6 address to compress'}
+          >
             <Icon name="help" size="sm" />
           </Tooltip>
         </label>
@@ -141,11 +151,7 @@
             placeholder={mode === 'expand' ? '2001:db8::1' : '2001:0db8:0000:0000:0000:0000:0000:0001'}
             class="ipv6-input"
           />
-          <button 
-            type="button" 
-            class="btn btn-secondary btn-md"
-            onclick={clearAll}
-          >
+          <button type="button" class="btn btn-secondary btn-md" onclick={clearAll}>
             <Icon name="trash" size="md" />
           </button>
         </div>
@@ -185,7 +191,7 @@
   {#if outputAddress && !conversionError}
     <div class="output-section">
       <h3>Converted Address</h3>
-      
+
       <div class="conversion-result">
         <div class="result-card success">
           <div class="result-header">
@@ -194,13 +200,13 @@
               {mode === 'expand' ? 'Expanded Format' : 'Compressed Format'}
             </h4>
           </div>
-          
+
           <div class="result-content">
             <div class="address-display">
               <div class="address-wrapper">
                 <code class="converted-address">{outputAddress}</code>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   class="btn btn-icon copy-btn"
                   class:copied={copiedStates['output']}
                   onclick={() => copyToClipboard(outputAddress, 'output')}
@@ -302,7 +308,7 @@
     }
   }
 
-  .converter-section, 
+  .converter-section,
   .examples-section,
   .output-section {
     margin-bottom: var(--spacing-lg);
@@ -344,7 +350,7 @@
 
       h3 {
         margin: 0;
-        font-size: var(--font-size-,d);
+        font-size: var(--font-size-, d);
       }
 
       :global(.icon) {
@@ -452,7 +458,7 @@
   .result-card {
     border-radius: var(--radius-lg);
     overflow: hidden;
-    
+
     &.success {
       border: 2px solid var(--color-success);
     }
@@ -460,7 +466,7 @@
 
   .result-header {
     background: linear-gradient(135deg, var(--color-success), var(--color-success-light));
-    padding: var(--spacing-md);    
+    padding: var(--spacing-md);
     h4 {
       margin: 0;
       display: flex;
@@ -505,7 +511,7 @@
 
   .copy-btn {
     transition: all var(--transition-fast);
-    
+
     &.copied {
       color: var(--color-success);
       background-color: rgba(35, 134, 54, 0.1);
@@ -542,12 +548,12 @@
     padding: var(--spacing-sm);
     border-radius: var(--radius-sm);
     word-break: break-all;
-    
+
     &.input {
       background-color: rgba(var(--color-info-rgb), 0.1);
       color: var(--color-info);
     }
-    
+
     &.output {
       background-color: rgba(var(--color-success-rgb), 0.1);
       color: var(--color-success);
@@ -580,11 +586,11 @@
     font-family: var(--font-mono);
     font-weight: 600;
     color: var(--text-primary);
-    
+
     &.expanded {
       color: var(--color-info);
     }
-    
+
     &.compressed {
       color: var(--color-success);
     }
@@ -594,12 +600,12 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    
+
     :global(.tooltip-trigger) {
       color: var(--text-secondary);
       opacity: 0.7;
       transition: opacity var(--transition-fast);
-      
+
       &:hover {
         opacity: 1;
         color: var(--color-info);

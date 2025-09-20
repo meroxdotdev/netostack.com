@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domain = $state('example.com');
   let resolver = $state('cloudflare');
   let loading = $state(false);
@@ -10,28 +10,28 @@
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const resolvers = [
     { value: 'cloudflare', label: 'Cloudflare (1.1.1.1)' },
     { value: 'google', label: 'Google (8.8.8.8)' },
     { value: 'quad9', label: 'Quad9 (9.9.9.9)' },
-    { value: 'opendns', label: 'OpenDNS (208.67.222.222)' }
+    { value: 'opendns', label: 'OpenDNS (208.67.222.222)' },
   ];
-  
+
   const examples = [
     { domain: 'google.com', description: 'High-traffic domain with frequent updates' },
     { domain: 'github.com', description: 'Tech company with modern DNS management' },
     { domain: 'cloudflare.com', description: 'DNS provider with optimal configurations' },
     { domain: 'iana.org', description: 'Internet standards organization' },
     { domain: 'rfc-editor.org', description: 'Official RFC publication site' },
-    { domain: 'example.com', description: 'Reserved example domain (RFC 2606)' }
+    { domain: 'example.com', description: 'Reserved example domain (RFC 2606)' },
   ];
-  
+
   async function analyzeSOA() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/dns', {
         method: 'POST',
@@ -39,15 +39,15 @@
         body: JSON.stringify({
           action: 'soa-serial',
           name: domain.trim(),
-          resolverOpts: { doh: resolver }
-        })
+          resolverOpts: { doh: resolver },
+        }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: `HTTP ${response.status}` }));
         throw new Error(errorData.message || `SOA analysis failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -55,36 +55,36 @@
       loading = false;
     }
   }
-  
+
   function loadExample(example: { domain: string }, index: number) {
     domain = example.domain;
     selectedExampleIndex = index;
     analyzeSOA();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   async function copyResults() {
     if (!results?.raw) return;
-    
+
     try {
       await navigator.clipboard.writeText(JSON.stringify(results.raw, null, 2));
       copiedState = true;
-      setTimeout(() => copiedState = false, 1500);
+      setTimeout(() => (copiedState = false), 1500);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
   }
-  
+
   function formatDuration(seconds: number): string {
     if (seconds < 60) return `${seconds}s`;
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
     return `${Math.floor(seconds / 86400)}d ${Math.floor((seconds % 86400) / 3600)}h`;
   }
-  
+
   function formatDate(timestamp: number): string {
     try {
       return new Date(timestamp * 1000).toLocaleString('en-US', {
@@ -93,7 +93,7 @@
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        timeZoneName: 'short'
+        timeZoneName: 'short',
       });
     } catch {
       return 'Invalid date';
@@ -104,7 +104,11 @@
 <div class="card">
   <header class="card-header">
     <h1>SOA Serial Analyzer</h1>
-    <p>Analyze Start of Authority (SOA) records to interpret serial number formats and examine DNS zone timing parameters. SOA records contain critical zone metadata including serial numbers for change tracking and timing values for zone transfers.</p>
+    <p>
+      Analyze Start of Authority (SOA) records to interpret serial number formats and examine DNS zone timing
+      parameters. SOA records contain critical zone metadata including serial numbers for change tracking and timing
+      values for zone transfers.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -116,8 +120,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Analyze SOA record for ${example.domain} (${example.description})`}
@@ -138,22 +142,31 @@
     <div class="card-content">
       <div class="form-grid">
         <div class="form-group">
-          <label for="domain" use:tooltip={"Enter a domain name to analyze its SOA record"}>
+          <label for="domain" use:tooltip={'Enter a domain name to analyze its SOA record'}>
             Domain Name
-            <input 
-              id="domain" 
-              type="text" 
-              bind:value={domain} 
+            <input
+              id="domain"
+              type="text"
+              bind:value={domain}
               placeholder="example.com"
-              onchange={() => { clearExampleSelection(); if (domain.trim()) analyzeSOA(); }}
+              onchange={() => {
+                clearExampleSelection();
+                if (domain.trim()) analyzeSOA();
+              }}
             />
           </label>
         </div>
-        
+
         <div class="form-group">
-          <label for="resolver" use:tooltip={"Choose a DNS-over-HTTPS resolver for the query"}>
+          <label for="resolver" use:tooltip={'Choose a DNS-over-HTTPS resolver for the query'}>
             DoH Resolver
-            <select id="resolver" bind:value={resolver} onchange={() => { if (domain.trim()) analyzeSOA(); }}>
+            <select
+              id="resolver"
+              bind:value={resolver}
+              onchange={() => {
+                if (domain.trim()) analyzeSOA();
+              }}
+            >
               {#each resolvers as res}
                 <option value={res.value}>{res.label}</option>
               {/each}
@@ -161,7 +174,7 @@
           </label>
         </div>
       </div>
-      
+
       <div class="action-section">
         <button class="lookup-btn" onclick={analyzeSOA} disabled={loading || !domain.trim()}>
           {#if loading}
@@ -182,18 +195,20 @@
       <div class="card-header row">
         <h3>SOA Analysis for {results.name}</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Raw JSON"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Raw JSON'}
         </button>
       </div>
       <div class="card-content">
         <div class="lookup-info">
           <div class="info-item">
-            <span class="info-label" use:tooltip={"The domain that was queried"}>Domain:</span>
+            <span class="info-label" use:tooltip={'The domain that was queried'}>Domain:</span>
             <span class="info-value mono">{results.name}</span>
           </div>
           <div class="info-item">
-            <span class="info-label" use:tooltip={"DNS-over-HTTPS resolver used for the query"}>DoH Resolver:</span>
+            <span class="info-label" use:tooltip={'DNS-over-HTTPS resolver used for the query'}>DoH Resolver:</span>
             <span class="info-value">{results.resolver}</span>
           </div>
         </div>
@@ -205,16 +220,18 @@
             <div class="serial-analysis">
               <div class="serial-display">
                 <span class="serial-number">{results.soa?.serial || 'Not available'}</span>
-                <span class="serial-format {results.serialAnalysis?.format}">{results.serialAnalysis?.format || 'Unknown'}</span>
+                <span class="serial-format {results.serialAnalysis?.format}"
+                  >{results.serialAnalysis?.format || 'Unknown'}</span
+                >
               </div>
-              
+
               <dl class="definition-list">
                 <dt>Format:</dt>
                 <dd>
                   <strong>{results.serialAnalysis?.formatDescription || 'Unknown'}</strong>
                   <p class="format-explanation">{results.serialAnalysis?.explanation || 'No analysis available'}</p>
                 </dd>
-                
+
                 {#if results.serialAnalysis?.parsed}
                   <dt>Parsed Date:</dt>
                   <dd>
@@ -230,7 +247,7 @@
                     {/if}
                   </dd>
                 {/if}
-                
+
                 <dt>Validity:</dt>
                 <dd class="validity {results.serialAnalysis?.valid ? 'valid' : 'invalid'}">
                   <Icon name={results.serialAnalysis?.valid ? 'check-circle' : 'x-circle'} size="sm" />
@@ -246,10 +263,10 @@
             <dl class="definition-list">
               <dt>Primary Server:</dt>
               <dd class="mono">{results.soa?.mname || 'Not available'}</dd>
-              
+
               <dt>Contact Email:</dt>
               <dd class="mono">{results.soa?.rname || 'Not available'}</dd>
-              
+
               <dt>TTL:</dt>
               <dd>
                 {#if results.soa?.ttl}
@@ -274,7 +291,7 @@
                   <p>How often secondary servers check for updates</p>
                 </div>
               </div>
-              
+
               <div class="timing-param">
                 <h5>Retry</h5>
                 <div class="param-value">{results.soa?.retry || 0}s</div>
@@ -283,7 +300,7 @@
                   <p>Retry interval after failed refresh attempts</p>
                 </div>
               </div>
-              
+
               <div class="timing-param">
                 <h5>Expire</h5>
                 <div class="param-value">{results.soa?.expire || 0}s</div>
@@ -292,7 +309,7 @@
                   <p>When secondary servers stop serving the zone</p>
                 </div>
               </div>
-              
+
               <div class="timing-param">
                 <h5>Minimum</h5>
                 <div class="param-value">{results.soa?.minimum || 0}s</div>
@@ -311,7 +328,14 @@
               <div class="assessment-grid">
                 {#each results.assessment as item}
                   <div class="assessment-item {item.severity}">
-                    <Icon name={item.severity === 'good' ? 'check-circle' : item.severity === 'warning' ? 'alert-triangle' : 'info'} size="md" />
+                    <Icon
+                      name={item.severity === 'good'
+                        ? 'check-circle'
+                        : item.severity === 'warning'
+                          ? 'alert-triangle'
+                          : 'info'}
+                      size="md"
+                    />
                     <div>
                       <strong>{item.aspect}</strong>
                       <p>{item.message}</p>
@@ -361,9 +385,12 @@
       <div class="info-grid">
         <div class="info-section">
           <h4>What is a SOA Record?</h4>
-          <p>Start of Authority records contain administrative information about a DNS zone, including the primary server, contact email, and timing parameters that control zone transfers and caching behavior.</p>
+          <p>
+            Start of Authority records contain administrative information about a DNS zone, including the primary
+            server, contact email, and timing parameters that control zone transfers and caching behavior.
+          </p>
         </div>
-        
+
         <div class="info-section">
           <h4>Serial Number Formats</h4>
           <ul>
@@ -372,7 +399,7 @@
             <li><strong>Sequential:</strong> Simple incrementing numbers (e.g., 1, 2, 3...)</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Timing Parameters</h4>
           <ul>
@@ -382,7 +409,7 @@
             <li><strong>Minimum:</strong> TTL for negative (NXDOMAIN) responses</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Best Practices</h4>
           <ul>
@@ -402,12 +429,12 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-lg);
-    
+
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
     }
   }
-  
+
   .form-group label {
     flex-direction: column;
   }

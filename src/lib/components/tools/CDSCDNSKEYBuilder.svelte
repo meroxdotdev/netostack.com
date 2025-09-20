@@ -1,9 +1,9 @@
 <script lang="ts">
   import Icon from '$lib/components/global/Icon.svelte';
-  import { 
-    parseDNSKEYRecord, 
-    validateDNSKEY, 
-    generateCDSRecords, 
+  import {
+    parseDNSKEYRecord,
+    validateDNSKEY,
+    generateCDSRecords,
     generateCDNSKEYRecord,
     formatCDSRecord,
     formatCDNSKEYRecord,
@@ -11,10 +11,12 @@
     DNSSEC_ALGORITHMS,
     DS_DIGEST_TYPES,
     type DNSKEYRecord,
-    type DSRecord
+    type DSRecord,
   } from '$lib/utils/dnssec';
 
-  let dnskeyInput = $state('example.org. 3600 IN DNSKEY 257 3 8 AwEAAcvvJUWJNrPOTMmNhZmJLk85n4Pz+KqvfxJ1X0O+fJ4GJNdqsNvP1mQJJv8A4dNn...');
+  let dnskeyInput = $state(
+    'example.org. 3600 IN DNSKEY 257 3 8 AwEAAcvvJUWJNrPOTMmNhZmJLk85n4Pz+KqvfxJ1X0O+fJ4GJNdqsNvP1mQJJv8A4dNn...',
+  );
   let ownerName = $state('example.org.');
   let generateCDS = $state(true);
   let generateCDNSKEY = $state(true);
@@ -39,24 +41,24 @@
 
     const validation = validateDNSKEY(dnskeyInput);
     if (!validation.valid) {
-      results = { 
-        error: validation.error || 'Invalid DNSKEY record', 
-        dnskey: null, 
-        cdsRecords: [], 
+      results = {
+        error: validation.error || 'Invalid DNSKEY record',
+        dnskey: null,
+        cdsRecords: [],
         cdnskeyRecord: null,
-        warnings: []
+        warnings: [],
       };
       return;
     }
 
     const dnskey = parseDNSKEYRecord(dnskeyInput);
     if (!dnskey) {
-      results = { 
-        error: 'Failed to parse DNSKEY record', 
-        dnskey: null, 
-        cdsRecords: [], 
+      results = {
+        error: 'Failed to parse DNSKEY record',
+        dnskey: null,
+        cdsRecords: [],
         cdnskeyRecord: null,
-        warnings: []
+        warnings: [],
       };
       return;
     }
@@ -69,7 +71,7 @@
       dnskey,
       cdsRecords: [],
       cdnskeyRecord,
-      warnings: usageValidation.warnings
+      warnings: usageValidation.warnings,
     };
 
     generateRecordsAsync();
@@ -77,7 +79,7 @@
 
   async function generateRecordsAsync() {
     if (!results.dnskey || !ownerName.trim()) return;
-    
+
     isGenerating = true;
     try {
       if (generateCDS) {
@@ -108,25 +110,29 @@
 
   function copyAllRecords() {
     const records: string[] = [];
-    
+
     if (generateCDS && results.cdsRecords.length > 0) {
       records.push('# CDS Records');
-      results.cdsRecords.forEach(cds => {
+      results.cdsRecords.forEach((cds) => {
         records.push(formatCDSRecord(cds, ownerName));
       });
     }
-    
+
     if (generateCDNSKEY && results.cdnskeyRecord) {
       if (records.length > 0) records.push('');
       records.push('# CDNSKEY Record');
       records.push(formatCDNSKEYRecord(results.cdnskeyRecord, ownerName));
     }
-    
+
     copyToClipboard(records.join('\n'), 'all');
   }
 
   function handleInputChange() {
-    if (isActiveExample && dnskeyInput !== 'example.org. 3600 IN DNSKEY 257 3 8 AwEAAcvvJUWJNrPOTMmNhZmJLk85n4Pz+KqvfxJ1X0O+fJ4GJNdqsNvP1mQJJv8A4dNn...') {
+    if (
+      isActiveExample &&
+      dnskeyInput !==
+        'example.org. 3600 IN DNSKEY 257 3 8 AwEAAcvvJUWJNrPOTMmNhZmJLk85n4Pz+KqvfxJ1X0O+fJ4GJNdqsNvP1mQJJv8A4dNn...'
+    ) {
       isActiveExample = false;
     }
     calculateResults();
@@ -139,7 +145,10 @@
 <div class="card">
   <header class="card-header">
     <h1>CDS/CDNSKEY Builder</h1>
-    <p>Build CDS/CDNSKEY RRs from child DNSKEYs to enable automated DS updates at the parent. These records allow child zones to signal DS record changes to parent zones for automated DNSSEC maintenance.</p>
+    <p>
+      Build CDS/CDNSKEY RRs from child DNSKEYs to enable automated DS updates at the parent. These records allow child
+      zones to signal DS record changes to parent zones for automated DNSSEC maintenance.
+    </p>
   </header>
 
   <!-- Input Form -->
@@ -179,21 +188,11 @@
     <div class="form-group">
       <div class="checkbox-group">
         <label class="checkbox-label">
-          <input
-            type="checkbox"
-            class="styled-checkbox"
-            bind:checked={generateCDS}
-            onchange={handleInputChange}
-          />
+          <input type="checkbox" class="styled-checkbox" bind:checked={generateCDS} onchange={handleInputChange} />
           Generate CDS Records
         </label>
         <label class="checkbox-label">
-          <input
-            type="checkbox"
-            class="styled-checkbox"
-            bind:checked={generateCDNSKEY}
-            onchange={handleInputChange}
-          />
+          <input type="checkbox" class="styled-checkbox" bind:checked={generateCDNSKEY} onchange={handleInputChange} />
           Generate CDNSKEY Record
         </label>
       </div>
@@ -206,7 +205,8 @@
       <div class="error-content">
         <Icon name="alert-triangle" size="sm" />
         <div>
-          <strong>Error:</strong> {results.error}
+          <strong>Error:</strong>
+          {results.error}
         </div>
       </div>
     </div>
@@ -243,7 +243,11 @@
         </div>
         <div class="info-item">
           <span class="info-label">Algorithm</span>
-          <span class="info-value mono">{results.dnskey.algorithm} ({DNSSEC_ALGORITHMS[results.dnskey.algorithm as keyof typeof DNSSEC_ALGORITHMS] || 'Unknown'})</span>
+          <span class="info-value mono"
+            >{results.dnskey.algorithm} ({DNSSEC_ALGORITHMS[
+              results.dnskey.algorithm as keyof typeof DNSSEC_ALGORITHMS
+            ] || 'Unknown'})</span
+          >
         </div>
         <div class="info-item">
           <span class="info-label">Key Type</span>
@@ -288,10 +292,7 @@
       <div class="card records-card">
         <div class="records-header">
           <h3>Generated Records</h3>
-          <button
-            class="copy-button {copiedStates.all ? 'copied' : ''}"
-            onclick={copyAllRecords}
-          >
+          <button class="copy-button {copiedStates.all ? 'copied' : ''}" onclick={copyAllRecords}>
             <Icon name={copiedStates.all ? 'check' : 'copy'} size="sm" />
             Copy All
           </button>
@@ -332,13 +333,13 @@
                   <div class="record-text mono">
                     {formatCDNSKEYRecord(results.cdnskeyRecord, ownerName)}
                   </div>
-                  <div class="record-meta">
-                    Copy this to your child zone
-                  </div>
+                  <div class="record-meta">Copy this to your child zone</div>
                 </div>
                 <button
                   class="copy-button-small {copiedStates.cdnskey ? 'copied' : ''}"
-                  onclick={() => results.cdnskeyRecord && copyToClipboard(formatCDNSKEYRecord(results.cdnskeyRecord, ownerName), 'cdnskey')}
+                  onclick={() =>
+                    results.cdnskeyRecord &&
+                    copyToClipboard(formatCDNSKEYRecord(results.cdnskeyRecord, ownerName), 'cdnskey')}
                 >
                   <Icon name={copiedStates.cdnskey ? 'check' : 'copy'} size="xs" />
                 </button>
@@ -356,32 +357,32 @@
       <div class="education-item info-panel">
         <h4>CDS Records</h4>
         <p>
-          CDS (Child DS) records are placed in the child zone to signal DS record changes to the parent.
-          Parents can automatically process these to update DS records in their zone.
+          CDS (Child DS) records are placed in the child zone to signal DS record changes to the parent. Parents can
+          automatically process these to update DS records in their zone.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>CDNSKEY Records</h4>
         <p>
-          CDNSKEY (Child DNSKEY) records are copies of DNSKEYs placed in the child zone.
-          Parents can use these to generate DS records automatically using their preferred digest algorithm.
+          CDNSKEY (Child DNSKEY) records are copies of DNSKEYs placed in the child zone. Parents can use these to
+          generate DS records automatically using their preferred digest algorithm.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>RFC 8078 Automation</h4>
         <p>
-          These records enable automated DS maintenance as defined in RFC 8078.
-          This reduces manual coordination between child and parent zones during key rollover.
+          These records enable automated DS maintenance as defined in RFC 8078. This reduces manual coordination between
+          child and parent zones during key rollover.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Implementation Notes</h4>
         <p>
-          Always use KSK (Key Signing Key) records for CDS/CDNSKEY generation.
-          Verify parent support for automated DS updates before relying on this mechanism.
+          Always use KSK (Key Signing Key) records for CDS/CDNSKEY generation. Verify parent support for automated DS
+          updates before relying on this mechanism.
         </p>
       </div>
     </div>
@@ -491,25 +492,31 @@
     margin-bottom: 0;
   }
 
-  .error-card, .warning-card {
+  .error-card,
+  .warning-card {
     margin-bottom: var(--spacing-lg);
   }
 
   .error-card {
     border-color: var(--color-error);
-    background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--color-error), transparent 95%), 
-      color-mix(in srgb, var(--color-error), transparent 98%));
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-error), transparent 95%),
+      color-mix(in srgb, var(--color-error), transparent 98%)
+    );
   }
 
   .warning-card {
     border-color: var(--color-warning);
-    background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--color-warning), transparent 95%), 
-      color-mix(in srgb, var(--color-warning), transparent 98%));
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-warning), transparent 95%),
+      color-mix(in srgb, var(--color-warning), transparent 98%)
+    );
   }
 
-  .error-content, .warning-content {
+  .error-content,
+  .warning-content {
     display: flex;
     align-items: flex-start;
     gap: var(--spacing-sm);
@@ -526,7 +533,9 @@
     margin: var(--spacing-xs) 0 0 0;
   }
 
-  .dnskey-info-card, .status-card, .records-card {
+  .dnskey-info-card,
+  .status-card,
+  .records-card {
     margin-bottom: var(--spacing-lg);
   }
 
@@ -755,8 +764,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   @media (max-width: 768px) {

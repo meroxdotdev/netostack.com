@@ -12,51 +12,50 @@
   let results = $state<NavItem[]>([]);
   let selectedIndex = $state(0);
   let searchInput: HTMLInputElement | undefined = $state();
-  
+
   const isMac = browser && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
   const shortcutKey = isMac ? '⌘' : 'Ctrl';
 
   function search(q: string): NavItem[] {
     if (!q.trim()) return [];
-    
+
     const normalizedQuery = q.toLowerCase().trim();
     const tokens = normalizedQuery.split(/\s+/);
-    
-    return ALL_PAGES
-      .map(page => {
-        let score = 0;
-        const searchText = `${page.label} ${page.description || ''} ${page.keywords?.join(' ') || ''}`.toLowerCase();
-        
-        // Exact label match (highest priority)
-        if (page.label.toLowerCase() === normalizedQuery) score += 1000;
-        
-        // Label starts with query
-        if (page.label.toLowerCase().startsWith(normalizedQuery)) score += 500;
-        
-        // Label contains query
-        if (page.label.toLowerCase().includes(normalizedQuery)) score += 200;
-        
-        // All tokens found
-        const allTokensFound = tokens.every(token => searchText.includes(token));
-        if (allTokensFound) score += 100;
-        
-        // Keywords match
-        if (page.keywords) {
-          tokens.forEach(token => {
-            if (page.keywords!.some(keyword => keyword.toLowerCase().includes(token))) {
-              score += 50;
-            }
-          });
-        }
-        
-        // Description match
-        if (page.description && tokens.some(token => page.description!.toLowerCase().includes(token))) {
-          score += 25;
-        }
-        
-        return { ...page, score };
-      })
-      .filter(page => page.score > 0)
+
+    return ALL_PAGES.map((page) => {
+      let score = 0;
+      const searchText = `${page.label} ${page.description || ''} ${page.keywords?.join(' ') || ''}`.toLowerCase();
+
+      // Exact label match (highest priority)
+      if (page.label.toLowerCase() === normalizedQuery) score += 1000;
+
+      // Label starts with query
+      if (page.label.toLowerCase().startsWith(normalizedQuery)) score += 500;
+
+      // Label contains query
+      if (page.label.toLowerCase().includes(normalizedQuery)) score += 200;
+
+      // All tokens found
+      const allTokensFound = tokens.every((token) => searchText.includes(token));
+      if (allTokensFound) score += 100;
+
+      // Keywords match
+      if (page.keywords) {
+        tokens.forEach((token) => {
+          if (page.keywords!.some((keyword) => keyword.toLowerCase().includes(token))) {
+            score += 50;
+          }
+        });
+      }
+
+      // Description match
+      if (page.description && tokens.some((token) => page.description!.toLowerCase().includes(token))) {
+        score += 25;
+      }
+
+      return { ...page, score };
+    })
+      .filter((page) => page.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 8);
   }
@@ -83,7 +82,7 @@
 
   function handleKeydown(e: KeyboardEvent) {
     if (!isOpen) return;
-    
+
     switch (e.key) {
       case 'Escape':
         e.preventDefault();
@@ -133,8 +132,27 @@
 
 <!-- Search Modal -->
 {#if isOpen}
-  <div class="search-overlay" onclick={close} onkeydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') close(); }} role="button" tabindex="-1" aria-label="Close search">
-    <div class="search-modal" onclick={(e) => e.stopPropagation()} onkeydown={(e) => { if (e.key === 'Escape') close(); e.stopPropagation(); }} role="dialog" aria-modal="true" tabindex="-1">
+  <div
+    class="search-overlay"
+    onclick={close}
+    onkeydown={(e) => {
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') close();
+    }}
+    role="button"
+    tabindex="-1"
+    aria-label="Close search"
+  >
+    <div
+      class="search-modal"
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => {
+        if (e.key === 'Escape') close();
+        e.stopPropagation();
+      }}
+      role="dialog"
+      aria-modal="true"
+      tabindex="-1"
+    >
       <div class="search-header">
         <Icon name="search" size="sm" />
         <input
@@ -150,7 +168,7 @@
           <Icon name="x" size="sm" />
         </button>
       </div>
-      
+
       {#if query.trim() && results.length > 0}
         <div class="search-results">
           {#each results as result, index}
@@ -158,7 +176,7 @@
               class="result-item"
               class:selected={index === selectedIndex}
               onclick={() => selectResult(index)}
-              onmouseenter={() => selectedIndex = index}
+              onmouseenter={() => (selectedIndex = index)}
             >
               <div class="result-content">
                 <div class="result-title">
@@ -205,7 +223,10 @@
               {#each $bookmarks.slice(0, 6) as bookmark, index}
                 <button
                   class="bookmark-item"
-                  onclick={() => { goto(bookmark.href); close(); }}
+                  onclick={() => {
+                    goto(bookmark.href);
+                    close();
+                  }}
                   tabindex="0"
                 >
                   <div class="bookmark-icon">
@@ -223,7 +244,6 @@
 {/if}
 
 <style lang="scss">
-
   button:hover:not(:disabled) {
     border-color: var(--border-primary);
   }
@@ -240,12 +260,12 @@
     font-size: var(--font-size-sm);
     cursor: pointer;
     transition: all var(--transition-fast);
-    
+
     &:hover {
       background: var(--surface-hover);
       color: var(--text-primary);
     }
-    
+
     .shortcut {
       padding: var(--spacing-xs) var(--spacing-sm);
       background: var(--bg-secondary);
@@ -278,7 +298,7 @@
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     animation: slideDown var(--transition-normal);
-    
+
     @media (max-width: 768px) {
       margin: 0 var(--spacing-md);
       max-width: calc(100vw - 2rem);
@@ -291,7 +311,7 @@
     gap: var(--spacing-md);
     padding: var(--spacing-lg);
     border-bottom: 1px solid var(--border-primary);
-    
+
     .search-input {
       flex: 1;
       background: transparent;
@@ -299,12 +319,12 @@
       outline: none;
       color: var(--text-primary);
       font-size: var(--font-size-lg);
-      
+
       &::placeholder {
         color: var(--text-tertiary);
       }
     }
-    
+
     .close-btn {
       padding: var(--spacing-xs);
       background: transparent;
@@ -313,7 +333,7 @@
       cursor: pointer;
       border-radius: var(--radius-sm);
       transition: all var(--transition-fast);
-      
+
       &:hover {
         background: var(--surface-hover);
         color: var(--text-primary);
@@ -338,20 +358,20 @@
     cursor: pointer;
     text-align: left;
     transition: background var(--transition-fast);
-    
+
     &:hover,
     &.selected {
       background: var(--surface-hover);
     }
-    
+
     &:last-child {
       border-bottom: none;
     }
-    
+
     .result-content {
       flex: 1;
       min-width: 0;
-      
+
       .result-title {
         color: var(--text-primary);
         font-weight: 500;
@@ -363,7 +383,7 @@
           color: var(--text-tertiary);
         }
       }
-      
+
       .result-description {
         color: var(--text-secondary);
         font-size: var(--font-size-sm);
@@ -376,7 +396,7 @@
         -webkit-box-orient: vertical;
       }
     }
-    
+
     .result-meta {
       display: flex;
       align-items: center;
@@ -492,8 +512,12 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes slideDown {

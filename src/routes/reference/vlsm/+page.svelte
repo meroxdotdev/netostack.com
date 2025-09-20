@@ -1,6 +1,6 @@
 <script lang="ts">
   import { vlsmContent } from '$lib/content/vlsm.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -19,7 +19,7 @@
     <div class="ref-section">
       <h2>{vlsmContent.sections.whenWhy.title}</h2>
       <p>{vlsmContent.sections.whenWhy.content}</p>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="lightbulb" size="sm" />
@@ -39,7 +39,7 @@
     <div class="ref-section">
       <h2>{vlsmContent.example.title}</h2>
       <p><strong>{vlsmContent.example.scenario}</strong></p>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Requirements</div>
@@ -49,7 +49,7 @@
             {/each}
           </ul>
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">VLSM Solution</div>
           <ul>
@@ -99,4 +99,3 @@
     </div>
   </div>
 </div>
-

@@ -1,5 +1,4 @@
 <script lang="ts">
-  
   import { SUB_NAV } from '$lib/constants/nav';
   import ToolsGrid from '$lib/components/global/ToolsGrid.svelte';
   import type { NavItem, NavGroup } from '$lib/constants/nav';
@@ -28,15 +27,13 @@
   <header class="page-header">
     <h1>DNS Diagnostics Tools</h1>
     <p class="page-description">
-      Comprehensive DNS diagnostic and troubleshooting tools for network administrators.
-      Verify DNS propagation, analyze email security policies, check certificate authority authorization, and diagnose nameserver consistency issues.
+      Comprehensive DNS diagnostic and troubleshooting tools for network administrators. Verify DNS propagation, analyze
+      email security policies, check certificate authority authorization, and diagnose nameserver consistency issues.
     </p>
   </header>
 
   <ToolsGrid tools={dnsTools} />
-
 </div>
 
 <style>
-
 </style>

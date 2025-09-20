@@ -1,6 +1,6 @@
 <script lang="ts">
   import { icmpContent } from '$lib/content/icmp.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -131,7 +131,7 @@
 
     <div class="ref-section">
       <h2>ICMP Quick Reference</h2>
-      
+
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Always Allow These</div>
@@ -139,7 +139,7 @@
             <div class="item-code">{type}</div>
           {/each}
         </div>
-        
+
         <div class="grid-item">
           <div class="item-title">Never Filter These</div>
           {#each icmpContent.quickReference.neverFilter as type}
@@ -160,14 +160,15 @@
           </div>
         {/each}
       </div>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="shield-check" size="sm" />
           Security vs Functionality
         </div>
         <div class="highlight-content">
-          Don't block all ICMP for security. Instead, use rate limiting and allow essential types. Blocking ICMP completely breaks critical network functions like Path MTU Discovery and IPv6 Neighbor Discovery.
+          Don't block all ICMP for security. Instead, use rate limiting and allow essential types. Blocking ICMP
+          completely breaks critical network functions like Path MTU Discovery and IPv6 Neighbor Discovery.
         </div>
       </div>
     </div>

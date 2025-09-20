@@ -2,7 +2,7 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domain = $state('gmail.com');
   let loading = $state(false);
   let results = $state<any>(null);
@@ -10,21 +10,21 @@
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
   let checkPorts = $state(false);
-  
+
   const examples = [
     { domain: 'gmail.com', description: 'Google Gmail MX infrastructure' },
     { domain: 'outlook.com', description: 'Microsoft Outlook mail servers' },
     { domain: 'yahoo.com', description: 'Yahoo Mail MX configuration' },
     { domain: 'protonmail.com', description: 'ProtonMail secure email setup' },
     { domain: 'fastmail.com', description: 'FastMail professional hosting' },
-    { domain: 'github.com', description: 'GitHub enterprise email setup' }
+    { domain: 'github.com', description: 'GitHub enterprise email setup' },
   ];
-  
+
   async function checkMXHealth() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/email', {
         method: 'POST',
@@ -32,14 +32,14 @@
         body: JSON.stringify({
           action: 'mx-health',
           domain: domain.trim(),
-          checkPorts
-        })
+          checkPorts,
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`MX health check failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -47,40 +47,44 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     domain = example.domain;
     selectedExampleIndex = index;
     checkMXHealth();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
+
   function getHealthColor(isHealthy: boolean): string {
     return isHealthy ? 'success' : 'error';
   }
-  
+
   function getPortStatus(portCheck: any): string {
     return portCheck.open ? 'success' : 'error';
   }
-  
+
   function getPortDescription(port: number): string {
     switch (port) {
-      case 25: return 'SMTP (Standard)';
-      case 587: return 'Submission (TLS)';
-      case 465: return 'SMTPS (SSL)';
-      default: return `Port ${port}`;
+      case 25:
+        return 'SMTP (Standard)';
+      case 587:
+        return 'Submission (TLS)';
+      case 465:
+        return 'SMTPS (SSL)';
+      default:
+        return `Port ${port}`;
     }
   }
-  
+
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `MX Health Check for ${domain}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
-    
+
     text += `Summary:\n`;
     text += `  Total MX records: ${results.summary.totalMX}\n`;
     text += `  Healthy MX records: ${results.summary.healthyMX}\n`;
@@ -89,7 +93,7 @@
     }
     text += `  Overall health: ${results.summary.healthy ? 'Healthy' : 'Issues detected'}\n`;
     text += `  Redundancy: ${results.summary.hasRedundancy ? 'Yes' : 'No'}\n\n`;
-    
+
     text += `MX Records (by priority):\n`;
     results.mxRecords.forEach((mx: any, index: number) => {
       text += `${index + 1}. ${mx.exchange} (Priority: ${mx.priority})\n`;
@@ -109,17 +113,20 @@
       }
       text += `\n`;
     });
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>Email MX Health Checker</h1>
-    <p>Check mail server (MX) health including DNS resolution and optional SMTP port connectivity testing. Verify your email infrastructure is properly configured and reachable.</p>
+    <p>
+      Check mail server (MX) health including DNS resolution and optional SMTP port connectivity testing. Verify your
+      email infrastructure is properly configured and reachable.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -131,8 +138,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Check MX health for ${example.domain}`}
@@ -152,25 +159,28 @@
     </div>
     <div class="card-content">
       <div class="form-group">
-        <label for="domain" use:tooltip={"Enter the domain to check email server health for"}>
+        <label for="domain" use:tooltip={'Enter the domain to check email server health for'}>
           Domain Name
-          <input 
-            id="domain" 
-            type="text" 
-            bind:value={domain} 
+          <input
+            id="domain"
+            type="text"
+            bind:value={domain}
             placeholder="example.com"
-            onchange={() => { clearExampleSelection(); if (domain) checkMXHealth(); }}
+            onchange={() => {
+              clearExampleSelection();
+              if (domain) checkMXHealth();
+            }}
           />
         </label>
       </div>
-      
+
       <div class="form-group checkbox-group">
         <label class="checkbox-label">
           <input type="checkbox" bind:checked={checkPorts} />
           <span class="checkbox-text">Check SMTP port connectivity (25, 587, 465)</span>
         </label>
       </div>
-      
+
       <div class="action-section">
         <button class="check-btn lookup-btn" onclick={checkMXHealth} disabled={loading || !domain.trim()}>
           {#if loading}
@@ -191,8 +201,8 @@
       <div class="card-header row">
         <h3>MX Health Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <Icon name={copiedState ? "check" : "copy"} size="xs" />
-          {copiedState ? "Copied!" : "Copy Results"}
+          <Icon name={copiedState ? 'check' : 'copy'} size="xs" />
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
@@ -216,7 +226,7 @@
               </p>
             </div>
           </div>
-          
+
           <div class="summary-stats">
             <div class="stat-item">
               <Icon name="server" size="sm" />
@@ -225,7 +235,7 @@
                 <span class="stat-value">{results.summary.totalMX}</span>
               </div>
             </div>
-            
+
             <div class="stat-item">
               <Icon name="shield-check" size="sm" />
               <div>
@@ -233,22 +243,26 @@
                 <span class="stat-value {getHealthColor(results.summary.healthy)}">{results.summary.healthyMX}</span>
               </div>
             </div>
-            
+
             {#if checkPorts && results.summary.reachableMX !== null}
               <div class="stat-item">
                 <Icon name="wifi" size="sm" />
                 <div>
                   <span class="stat-label">Reachable</span>
-                  <span class="stat-value {getHealthColor(results.summary.reachableMX > 0)}">{results.summary.reachableMX}</span>
+                  <span class="stat-value {getHealthColor(results.summary.reachableMX > 0)}"
+                    >{results.summary.reachableMX}</span
+                  >
                 </div>
               </div>
             {/if}
-            
+
             <div class="stat-item">
               <Icon name="copy" size="sm" />
               <div>
                 <span class="stat-label">Redundancy</span>
-                <span class="stat-value {getHealthColor(results.summary.hasRedundancy)}">{results.summary.hasRedundancy ? 'Yes' : 'No'}</span>
+                <span class="stat-value {getHealthColor(results.summary.hasRedundancy)}"
+                  >{results.summary.hasRedundancy ? 'Yes' : 'No'}</span
+                >
               </div>
             </div>
           </div>
@@ -274,12 +288,14 @@
                       </div>
                     {/if}
                   </div>
-                  
+
                   <div class="mx-status">
-                    <span class={mx.error ? 'text-error' : 'text-success'}><Icon name={mx.error ? 'x-circle' : 'check-circle'} size="sm" /></span>
+                    <span class={mx.error ? 'text-error' : 'text-success'}
+                      ><Icon name={mx.error ? 'x-circle' : 'check-circle'} size="sm" /></span
+                    >
                   </div>
                 </div>
-                
+
                 {#if mx.addresses && !mx.error}
                   <div class="mx-details">
                     <!-- IP Addresses -->
@@ -299,7 +315,7 @@
                           {/if}
                         </div>
                       </div>
-                      
+
                       <div class="address-group">
                         <div class="address-header">
                           <Icon name="globe" size="xs" />
@@ -316,7 +332,7 @@
                         </div>
                       </div>
                     </div>
-                    
+
                     <!-- Port Checks -->
                     {#if mx.portChecks && checkPorts}
                       <div class="ports-section">
@@ -383,7 +399,7 @@
             <li><strong>Load balancing:</strong> Equal priorities distribute load</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>SMTP Ports</h4>
           <div class="port-explanations">
@@ -398,7 +414,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>Health Indicators</h4>
           <ul>
@@ -408,7 +424,7 @@
             <li>Lower priority servers should be reachable</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Common Issues</h4>
           <ul>
@@ -433,11 +449,11 @@
     align-items: center;
     gap: var(--spacing-sm);
     cursor: pointer;
-    
-    input[type="checkbox"] {
+
+    input[type='checkbox'] {
       margin: 0;
     }
-    
+
     .checkbox-text {
       color: var(--text-primary);
       font-size: var(--font-size-sm);
@@ -509,9 +525,13 @@
     .stat-value {
       font-weight: 600;
       color: var(--text-primary);
-      
-      &.success { color: var(--color-success); }
-      &.error { color: var(--color-error); }
+
+      &.success {
+        color: var(--color-success);
+      }
+      &.error {
+        color: var(--color-error);
+      }
     }
   }
 
@@ -703,7 +723,7 @@
     .port-explanation {
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
-      
+
       strong {
         color: var(--text-primary);
         font-family: var(--font-mono);
@@ -711,6 +731,10 @@
     }
   }
 
-  .text-success { color: var(--color-success); }
-  .text-error { color: var(--color-error); }
+  .text-success {
+    color: var(--color-success);
+  }
+  .text-error {
+    color: var(--color-error);
+  }
 </style>

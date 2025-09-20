@@ -5,10 +5,9 @@
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
-
 <div class="container">
   <slot />
-  
+
   <!-- IPv4/IPv6 Information Section -->
   <div class="info-cards-section">
     <div class="explainer-card no-hover">
@@ -18,7 +17,6 @@
       </h3>
       <div class="explainer-content">
         <div class="format-explanations">
-          
           <!-- IPv4 Overview -->
           <div class="format-explanation">
             <h4><span class="format-badge ipv4">IPv4 (Internet Protocol version 4)</span></h4>
@@ -51,7 +49,7 @@
       </div>
     </div>
 
-    <div class="explainer-card  no-hover">
+    <div class="explainer-card no-hover">
       <h3>
         <Icon name="lightbulb" size="md" />
         Conversion Methods & Use Cases
@@ -100,7 +98,9 @@
         <div class="class-notes">
           <h4>Limitations & Best Practices</h4>
           <ul>
-            <li><strong>IPv4-mapped IPv6:</strong> Only works for representing IPv4 addresses, not true IPv6 migration</li>
+            <li>
+              <strong>IPv4-mapped IPv6:</strong> Only works for representing IPv4 addresses, not true IPv6 migration
+            </li>
             <li><strong>Security:</strong> IPv4-mapped addresses may bypass IPv6-specific security rules</li>
             <li><strong>Performance:</strong> Native IPv6 is preferred over IPv4-mapped when possible</li>
             <li><strong>Compatibility:</strong> Not all applications handle IPv4-mapped IPv6 correctly</li>
@@ -114,50 +114,50 @@
 </div>
 
 <style>
-
-
-h3 :global(.icon) {
-  width: 2rem;
-  height: 2rem;
-  color: var(--color-primary);
-}
-
-.usage-scenarios, .format-explanations, .explainer-card {
-  display: grid;
-  gap: var(--spacing-md);
-  h3 {
-    margin-bottom: 0;
+  h3 :global(.icon) {
+    width: 2rem;
+    height: 2rem;
     color: var(--color-primary);
   }
-  .usage-scenario, .format-explanation, .class-notes {
-    padding: var(--spacing-md);
-    background-color: var(--bg-tertiary);
-    border-radius: var(--radius-md);
 
-    background-color: var(--bg-tertiary);
-    border-left: 4px solid var(--border-primary);
-    h4 {
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-sm);
+  .usage-scenarios,
+  .format-explanations,
+  .explainer-card {
+    display: grid;
+    gap: var(--spacing-md);
+    h3 {
+      margin-bottom: 0;
+      color: var(--color-primary);
     }
-    ul {
-      margin: var(--spacing-sm) 0 0 var(--spacing-md);
-      li {
-        margin-bottom: var(--spacing-xs);
+    .usage-scenario,
+    .format-explanation,
+    .class-notes {
+      padding: var(--spacing-md);
+      background-color: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+
+      background-color: var(--bg-tertiary);
+      border-left: 4px solid var(--border-primary);
+      h4 {
         color: var(--text-primary);
+        margin-bottom: var(--spacing-sm);
+      }
+      ul {
+        margin: var(--spacing-sm) 0 0 var(--spacing-md);
+        li {
+          margin-bottom: var(--spacing-xs);
+          color: var(--text-primary);
+        }
+      }
+    }
+    .class-notes {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--color-warning);
+      h4 {
+        color: var(--color-warning);
       }
     }
   }
-  .class-notes {
-    background-color: var(--bg-primary);
-    border: 1px solid var(--color-warning);
-    h4 {
-      color: var(--color-warning);
-    }
-  }
-}
-
-    
 
   .info-cards-section {
     margin-top: var(--spacing-xl);
@@ -170,9 +170,14 @@ h3 :global(.icon) {
     color: var(--bg-primary);
     border-radius: var(--radius-xs);
     padding: 0.1rem 0.25rem;
-    &.ipv4 { background-color: var(--color-info); }
-    &.ipv6 { background-color: var(--color-success); }
-    &.mapped { background-color: var(--color-warning); }
+    &.ipv4 {
+      background-color: var(--color-info);
+    }
+    &.ipv6 {
+      background-color: var(--color-success);
+    }
+    &.mapped {
+      background-color: var(--color-warning);
+    }
   }
-
 </style>

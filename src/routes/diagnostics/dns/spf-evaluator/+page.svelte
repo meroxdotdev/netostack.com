@@ -2,42 +2,42 @@
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
   import '../../../../styles/diagnostics-pages.scss';
-  
+
   let domain = $state('google.com');
   let loading = $state(false);
   let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
-  
+
   const examples = [
     { domain: 'google.com', description: 'Google SPF with multiple includes' },
     { domain: 'github.com', description: 'GitHub SPF record structure' },
     { domain: 'mailchimp.com', description: 'MailChimp complex SPF policy' },
     { domain: 'salesforce.com', description: 'Salesforce enterprise SPF' },
     { domain: 'microsoft.com', description: 'Microsoft Office 365 SPF' },
-    { domain: 'atlassian.com', description: 'Atlassian SPF configuration' }
+    { domain: 'atlassian.com', description: 'Atlassian SPF configuration' },
   ];
-  
+
   async function evaluateSPF() {
     loading = true;
     error = null;
     results = null;
-    
+
     try {
       const response = await fetch('/api/internal/diagnostics/dns', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'spf-evaluator',
-          domain: domain.trim()
-        })
+          domain: domain.trim(),
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`SPF evaluation failed: ${response.status}`);
       }
-      
+
       results = await response.json();
     } catch (err: any) {
       error = err.message;
@@ -45,82 +45,85 @@
       loading = false;
     }
   }
-  
-  function loadExample(example: typeof examples[0], index: number) {
+
+  function loadExample(example: (typeof examples)[0], index: number) {
     domain = example.domain;
     selectedExampleIndex = index;
     evaluateSPF();
   }
-  
+
   function clearExampleSelection() {
     selectedExampleIndex = null;
   }
-  
-  function getMechanismType(mechanism: string): { type: string, color: string, icon: string } {
+
+  function getMechanismType(mechanism: string): { type: string; color: string; icon: string } {
     if (mechanism.startsWith('v=spf1')) return { type: 'version', color: 'primary', icon: 'shield' };
-    if (mechanism.startsWith('+all') || mechanism === 'all') return { type: 'pass all', color: 'error', icon: 'shield-off' };
+    if (mechanism.startsWith('+all') || mechanism === 'all')
+      return { type: 'pass all', color: 'error', icon: 'shield-off' };
     if (mechanism.startsWith('-all')) return { type: 'fail all', color: 'success', icon: 'shield-check' };
     if (mechanism.startsWith('~all')) return { type: 'soft fail all', color: 'warning', icon: 'shield-alert' };
     if (mechanism.startsWith('?all')) return { type: 'neutral all', color: 'secondary', icon: 'shield-question' };
     if (mechanism.startsWith('ip4:')) return { type: 'IPv4', color: 'primary', icon: 'globe' };
     if (mechanism.startsWith('ip6:')) return { type: 'IPv6', color: 'primary', icon: 'globe' };
     if (mechanism.startsWith('a:') || mechanism === 'a') return { type: 'A record', color: 'secondary', icon: 'dns' };
-    if (mechanism.startsWith('mx:') || mechanism === 'mx') return { type: 'MX record', color: 'secondary', icon: 'mail' };
+    if (mechanism.startsWith('mx:') || mechanism === 'mx')
+      return { type: 'MX record', color: 'secondary', icon: 'mail' };
     if (mechanism.startsWith('exists:')) return { type: 'exists check', color: 'warning', icon: 'search' };
-    if (mechanism.startsWith('ptr:') || mechanism === 'ptr') return { type: 'PTR record', color: 'secondary', icon: 'arrow-left' };
+    if (mechanism.startsWith('ptr:') || mechanism === 'ptr')
+      return { type: 'PTR record', color: 'secondary', icon: 'arrow-left' };
     return { type: 'other', color: 'secondary', icon: 'help-circle' };
   }
-  
+
   function renderIncludeTree(includes: any[], level = 0): any[] {
     const items: any[] = [];
-    
-    includes.forEach(include => {
+
+    includes.forEach((include) => {
       items.push({
         type: 'include',
         domain: include.domain,
         level,
-        result: include.result
+        result: include.result,
       });
-      
+
       if (include.result?.expanded?.includes) {
         items.push(...renderIncludeTree(include.result.expanded.includes, level + 1));
       }
-      
+
       if (include.result?.expanded?.redirects) {
         include.result.expanded.redirects.forEach((redirect: any) => {
           items.push({
             type: 'redirect',
             domain: redirect.domain,
             level: level + 1,
-            result: redirect.result
+            result: redirect.result,
           });
         });
       }
     });
-    
+
     return items;
   }
-  
-  function getLookupStatus(): { status: string, color: string, message: string } {
+
+  function getLookupStatus(): { status: string; color: string; message: string } {
     if (!results) return { status: 'unknown', color: 'secondary', message: 'No evaluation performed' };
     if (results.error) return { status: 'error', color: 'error', message: results.error };
-    
+
     const count = results.lookupCount || 0;
     if (count > 10) return { status: 'exceeded', color: 'error', message: `DNS lookup limit exceeded (${count}/10)` };
     if (count > 8) return { status: 'warning', color: 'warning', message: `High DNS lookup count (${count}/10)` };
     return { status: 'ok', color: 'success', message: `DNS lookups used: ${count}/10` };
   }
-  
+
   async function copyResults() {
     if (!results) return;
-    
+
     let text = `SPF Evaluation for ${domain}\n`;
     text += `Generated at: ${new Date().toISOString()}\n\n`;
-    
+
     if (results.record) {
       text += `Original SPF Record:\n${results.record}\n\n`;
     }
-    
+
     if (results.expanded?.mechanisms) {
       text += `Mechanisms:\n`;
       results.expanded.mechanisms.forEach((mech: string) => {
@@ -128,11 +131,11 @@
       });
       text += '\n';
     }
-    
+
     if (results.expanded?.includes) {
       text += `Includes:\n`;
       const includeTree = renderIncludeTree(results.expanded.includes);
-      includeTree.forEach(item => {
+      includeTree.forEach((item) => {
         const indent = '  '.repeat(item.level + 1);
         text += `${indent}${item.type}: ${item.domain}`;
         if (item.result?.error) {
@@ -141,20 +144,23 @@
         text += '\n';
       });
     }
-    
+
     const status = getLookupStatus();
     text += `\nStatus: ${status.message}`;
-    
+
     await navigator.clipboard.writeText(text);
     copiedState = true;
-    setTimeout(() => copiedState = false, 1500);
+    setTimeout(() => (copiedState = false), 1500);
   }
 </script>
 
 <div class="card">
   <header class="card-header">
     <h1>SPF Record Evaluator</h1>
-    <p>Analyze SPF (Sender Policy Framework) records with recursive expansion of includes and redirects. Check DNS lookup limits and identify potential policy issues.</p>
+    <p>
+      Analyze SPF (Sender Policy Framework) records with recursive expansion of includes and redirects. Check DNS lookup
+      limits and identify potential policy issues.
+    </p>
   </header>
 
   <!-- Examples -->
@@ -166,8 +172,8 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example, i}
-          <button 
-            class="example-card" 
+          <button
+            class="example-card"
             class:selected={selectedExampleIndex === i}
             onclick={() => loadExample(example, i)}
             use:tooltip={`Evaluate SPF record for ${example.domain} (${example.description})`}
@@ -187,18 +193,21 @@
     </div>
     <div class="card-content">
       <div class="form-group">
-        <label for="domain" use:tooltip={"Enter the domain to evaluate SPF records for"}>
+        <label for="domain" use:tooltip={'Enter the domain to evaluate SPF records for'}>
           Domain Name
-          <input 
-            id="domain" 
-            type="text" 
-            bind:value={domain} 
+          <input
+            id="domain"
+            type="text"
+            bind:value={domain}
             placeholder="example.com"
-            onchange={() => { clearExampleSelection(); if (domain) evaluateSPF(); }}
+            onchange={() => {
+              clearExampleSelection();
+              if (domain) evaluateSPF();
+            }}
           />
         </label>
       </div>
-      
+
       <div class="action-section">
         <button class="evaluate-btn lookup-btn" onclick={evaluateSPF} disabled={loading || !domain.trim()}>
           {#if loading}
@@ -220,15 +229,24 @@
       <div class="card-header row">
         <h3>SPF Evaluation Results</h3>
         <button class="copy-btn" onclick={copyResults} disabled={copiedState}>
-          <span class={copiedState ? "text-green-500" : ""}><Icon name={copiedState ? "check" : "copy"} size="xs" /></span>
-          {copiedState ? "Copied!" : "Copy Results"}
+          <span class={copiedState ? 'text-green-500' : ''}
+            ><Icon name={copiedState ? 'check' : 'copy'} size="xs" /></span
+          >
+          {copiedState ? 'Copied!' : 'Copy Results'}
         </button>
       </div>
       <div class="card-content">
         <!-- Status -->
         <div class="status-section">
           <div class="status-item card {status.color}">
-            <Icon name={status.status === 'ok' ? 'check-circle' : status.status === 'warning' ? 'alert-triangle' : 'x-circle'} size="sm" />
+            <Icon
+              name={status.status === 'ok'
+                ? 'check-circle'
+                : status.status === 'warning'
+                  ? 'alert-triangle'
+                  : 'x-circle'}
+              size="sm"
+            />
             <span>{status.message}</span>
           </div>
         </div>
@@ -279,7 +297,7 @@
                       <span class="text-success"><Icon name="check-circle" size="xs" /></span>
                     {/if}
                   </div>
-                  
+
                   {#if item.result?.error}
                     <div class="include-error">
                       <Icon name="alert-triangle" size="xs" />
@@ -312,7 +330,7 @@
                       <span class="text-success"><Icon name="check-circle" size="xs" /></span>
                     {/if}
                   </div>
-                  
+
                   {#if redirect.result?.error}
                     <div class="redirect-error">
                       <span>{redirect.result.error}</span>
@@ -331,7 +349,7 @@
     </div>
   {/if}
 
-  {#if error || (results?.error)}
+  {#if error || results?.error}
     <div class="card error-card">
       <div class="card-content">
         <div class="error-content">
@@ -372,7 +390,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>SPF Qualifiers</h4>
           <div class="qualifier-types">
@@ -390,7 +408,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="info-section">
           <h4>DNS Lookup Limits</h4>
           <p>SPF has a limit of 10 DNS lookups to prevent infinite loops and reduce load. This includes:</p>
@@ -400,7 +418,7 @@
             <li>Lookups from <code>redirect</code> modifiers</li>
           </ul>
         </div>
-        
+
         <div class="info-section">
           <h4>Best Practices</h4>
           <ul>
@@ -417,7 +435,6 @@
 </div>
 
 <style lang="scss">
-  
   .record-display code {
     background: var(--bg-primary);
     padding: var(--spacing-sm);
@@ -500,7 +517,8 @@
     font-size: var(--font-size-xs);
   }
 
-  .includes-section, .redirects-section {
+  .includes-section,
+  .redirects-section {
     margin-bottom: var(--spacing-lg);
 
     h4 {
@@ -519,15 +537,15 @@
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
-    
+
     &.level-0 {
       margin-left: 0;
     }
-    
+
     &.level-1 {
       margin-left: var(--spacing-lg);
     }
-    
+
     &.level-2 {
       margin-left: calc(var(--spacing-lg) * 2);
     }
@@ -553,9 +571,10 @@
     flex: 1;
   }
 
-  .include-record, .redirect-record {
+  .include-record,
+  .redirect-record {
     padding: var(--spacing-sm) var(--spacing-md);
-    
+
     code {
       font-family: var(--font-mono);
       color: var(--text-primary);
@@ -564,7 +583,8 @@
     }
   }
 
-  .include-error, .redirect-error {
+  .include-error,
+  .redirect-error {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -595,16 +615,18 @@
     color: var(--text-primary);
   }
 
-  .mechanism-types, .qualifier-types {
+  .mechanism-types,
+  .qualifier-types {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
   }
 
-  .mechanism-doc, .qualifier-doc {
+  .mechanism-doc,
+  .qualifier-doc {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    
+
     strong {
       color: var(--text-primary);
       font-family: var(--font-mono);

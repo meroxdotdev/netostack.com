@@ -1,4 +1,4 @@
-<script>	
+<script>
   import '../../styles/page-specific/about-page.scss';
 </script>
 
@@ -7,8 +7,8 @@
 </main>
 
 <style lang="scss">
-.about-content {
-  max-width: 1200px;
-  margin: 0 auto;
-}
+  .about-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
 </style>

@@ -2,47 +2,49 @@
   import { convertEUI64Addresses, type EUI64Result } from '$lib/utils/eui64.js';
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  
+
   let inputText = $state('00:1A:2B:3C:4D:5E\n02:1A:2B:FF:FE:3C:4D:5F\n08:00:27:12:34:56\n0A:00:27:FF:FE:12:34:57');
   let globalPrefix = $state('2001:db8::/64');
   let result = $state<EUI64Result | null>(null);
   let isLoading = $state(false);
   let copiedStates = $state<Record<string, boolean>>({});
-  
+
   function convertAddresses() {
     if (!inputText.trim()) {
       result = null;
       return;
     }
-    
+
     isLoading = true;
-    
+
     try {
-      const inputs = inputText.split('\n').filter(line => line.trim());
+      const inputs = inputText.split('\n').filter((line) => line.trim());
       const prefix = globalPrefix.trim() || undefined;
       result = convertEUI64Addresses(inputs, prefix);
     } catch (error) {
       result = {
         conversions: [],
         summary: { totalInputs: 0, validInputs: 0, invalidInputs: 0, macToEUI64: 0, eui64ToMAC: 0 },
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
       };
     } finally {
       isLoading = false;
     }
   }
-  
+
   function exportResults(format: 'csv' | 'json') {
     if (!result) return;
-    
+
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
     let content = '';
     let filename = '';
-    
+
     if (format === 'csv') {
-      const headers = 'Input,Type,MAC Address,EUI-64,IPv6 Link-Local,IPv6 Global,Universal/Local,Unicast/Multicast,Valid,Error';
-      const rows = result.conversions.map(conv => 
-        `"${conv.input}","${conv.inputType.toUpperCase()}","${conv.macAddress}","${conv.eui64Address}","${conv.ipv6LinkLocal}","${conv.ipv6Global}","${conv.details.universalLocal}","${conv.details.unicastMulticast}","${conv.isValid}","${conv.error || ''}"`
+      const headers =
+        'Input,Type,MAC Address,EUI-64,IPv6 Link-Local,IPv6 Global,Universal/Local,Unicast/Multicast,Valid,Error';
+      const rows = result.conversions.map(
+        (conv) =>
+          `"${conv.input}","${conv.inputType.toUpperCase()}","${conv.macAddress}","${conv.eui64Address}","${conv.ipv6LinkLocal}","${conv.ipv6Global}","${conv.details.universalLocal}","${conv.details.unicastMulticast}","${conv.isValid}","${conv.error || ''}"`,
       );
       content = [headers, ...rows].join('\n');
       filename = `eui64-conversions-${timestamp}.csv`;
@@ -50,7 +52,7 @@
       content = JSON.stringify(result, null, 2);
       filename = `eui64-conversions-${timestamp}.json`;
     }
-    
+
     const blob = new Blob([content], { type: format === 'csv' ? 'text/csv' : 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -59,17 +61,17 @@
     a.click();
     URL.revokeObjectURL(url);
   }
-  
+
   async function copyToClipboard(text: string, id: string = text) {
     try {
       await navigator.clipboard.writeText(text);
       copiedStates[id] = true;
-      setTimeout(() => copiedStates[id] = false, 3000);
+      setTimeout(() => (copiedStates[id] = false), 3000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
   }
-  
+
   // Auto-convert when inputs change
   $effect(() => {
     if (inputText.trim()) {
@@ -89,7 +91,10 @@
     <div class="inputs-section">
       <h3>Address Conversion</h3>
       <div class="input-group">
-        <label for="inputs" use:tooltip={{ text: 'Enter MAC addresses (48-bit) or EUI-64 identifiers (64-bit)', position: 'top' }}>
+        <label
+          for="inputs"
+          use:tooltip={{ text: 'Enter MAC addresses (48-bit) or EUI-64 identifiers (64-bit)', position: 'top' }}
+        >
           MAC Addresses or EUI-64 Identifiers
         </label>
         <textarea
@@ -99,20 +104,22 @@
           rows="6"
         ></textarea>
         <div class="input-help">
-          Enter MAC addresses (48-bit) or EUI-64 identifiers (64-bit) one per line. Various formats supported: xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx
+          Enter MAC addresses (48-bit) or EUI-64 identifiers (64-bit) one per line. Various formats supported:
+          xx:xx:xx:xx:xx:xx or xx-xx-xx-xx-xx-xx
         </div>
       </div>
 
       <div class="input-group">
-        <label for="prefix" use:tooltip={{ text: 'IPv6 network prefix for generating global addresses (e.g., 2001:db8::/64)', position: 'top' }}>
+        <label
+          for="prefix"
+          use:tooltip={{
+            text: 'IPv6 network prefix for generating global addresses (e.g., 2001:db8::/64)',
+            position: 'top',
+          }}
+        >
           IPv6 Global Prefix (Optional)
         </label>
-        <input
-          id="prefix"
-          type="text"
-          bind:value={globalPrefix}
-          placeholder="2001:db8::/64"
-        />
+        <input id="prefix" type="text" bind:value={globalPrefix} placeholder="2001:db8::/64" />
         <div class="input-help">
           IPv6 prefix for generating global unicast addresses. Leave empty to use example prefix.
         </div>
@@ -122,7 +129,10 @@
     <div class="info-section">
       <h3>EUI-64 Information</h3>
       <div class="info-content">
-        <p><strong>EUI-64</strong> (Extended Unique Identifier 64-bit) is used to generate IPv6 interface identifiers from MAC addresses:</p>
+        <p>
+          <strong>EUI-64</strong> (Extended Unique Identifier 64-bit) is used to generate IPv6 interface identifiers from
+          MAC addresses:
+        </p>
         <ul>
           <li>Split MAC address: OUI (24 bits) + Device ID (24 bits)</li>
           <li>Insert FFFE between OUI and Device ID</li>
@@ -206,7 +216,7 @@
                       </span>
                     </div>
                   </div>
-                  
+
                   <div class="status">
                     {#if conversion.isValid}
                       <Icon name="check-circle" />
@@ -223,7 +233,7 @@
                         <span class="address-label">MAC Address:</span>
                         <div class="code-container">
                           <code>{conversion.macAddress}</code>
-                          <button 
+                          <button
                             type="button"
                             class="btn btn-icon btn-xs"
                             class:copied={copiedStates[conversion.macAddress]}
@@ -234,12 +244,12 @@
                           </button>
                         </div>
                       </div>
-                      
+
                       <div class="address-item">
                         <span class="address-label">EUI-64:</span>
                         <div class="code-container">
                           <code>{conversion.eui64Address}</code>
-                          <button 
+                          <button
                             type="button"
                             class="btn btn-icon btn-xs"
                             class:copied={copiedStates[conversion.eui64Address]}
@@ -258,7 +268,7 @@
                         <span class="ipv6-label">Link-Local:</span>
                         <div class="code-container">
                           <code>{conversion.ipv6LinkLocal}</code>
-                          <button 
+                          <button
                             type="button"
                             class="btn btn-icon btn-xs"
                             class:copied={copiedStates[conversion.ipv6LinkLocal]}
@@ -269,12 +279,12 @@
                           </button>
                         </div>
                       </div>
-                      
+
                       <div class="ipv6-item">
                         <span class="ipv6-label">Global:</span>
                         <div class="code-container">
                           <code>{conversion.ipv6Global}</code>
-                          <button 
+                          <button
                             type="button"
                             class="btn btn-icon btn-xs"
                             class:copied={copiedStates[conversion.ipv6Global]}
@@ -294,27 +304,35 @@
                           <span class="property-label">OUI Part:</span>
                           <code>{conversion.details.ouiPart}</code>
                         </div>
-                        
+
                         <div class="property-item">
                           <span class="property-label">Device Part:</span>
                           <code>{conversion.details.devicePart}</code>
                         </div>
-                        
+
                         <div class="property-item">
                           <span class="property-label">Modified OUI:</span>
                           <code>{conversion.details.modifiedOUI}</code>
                         </div>
-                        
+
                         <div class="property-item">
                           <span class="property-label">Scope:</span>
-                          <span class="property-value" class:universal={conversion.details.universalLocal === 'universal'} class:local={conversion.details.universalLocal === 'local'}>
+                          <span
+                            class="property-value"
+                            class:universal={conversion.details.universalLocal === 'universal'}
+                            class:local={conversion.details.universalLocal === 'local'}
+                          >
                             {conversion.details.universalLocal.toUpperCase()}
                           </span>
                         </div>
-                        
+
                         <div class="property-item">
                           <span class="property-label">Type:</span>
-                          <span class="property-value" class:unicast={conversion.details.unicastMulticast === 'unicast'} class:multicast={conversion.details.unicastMulticast === 'multicast'}>
+                          <span
+                            class="property-value"
+                            class:unicast={conversion.details.unicastMulticast === 'unicast'}
+                            class:multicast={conversion.details.unicastMulticast === 'multicast'}
+                          >
                             {conversion.details.unicastMulticast.toUpperCase()}
                           </span>
                         </div>
@@ -337,7 +355,6 @@
 </div>
 
 <style>
-
   .input-section {
     display: grid;
     gap: var(--spacing-lg);
@@ -765,7 +782,6 @@
     font-size: var(--font-size-sm);
   }
 
-
   .properties-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -841,15 +857,14 @@
   }
 
   @media (max-width: 768px) {
-    
     .summary-stats {
       grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .export-buttons {
       flex-direction: column;
     }
-    
+
     .properties-grid {
       grid-template-columns: 1fr;
     }

@@ -1,11 +1,11 @@
 <script lang="ts">
   import Icon from '$lib/components/global/Icon.svelte';
-  import { 
-    suggestRRSIGWindows, 
-    formatRRSIGDates, 
+  import {
+    suggestRRSIGWindows,
+    formatRRSIGDates,
     validateRRSIGTiming,
     type RRSIGPlanningOptions,
-    type RRSIGWindow
+    type RRSIGWindow,
   } from '$lib/utils/dnssec';
 
   let ttl = $state(3600);
@@ -21,24 +21,18 @@
     desiredOverlap,
     renewalLeadTime,
     clockSkew,
-    signatureValidityDays
+    signatureValidityDays,
   } as RRSIGPlanningOptions);
 
   const windows = $derived(suggestRRSIGWindows(planningOptions));
   const currentWindow = $derived(windows?.[0] || null);
   const nextWindow = $derived(windows?.[1] || null);
 
-  const currentWindowFormatted = $derived(
-    currentWindow ? formatRRSIGDates(currentWindow) : null
-  );
-  
-  const nextWindowFormatted = $derived(
-    nextWindow ? formatRRSIGDates(nextWindow) : null
-  );
+  const currentWindowFormatted = $derived(currentWindow ? formatRRSIGDates(currentWindow) : null);
 
-  const currentValidation = $derived(
-    currentWindow ? validateRRSIGTiming(currentWindow, ttl) : null
-  );
+  const nextWindowFormatted = $derived(nextWindow ? formatRRSIGDates(nextWindow) : null);
+
+  const currentValidation = $derived(currentWindow ? validateRRSIGTiming(currentWindow, ttl) : null);
 
   async function copyToClipboard(text: string, key: string) {
     try {
@@ -94,7 +88,10 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
 <div class="card">
   <header class="card-header">
     <h1>RRSIG Planner</h1>
-    <p>Suggest RRSIG validity windows (inception/expiration) based on TTLs and desired overlap, with renewal lead-time guidance for automated DNSSEC signature management.</p>
+    <p>
+      Suggest RRSIG validity windows (inception/expiration) based on TTLs and desired overlap, with renewal lead-time
+      guidance for automated DNSSEC signature management.
+    </p>
   </header>
 
   <!-- Input Form -->
@@ -217,10 +214,7 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
       <div class="card window-card">
         <div class="window-header">
           <h3>Current Signature Window</h3>
-          <button
-            class="copy-button {copiedStates.current ? 'copied' : ''}"
-            onclick={copyCurrentWindow}
-          >
+          <button class="copy-button {copiedStates.current ? 'copied' : ''}" onclick={copyCurrentWindow}>
             <Icon name={copiedStates.current ? 'check' : 'copy'} size="sm" />
             Copy
           </button>
@@ -308,10 +302,7 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
             </div>
 
             <div class="copy-schedule-section">
-              <button
-                class="copy-button {copiedStates.both ? 'copied' : ''}"
-                onclick={copyBothWindows}
-              >
+              <button class="copy-button {copiedStates.both ? 'copied' : ''}" onclick={copyBothWindows}>
                 <Icon name={copiedStates.both ? 'check' : 'copy'} size="sm" />
                 Copy Full Schedule
               </button>
@@ -355,32 +346,32 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
       <div class="education-item info-panel">
         <h4>RRSIG Timing</h4>
         <p>
-          RRSIG records have inception and expiration timestamps that define when the signature is valid.
-          Proper timing ensures continuous DNSSEC validation during key transitions.
+          RRSIG records have inception and expiration timestamps that define when the signature is valid. Proper timing
+          ensures continuous DNSSEC validation during key transitions.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Overlap Strategy</h4>
         <p>
-          Overlapping signature validity periods prevent validation failures during rollover.
-          New signatures should be generated before old ones expire.
+          Overlapping signature validity periods prevent validation failures during rollover. New signatures should be
+          generated before old ones expire.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Clock Skew Tolerance</h4>
         <p>
-          Account for time differences between authoritative servers and validators.
-          Start signatures slightly in the past to accommodate clock skew.
+          Account for time differences between authoritative servers and validators. Start signatures slightly in the
+          past to accommodate clock skew.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Automation Benefits</h4>
         <p>
-          Automated RRSIG generation reduces manual errors and ensures consistent timing.
-          Plan renewal schedules based on TTL values and operational requirements.
+          Automated RRSIG generation reduces manual errors and ensures consistent timing. Plan renewal schedules based
+          on TTL values and operational requirements.
         </p>
       </div>
     </div>
@@ -388,7 +379,6 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
 </div>
 
 <style lang="scss">
-
   .input-card {
     margin-bottom: var(--spacing-lg);
     background: var(--bg-tertiary);
@@ -418,7 +408,7 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
   .number-input {
     width: 100%;
     font-family: var(--font-mono);
-    
+
     &.invalid {
       border-color: var(--color-error);
       box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-error), transparent 80%);
@@ -435,9 +425,11 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
   .warning-card {
     margin-bottom: var(--spacing-lg);
     border-color: var(--color-warning);
-    background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--color-warning), transparent 95%), 
-      color-mix(in srgb, var(--color-warning), transparent 98%));
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-warning), transparent 95%),
+      color-mix(in srgb, var(--color-warning), transparent 98%)
+    );
   }
 
   .warning-content {
@@ -519,7 +511,7 @@ Renewal Time: ${nextWindowFormatted.renewalFormatted}`;
   .timing-item {
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
-    
+
     &.inception {
       background-color: color-mix(in srgb, var(--color-success), transparent 95%);
       border: 1px solid color-mix(in srgb, var(--color-success), transparent 80%);

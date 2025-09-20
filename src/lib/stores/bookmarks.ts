@@ -28,8 +28,8 @@ function createBookmarksStore() {
       }
     },
     add: (tool: BookmarkedTool) => {
-      update(bookmarks => {
-        if (!bookmarks.find(b => b.href === tool.href)) {
+      update((bookmarks) => {
+        if (!bookmarks.find((b) => b.href === tool.href)) {
           const newBookmarks = [...bookmarks, tool];
           if (browser) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newBookmarks));
@@ -40,8 +40,8 @@ function createBookmarksStore() {
       });
     },
     remove: (href: string) => {
-      update(bookmarks => {
-        const newBookmarks = bookmarks.filter(b => b.href !== href);
+      update((bookmarks) => {
+        const newBookmarks = bookmarks.filter((b) => b.href !== href);
         if (browser) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(newBookmarks));
         }
@@ -49,11 +49,9 @@ function createBookmarksStore() {
       });
     },
     toggle: (tool: BookmarkedTool) => {
-      update(bookmarks => {
-        const existing = bookmarks.find(b => b.href === tool.href);
-        const newBookmarks = existing
-          ? bookmarks.filter(b => b.href !== tool.href)
-          : [...bookmarks, tool];
+      update((bookmarks) => {
+        const existing = bookmarks.find((b) => b.href === tool.href);
+        const newBookmarks = existing ? bookmarks.filter((b) => b.href !== tool.href) : [...bookmarks, tool];
         if (browser) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(newBookmarks));
         }
@@ -61,8 +59,8 @@ function createBookmarksStore() {
       });
     },
     isBookmarked: (href: string, bookmarks: BookmarkedTool[]) => {
-      return bookmarks.some(b => b.href === href);
-    }
+      return bookmarks.some((b) => b.href === href);
+    },
   };
 }
 

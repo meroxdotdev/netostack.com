@@ -18,13 +18,13 @@
     {
       value: 'exact-merge' as const,
       label: 'Exact Merge',
-      description: 'Merge overlapping ranges exactly without additional aggregation'
+      description: 'Merge overlapping ranges exactly without additional aggregation',
     },
     {
       value: 'minimal-cover' as const,
       label: 'Minimal Cover',
-      description: 'Find the smallest set of CIDR blocks that covers all inputs'
-    }
+      description: 'Find the smallest set of CIDR blocks that covers all inputs',
+    },
   ];
 
   const examples = [
@@ -33,20 +33,20 @@
       content: `192.168.1.0/24
 10.0.0.0/16
 2001:db8::/32
-::1`
+::1`,
     },
     {
       label: 'Overlapping Ranges',
       content: `192.168.1.0-192.168.1.100
 192.168.1.50-192.168.1.200
-192.168.2.0/24`
+192.168.2.0/24`,
     },
     {
       label: 'Single IPs',
       content: `10.0.0.1
 10.0.0.2
 10.0.0.3
-10.0.0.4`
+10.0.0.4`,
     },
     {
       label: 'Mode Comparison',
@@ -54,7 +54,7 @@
 192.168.1.3
 192.168.1.5
 192.168.1.7
-192.168.1.9-192.168.1.12`
+192.168.1.9-192.168.1.12`,
     },
     {
       label: 'Complex Mix',
@@ -63,8 +63,8 @@
 192.168.1.5-192.168.1.10
 10.0.0.0/8
 2001:db8::/48
-fe80::/10`
-    }
+fe80::/10`,
+    },
   ];
 
   /* Set example content */
@@ -79,7 +79,7 @@ fe80::/10`
     try {
       await navigator.clipboard.writeText(text);
       copiedStates[id] = true;
-      setTimeout(() => copiedStates[id] = false, 2000);
+      setTimeout(() => (copiedStates[id] = false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -88,7 +88,7 @@ fe80::/10`
   /* Copy all results */
   function copyAllResults() {
     if (!result) return;
-    
+
     const sections = [];
     if (result.ipv4.length > 0) {
       sections.push('IPv4:', ...result.ipv4);
@@ -96,7 +96,7 @@ fe80::/10`
     if (result.ipv6.length > 0) {
       sections.push('IPv6:', ...result.ipv6);
     }
-    
+
     copyToClipboard(sections.join('\n'), 'all-results');
   }
 
@@ -112,15 +112,21 @@ fe80::/10`
       result = null;
       return;
     }
-    
+
     try {
       result = summarizeCIDRs(inputText, mode);
     } catch (error) {
       result = {
         ipv4: [],
         ipv6: [],
-        stats: { originalIpv4Count: 0, originalIpv6Count: 0, summarizedIpv4Count: 0, summarizedIpv6Count: 0, totalAddressesCovered: '0' },
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        stats: {
+          originalIpv4Count: 0,
+          originalIpv6Count: 0,
+          summarizedIpv4Count: 0,
+          summarizedIpv6Count: 0,
+          totalAddressesCovered: '0',
+        },
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
       };
     }
   }
@@ -143,7 +149,9 @@ fe80::/10`
 <div class="card">
   <header class="card-header">
     <h2>CIDR Summarization Tool</h2>
-    <p>Convert mixed IP addresses, CIDR blocks, and ranges into optimized CIDR prefixes with separate IPv4/IPv6 results.</p>
+    <p>
+      Convert mixed IP addresses, CIDR blocks, and ranges into optimized CIDR prefixes with separate IPv4/IPv6 results.
+    </p>
   </header>
 
   <!-- Mode Selection -->
@@ -151,11 +159,11 @@ fe80::/10`
     <h3>Summarization Mode</h3>
     <div class="tabs">
       {#each modes as modeOption}
-        <button 
+        <button
           type="button"
           class="tab"
           class:active={mode === modeOption.value}
-          onclick={() => mode = modeOption.value}
+          onclick={() => (mode = modeOption.value)}
         >
           {modeOption.label}
           <Tooltip text={modeOption.description} position="top">
@@ -184,12 +192,8 @@ fe80::/10`
           class="input-textarea"
           rows="8"
         ></textarea>
-        
-        <button 
-          type="button" 
-          class="btn btn-secondary btn-sm clear-btn"
-          onclick={clearInput}
-        >
+
+        <button type="button" class="btn btn-secondary btn-sm clear-btn" onclick={clearInput}>
           <Tooltip text="Clear input"><Icon name="trash" size="sm" /></Tooltip>
         </button>
       </div>
@@ -377,7 +381,9 @@ fe80::/10`
   /* ---------- Mode selection ---------- */
   .mode-section {
     margin-bottom: var(--spacing-lg);
-    h3 { @extend %section-title; }
+    h3 {
+      @extend %section-title;
+    }
     .tabs {
       .tab {
         display: flex;
@@ -393,7 +399,10 @@ fe80::/10`
   /* ---------- Input section ---------- */
   .input-section {
     margin-bottom: var(--spacing-lg);
-    h3, h4 { @extend %section-title; }
+    h3,
+    h4 {
+      @extend %section-title;
+    }
     .input-wrapper {
       position: relative;
       .clear-btn {
@@ -484,8 +493,12 @@ fe80::/10`
     @extend %bg-surface;
     border-radius: var(--radius-lg);
     overflow: hidden;
-    &.ipv4 { border: 2px solid var(--color-info); }
-    &.ipv6 { border: 2px solid var(--color-success); }
+    &.ipv4 {
+      border: 2px solid var(--color-info);
+    }
+    &.ipv6 {
+      border: 2px solid var(--color-success);
+    }
     .panel-header {
       padding: var(--spacing-md);
       display: flex;
@@ -530,7 +543,9 @@ fe80::/10`
 
   /* ---------- Stats ---------- */
   .stats-section {
-    h4 { @extend %section-title; }
+    h4 {
+      @extend %section-title;
+    }
   }
 
   .stats-grid {
@@ -562,7 +577,9 @@ fe80::/10`
     font-size: var(--font-size-lg);
     font-weight: 600;
     color: var(--color-primary);
-    &.large { font-size: var(--font-size-xl); }
+    &.large {
+      font-size: var(--font-size-xl);
+    }
   }
 
   /* ---------- Errors ---------- */
@@ -616,9 +633,15 @@ fe80::/10`
   }
 
   @keyframes success-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
 
   @media (max-width: 768px) {
@@ -639,4 +662,3 @@ fe80::/10`
     }
   }
 </style>
-

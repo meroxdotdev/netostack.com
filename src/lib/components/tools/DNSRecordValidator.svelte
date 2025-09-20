@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '$lib/actions/tooltip.js';
   import Icon from '$lib/components/global/Icon.svelte';
-  import { 
+  import {
     validateARecord,
     validateAAAARecord,
     validateCNAMERecord,
@@ -9,14 +9,14 @@
     validateTXTRecord,
     validateSRVRecord,
     validateCAARecord,
-    type ValidationResult
+    type ValidationResult,
   } from '$lib/utils/dns-validation.js';
-  
+
   let recordType = $state('A');
   let recordName = $state('example.com');
   let recordValue = $state('192.168.1.1');
   let ttl = $state(3600);
-  
+
   // Additional fields for specific record types
   let priority = $state(10);
   let weight = $state(0);
@@ -25,7 +25,7 @@
   let protocol = $state('_tcp');
   let flags = $state(0);
   let tag = $state('issue');
-  
+
   let results = $state<ValidationResult | null>(null);
   let copiedState = $state(false);
 
@@ -36,7 +36,7 @@
     { value: 'MX', label: 'MX (Mail Exchange)', description: 'Mail server for domain' },
     { value: 'TXT', label: 'TXT (Text)', description: 'Arbitrary text data' },
     { value: 'SRV', label: 'SRV (Service)', description: 'Service location and port' },
-    { value: 'CAA', label: 'CAA (Certificate Authority)', description: 'Certificate authority authorization' }
+    { value: 'CAA', label: 'CAA (Certificate Authority)', description: 'Certificate authority authorization' },
   ];
 
   const examples = [
@@ -44,32 +44,32 @@
       type: 'A',
       name: 'www.example.com',
       value: '192.0.2.1',
-      description: 'Basic web server A record'
+      description: 'Basic web server A record',
     },
     {
       type: 'AAAA',
       name: 'www.example.com',
       value: '2001:db8::1',
-      description: 'IPv6 web server record'
+      description: 'IPv6 web server record',
     },
     {
       type: 'CNAME',
       name: 'blog.example.com',
       value: 'www.example.com.',
-      description: 'Blog subdomain alias'
+      description: 'Blog subdomain alias',
     },
     {
       type: 'MX',
       name: 'example.com',
       value: 'mail.example.com.',
       priority: 10,
-      description: 'Primary mail server'
+      description: 'Primary mail server',
     },
     {
       type: 'TXT',
       name: 'example.com',
       value: 'v=spf1 include:_spf.google.com ~all',
-      description: 'SPF policy record'
+      description: 'SPF policy record',
     },
     {
       type: 'SRV',
@@ -78,11 +78,11 @@
       priority: 0,
       weight: 5,
       port: 443,
-      description: 'HTTPS service record'
-    }
+      description: 'HTTPS service record',
+    },
   ];
 
-  function loadExample(example: typeof examples[0]) {
+  function loadExample(example: (typeof examples)[0]) {
     recordType = example.type;
     recordName = example.name;
     recordValue = example.value;
@@ -131,14 +131,14 @@
           results = {
             valid: false,
             errors: [`Unsupported record type: ${recordType}`],
-            warnings: []
+            warnings: [],
           };
       }
     } catch (error) {
       results = {
         valid: false,
         errors: [error instanceof Error ? error.message : 'Validation error'],
-        warnings: []
+        warnings: [],
       };
     }
   }
@@ -221,10 +221,7 @@
       </summary>
       <div class="examples-grid">
         {#each examples as example}
-          <button
-            class="example-card"
-            onclick={() => loadExample(example)}
-          >
+          <button class="example-card" onclick={() => loadExample(example)}>
             <div class="example-header">
               <span class="record-type-badge">{example.type}</span>
               <span class="example-name">{example.name}</span>
@@ -241,28 +238,23 @@
   <div class="card input-card">
     <!-- Record Type Selection -->
     <div class="input-group">
-      <label for="record-type" use:tooltip={"Select the DNS record type to validate"}>
+      <label for="record-type" use:tooltip={'Select the DNS record type to validate'}>
         <Icon name="tag" size="sm" />
         Record Type
       </label>
-      <select
-        id="record-type"
-        bind:value={recordType}
-        onchange={handleInputChange}
-        class="record-type-select"
-      >
+      <select id="record-type" bind:value={recordType} onchange={handleInputChange} class="record-type-select">
         {#each recordTypes as type}
           <option value={type.value}>{type.label}</option>
         {/each}
       </select>
       <div class="record-type-description">
-        {recordTypes.find(t => t.value === recordType)?.description || ''}
+        {recordTypes.find((t) => t.value === recordType)?.description || ''}
       </div>
     </div>
 
     <!-- Record Name -->
     <div class="input-group">
-      <label for="record-name" use:tooltip={"The domain name for this DNS record"}>
+      <label for="record-name" use:tooltip={'The domain name for this DNS record'}>
         <Icon name="globe" size="sm" />
         Record Name
       </label>
@@ -279,7 +271,7 @@
 
     <!-- Record Value -->
     <div class="input-group">
-      <label for="record-value" use:tooltip={"The value/data for this DNS record"}>
+      <label for="record-value" use:tooltip={'The value/data for this DNS record'}>
         <Icon name="edit" size="sm" />
         Record Value
       </label>
@@ -339,12 +331,7 @@
         </div>
         <div class="field-group">
           <label for="protocol">Protocol</label>
-          <select
-            id="protocol"
-            bind:value={protocol}
-            onchange={handleInputChange}
-            class="protocol-select"
-          >
+          <select id="protocol" bind:value={protocol} onchange={handleInputChange} class="protocol-select">
             <option value="_tcp">_tcp</option>
             <option value="_udp">_udp</option>
           </select>
@@ -404,12 +391,7 @@
         </div>
         <div class="field-group">
           <label for="tag">Tag</label>
-          <select
-            id="tag"
-            bind:value={tag}
-            onchange={handleInputChange}
-            class="tag-select"
-          >
+          <select id="tag" bind:value={tag} onchange={handleInputChange} class="tag-select">
             <option value="issue">issue</option>
             <option value="issuewild">issuewild</option>
             <option value="iodef">iodef</option>
@@ -420,7 +402,7 @@
 
     <!-- TTL -->
     <div class="input-group">
-      <label for="ttl" use:tooltip={"Time To Live in seconds (how long record should be cached)"}>
+      <label for="ttl" use:tooltip={'Time To Live in seconds (how long record should be cached)'}>
         <Icon name="clock" size="sm" />
         TTL (seconds)
       </label>
@@ -445,10 +427,7 @@
           <Icon name={results.valid ? 'check-circle' : 'x-circle'} size="sm" />
           <span>{results.valid ? 'Valid' : 'Invalid'} DNS Record</span>
         </div>
-        <button
-          class="copy-button {copiedState ? 'copied' : ''}"
-          onclick={copyRecord}
-        >
+        <button class="copy-button {copiedState ? 'copied' : ''}" onclick={copyRecord}>
           <Icon name={copiedState ? 'check' : 'copy'} size="sm" />
           Copy Zone Line
         </button>
@@ -509,32 +488,32 @@
       <div class="education-item info-panel">
         <h4>Common Record Types</h4>
         <p>
-          A/AAAA records map domains to IP addresses. CNAME creates aliases. MX directs email.
-          TXT stores arbitrary data like SPF policies. SRV specifies service locations.
+          A/AAAA records map domains to IP addresses. CNAME creates aliases. MX directs email. TXT stores arbitrary data
+          like SPF policies. SRV specifies service locations.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Validation Scope</h4>
         <p>
-          This validator checks syntax, format, and common configuration issues. It doesn't verify
-          that targets exist or are reachable - use DNS lookup tools for connectivity testing.
+          This validator checks syntax, format, and common configuration issues. It doesn't verify that targets exist or
+          are reachable - use DNS lookup tools for connectivity testing.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>TTL Guidelines</h4>
         <p>
-          Use shorter TTLs (300-3600s) for records that change frequently. Longer TTLs (3600-86400s)
-          reduce DNS queries but slow propagation of changes. Balance based on your needs.
+          Use shorter TTLs (300-3600s) for records that change frequently. Longer TTLs (3600-86400s) reduce DNS queries
+          but slow propagation of changes. Balance based on your needs.
         </p>
       </div>
 
       <div class="education-item info-panel">
         <h4>Best Practices</h4>
         <p>
-          Always use fully qualified domain names (ending with .) in record values. Validate SPF/DMARC
-          policies carefully. Keep MX priorities consistent. Use descriptive TXT record formatting.
+          Always use fully qualified domain names (ending with .) in record values. Validate SPF/DMARC policies
+          carefully. Keep MX priorities consistent. Use descriptive TXT record formatting.
         </p>
       </div>
     </div>
@@ -571,7 +550,7 @@
   .examples-details {
     border: none;
     background: none;
-    
+
     &[open] {
       .examples-summary :global(.icon) {
         transform: rotate(90deg);
@@ -710,7 +689,9 @@
     font-style: italic;
   }
 
-  .record-name-input, .record-value-input, .ttl-input {
+  .record-name-input,
+  .record-value-input,
+  .ttl-input {
     width: 100%;
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-lg);
@@ -777,7 +758,8 @@
       font-size: var(--font-size-sm);
     }
 
-    input, select {
+    input,
+    select {
       width: 100%;
       padding: var(--spacing-sm);
       border: 1px solid var(--border-primary);
@@ -861,7 +843,7 @@
 
     pre {
       margin: 0;
-      
+
       code {
         font-family: var(--font-mono);
         font-size: var(--font-size-sm);
@@ -900,7 +882,8 @@
     margin: 0;
   }
 
-  .error-item, .warning-item {
+  .error-item,
+  .warning-item {
     padding: var(--spacing-sm) var(--spacing-md);
     margin-bottom: var(--spacing-xs);
     border-radius: var(--radius-sm);

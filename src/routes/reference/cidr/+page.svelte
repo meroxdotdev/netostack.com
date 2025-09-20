@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cidrContent } from '$lib/content/cidr.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -14,14 +14,15 @@
     <div class="ref-section">
       <h2>{cidrContent.sections.whatIs.title}</h2>
       <p>{cidrContent.sections.whatIs.content}</p>
-      
+
       <div class="ref-highlight">
         <div class="highlight-title">
           <Icon name="info" size="sm" />
           Quick Example
         </div>
         <div class="highlight-content">
-          In <code>192.168.1.0/24</code>, the network is 192.168.1.0 and there are 254 usable host addresses (192.168.1.1 through 192.168.1.254).
+          In <code>192.168.1.0/24</code>, the network is 192.168.1.0 and there are 254 usable host addresses
+          (192.168.1.1 through 192.168.1.254).
         </div>
       </div>
     </div>
@@ -82,17 +83,17 @@
           <li>{point}</li>
         {/each}
       </ul>
-      
+
       <div class="ref-warning">
         <div class="warning-title">
           <Icon name="alert-triangle" size="sm" />
           Remember
         </div>
         <div class="warning-content">
-          The first and last addresses in any network are reserved (network address and broadcast address), so the usable host count is always 2 less than the total addresses.
+          The first and last addresses in any network are reserved (network address and broadcast address), so the
+          usable host count is always 2 less than the total addresses.
         </div>
       </div>
     </div>
   </div>
 </div>
-

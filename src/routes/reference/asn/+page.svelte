@@ -1,6 +1,6 @@
 <script lang="ts">
   import { asnContent } from '$lib/content/asn.js';
-  
+
   import Icon from '$lib/components/global/Icon.svelte';
 </script>
 
@@ -49,8 +49,10 @@
           <div class="grid-item">
             <div class="item-title">{concept.term}</div>
             <div class="item-description">
-              <strong>Definition:</strong> {concept.definition}<br>
-              <strong>Example:</strong> {concept.example}
+              <strong>Definition:</strong>
+              {concept.definition}<br />
+              <strong>Example:</strong>
+              {concept.example}
             </div>
           </div>
         {/each}
@@ -123,7 +125,7 @@
             <div class="item-title">{method.method}</div>
             <div class="item-code">{method.command}</div>
             <div class="item-description">
-              {method.description}<br>
+              {method.description}<br />
               <em>{method.example}</em>
             </div>
           </div>

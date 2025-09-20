@@ -8,7 +8,7 @@
   let inputType = $state('certificate');
   let certificateInput = $state('');
   let hashInput = $state('');
-  
+
   let usage = $state(3);
   let selector = $state(1);
   let matchingType = $state(1);
@@ -21,38 +21,41 @@
     0: 'CA Constraint - Certificate must be issued by the CA represented in the TLSA record',
     1: 'Service Certificate Constraint - Certificate must match the one in the TLSA record',
     2: 'Trust Anchor Assertion - Certificate must chain to the CA in the TLSA record',
-    3: 'Domain-Issued Certificate - Certificate must match the one specified (most common)'
+    3: 'Domain-Issued Certificate - Certificate must match the one specified (most common)',
   };
 
   const selectorDescriptions = {
     0: 'Full Certificate - Use the entire certificate',
-    1: 'Subject Public Key Info - Use only the public key portion (recommended)'
+    1: 'Subject Public Key Info - Use only the public key portion (recommended)',
   };
 
   const matchingTypeDescriptions = {
     0: 'Exact Match - Use the certificate/key data as-is (not recommended)',
     1: 'SHA-256 Hash - Use SHA-256 hash of the certificate/key (recommended)',
-    2: 'SHA-512 Hash - Use SHA-512 hash of the certificate/key'
+    2: 'SHA-512 Hash - Use SHA-512 hash of the certificate/key',
   };
 
   const tlsaRecord = $derived.by(() => {
     let associationData = '';
-    
+
     if (inputType === 'hash') {
-      associationData = hashInput.trim().replace(/[^a-fA-F0-9]/g, '').toLowerCase();
+      associationData = hashInput
+        .trim()
+        .replace(/[^a-fA-F0-9]/g, '')
+        .toLowerCase();
     } else if (inputType === 'certificate') {
       if (certificateInput.trim()) {
         associationData = 'Generated hash would appear here (requires certificate parsing)';
       }
     }
-    
+
     if (!associationData) return null;
-    
+
     return {
       usage,
       selector,
       matchingType,
-      certificateAssociation: associationData
+      certificateAssociation: associationData,
     };
   });
 
@@ -64,17 +67,17 @@
   const validation = $derived.by(() => {
     const warnings = [];
     const errors = [];
-    
+
     if (!domain.trim()) {
       errors.push('Domain is required');
     } else if (!domain.includes('.')) {
       warnings.push('Domain should include TLD (e.g., .com, .org)');
     }
-    
+
     if (port < 1 || port > 65535) {
       errors.push('Port must be between 1 and 65535');
     }
-    
+
     if (inputType === 'certificate') {
       if (!certificateInput.trim()) {
         errors.push('Certificate data is required');
@@ -95,23 +98,23 @@
         }
       }
     }
-    
+
     if (usage === 0 || usage === 2) {
       warnings.push('Usage types 0 and 2 require careful CA certificate management');
     }
-    
+
     if (selector === 0) {
       warnings.push('Full certificate selector (0) is less flexible than SPKI selector (1)');
     }
-    
+
     if (matchingType === 0) {
       warnings.push('Exact match (0) is not recommended - use SHA-256 (1) or SHA-512 (2)');
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   });
 
@@ -129,7 +132,7 @@
 
   function exportAsZoneFile() {
     if (!dnsRecord) return;
-    
+
     const zoneContent = dnsRecord;
     const blob = new Blob([zoneContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -145,10 +148,11 @@
 
   async function generateHashFromInput() {
     if (inputType === 'certificate' && certificateInput.trim()) {
-      const demoHash = matchingType === 1 
-        ? 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab' 
-        : 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
-        
+      const demoHash =
+        matchingType === 1
+          ? 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab'
+          : 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+
       hashInput = demoHash;
       inputType = 'hash';
     }
@@ -164,7 +168,7 @@
       usage: 3,
       selector: 1,
       matchingType: 1,
-      hash: 'a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890'
+      hash: 'a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890',
     },
     {
       name: 'SMTP TLS Certificate',
@@ -175,7 +179,7 @@
       usage: 3,
       selector: 1,
       matchingType: 1,
-      hash: 'fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321'
+      hash: 'fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321',
     },
     {
       name: 'CA Trust Anchor',
@@ -186,8 +190,8 @@
       usage: 2,
       selector: 1,
       matchingType: 2,
-      hash: 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
-    }
+      hash: 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+    },
   ];
 
   function loadExample(example: any) {
@@ -208,7 +212,7 @@
     'Prefer selector 1 (SPKI) over selector 0 (full certificate) for flexibility',
     'Use SHA-256 (1) or SHA-512 (2) matching types, avoid exact match (0)',
     'Pin multiple certificates to avoid service disruption during certificate rotation',
-    'Test TLSA records with DANE validation tools before deployment'
+    'Test TLSA records with DANE validation tools before deployment',
   ];
 </script>
 
@@ -216,7 +220,10 @@
   <div class="card">
     <div class="card-header">
       <h1>TLSA Generator</h1>
-      <p>Create TLSA (DNS-based Authentication of Named Entities) records for certificate pinning and DANE implementation.</p>
+      <p>
+        Create TLSA (DNS-based Authentication of Named Entities) records for certificate pinning and DANE
+        implementation.
+      </p>
     </div>
 
     <div class="main-grid">
@@ -227,20 +234,22 @@
             <Icon name="globe" size="sm" />
             Service Configuration
           </h3>
-          
+
           <div class="service-grid">
             <div class="input-group">
-              <label for="domain" use:tooltip={"Domain name for the TLSA record"}>Domain:</label>
+              <label for="domain" use:tooltip={'Domain name for the TLSA record'}>Domain:</label>
               <input id="domain" type="text" bind:value={domain} placeholder="example.com" />
             </div>
-            
+
             <div class="input-group">
-              <label for="port" use:tooltip={"Port number for the service (e.g., 443 for HTTPS, 25 for SMTP)"}>Port:</label>
+              <label for="port" use:tooltip={'Port number for the service (e.g., 443 for HTTPS, 25 for SMTP)'}
+                >Port:</label
+              >
               <input id="port" type="number" bind:value={port} min="1" max="65535" placeholder="443" />
             </div>
-            
+
             <div class="input-group">
-              <label for="protocol" use:tooltip={"Protocol type (tcp or udp)"}>Protocol:</label>
+              <label for="protocol" use:tooltip={'Protocol type (tcp or udp)'}>Protocol:</label>
               <select id="protocol" bind:value={protocol}>
                 <option value="tcp">TCP</option>
                 <option value="udp">UDP</option>
@@ -255,9 +264,11 @@
             <Icon name="settings" size="sm" />
             TLSA Parameters
           </h3>
-          
+
           <div class="input-group">
-            <label for="usage" use:tooltip={"Certificate usage - how the certificate should be used for authentication"}>Certificate Usage:</label>
+            <label for="usage" use:tooltip={'Certificate usage - how the certificate should be used for authentication'}
+              >Certificate Usage:</label
+            >
             <select id="usage" bind:value={usage}>
               <option value={0}>0 - CA Constraint</option>
               <option value={1}>1 - Service Certificate Constraint</option>
@@ -266,18 +277,18 @@
             </select>
             <p class="description">{usageDescriptions[usage as keyof typeof usageDescriptions]}</p>
           </div>
-          
+
           <div class="input-group">
-            <label for="selector" use:tooltip={"Which part of the certificate to use"}>Selector:</label>
+            <label for="selector" use:tooltip={'Which part of the certificate to use'}>Selector:</label>
             <select id="selector" bind:value={selector}>
               <option value={0}>0 - Full Certificate</option>
               <option value={1}>1 - Subject Public Key Info</option>
             </select>
             <p class="description">{selectorDescriptions[selector as keyof typeof selectorDescriptions]}</p>
           </div>
-          
+
           <div class="input-group">
-            <label for="matchingType" use:tooltip={"How to process the certificate data"}>Matching Type:</label>
+            <label for="matchingType" use:tooltip={'How to process the certificate data'}>Matching Type:</label>
             <select id="matchingType" bind:value={matchingType}>
               <option value={0}>0 - Exact Match</option>
               <option value={1}>1 - SHA-256 Hash</option>
@@ -293,7 +304,7 @@
             <Icon name="key" size="sm" />
             Certificate Data
           </h3>
-          
+
           <div class="radio-group">
             <label class="radio-option">
               <input type="radio" bind:group={inputType} value="certificate" />
@@ -307,7 +318,9 @@
 
           {#if inputType === 'certificate'}
             <div class="input-group">
-              <label for="certificate" use:tooltip={"Paste the PEM-encoded certificate or public key"}>Certificate/Public Key:</label>
+              <label for="certificate" use:tooltip={'Paste the PEM-encoded certificate or public key'}
+                >Certificate/Public Key:</label
+              >
               <textarea
                 id="certificate"
                 bind:value={certificateInput}
@@ -319,7 +332,7 @@
                 onclick={generateHashFromInput}
                 disabled={!certificateInput.trim()}
                 class="btn btn-secondary"
-                use:tooltip={"Generate hash from certificate (demo mode)"}
+                use:tooltip={'Generate hash from certificate (demo mode)'}
               >
                 <Icon name="arrow-right" size="sm" />
                 Generate Hash
@@ -327,16 +340,19 @@
             </div>
           {:else}
             <div class="input-group">
-              <label for="hash" use:tooltip={`Enter the ${matchingType === 1 ? 'SHA-256' : matchingType === 2 ? 'SHA-512' : 'exact'} hash value`}>Hash Value:</label>
+              <label
+                for="hash"
+                use:tooltip={`Enter the ${matchingType === 1 ? 'SHA-256' : matchingType === 2 ? 'SHA-512' : 'exact'} hash value`}
+                >Hash Value:</label
+              >
               <textarea
                 id="hash"
                 bind:value={hashInput}
-                placeholder={matchingType === 1 ? 
-                  'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab' :
-                  matchingType === 2 ?
-                  'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef' :
-                  'Certificate or key data'
-                }
+                placeholder={matchingType === 1
+                  ? 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab'
+                  : matchingType === 2
+                    ? 'abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                    : 'Certificate or key data'}
                 rows="3"
               ></textarea>
             </div>
@@ -356,9 +372,9 @@
                   class="btn btn-primary"
                   class:success={buttonStates['copy-tlsa']}
                   onclick={() => copyToClipboard(dnsRecord, 'copy-tlsa')}
-                  use:tooltip={"Copy TLSA record to clipboard"}
+                  use:tooltip={'Copy TLSA record to clipboard'}
                 >
-                  <Icon name={buttonStates['copy-tlsa'] ? "check" : "copy"} size="sm" />
+                  <Icon name={buttonStates['copy-tlsa'] ? 'check' : 'copy'} size="sm" />
                   {buttonStates['copy-tlsa'] ? 'Copied!' : 'Copy'}
                 </button>
                 <button
@@ -366,14 +382,14 @@
                   class="btn btn-success"
                   class:success={buttonStates['export-tlsa']}
                   onclick={exportAsZoneFile}
-                  use:tooltip={"Download as zone file"}
+                  use:tooltip={'Download as zone file'}
                 >
-                  <Icon name={buttonStates['export-tlsa'] ? "check" : "download"} size="sm" />
+                  <Icon name={buttonStates['export-tlsa'] ? 'check' : 'download'} size="sm" />
                   {buttonStates['export-tlsa'] ? 'Downloaded!' : 'Export'}
                 </button>
               </div>
             </div>
-            
+
             <div class="code-block">
               <code>{dnsRecord}</code>
             </div>
@@ -385,13 +401,16 @@
                   <strong>Service:</strong> _{port}._{protocol}
                 </div>
                 <div class="breakdown-item">
-                  <strong>Usage:</strong> {usage} ({Object.values(usageDescriptions)[usage].split(' - ')[0]})
+                  <strong>Usage:</strong>
+                  {usage} ({Object.values(usageDescriptions)[usage].split(' - ')[0]})
                 </div>
                 <div class="breakdown-item">
-                  <strong>Selector:</strong> {selector} ({Object.values(selectorDescriptions)[selector].split(' - ')[0]})
+                  <strong>Selector:</strong>
+                  {selector} ({Object.values(selectorDescriptions)[selector].split(' - ')[0]})
                 </div>
                 <div class="breakdown-item">
-                  <strong>Matching:</strong> {matchingType} ({Object.values(matchingTypeDescriptions)[matchingType].split(' - ')[0]})
+                  <strong>Matching:</strong>
+                  {matchingType} ({Object.values(matchingTypeDescriptions)[matchingType].split(' - ')[0]})
                 </div>
               </div>
             </div>
@@ -404,7 +423,7 @@
             <Icon name="bar-chart" size="sm" />
             Validation
           </h3>
-          
+
           <div class="status-center">
             <div class="status-item">
               <span>Status:</span>
@@ -450,7 +469,7 @@
             <Icon name="shield" size="sm" />
             Security Best Practices
           </h3>
-          
+
           <ul class="tips-list">
             {#each securityTips as tip}
               <li>{tip}</li>
@@ -480,7 +499,10 @@
               <p class="example-description">{example.description}</p>
               <div class="example-config">
                 <div>Port: <code>{example.port}/{example.protocol}</code></div>
-                <div>Usage: <code>{example.usage}</code>, Selector: <code>{example.selector}</code>, Type: <code>{example.matchingType}</code></div>
+                <div>
+                  Usage: <code>{example.usage}</code>, Selector: <code>{example.selector}</code>, Type:
+                  <code>{example.matchingType}</code>
+                </div>
               </div>
             </button>
           {/each}
@@ -533,7 +555,8 @@
     }
   }
 
-  .input-section, .output-section {
+  .input-section,
+  .output-section {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
@@ -570,7 +593,9 @@
     font-weight: 600;
   }
 
-  .input-group input, .input-group select, .input-group textarea {
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
     padding: var(--spacing-sm);
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-sm);
@@ -580,7 +605,9 @@
     font-size: var(--font-size-sm);
   }
 
-  .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+  .input-group input:focus,
+  .input-group select:focus,
+  .input-group textarea:focus {
     outline: none;
     border-color: var(--color-primary);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent);
@@ -625,7 +652,7 @@
     background: var(--surface-hover);
   }
 
-  .radio-option input[type="radio"] {
+  .radio-option input[type='radio'] {
     width: 16px;
     height: 16px;
   }
