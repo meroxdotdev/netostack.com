@@ -37,7 +37,7 @@
 
   // Dynamic favicon based on page icon
   const dynamicFavicon = $derived.by(() => {
-    faviconTrigger; // Include faviconTrigger to force updates when theme changes
+    faviconTrigger; // Include in order to force updates when theme changes
     const currentPath = $page.url.pathname;
     const pageDetailsWithIcon = getPageDetailsWithIcon(currentPath);
     if (pageDetailsWithIcon?.icon) {
@@ -92,8 +92,8 @@
 </script>
 
 <svelte:head>
-  <!-- Dynamic Favicon -->
   <link rel="icon" type="image/svg+xml" href={dynamicFavicon} />
+  <link rel="shortcut icon" type="image/svg+xml" href={dynamicFavicon} />
 
   <!-- SEO Meta Tags -->
   <title>{seoData.title}</title>

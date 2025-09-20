@@ -41,12 +41,11 @@ function processSvgForFavicon(svgContent: string, color: string): string {
  * @returns The CSS variable value or fallback color
  */
 export function getPrimaryColor(): string {
-  if (typeof window === 'undefined') return '#e3ed70';
-
+  const fallbackColor = '#e3ed70';
+  if (typeof window === 'undefined') return fallbackColor;
   const computedStyle = getComputedStyle(document.documentElement);
   const colorValue = computedStyle.getPropertyValue('--color-primary').trim();
-
-  return colorValue || '#e3ed70';
+  return colorValue || fallbackColor;
 }
 
 /**
@@ -60,12 +59,8 @@ export function generateFaviconDataUri(iconName: string, color?: string): string
   if (!svgContent) {
     return null;
   }
-
   const faviconColor = color || getPrimaryColor();
   const processedSvg = processSvgForFavicon(svgContent, faviconColor);
-
-  // URL encode the SVG for use in data URI
   const encodedSvg = encodeURIComponent(processedSvg);
-
   return `data:image/svg+xml,${encodedSvg}`;
 }

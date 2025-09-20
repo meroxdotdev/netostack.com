@@ -1,6 +1,5 @@
 <script lang="ts">
   import { site } from '$lib/constants/site';
-  import favicon from '$lib/assets/favicon.svg';
   import Icon from '$lib/components/global/Icon.svelte';
   import GlobalSearch from '$lib/components/global/GlobalSearch.svelte';
   import BurgerMenu from '$lib/components/furniture/BurgerMenu.svelte';
@@ -10,10 +9,6 @@
   export let darkMode: boolean;
   export let toggleTheme: () => void;
 </script>
-
-<svelte:head>
-  <link rel="icon" href={favicon} />
-</svelte:head>
 
 <header class="header">
   <div class="container">
@@ -53,7 +48,8 @@
                   />
                 </svg>
               {:else}
-                <svg fill="currentColor" viewBox="0 0 20 20">
+                <svg fill="currentColor" viewBox="0 0 640 640">
+                  <path d="M320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576C388.8 576 451.3 548.8 497.3 504.6C504.6 497.6 506.7 486.7 502.6 477.5C498.5 468.3 488.9 462.6 478.8 463.4C473.9 463.8 469 464 464 464C362.4 464 280 381.6 280 280C280 207.9 321.5 145.4 382.1 115.2C391.2 110.7 396.4 100.9 395.2 90.8C394 80.7 386.6 72.5 376.7 70.3C358.4 66.2 339.4 64 320 64z"/>
                   <path d="M17.293 13.293A8 8 0 716.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                 </svg>
               {/if}

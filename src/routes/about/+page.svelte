@@ -1,6 +1,4 @@
 <script lang="ts">
-  export const prerender = true;
-
   import '../../styles/pages.scss';
   import { site, pages } from '$lib/constants/site';
   import ToolsCarousel from '$lib/components/global/ToolsCarousel.svelte';
