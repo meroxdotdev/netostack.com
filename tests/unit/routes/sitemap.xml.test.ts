@@ -20,6 +20,11 @@ vi.mock('$lib/constants/nav.ts', () => ({
   footerLinks: [
     { href: '/about', title: 'About' },
     { href: 'https://github.com/example/repo', title: 'GitHub' }
+  ],
+  aboutPages: [
+    { href: '/about', title: 'About', label: 'About' },
+    { href: '/privacy', title: 'Privacy Policy', label: 'Privacy Policy' },
+    { href: '/terms', title: 'Terms of Service', label: 'Terms of Service' }
   ]
 }));
 
