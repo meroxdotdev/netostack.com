@@ -5,7 +5,7 @@
     generateCIDRPTRs,
     generateReverseZoneFile,
     calculateReverseZones,
-    type _PTRRecord,
+    type PTRRecord as _PTRRecord,
     type ZoneFileOptions,
   } from '$lib/utils/reverse-dns';
 

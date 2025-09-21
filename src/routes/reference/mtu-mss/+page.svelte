@@ -40,7 +40,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each mtuMssContent.commonValues as value, index (`${value.type}-${index}`)}
+          {#each mtuMssContent.commonValues as value, index (`${value.medium}-${index}`)}
             <tr>
               <td><strong>{value.medium}</strong></td>
               <td><code>{value.mtu}</code></td>
@@ -194,7 +194,7 @@
       <h2>Quick Reference</h2>
       <div class="ref-examples">
         <div class="examples-title">Common Values to Remember</div>
-        {#each mtuMssContent.quickReference as value, index (`${value.network}-${index}`)}
+        {#each mtuMssContent.quickReference as value, index (`value-${index}`)}
           <div class="example-item">
             <div class="example-input">{value}</div>
           </div>

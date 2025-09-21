@@ -423,7 +423,7 @@
 
         {#if caaRecords.length > 0}
           <div class="records-output">
-            {#each caaRecords as record (record.tag + record.value)}
+            {#each caaRecords as record (record)}
               <div class="code-block">
                 <code>{record}</code>
               </div>

@@ -7,7 +7,7 @@ export interface ConversionResult {
   result?: string;
   error?: string;
   type?: string;
-  details?: Record<string, unknown>;
+  details?: Record<string, any>;
 }
 
 /**

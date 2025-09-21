@@ -75,12 +75,12 @@ async function getBootstrapRegistries(type: keyof typeof RDAP_BOOTSTRAP) {
       throw new Error(`Bootstrap registry fetch failed: ${response.status}`);
     }
     return await response.json();
-  } catch (err: unknown) {
-    throw new Error(`Failed to fetch RDAP bootstrap registry: ${err.message}`);
+  } catch (err: any) {
+    throw new Error(`Failed to fetch RDAP bootstrap registry: ${(err as Error).message}`);
   }
 }
 
-function findRDAPService(registries: unknown, query: string, type: 'domain' | 'ip' | 'asn'): string | null {
+function findRDAPService(registries: any, query: string, type: 'domain' | 'ip' | 'asn'): string | null {
   try {
     const services = registries.services || [];
 
@@ -144,29 +144,29 @@ async function queryRDAP(serviceUrl: string, query: string, type: 'domain' | 'ip
     }
 
     return await response.json();
-  } catch (err: unknown) {
-    throw new Error(`RDAP lookup failed: ${err.message}`);
+  } catch (err: any) {
+    throw new Error(`RDAP lookup failed: ${(err as Error).message}`);
   }
 }
 
-function parseRDAPDomain(rdapData: unknown) {
+function parseRDAPDomain(rdapData: any) {
   return {
     domain: rdapData.ldhName || rdapData.unicodeName,
     status: rdapData.status || [],
     registrar:
-      rdapData.entities?.find((e: unknown) => e.roles?.includes('registrar'))?.vcardArray?.[1]?.[1]?.[3] || 'Unknown',
-    nameservers: rdapData.nameservers?.map((ns: unknown) => ns.ldhName || ns.unicodeName) || [],
-    created: rdapData.events?.find((e: unknown) => e.eventAction === 'registration')?.eventDate,
-    updated: rdapData.events?.find((e: unknown) => e.eventAction === 'last changed')?.eventDate,
-    expires: rdapData.events?.find((e: unknown) => e.eventAction === 'expiration')?.eventDate,
+      rdapData.entities?.find((e: any) => e.roles?.includes('registrar'))?.vcardArray?.[1]?.[1]?.[3] || 'Unknown',
+    nameservers: rdapData.nameservers?.map((ns: any) => ns.ldhName || ns.unicodeName) || [],
+    created: rdapData.events?.find((e: any) => e.eventAction === 'registration')?.eventDate,
+    updated: rdapData.events?.find((e: any) => e.eventAction === 'last changed')?.eventDate,
+    expires: rdapData.events?.find((e: any) => e.eventAction === 'expiration')?.eventDate,
     contacts:
-      rdapData.entities?.filter((e: unknown) =>
+      rdapData.entities?.filter((e: any) =>
         e.roles?.some((r: string) => ['registrant', 'administrative', 'technical'].includes(r)),
       ) || [],
   };
 }
 
-function parseRDAPIP(rdapData: unknown) {
+function parseRDAPIP(rdapData: any) {
   return {
     network:
       rdapData.cidr0_cidrs?.[0]?.v4prefix ||
@@ -176,28 +176,28 @@ function parseRDAPIP(rdapData: unknown) {
     type: rdapData.type,
     country: rdapData.country,
     status: rdapData.status || [],
-    allocation: rdapData.events?.find((e: unknown) => e.eventAction === 'allocation')?.eventDate,
-    lastChanged: rdapData.events?.find((e: unknown) => e.eventAction === 'last changed')?.eventDate,
-    registry: rdapData.entities?.find((e: unknown) => e.roles?.includes('registrar'))?.handle,
+    allocation: rdapData.events?.find((e: any) => e.eventAction === 'allocation')?.eventDate,
+    lastChanged: rdapData.events?.find((e: any) => e.eventAction === 'last changed')?.eventDate,
+    registry: rdapData.entities?.find((e: any) => e.roles?.includes('registrar'))?.handle,
     contacts:
-      rdapData.entities?.filter((e: unknown) =>
+      rdapData.entities?.filter((e: any) =>
         e.roles?.some((r: string) => ['registrant', 'administrative', 'technical', 'abuse'].includes(r)),
       ) || [],
   };
 }
 
-function parseRDAPASN(rdapData: unknown) {
+function parseRDAPASN(rdapData: any) {
   return {
     asn: rdapData.startAutnum || rdapData.handle,
     name: rdapData.name,
     country: rdapData.country,
     type: rdapData.type,
     status: rdapData.status || [],
-    allocation: rdapData.events?.find((e: unknown) => e.eventAction === 'allocation')?.eventDate,
-    lastChanged: rdapData.events?.find((e: unknown) => e.eventAction === 'last changed')?.eventDate,
-    registry: rdapData.entities?.find((e: unknown) => e.roles?.includes('registrar'))?.handle,
+    allocation: rdapData.events?.find((e: any) => e.eventAction === 'allocation')?.eventDate,
+    lastChanged: rdapData.events?.find((e: any) => e.eventAction === 'last changed')?.eventDate,
+    registry: rdapData.entities?.find((e: any) => e.roles?.includes('registrar'))?.handle,
     contacts:
-      rdapData.entities?.filter((e: unknown) =>
+      rdapData.entities?.filter((e: any) =>
         e.roles?.some((r: string) => ['registrant', 'administrative', 'technical', 'abuse'].includes(r)),
       ) || [],
   };
@@ -292,7 +292,7 @@ export const POST: RequestHandler = async ({ request }) => {
             data: parsed,
             raw: rdapData,
           });
-        } catch (rdapErr: unknown) {
+        } catch (rdapErr: any) {
           // Fallback to Team Cymru (if we had a working IP)
           console.warn('RDAP ASN lookup failed, fallback not implemented:', rdapErr.message);
           throw rdapErr;
@@ -300,10 +300,10 @@ export const POST: RequestHandler = async ({ request }) => {
       }
 
       default:
-        throw error(400, `Unknown action: ${(body as unknown).action}`);
+        throw error(400, `Unknown action: ${(body as any).action}`);
     }
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error('RDAP diagnostics error:', err);
-    throw error(500, `RDAP lookup failed: ${err.message}`);
+    throw error(500, `RDAP lookup failed: ${(err as Error).message}`);
   }
 };

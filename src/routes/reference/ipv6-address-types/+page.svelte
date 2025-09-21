@@ -109,7 +109,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6AddressTypesContent.reservedRanges as range, index (`${range.range}-${index}`)}
+          {#each ipv6AddressTypesContent.reservedRanges as range, index (`${range.prefix}-${index}`)}
             <tr>
               <td><code>{range.prefix}</code></td>
               <td>{range.purpose}</td>

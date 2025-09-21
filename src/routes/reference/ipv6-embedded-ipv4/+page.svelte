@@ -61,7 +61,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6EmbeddedIPv4Content.recognition.patterns as pattern, index (`${pattern.type}-${index}`)}
+          {#each ipv6EmbeddedIPv4Content.recognition.patterns as pattern, index (`${pattern.pattern}-${index}`)}
             <tr>
               <td><code>{pattern.pattern}</code></td>
               <td>{pattern.meaning}</td>

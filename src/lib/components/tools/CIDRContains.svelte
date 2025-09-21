@@ -443,7 +443,7 @@
             </div>
 
             <div class="visualization-list">
-              {#each result.visualization as viz, index (viz.input)}
+              {#each result.visualization as viz, index (viz.candidate)}
                 {@const check = result.checks[index]}
                 {@const statusInfo = getStatusInfo(check.status)}
                 <div class="viz-item status-{check.status}">

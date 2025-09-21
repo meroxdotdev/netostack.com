@@ -106,7 +106,7 @@
 
     <div class="ref-section">
       <h2>Important Limitations</h2>
-      {#each multicastContent.limitations as limitation, index (`${limitation.issue}-${index}`)}
+      {#each multicastContent.limitations as limitation, index (`${limitation.title}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="alert-triangle" size="sm" />

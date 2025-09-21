@@ -84,7 +84,7 @@
   <section class="techniques-section">
     <h2>Subnetting Techniques</h2>
     <div class="techniques-grid">
-      {#each subnettingTechniques as technique (technique.title)}
+      {#each subnettingTechniques as technique (technique.name)}
         <div class="technique-card" style="--accent-color: {technique.color}">
           <div class="technique-header">
             <Icon name={technique.icon} size="lg" />

@@ -58,7 +58,7 @@ async function resolveMXRecords(domain: string): Promise<MXRecord[]> {
           ipv6: ipv6.status === 'fulfilled' ? ipv6.value : [],
         };
       } catch (err: unknown) {
-        record.error = `Failed to resolve addresses: ${err instanceof Error ? err.message : 'Unknown error'}`;
+        record.error = `Failed to resolve addresses: ${err instanceof Error ? (err as Error).message : 'Unknown error'}`;
       }
 
       results.push(record);
@@ -66,7 +66,7 @@ async function resolveMXRecords(domain: string): Promise<MXRecord[]> {
 
     return results.sort((a, b) => a.priority - b.priority);
   } catch (err: unknown) {
-    throw new Error(`Failed to resolve MX records: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    throw new Error(`Failed to resolve MX records: ${err instanceof Error ? (err as Error).message : 'Unknown error'}`);
   }
 }
 
@@ -102,7 +102,7 @@ async function checkTCPPort(
   });
 }
 
-async function checkMXHealth(domain: string, checkPorts: boolean = false): Promise<unknown> {
+async function checkMXHealth(domain: string, checkPorts: boolean = false): Promise<any> {
   const mxRecords = await resolveMXRecords(domain);
 
   if (checkPorts) {
@@ -145,7 +145,7 @@ async function checkMXHealth(domain: string, checkPorts: boolean = false): Promi
 }
 
 // Re-use DNS functions for SPF and DMARC
-async function checkSPF(domain: string): Promise<unknown> {
+async function checkSPF(domain: string): Promise<any> {
   // Call the DNS endpoint internally
   const response = await fetch('http://localhost:5174/api/internal/diagnostics/dns', {
     method: 'POST',
@@ -171,7 +171,7 @@ async function checkSPF(domain: string): Promise<unknown> {
   };
 }
 
-async function checkDMARC(domain: string): Promise<unknown> {
+async function checkDMARC(domain: string): Promise<any> {
   // Call the DNS endpoint internally
   const response = await fetch('http://localhost:5174/api/internal/diagnostics/dns', {
     method: 'POST',
@@ -197,7 +197,7 @@ async function checkDMARC(domain: string): Promise<unknown> {
             none: 'No impact on delivery - monitoring only',
             quarantine: 'Failed messages may go to spam/junk folder',
             reject: 'Failed messages will be rejected outright',
-          } as unknown
+          } as any
         )[policy] || 'Unknown policy impact',
 
       alignmentComplexity: {
@@ -244,10 +244,10 @@ export const POST: RequestHandler = async ({ request }) => {
       }
 
       default:
-        throw error(400, `Unknown action: ${(body as unknown).action}`);
+        throw error(400, `Unknown action: ${(body as any).action}`);
     }
   } catch (err: unknown) {
     console.error('Email diagnostics error:', err);
-    throw error(500, `Email diagnostics failed: ${err.message}`);
+    throw error(500, `Email diagnostics failed: ${(err as Error).message}`);
   }
 };

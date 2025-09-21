@@ -5,7 +5,7 @@
 
   let domain = $state('google.com');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -56,7 +56,7 @@
     selectedExampleIndex = null;
   }
 
-  function parseSOA(soaString: string): unknown {
+  function parseSOA(soaString: string): any {
     // SOA format: primary-ns admin serial refresh retry expire minimum
     const parts = soaString.trim().split(/\s+/);
     if (parts.length >= 7) {
@@ -133,9 +133,9 @@
     const nsChecks = (
       results as { nameserverChecks?: Array<{ nameserver: string; resolved: boolean; addresses?: string[] }> }
     ).nameserverChecks;
-    if (nsChecks?.length > 0) {
+    if (nsChecks && nsChecks.length > 0) {
       text += `Nameserver Resolution Check:\n`;
-      nsChecks.forEach((check) => {
+      nsChecks!.forEach((check) => {
         text += `  ${check.nameserver}: `;
         if (check.resolved) {
           text += `✓ (${check.addresses?.join(', ') || 'No addresses'})\n`;
@@ -277,9 +277,9 @@
                     <span class="nameserver-name">{check.nameserver}</span>
                   </div>
 
-                  {#if check.resolved && (check as { addresses?: string[] }).addresses?.length > 0}
+                  {#if check.resolved && (check as { addresses?: string[] }).addresses && (check as { addresses?: string[] }).addresses!.length > 0}
                     <div class="nameserver-addresses">
-                      {#each (check as { addresses: string[] }).addresses as address, addressIndex (addressIndex)}
+                      {#each (check as { addresses: string[] }).addresses! as address, addressIndex (addressIndex)}
                         <span class="address-badge">{address}</span>
                       {/each}
                     </div>

@@ -5,7 +5,7 @@
     formatRRSIGDates,
     validateRRSIGTiming,
     type RRSIGPlanningOptions,
-    type _RRSIGWindow,
+    type RRSIGWindow as _RRSIGWindow,
   } from '$lib/utils/dnssec';
 
   let ttl = $state(3600);

@@ -10,7 +10,7 @@
   let customResolver = $state('');
   let useCustomResolver = $state(false);
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);

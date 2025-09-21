@@ -59,7 +59,7 @@
       {:else}
         <!-- Flat navigation -->
         <div class="sub-nav-links">
-          {#each navStructure as link (link.href)}
+          {#each navStructure as link ('href' in link ? link.href : link.title)}
             {#if 'href' in link}
               <a
                 href={link.href}

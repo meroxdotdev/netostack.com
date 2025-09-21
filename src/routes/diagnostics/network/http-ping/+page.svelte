@@ -8,7 +8,7 @@
   let count = $state(5);
   let timeout = $state(10000);
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -72,7 +72,7 @@
 
       results = await response.json();
     } catch (err: unknown) {
-      error = err.message;
+      error = (err as Error).message;
     } finally {
       loading = false;
     }

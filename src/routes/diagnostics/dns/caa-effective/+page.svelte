@@ -6,7 +6,7 @@
 
   let domainName = $state('github.com');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -167,8 +167,8 @@
     if (results.chain?.length > 0) {
       text += `CAA Chain (walked up from ${domainName}):\n`;
       results.chain.forEach((item: unknown, index: number) => {
-        text += `${index + 1}. ${item.domain}:\n`;
-        item.records.forEach((record: string) => {
+        text += `${index + 1}. ${(item as any).domain}:\n`;
+        (item as any).records.forEach((record: string) => {
           text += `   ${record}\n`;
         });
       });

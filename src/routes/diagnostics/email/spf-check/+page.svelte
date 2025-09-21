@@ -5,7 +5,7 @@
 
   let domain = $state('gmail.com');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -315,10 +315,10 @@
 
               <!-- Mechanisms -->
               {#if results.expanded.mechanisms.length > 0}
+                {@const spfExpanded = (results as { expanded: { mechanisms: string[] } }).expanded}
                 <div class="mechanisms-section">
                   <h5>Direct Mechanisms</h5>
                   <div class="mechanism-list">
-                    {@const spfExpanded = (results as { expanded: { mechanisms: string[] } }).expanded}
                     {#each spfExpanded.mechanisms as mechanism, mechanismIndex (mechanismIndex)}
                       <div class="mechanism-item">
                         <code>{mechanism}</code>
@@ -359,12 +359,12 @@
 
               <!-- Includes -->
               {#if results.expanded.includes.length > 0}
+                {@const spfIncludes = (
+                  results as { expanded: { includes: Array<{ domain: string; result: { record?: string; error?: string } }> } }
+                ).expanded}
                 <div class="includes-section">
                   <h5>Included SPF Policies</h5>
                   <div class="include-list">
-                    {@const spfIncludes = (
-                      results as { expanded: { includes: Array<{ domain: string; result: { record?: string } }> } }
-                    ).expanded}
                     {#each spfIncludes.includes as include, includeIndex (includeIndex)}
                       <div class="include-item">
                         <div class="include-header">

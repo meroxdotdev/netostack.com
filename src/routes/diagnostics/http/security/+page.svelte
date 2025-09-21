@@ -6,7 +6,7 @@
 
   let url = $state('https://github.com');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
 

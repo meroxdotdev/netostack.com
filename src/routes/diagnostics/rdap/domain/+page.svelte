@@ -5,7 +5,7 @@
 
   let domain = $state('example.com');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -83,8 +83,8 @@
   }
 
   function formatContact(contact: unknown): string {
-    const vcard = contact.vcardArray;
-    if (!vcard || !vcard[1]) return contact.handle || 'Unknown';
+    const vcard = (contact as any).vcardArray;
+    if (!vcard || !vcard[1]) return (contact as any).handle || 'Unknown';
 
     const properties = vcard[1];
     const name = properties.find((p: unknown[]) => p[0] === 'fn')?.[3] || (contact as { handle?: string }).handle;

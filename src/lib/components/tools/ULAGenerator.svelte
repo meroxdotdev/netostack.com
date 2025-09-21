@@ -102,7 +102,7 @@
         {#if result.generations.some((g) => g.isValid)}
           <div class="generations">
             <h3>Generated ULA Addresses</h3>
-            {#each result.generations as generation, i (generation.globalId)}
+            {#each result.generations as generation, i (generation.globalID)}
               {#if generation.isValid}
                 <div class="generation-result">
                   <div class="generation-header">

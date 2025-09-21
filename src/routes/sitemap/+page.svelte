@@ -10,7 +10,7 @@
 
   const mapToNode = (item: NavItem | NavGroup): TreeNode => ({
     label: 'label' in item ? item.label : item.title,
-    href: item.href || null,
+    href: 'href' in item ? item.href : null,
     description: item.description,
     children: [],
   });
@@ -58,7 +58,7 @@
     <details open>
       <summary>{@render nodeLink(node)}</summary>
       <ul>
-        {#each node.children as child (child.title)}
+        {#each node.children as child (child.label)}
           <li>
             {#if child.children.length > 0}
               {@render treeNode(child, level + 1)}
@@ -82,7 +82,7 @@
   </p>
 
   <div class="tree">
-    {#each siteTree as node (node.title)}
+    {#each siteTree as node (node.label)}
       {@render treeNode(node)}
     {/each}
   </div>

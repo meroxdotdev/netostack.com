@@ -32,7 +32,7 @@
 
     <div class="ref-section">
       <h2>IPv6 Address Types</h2>
-      {#each ipv6PrivacyContent.addressTypes as type, index (`${type.name}-${index}`)}
+      {#each ipv6PrivacyContent.addressTypes as type, index (`${type.type}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{type.type}</div>
           <div class="example-item">
@@ -128,7 +128,7 @@
               {#if (os as OSImplementation).values}
                 <h4>Values:</h4>
                 <ul>
-                  {#each (os as OSImplementation).values as value, index (`value-${index}`)}
+                  {#each (os as OSImplementation).values! as value, index (`value-${index}`)}
                     <li><code>{value}</code></li>
                   {/each}
                 </ul>
@@ -300,7 +300,7 @@
     <div class="ref-section">
       <h2>Useful Tools</h2>
       <div class="ref-grid two-col">
-        {#each ipv6PrivacyContent.tools as tool, index (`${tool.name}-${index}`)}
+        {#each ipv6PrivacyContent.tools as tool, index (`${tool.tool}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{tool.tool}</div>
             <div class="item-description">{tool.purpose}</div>

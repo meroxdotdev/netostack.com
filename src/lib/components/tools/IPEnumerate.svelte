@@ -145,7 +145,14 @@
       const trimmed = input.trim();
       let addresses: string[] = [];
       let totalCount = 0;
-      let networkInfo: Record<string, unknown> = {};
+      let networkInfo: {
+        type: 'cidr' | 'range' | 'single';
+        network?: string;
+        broadcast?: string;
+        firstUsable?: string;
+        lastUsable?: string;
+        totalHosts?: number;
+      } = { type: 'single' as const };
 
       // Determine input type
       if (trimmed.includes('/')) {

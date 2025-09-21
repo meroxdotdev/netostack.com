@@ -282,7 +282,7 @@
               <div class="col-zone-line">Zone File Line</div>
               <div class="col-type">Type</div>
             </div>
-            {#each results.entries.slice(0, 100) as entry (`${entry.ip}-${entry.ptr}`)}
+            {#each results.entries.slice(0, 100) as entry (`${entry.ip}-${entry.ptrName}`)}
               <div class="table-row">
                 <div class="col-ip">
                   <code>{entry.ip}</code>

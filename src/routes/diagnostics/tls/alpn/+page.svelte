@@ -8,7 +8,7 @@
   let useCustomServername = $state(false);
   let protocols = $state('h2,http/1.1');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);

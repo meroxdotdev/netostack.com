@@ -86,7 +86,7 @@
   function updateRecord(id: string, field: keyof MXRecord, value: string | number) {
     const record = mxRecords.find((r) => r.id === id);
     if (record) {
-      (record as Record<string, unknown>)[field] = value;
+      (record as Record<string, any>)[field] = value;
       mxRecords = mxRecords; // Trigger reactivity
     }
   }

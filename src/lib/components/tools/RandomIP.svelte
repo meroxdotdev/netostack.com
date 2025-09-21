@@ -166,7 +166,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, index (`${example.label}-${index}`)}
+        {#each examples as example, index (`${example.input}-${index}`)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === index}

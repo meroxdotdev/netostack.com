@@ -5,7 +5,7 @@
 
   let domain = $state('gmail.com');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -229,11 +229,11 @@
 
             <!-- Recommendations -->
             {#if results.deliverabilityHints.recommendations.length > 0}
+              {@const hintsData = (results as { deliverabilityHints: { recommendations: string[] } })
+                .deliverabilityHints}
               <div class="recommendations-section">
                 <h5>Deliverability Recommendations</h5>
                 <div class="recommendation-list">
-                  {@const hintsData = (results as { deliverabilityHints: { recommendations: string[] } })
-                    .deliverabilityHints}
                   {#each hintsData.recommendations as recommendation, recIndex (recIndex)}
                     <div class="recommendation-item">
                       <Icon name="lightbulb" size="xs" />

@@ -90,7 +90,7 @@ async function checkTcpPort(
         port,
         open: false,
         latency: null,
-        error: err.message,
+        error: (err as Error).message,
       });
     });
 
@@ -153,7 +153,7 @@ async function httpPing(
         await response.text();
       }
     } catch (err: unknown) {
-      errors.push(err.message);
+      errors.push((err as Error).message);
     }
 
     // Small delay between requests to avoid overwhelming the server
@@ -230,7 +230,7 @@ export const POST: RequestHandler = async ({ request }) => {
                 port: 0,
                 open: false,
                 latency: null,
-                error: err.message,
+                error: (err as Error).message,
               };
             }
           }),
@@ -285,10 +285,10 @@ export const POST: RequestHandler = async ({ request }) => {
       }
 
       default:
-        throw error(400, `Unknown action: ${(body as unknown).action}`);
+        throw error(400, `Unknown action: ${(body as any).action}`);
     }
   } catch (err: unknown) {
     console.error('Network diagnostics API error:', err);
-    throw error(500, `Network diagnostic failed: ${err.message}`);
+    throw error(500, `Network diagnostic failed: ${(err as Error).message}`);
   }
 };

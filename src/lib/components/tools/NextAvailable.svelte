@@ -387,7 +387,7 @@
     <div class="examples-section">
       <h4>Quick Examples</h4>
       <div class="examples-grid">
-        {#each examples as example (example.id)}
+        {#each examples as example (example.label)}
           <button
             type="button"
             class="example-btn"
@@ -499,7 +499,7 @@
               <div class="viz-bar pools-bar">
                 <div class="bar-label">Pools</div>
                 <div class="bar-segments">
-                  {#each result.visualization.pools as pool, poolIndex (`${pool.network}-${poolIndex}`)}
+                  {#each result.visualization.pools as pool, poolIndex (`${pool.cidr}-${poolIndex}`)}
                     <div
                       class="viz-segment pool-segment"
                       style="width: {getBarWidth(pool)}%; left: {getBarOffset(pool)}%"
@@ -513,7 +513,7 @@
               <div class="viz-bar allocations-bar">
                 <div class="bar-label">Allocated</div>
                 <div class="bar-segments">
-                  {#each result.visualization.allocations as allocation, allocIndex (`${allocation.network}-${allocIndex}`)}
+                  {#each result.visualization.allocations as allocation, allocIndex (`${allocation.cidr}-${allocIndex}`)}
                     <div
                       class="viz-segment allocation-segment"
                       style="width: {getBarWidth(allocation)}%; left: {getBarOffset(allocation)}%"
@@ -527,7 +527,7 @@
               <div class="viz-bar free-bar">
                 <div class="bar-label">Free</div>
                 <div class="bar-segments">
-                  {#each result.visualization.freeSpace as free, freeIndex (`${free.network}-${freeIndex}`)}
+                  {#each result.visualization.freeSpace as free, freeIndex (`${free.cidr}-${freeIndex}`)}
                     <div
                       class="viz-segment free-segment"
                       style="width: {getBarWidth(free)}%; left: {getBarOffset(free)}%"
@@ -541,7 +541,7 @@
               <div class="viz-bar candidates-bar">
                 <div class="bar-label">Candidates</div>
                 <div class="bar-segments">
-                  {#each result.visualization.candidates as candidate, i (`${candidate.network}-${i}`)}
+                  {#each result.visualization.candidates as candidate, i (`${candidate.cidr}-${i}`)}
                     <div
                       class="viz-segment candidate-segment"
                       class:primary={i === 0}
@@ -578,7 +578,7 @@
         <div class="candidates-section">
           <h4>Candidate Subnets ({result.candidates.length})</h4>
           <div class="candidates-grid">
-            {#each result.candidates as candidate, i (`${candidate.network}-${i}`)}
+            {#each result.candidates as candidate, i (`${candidate.cidr}-${i}`)}
               <div class="candidate-card" class:primary={i === 0}>
                 <div class="candidate-header">
                   <div class="candidate-rank">#{i + 1}</div>
@@ -620,7 +620,7 @@
           <div class="free-space-section">
             <h4>Free Space Blocks ({result.freeSpaceBlocks.length})</h4>
             <div class="free-blocks-grid">
-              {#each result.freeSpaceBlocks.slice(0, 10) as block, blockIndex (`${block.network}-${blockIndex}`)}
+              {#each result.freeSpaceBlocks.slice(0, 10) as block, blockIndex (`${block.cidr}-${blockIndex}`)}
                 <div class="free-block-card">
                   <code class="block-cidr">{block.cidr}</code>
                   <div class="block-info">

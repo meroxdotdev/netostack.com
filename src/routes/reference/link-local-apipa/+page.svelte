@@ -53,7 +53,7 @@
       </ul>
 
       <h3>Troubleshooting APIPA Issues</h3>
-      {#each linkLocalApipaContent.apipa.troubleshooting as issue, index (`${issue.issue}-${index}`)}
+      {#each linkLocalApipaContent.apipa.troubleshooting as issue, index (`${issue.symptom}-${index}`)}
         <div class="ref-warning">
           <div class="warning-title">
             <Icon name="alert-triangle" size="sm" />

@@ -14,7 +14,7 @@
   let matchingType = $state(1);
 
   let showExamples = $state(false);
-  let selectedExample = $state(null);
+  let selectedExample = $state<string | null>(null);
   let buttonStates = $state({} as Record<string, boolean>);
 
   const usageDescriptions = {

@@ -473,7 +473,7 @@
 
         <div class="security-tips">
           <ul>
-            {#each securityTips as tip, tipIdx (`${tip.title}-${tipIdx}`)}
+            {#each securityTips as tip, tipIdx (`tip-${tipIdx}`)}
               <li>{tip}</li>
             {/each}
           </ul>
@@ -489,7 +489,7 @@
         Example Configurations
       </summary>
       <div class="examples-grid">
-        {#each exampleConfigurations as example, exampleIdx (`${example.title}-${exampleIdx}`)}
+        {#each exampleConfigurations as example, exampleIdx (`${example.name}-${exampleIdx}`)}
           <button
             type="button"
             class="example-card"

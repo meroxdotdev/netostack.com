@@ -6,7 +6,7 @@
   let domainName = $state('example.com');
   let recordType = $state('A');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let lastQuery = $state<{ domain: string; type: string } | null>(null);

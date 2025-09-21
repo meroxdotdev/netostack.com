@@ -21,7 +21,7 @@
       SUB_NAV['/dns']?.find((section) => 'title' in section && section.title === 'Record Generators') as {
         items?: unknown[];
       }
-    )?.items || [],
+    )?.items as (NavItem | NavGroup)[] || [],
   );
 </script>
 

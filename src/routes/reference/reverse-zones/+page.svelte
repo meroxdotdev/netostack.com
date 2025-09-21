@@ -36,7 +36,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each reverseZonesContent.ipv4Zones.classfullBoundaries as boundary, index (`${boundary.network}-${index}`)}
+          {#each reverseZonesContent.ipv4Zones.classfullBoundaries as boundary, index (`${boundary.cidr}-${index}`)}
             <tr>
               <td><code>{boundary.cidr}</code></td>
               <td><code>{boundary.example}</code></td>
@@ -49,7 +49,7 @@
       </table>
 
       <h3>Classless Delegation (CNAME Method)</h3>
-      {#each reverseZonesContent.ipv4Zones.classlessDelegation as delegation, index (`${delegation.network}-${index}`)}
+      {#each reverseZonesContent.ipv4Zones.classlessDelegation as delegation, index (`${delegation.cidr}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{delegation.cidr} - {delegation.example}</div>
           <div class="example-item">
@@ -104,7 +104,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each reverseZonesContent.ipv6Zones.nibbleBoundaries as boundary, index (`${boundary.prefix}-${index}`)}
+          {#each reverseZonesContent.ipv6Zones.nibbleBoundaries as boundary, index (`${boundary.cidr}-${index}`)}
             <tr>
               <td><code>{boundary.cidr}</code></td>
               <td><code>{boundary.example}</code></td>
@@ -236,14 +236,14 @@
       <div class="ref-grid two-col">
         <div class="grid-item">
           <div class="item-title">Zone Name Formulas</div>
-          {#each reverseZonesContent.quickReference.zoneFormulas as formula, index (`${formula.mask}-${index}`)}
+          {#each reverseZonesContent.quickReference.zoneFormulas as formula, index (`formula-${index}`)}
             <div class="item-code">{formula}</div>
           {/each}
         </div>
 
         <div class="grid-item">
           <div class="item-title">Essential Records</div>
-          {#each reverseZonesContent.quickReference.essentialRecords as record, index (`${record.type}-${index}`)}
+          {#each reverseZonesContent.quickReference.essentialRecords as record, index (`record-${index}`)}
             <div class="item-description">{record}</div>
           {/each}
         </div>
@@ -264,7 +264,7 @@
     <div class="ref-section">
       <h2>Testing Tools</h2>
       <div class="ref-grid two-col">
-        {#each reverseZonesContent.tools as tool, index (`${tool.name}-${index}`)}
+        {#each reverseZonesContent.tools as tool, index (`${tool.tool}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{tool.tool}</div>
             <div class="item-description">{tool.purpose}</div>

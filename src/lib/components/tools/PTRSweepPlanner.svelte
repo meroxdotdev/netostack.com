@@ -268,7 +268,7 @@
       <div class="pattern-help">
         <h4>Common Patterns:</h4>
         <div class="pattern-examples">
-          {#each patternHelp as item, helpIdx (`${item.title}-${helpIdx}`)}
+          {#each patternHelp as item, helpIdx (`${item.pattern}-${helpIdx}`)}
             <button
               class="pattern-example"
               onclick={() => {

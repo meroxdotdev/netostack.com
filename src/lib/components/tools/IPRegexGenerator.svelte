@@ -122,13 +122,13 @@
   function setOptionValue(option: AdvancedOption, value: boolean) {
     switch (option.optionsObject) {
       case 'ipv4Options':
-        (ipv4Options as Record<string, boolean>)[option.key] = value;
+        (ipv4Options as unknown as Record<string, boolean>)[option.key] = value;
         break;
       case 'ipv6Options':
-        (ipv6Options as Record<string, boolean>)[option.key] = value;
+        (ipv6Options as unknown as Record<string, boolean>)[option.key] = value;
         break;
       case 'crossOptions':
-        (crossOptions as Record<string, boolean>)[option.key] = value;
+        (crossOptions as unknown as Record<string, boolean>)[option.key] = value;
         break;
     }
   }

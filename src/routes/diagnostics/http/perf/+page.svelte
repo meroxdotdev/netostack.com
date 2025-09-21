@@ -7,7 +7,7 @@
   let url = $state('https://www.google.com');
   let method = $state('GET');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
 

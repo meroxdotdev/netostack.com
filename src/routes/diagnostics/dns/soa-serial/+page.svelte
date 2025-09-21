@@ -6,7 +6,7 @@
   let domain = $state('example.com');
   let resolver = $state('cloudflare');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -200,9 +200,14 @@
         serialAnalysis?: {
           parsed?: { year?: number; month?: number; day?: number; revision?: number; timestamp?: number };
           format?: string;
+          valid?: boolean;
         };
       }
     ).serialAnalysis}
+    {@const soaData = (results as { soa?: { mname?: string; rname?: string; ttl?: number } }).soa}
+    {@const timingData = (
+      results as { soa?: { refresh?: number; retry?: number; expire?: number; minimum?: number } }
+    ).soa}
     <div class="card results-card">
       <div class="card-header row">
         <h3>SOA Analysis for {results.name}</h3>
@@ -253,7 +258,7 @@
                         <span class="date-part">Revision: {serialAnalysis.parsed.revision}</span>
                       </div>
                     {:else if serialAnalysis.format === 'Unix Timestamp'}
-                      <span class="unix-date">{formatDate(serialAnalysis.parsed.timestamp)}</span>
+                      <span class="unix-date">{formatDate(serialAnalysis.parsed.timestamp!)}</span>
                     {/if}
                   </dd>
                 {/if}
@@ -271,7 +276,6 @@
           <div class="result-section">
             <h4>SOA Record Details</h4>
             <dl class="definition-list">
-              {@const soaData = (results as { soa?: { mname?: string; rname?: string; ttl?: number } }).soa}
               <dt>Primary Server:</dt>
               <dd class="mono">{soaData?.mname || 'Not available'}</dd>
 
@@ -294,9 +298,6 @@
           <div class="result-section full-width">
             <h4>Zone Timing Parameters</h4>
             <div class="timing-grid">
-              {@const timingData = (
-                results as { soa?: { refresh?: number; retry?: number; expire?: number; minimum?: number } }
-              ).soa}
               <div class="timing-param">
                 <h5>Refresh</h5>
                 <div class="param-value">{timingData?.refresh || 0}s</div>
@@ -337,14 +338,14 @@
 
           <!-- Configuration Assessment -->
           {#if results.assessment?.length}
+            {@const assessmentData = (
+              results as {
+                assessment?: Array<{ severity: string; aspect: string; message: string; recommendation?: string }>;
+              }
+            ).assessment}
             <div class="result-section full-width">
               <h4>Configuration Assessment</h4>
               <div class="assessment-grid">
-                {@const assessmentData = (
-                  results as {
-                    assessment?: Array<{ severity: string; aspect: string; message: string; recommendation?: string }>;
-                  }
-                ).assessment}
                 {#each assessmentData || [] as item, itemIndex (itemIndex)}
                   <div class="assessment-item {item.severity}">
                     <Icon

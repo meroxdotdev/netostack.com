@@ -38,11 +38,11 @@
     isValid: boolean;
     errors: string[];
     warnings: string[];
-    details: Record<string, unknown>;
+    details: Record<string, any>;
   } {
     const errors: string[] = [];
     const warnings: string[] = [];
-    const details: Record<string, unknown> = { info: [] };
+    const details: Record<string, any> = { info: [] };
 
     // Check basic format
     if (!ip.includes('.')) {
@@ -167,11 +167,11 @@
     isValid: boolean;
     errors: string[];
     warnings: string[];
-    details: Record<string, unknown>;
+    details: Record<string, any>;
   } {
     const errors: string[] = [];
     const warnings: string[] = [];
-    const details: Record<string, unknown> = { info: [] };
+    const details: Record<string, any> = { info: [] };
 
     // Check for zone ID (remove it for validation but note it)
     let cleanIP = ip;

@@ -385,7 +385,7 @@ export const POST: RequestHandler = async ({ request }) => {
             preflight: {
               status: 0,
               allowed: false,
-              error: err.message,
+              error: (err as Error).message,
             },
             origin,
             analysis: {
@@ -433,22 +433,22 @@ export const POST: RequestHandler = async ({ request }) => {
   } catch (err: unknown) {
     console.error('HTTP API error:', err);
 
-    if (err.status) {
+    if ((err as any).status) {
       throw err; // Re-throw SvelteKit errors
     }
 
-    if (err.name === 'AbortError') {
+    if ((err as any).name === 'AbortError') {
       throw error(408, 'Request timeout');
     }
 
-    if (err.code === 'ENOTFOUND') {
+    if ((err as any).code === 'ENOTFOUND') {
       throw error(400, 'Host not found');
     }
 
-    if (err.code === 'ECONNREFUSED') {
+    if ((err as any).code === 'ECONNREFUSED') {
       throw error(400, 'Connection refused');
     }
 
-    throw error(500, err.message || 'HTTP request failed');
+    throw error(500, (err as Error).message || 'HTTP request failed');
   }
 };

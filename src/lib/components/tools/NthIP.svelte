@@ -156,7 +156,7 @@
         <h4>Quick Examples</h4>
       </summary>
       <div class="examples-grid">
-        {#each examples as example, i (`${example.label}-${i}`)}
+        {#each examples as example, i (`${example.input}-${i}`)}
           <button
             class="example-card"
             class:selected={selectedExampleIndex === i && !userModified}
@@ -308,7 +308,7 @@
           </div>
           <div class="card-content">
             <div class="calculations-list">
-              {#each result.calculations as calculation, index (`${calculation.nthPosition}-${index}`)}
+              {#each result.calculations as calculation, index (`${calculation.index}-${index}`)}
                 <div
                   class="calculation-card"
                   class:valid={calculation.isValid && calculation.isInBounds}

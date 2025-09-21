@@ -18,7 +18,7 @@
 
     <div class="ref-section">
       <h2>Private IP Address Ranges (RFC 1918)</h2>
-      {#each privateVsPublicContent.privateRanges as range, index (`${range.name}-${index}`)}
+      {#each privateVsPublicContent.privateRanges as range, index (`${range.range}-${index}`)}
         <div class="ref-examples">
           <div class="examples-title">{range.range} - {range.class}</div>
           <div class="example-item">
@@ -134,7 +134,7 @@
 
       <h3>Useful Tools</h3>
       <div class="ref-grid two-col">
-        {#each privateVsPublicContent.identification.tools as tool, index (`${tool.name}-${index}`)}
+        {#each privateVsPublicContent.identification.tools as tool, index (`${tool.tool}-${index}`)}
           <div class="grid-item">
             <div class="item-title">{tool.tool}</div>
             <div class="item-description">{tool.purpose}</div>

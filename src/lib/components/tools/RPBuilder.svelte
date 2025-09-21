@@ -137,7 +137,7 @@
     showButtonSuccess('download');
   }
 
-  function loadRoleExample(role: { name: string; description: string; mailbox: string; tag: string }) {
+  function loadRoleExample(role: { name: string; description: string; mbox: string; txt: string }) {
     mailboxDname = role.mbox;
     txtDname = role.txt;
     if (!domain) domain = 'example.com';
@@ -185,7 +185,7 @@
           </svg>
         </summary>
         <div class="examples-grid">
-          {#each roleExamples as role (role.tag)}
+          {#each roleExamples as role (role.name)}
             <button class="example-btn" onclick={() => loadRoleExample(role)}>
               <div class="example-name">{role.name}</div>
               <div class="example-desc">{role.description}</div>

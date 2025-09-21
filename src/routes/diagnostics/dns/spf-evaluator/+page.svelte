@@ -5,7 +5,7 @@
 
   let domain = $state('google.com');
   let loading = $state(false);
-  let results = $state<unknown>(null);
+  let results = $state<any>(null);
   let error = $state<string | null>(null);
   let copiedState = $state(false);
   let selectedExampleIndex = $state<number | null>(null);
@@ -74,22 +74,22 @@
     return { type: 'other', color: 'secondary', icon: 'help-circle' };
   }
 
-  function renderIncludeTree(includes: unknown[], level = 0): unknown[] {
+  function renderIncludeTree(includes: unknown[], level = 0): any[] {
     const items: unknown[] = [];
 
     includes.forEach((include) => {
       items.push({
         type: 'include',
-        domain: include.domain,
+        domain: (include as any).domain,
         level,
-        result: include.result,
+        result: (include as any).result,
       });
 
-      if (include.result?.expanded?.includes) {
-        items.push(...renderIncludeTree(include.result.expanded.includes, level + 1));
+      if ((include as any).result?.expanded?.includes) {
+        items.push(...renderIncludeTree((include as any).result.expanded.includes, level + 1));
       }
 
-      if (include.result?.expanded?.redirects) {
+      if ((include as any).result?.expanded?.redirects) {
         const includeData = include as {
           result: { expanded: { redirects: Array<{ domain: string; result: unknown }> } };
         };
@@ -271,7 +271,7 @@
           <div class="mechanisms-section">
             <h4>Direct Mechanisms</h4>
             <div class="mechanisms-grid">
-              {#each resultsExpanded.mechanisms as mechanism, mechanismIndex (mechanismIndex)}
+              {#each resultsExpanded!.mechanisms! as mechanism, mechanismIndex (mechanismIndex)}
                 {@const mechInfo = getMechanismType(mechanism as string)}
                 <div class="mechanism-item {mechInfo.color}">
                   <Icon name={mechInfo.icon} size="xs" />
@@ -287,10 +287,10 @@
 
         <!-- Include Tree -->
         {#if results.expanded?.includes?.length > 0}
+          {@const includesData = (results as { expanded: { includes: unknown[] } }).expanded.includes}
           <div class="includes-section">
             <h4>Include Chain</h4>
             <div class="include-tree">
-              {@const includesData = (results as { expanded: { includes: unknown[] } }).expanded.includes}
               {#each renderIncludeTree(includesData) as item, itemIndex (itemIndex)}
                 <div class="include-item level-{item.level}">
                   <div class="include-header">
@@ -322,14 +322,14 @@
 
         <!-- Redirects -->
         {#if results.expanded?.redirects?.length > 0}
+          {@const redirectsData = (
+            results as {
+              expanded: { redirects: Array<{ domain: string; result?: { error?: string; record?: string } }> };
+            }
+          ).expanded.redirects}
           <div class="redirects-section">
             <h4>Redirects</h4>
             <div class="redirects-list">
-              {@const redirectsData = (
-                results as {
-                  expanded: { redirects: Array<{ domain: string; result?: { error?: string; record?: string } }> };
-                }
-              ).expanded.redirects}
               {#each redirectsData as redirect, redirectIndex (redirectIndex)}
                 <div class="redirect-item">
                   <div class="redirect-header">

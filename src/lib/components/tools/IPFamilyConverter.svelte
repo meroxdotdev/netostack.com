@@ -24,7 +24,7 @@
   let inputValue = $state('');
   let conversionResult = $state<ConversionResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
-  let ipv6Info = $state<Record<string, unknown> | null>(null);
+  let ipv6Info = $state<Record<string, any> | null>(null);
 
   /**
    * Perform the conversion based on direction

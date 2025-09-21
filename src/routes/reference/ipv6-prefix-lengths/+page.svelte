@@ -75,7 +75,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each ipv6PrefixLengthsContent.comparison.mappings as mapping, index (`${mapping.prefix}-${index}`)}
+          {#each ipv6PrefixLengthsContent.comparison.mappings as mapping, index (`${mapping.ipv4}-${index}`)}
             <tr>
               <td><code>{mapping.ipv4}</code></td>
               <td><code>{mapping.ipv6}</code></td>

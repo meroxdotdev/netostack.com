@@ -393,7 +393,7 @@ function estimateEDNSSizeFromRecords(records: DNSRecord[]): EDNSEstimate {
 export function estimateEDNSSize(name: string, type: string, records: unknown[]): EDNSEstimate {
   // Convert parameters to DNSRecord format
   const dnsRecords: DNSRecord[] = records.map((record) => {
-    const r = record as Record<string, unknown>;
+    const r = record as Record<string, any>;
     return {
       name: (r.name as string) || name,
       type: (r.type as string) || type,
@@ -673,7 +673,7 @@ export function validateReverseLookupInput(
 export function formatDNSError(error: unknown): string {
   if (typeof error === 'string') return error;
 
-  const errorObj = error as Record<string, unknown>;
+  const errorObj = error as Record<string, any>;
   if (errorObj?.name === 'TypeError' && typeof errorObj.message === 'string' && errorObj.message.includes('fetch')) {
     return 'Network error. Please check your connection and try again.';
   }

@@ -34,7 +34,7 @@
 
     <div class="ref-section">
       <h2>Conversion Examples</h2>
-      {#each wildcardMasksContent.conversionExamples as example, exIdx (`${example.network}-${exIdx}`)}
+      {#each wildcardMasksContent.conversionExamples as example, exIdx (`${example.subnet}-${exIdx}`)}
         <div class="ref-examples">
           <div class="examples-title">{example.description}</div>
           <div class="example-item">
@@ -81,7 +81,7 @@
 
     <div class="ref-section">
       <h2>ACL Examples by Platform</h2>
-      {#each wildcardMasksContent.aclExamples as platform, pIdx (`${platform.name}-${pIdx}`)}
+      {#each wildcardMasksContent.aclExamples as platform, pIdx (`${platform.title}-${pIdx}`)}
         <h3>{platform.title}</h3>
         {#each platform.entries as entry, eIdx (`${entry}-${eIdx}`)}
           <div class="ref-examples">
