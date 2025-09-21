@@ -30,12 +30,18 @@
   import Icon from '$lib/components/global/Icon.svelte';
   import { type NavItem, type NavGroup, footerLinks } from '$lib/constants/nav';
   import { site, author, license } from '$lib/constants/site';
+  import { tooltip } from '$lib/actions/tooltip';
+  import { browser } from '$app/environment';
 
   export let isOpen = false;
 
   let menuElement: HTMLElement;
   let menuContentElement: HTMLElement;
   let focusableElements: HTMLElement[] = [];
+
+  // Shortcut key detection
+  const isMac = browser && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  const shortcutKey = isMac ? '⌘' : 'Ctrl';
 
   // Close menu when clicking outside
   function handleClickOutside(event: MouseEvent) {
@@ -54,6 +60,14 @@
     // Tab trapping when menu is open
     if (event.key === 'Tab' && isOpen) {
       trapFocus(event);
+    }
+  }
+
+  // Handle global keyboard shortcuts
+  function handleGlobalKeydown(event: KeyboardEvent) {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'm') {
+      event.preventDefault();
+      isOpen = !isOpen;
     }
   }
 
@@ -138,10 +152,12 @@
   onMount(() => {
     document.addEventListener('click', handleClickOutside);
     document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('keydown', handleGlobalKeydown);
 
     return () => {
       document.removeEventListener('click', handleClickOutside);
       document.removeEventListener('keydown', handleKeydown);
+      document.removeEventListener('keydown', handleGlobalKeydown);
     };
   });
 
@@ -169,12 +185,13 @@
 <div class="burger-menu" bind:this={menuElement}>
   <!-- Burger Button -->
   <button
-    class="burger-button"
+    class="action-button burger-button"
     class:active={isOpen}
     on:click={toggleMenu}
     aria-label={isOpen ? 'Close menu' : 'Open menu'}
     aria-expanded={isOpen}
     aria-controls="mobile-menu"
+    use:tooltip={`Menu (${shortcutKey}+M)`}
   >
     <span class="burger-line"></span>
     <span class="burger-line"></span>
@@ -291,49 +308,30 @@
   }
 
   .burger-button {
-    display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-
-    &:hover {
-      background-color: var(--surface-hover);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--color-primary);
-      outline-offset: 2px;
-    }
+    padding: 0.25rem;
   }
 
   .burger-line {
-    width: 1.5rem;
+    width: 1rem;
     height: 2px;
-    background-color: var(--text-primary);
+    background-color: var(--text-secondary);
     border-radius: 1px;
     transition: all var(--transition-fast);
     transform-origin: center;
 
     &:nth-child(1) {
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     &:nth-child(2) {
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
   }
 
   .burger-button.active {
     .burger-line:nth-child(1) {
-      transform: translateY(6px) rotate(45deg);
+      transform: translateY(5px) rotate(45deg);
     }
 
     .burger-line:nth-child(2) {
@@ -341,7 +339,7 @@
     }
 
     .burger-line:nth-child(3) {
-      transform: translateY(-6px) rotate(-45deg);
+      transform: translateY(-5px) rotate(-45deg);
     }
   }
 

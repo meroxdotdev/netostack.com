@@ -18,7 +18,7 @@
   let subnets = $state<SubnetRequirement[]>([]);
   let vlsmResult = $state<VLSMResult | null>(null);
   let copiedStates = $state<Record<string, boolean>>({});
-  let expandedSubnets = new SvelteSet<string>();
+  let expandedSubnets = $state(new SvelteSet<string>());
 
   // Add initial subnet requirement
   $effect(() => {

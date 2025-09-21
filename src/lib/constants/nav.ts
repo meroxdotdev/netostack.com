@@ -1776,6 +1776,7 @@ export const aboutPages: NavItem[] = [
 export const footerLinks: NavItem[] = [
   { href: '/about', label: 'About' },
   { href: site.repo, label: 'GitHub' },
+  { href: author.sponsor, label: 'Sponsor' },
   { href: author.portfolio, label: 'More Apps →' },
 ];
 

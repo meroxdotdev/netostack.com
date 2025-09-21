@@ -78,7 +78,7 @@
   <h1>Site Map</h1>
   <p>
     Site-wide page listing.<br />
-    For computer-readable version, see <a class="xml-link" href="/sitemap.xml">sitemap.xml</a>
+    For machine-readable version, see <a class="xml-link" href="/sitemap.xml">sitemap.xml</a>
   </p>
 
   <div class="tree">

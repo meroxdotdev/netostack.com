@@ -7,6 +7,7 @@
   import type { NavItem } from '$lib/constants/nav';
   import { bookmarks } from '$lib/stores/bookmarks';
   import { frequentlyUsedTools, toolUsage } from '$lib/stores/toolUsage';
+  import { tooltip } from '$lib/actions/tooltip';
 
   let isOpen = $state(false);
   let query = $state('');
@@ -61,10 +62,10 @@
       .slice(0, 8);
   }
 
-  function showSearch() {
+  const showSearch = () => {
     isOpen = true;
     setTimeout(() => searchInput?.focus(), 0);
-  }
+  };
 
   function close() {
     isOpen = false;
@@ -123,13 +124,17 @@
     return () => document.removeEventListener('keydown', handleGlobalKeydown);
   });
 
-  // export { showSearch as open };
+  export { showSearch };
 </script>
 
 <!-- Trigger Button -->
-<button class="search-trigger" onclick={showSearch} aria-label="Open search">
+<button
+  class="action-button search-trigger"
+  onclick={showSearch}
+  aria-label="Open search"
+  use:tooltip={`Search (${shortcutKey}+K)`}
+>
   <Icon name="search" size="sm" />
-  <span class="shortcut">{shortcutKey}K</span>
 </button>
 
 <!-- Search Modal -->
@@ -272,38 +277,6 @@
 {/if}
 
 <style lang="scss">
-  button:hover:not(:disabled) {
-    border-color: var(--border-primary);
-  }
-
-  .search-trigger {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-
-    &:hover {
-      background: var(--surface-hover);
-      color: var(--text-primary);
-    }
-
-    .shortcut {
-      padding: var(--spacing-xs) var(--spacing-sm);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-secondary);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-xs);
-      font-family: var(--font-mono);
-    }
-  }
-
   .search-overlay {
     position: fixed;
     inset: 0;

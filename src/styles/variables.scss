@@ -71,10 +71,19 @@
   --transition-slow: 0.3s ease;
 }
 
-// --color-primary: #70edb7;
-// --bg-primary: #131c2b;
-// --bg-secondary: #212c3d;
-// --bg-tertiary: #151e2f;
+.theme-ocean,
+html[data-theme='ocean'] {
+  --color-primary: #70edb7;
+  --color-primary-hover: #a0ffd0;
+  --color-primary-dark: #38b48b;
+  --bg-primary: #131c2b;
+  --bg-secondary: #212c3d;
+  --bg-tertiary: #151e2f;
+  --text-secondary: #a0a7b0;
+
+  --surface-hover: #2b384b;
+  --border-primary: #30405b;
+}
 
 /* Light theme */
 .theme-light,
@@ -110,7 +119,7 @@ html[data-theme='light'] {
   /* Border & surface */
   --border-primary: #e5e7eb; /* default hairline */
   --border-secondary: #d1d5db; /* dividers on white */
-  --surface-hover: #f2f5f9; /* interactive hover */
+  --surface-hover: #f6f2f9; /* interactive hover */
   --surface-active: #e9eef5; /* pressed/selected */
 
   /* Shadows (softer for light UI) */

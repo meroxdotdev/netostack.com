@@ -7,12 +7,15 @@
   import '../styles/ref-pages.scss';
   import '../styles/diagnostics-pages.scss';
   import '../styles/pages.scss';
+  import '../styles/a11y.scss';
 
   import favicon from '$lib/assets/favicon.svg';
   import { getPageDetails, getPageDetailsWithIcon } from '$lib/constants/nav';
   import { generateFaviconDataUri } from '$lib/utils/favicon';
   import { site, author } from '$lib/constants/site';
   import { toolUsage } from '$lib/stores/toolUsage';
+  import { accessibility } from '$lib/stores/accessibility';
+  import { theme } from '$lib/stores/theme';
   import { ALL_PAGES } from '$lib/constants/nav';
 
   import Header from '$lib/components/furniture/Header.svelte';
@@ -20,8 +23,9 @@
   import Footer from '$lib/components/furniture/Footer.svelte';
 
   let { data, children } = $props(); // Gets data from the server load function
-  let darkMode = $state(true); // Stores the theme mode
   let faviconTrigger = $state(0); // Trigger to force favicon updates
+  let accessibilitySettings = $state(accessibility); // Accessibility settings store
+  let currentTheme = $state(theme); // Theme store
 
   // Get page-specific metadata or fallback to site defaults
   const seoData = $derived.by(() => {
@@ -54,8 +58,9 @@
   });
 
   onMount(() => {
-    initializeTheme();
+    theme.init();
     toolUsage.init();
+    accessibility.init();
   });
 
   // Track tool visits when page changes
@@ -69,39 +74,44 @@
     }
   });
 
-  /* Reads and applies user's theme from localstorage on initial load */
-  function initializeTheme() {
-    if (typeof window === 'undefined') return;
-    const saved = localStorage.getItem('theme');
-    if (saved === 'light') {
-      darkMode = false;
-      document.documentElement.classList.add('theme-light');
-    }
-  }
+  // Apply accessibility settings to HTML element
+  $effect(() => {
+    if (typeof document === 'undefined') return;
 
-  /* Toggles between dark and light themes, saving preference to localstorage */
-  function toggleTheme() {
-    darkMode = !darkMode;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-      if (darkMode) {
-        document.documentElement.classList.remove('theme-light');
-      } else {
-        document.documentElement.classList.add('theme-light');
-      }
-      // Trigger favicon update 50ms after theme change
-      setTimeout(() => {
-        faviconTrigger++;
-      }, 50);
+    const cssClasses = accessibility.getCSSClasses($accessibilitySettings);
+
+    if (cssClasses.trim()) {
+      document.documentElement.setAttribute('data-a11y', cssClasses);
+    } else {
+      document.documentElement.removeAttribute('data-a11y');
     }
-  }
+  });
+
+  // Theme change effect - trigger favicon update when theme changes
+  $effect(() => {
+    // Subscribe to theme changes
+    void $currentTheme;
+    // Trigger favicon update 50ms after theme change
+    setTimeout(() => {
+      faviconTrigger++;
+    }, 50);
+  });
 
   /* Uses the server-generated breadcrumb data, to build a JSON-LD breadcrumb object */
   function jsonLdTag(data: unknown, type = 'application/ld+json', nonce?: string) {
     if (!data) return '';
-    const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/-->/g, '--\\>');
-    const nonceAttr = nonce ? ` nonce="${nonce}"` : '';
-    return `<script type="${type}"${nonceAttr}>${json} <${'/'}>script>`;
+    try {
+      const json = JSON.stringify(data)
+        .replace(/</g, '\\u003c')
+        .replace(/>/g, '\\u003e')
+        .replace(/-->/g, '--\\u003e')
+        .replace(/\//g, '\\/');
+      const nonceAttr = nonce ? ` nonce="${nonce}"` : '';
+      return `<script type="${type}"${nonceAttr}>${json}</${'script'}>`;
+    } catch (error) {
+      console.error('Error generating JSON-LD tag:', error);
+      return '';
+    }
   }
 </script>
 
@@ -139,9 +149,13 @@
   {@html jsonLdTag(data.breadcrumbJsonLd)}
 </svelte:head>
 
-<Header {darkMode} {toggleTheme} />
+<!-- Skip Links for Accessibility -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<a href="#navigation" class="skip-link">Skip to navigation</a>
+
+<Header />
 <SubHeader />
-<main class="main-content">
+<main id="main-content" class="main-content">
   {@render children?.()}
 </main>
 <Footer />
