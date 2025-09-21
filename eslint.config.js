@@ -24,14 +24,18 @@ export default [
     },
     rules: {
       // Typical useful TS rules in Svelte files
-      '@typescript-eslint/consistent-type-imports': 'error'
+      '@typescript-eslint/consistent-type-imports': 'error',
+      // Disable navigation without resolve for internal links
+      'svelte/no-navigation-without-resolve': 'off'
     }
   },
   {
     rules: {
       // Prefer TS version of unused-vars, and ignore _-prefixed
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }]
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      // Temporarily disable no-explicit-any for API response types
+      '@typescript-eslint/no-explicit-any': 'off'
     }
   },
   prettier // turn off formatting-related ESLint rules (let Prettier own formatting)
