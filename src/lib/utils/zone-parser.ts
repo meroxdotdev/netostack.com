@@ -101,15 +101,24 @@ function isValidDomainName(name: string): boolean {
 function isValidLabel(label: string): boolean {
   if (!label || label.length > MAX_LABEL_LENGTH) return false;
 
+  // Allow wildcards
+  if (label === '*') return true;
+
+  // Allow single character labels
+  if (label.length === 1) return true;
+
+  // Allow underscores for SRV records (e.g., _sip, _tcp)
+  if (label.startsWith('_')) {
+    return /^_[a-zA-Z0-9-]+$/.test(label);
+  }
+
   // Must start and end with alphanumeric
   if (!/^[a-zA-Z0-9]/.test(label) || !/[a-zA-Z0-9]$/.test(label)) {
-    // Exception for single character labels and wildcards
-    if (label.length === 1 || label === '*') return true;
     return false;
   }
 
   // Can contain hyphens in the middle
-  return /^[a-zA-Z0-9-*]+$/.test(label);
+  return /^[a-zA-Z0-9-]+$/.test(label);
 }
 
 function isValidIPv4(ip: string): boolean {
@@ -123,9 +132,37 @@ function isValidIPv4(ip: string): boolean {
 }
 
 function isValidIPv6(ip: string): boolean {
-  // Basic IPv6 validation - simplified for now
-  const ipv6Regex = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
-  return ipv6Regex.test(ip) || ip === '::' || /^::1$/.test(ip);
+  // Comprehensive IPv6 validation
+  if (!ip || typeof ip !== 'string') return false;
+
+  // Check for invalid patterns
+  if (ip.includes(':::')) return false; // Triple colon is invalid
+  if (ip.split('::').length > 2) return false; // Multiple double colons
+
+  // Handle special cases
+  if (ip === '::') return true; // All zeros
+  if (ip === '::1') return true; // Loopback
+
+  // Split on double colon if present
+  if (ip.includes('::')) {
+    const parts = ip.split('::');
+    const left = parts[0] ? parts[0].split(':') : [];
+    const right = parts[1] ? parts[1].split(':') : [];
+
+    // Total groups must not exceed 8
+    if (left.length + right.length >= 8) return false;
+
+    // Validate all groups
+    const allGroups = [...left, ...right];
+    return allGroups.every(group => /^[0-9a-fA-F]{0,4}$/.test(group));
+  } else {
+    // No compression - must have exactly 8 groups
+    const groups = ip.split(':');
+    if (groups.length !== 8) return false;
+
+    // All groups must be valid hex (1-4 characters)
+    return groups.every(group => /^[0-9a-fA-F]{1,4}$/.test(group));
+  }
 }
 
 function validateRData(type: string, rdata: string, _owner: string): void {
@@ -251,12 +288,49 @@ export function parseZoneFile(content: string): ParsedZone {
   let lastOwner = '';
   let soa: ResourceRecord | undefined;
 
+  // Preprocess lines to handle multi-line records
+  const processedLines: { line: string; lineNum: number; startsWithWhitespace: boolean }[] = [];
+  let multiLineBuffer = '';
+  let multiLineStartNum = 0;
+  let inMultiLine = false;
+
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
+    const originalLine = lines[i];
+    const line = originalLine.trim();
     const lineNum = i + 1;
 
     // Skip empty lines and comments
     if (!line || line.startsWith(';')) continue;
+
+    // Check if line started with whitespace (indicating inherited owner)
+    const startsWithWhitespace = originalLine !== line && originalLine.length > 0;
+
+    if (line.includes('(') && !line.includes(')')) {
+      // Start of multi-line record
+      inMultiLine = true;
+      multiLineBuffer = line.replace('(', '').trim();
+      multiLineStartNum = lineNum;
+    } else if (inMultiLine && line.includes(')')) {
+      // End of multi-line record
+      const cleanLine = line.replace(')', '').trim();
+      const commentIndex = cleanLine.indexOf(';');
+      const lineWithoutComment = commentIndex >= 0 ? cleanLine.substring(0, commentIndex).trim() : cleanLine;
+      multiLineBuffer += ' ' + lineWithoutComment;
+      processedLines.push({ line: multiLineBuffer.trim(), lineNum: multiLineStartNum, startsWithWhitespace: false });
+      multiLineBuffer = '';
+      inMultiLine = false;
+    } else if (inMultiLine) {
+      // Middle of multi-line record - strip comments
+      const commentIndex = line.indexOf(';');
+      const lineWithoutComment = commentIndex >= 0 ? line.substring(0, commentIndex).trim() : line;
+      multiLineBuffer += ' ' + lineWithoutComment;
+    } else {
+      // Regular single-line record
+      processedLines.push({ line, lineNum, startsWithWhitespace });
+    }
+  }
+
+  for (const { line, lineNum, startsWithWhitespace } of processedLines) {
 
     try {
       // Handle $ORIGIN directive
@@ -295,19 +369,25 @@ export function parseZoneFile(content: string): ParsedZone {
       }
 
       // Parse resource record
-      const record = parseResourceRecord(line, lastOwner, defaultTTL, currentOrigin, lineNum);
+      const record = parseResourceRecord(line, lastOwner, defaultTTL, currentOrigin, lineNum, startsWithWhitespace);
       if (record) {
         records.push(record);
         lastOwner = record.owner;
+
+        // Auto-detect origin from first FQDN if not set
+        if (!currentOrigin && record.owner.endsWith('.')) {
+          currentOrigin = record.owner;
+        }
 
         if (record.type === 'SOA' && !soa) {
           soa = record;
         }
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown parsing error';
       errors.push({
         line: lineNum,
-        message: error instanceof Error ? error.message : 'Unknown parsing error',
+        message: errorMessage,
         severity: 'error',
       });
     }
@@ -338,6 +418,7 @@ function parseResourceRecord(
   defaultTTL: number,
   origin: string,
   lineNum: number,
+  startsWithWhitespace: boolean = false,
 ): ResourceRecord | null {
   // Remove comments
   const commentIndex = line.indexOf(';');
@@ -356,10 +437,21 @@ function parseResourceRecord(
   let partIndex = 1;
 
   // Handle implicit owner (blank or continuation)
-  if (owner === '' || owner === '@') {
-    owner = lastOwner || origin;
-  } else if (!owner.endsWith('.') && origin) {
-    owner = owner + '.' + origin;
+  if (owner === '' || owner === '@' || startsWithWhitespace) {
+    // If line started with whitespace, the first field is actually the class/type/TTL, not owner
+    if (startsWithWhitespace) {
+      owner = lastOwner || origin;
+      // Prepend a placeholder for the missing owner field
+      parts.unshift('');
+      partIndex = 1; // Reset to start parsing from the actual first field
+    } else {
+      owner = lastOwner || origin;
+    }
+  } else if (!owner.endsWith('.')) {
+    // For relative names, append the origin if available
+    if (origin) {
+      owner = owner + '.' + origin;
+    }
   }
 
   // Validate owner name
@@ -368,7 +460,7 @@ function parseResourceRecord(
   }
 
   // Parse TTL (optional)
-  if (/^\d+$/.test(parts[partIndex])) {
+  if (/^-?\d+$/.test(parts[partIndex])) {
     ttl = parseInt(parts[partIndex]);
     if (ttl < 0 || ttl > 2147483647) {
       throw new Error(`Invalid TTL value: ${ttl} (must be 0-2147483647)`);
@@ -646,8 +738,8 @@ export function formatZoneFile(zone: ParsedZone): string {
   let lastOwner = '';
   for (const record of zone.records) {
     const owner = record.owner === lastOwner ? '' : record.owner;
-    const ttl = record.ttl === zone.defaultTTL ? '' : record.ttl?.toString() || '';
-    const parts = [owner, ttl, record.class, record.type, record.rdata].filter(Boolean);
+    const ttl = record.ttl === zone.defaultTTL || !zone.defaultTTL ? '' : record.ttl?.toString() || '';
+    const parts = [owner, ttl, record.class, record.type, record.rdata];
     lines.push(parts.join('\t'));
     lastOwner = record.owner;
   }

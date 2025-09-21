@@ -88,28 +88,38 @@ function generateULA(subnetId?: string): ULAGeneration {
 
     // Step 4: Compute hash and take least significant 40 bits for Global ID
     const hash = generateHash(hashInput);
-    const globalID = hash.substring(hash.length - 10); // Last 40 bits (5 bytes)
+    // Global ID is 40 bits = 10 hex chars for RFC compliance
+    const fullGlobalIDHex = hash.substring(hash.length - 10); // Last 10 hex chars (40 bits)
+    
+    // For ULA format, we use 8 hex chars in the address format
+    const globalIDHex = fullGlobalIDHex.substring(2); // Take 8 chars for address format
 
-    // Step 5: Format Global ID with colons
-    const formattedGlobalID = globalID.match(/.{4}/g)?.join(':') || '';
+    // Step 5: Format Global ID with colons (4:4 format)
+    const formattedGlobalID = globalIDHex.match(/.{4}/g)?.join(':') || '';
 
-    // Step 6: Handle subnet ID
-    const subnetID = subnetId ? subnetId.padStart(4, '0') : bytesToHex(generateSecureRandom(2));
+    // Step 6: Handle subnet ID - clean and format
+    let cleanSubnetID: string;
+    if (subnetId) {
+      // Remove colons and other separators, then pad
+      cleanSubnetID = subnetId.replace(/[:-]/g, '').padStart(4, '0');
+    } else {
+      cleanSubnetID = bytesToHex(generateSecureRandom(2));
+    }
 
     // Step 7: Construct the ULA prefix
     const prefix = 'fd'; // ULA prefix for locally assigned addresses
-    const fullPrefix = `${prefix}${globalID}:${subnetID}`;
+    const fullPrefix = `${prefix}${globalIDHex}:${cleanSubnetID}`;
     const network = `${fullPrefix}::/64`;
 
     // Generate binary representations
     const prefixBinary = hexToBinary(prefix);
-    const globalIDBinary = hexToBinary(globalID);
-    const subnetIDBinary = hexToBinary(subnetID);
+    const globalIDBinary = hexToBinary(fullGlobalIDHex); // Use full 40-bit version for binary
+    const subnetIDBinary = hexToBinary(cleanSubnetID);
 
     return {
       prefix,
       globalID: formattedGlobalID,
-      subnetID,
+      subnetID: cleanSubnetID,
       fullPrefix,
       network,
       isValid: true,
@@ -204,6 +214,11 @@ export function generateULAAddresses(count: number, subnetIds?: string[]): ULARe
   };
 }
 
+/* Validate hex characters in a string */
+function isValidHex(str: string): boolean {
+  return /^[0-9a-fA-F]*$/.test(str);
+}
+
 /* Parse ULA address and extract components */
 export function parseULA(ula: string): {
   isValid: boolean;
@@ -225,29 +240,172 @@ export function parseULA(ula: string): {
       };
     }
 
-    // Remove prefix and split by colons
-    const withoutPrefix = cleanULA.substring(2);
-    const parts = withoutPrefix.split(':');
+    // Handle zone identifier if present
+    let addressPart = cleanULA;
+    let zoneId = '';
+    if (cleanULA.includes('%')) {
+      const parts = cleanULA.split('%');
+      if (parts.length !== 2) {
+        return {
+          isValid: false,
+          error: 'Invalid ULA format - invalid zone identifier',
+        };
+      }
+      addressPart = parts[0];
+      zoneId = parts[1];
+    }
 
-    if (parts.length < 4) {
+    // Basic IPv6 structure validation - check for valid hex characters and colons
+    if (!/^[0-9a-f:]+$/i.test(addressPart)) {
+      return {
+        isValid: false,
+        error: 'Not a valid ULA address',
+      };
+    }
+
+    // Check for triple colons or other invalid patterns
+    if (addressPart.includes(':::')) {
+      return {
+        isValid: false,
+        error: 'Not a valid ULA address',
+      };
+    }
+
+    // Split into groups
+    const groups = addressPart.split(':');
+    
+    if (groups.length < 3) {
       return {
         isValid: false,
         error: 'Invalid ULA format',
       };
     }
 
-    // Extract components
-    const globalIDParts = parts.slice(0, 2).join('');
-    const subnetID = parts[2];
-    const interfaceID = parts.slice(3).join(':');
+    const firstGroup = groups[0];
 
-    return {
-      isValid: true,
-      prefix: 'fd',
-      globalID: globalIDParts.match(/.{4}/g)?.join(':') || '',
-      subnetID,
-      interfaceID,
-    };
+    // Detect format type based on first group length
+    if (firstGroup.length > 8) {
+      // Compressed format: fd12345678:abcd::1 (our generated format)
+      if (firstGroup.length < 10) { // fd + 8 hex chars
+        return {
+          isValid: false,
+          error: 'Invalid ULA format - first group too short for compressed format',
+        };
+      }
+      
+      // Extract global ID from first group (remove fd prefix)
+      const globalIDHex = firstGroup.substring(2); // Remove 'fd'
+      const globalID = globalIDHex.match(/.{4}/g)?.join(':') || '';
+      
+      // Subnet ID is the second group
+      const subnetID = groups[1];
+      
+      // Interface ID is remaining groups
+      let interfaceID = '';
+      if (groups.length > 2) {
+        const remainingGroups = groups.slice(2);
+        interfaceID = remainingGroups.join(':');
+      }
+
+      return {
+        isValid: true,
+        prefix: 'fd',
+        globalID,
+        subnetID,
+        interfaceID: zoneId ? `${interfaceID}%${zoneId}` : interfaceID,
+      };
+    } else {
+      // Standard IPv6 format: fd12:3456:789a:bcde:... or compressed fd12:3456:789a::1
+      
+      // Handle compressed notation by expanding first
+      let expandedULA = cleanULA;
+      if (cleanULA.includes('::')) {
+        // Simple expansion for parsing - split on :: and calculate missing groups
+        const parts = cleanULA.split('::');
+        if (parts.length !== 2) {
+          return {
+            isValid: false,
+            error: 'Invalid ULA format - multiple :: sequences',
+          };
+        }
+
+        const leftGroups = parts[0] ? parts[0].split(':') : [];
+        const rightGroups = parts[1] ? parts[1].split(':') : [];
+        const missingGroups = 8 - leftGroups.length - rightGroups.length;
+        
+        if (missingGroups < 0) {
+          return {
+            isValid: false,
+            error: 'Invalid ULA format - too many groups',
+          };
+        }
+
+        const middleGroups = Array(missingGroups).fill('0000');
+        const allGroups = [...leftGroups, ...middleGroups, ...rightGroups];
+        expandedULA = allGroups.join(':');
+      }
+
+      // Split expanded ULA into groups
+      const expandedGroups = expandedULA.split(':');
+      
+      if (expandedGroups.length !== 8) {
+        return {
+          isValid: false,
+          error: 'Invalid ULA format',
+        };
+      }
+
+      // Pad groups to 4 characters for consistent processing
+      const paddedGroups = expandedGroups.map(group => group.padStart(4, '0'));
+
+      const globalIDPart1 = paddedGroups[0].substring(2); // '00' from 'fd00'
+      const globalIDPart2 = paddedGroups[1]; // '1234'
+      const globalIDPart3 = paddedGroups[2].substring(0, 2); // '56' from '5678'
+
+      const globalIDHex = globalIDPart1 + globalIDPart2 + globalIDPart3; // '00123456'
+      const globalID = globalIDHex.match(/.{4}/g)?.join(':') || ''; // '0012:3456'
+
+      const subnetIDPart1 = paddedGroups[2].substring(2); // '78' from '5678'
+      const subnetIDPart2 = paddedGroups[3].substring(0, 2); // '9a' from '9abc'
+      const subnetID = subnetIDPart1 + subnetIDPart2; // '789a'
+
+      const fourthGroupRemainder = paddedGroups[3].substring(2); // 'bc' from '9abc'
+      const remainingGroups = paddedGroups.slice(4); // everything after 4th group
+      const interfaceHexString = fourthGroupRemainder + remainingGroups.join('');
+      
+      // Handle special cases for interface ID
+      let interfaceID: string;
+      if (cleanULA.includes('::')) {
+        // For compressed notation, reconstruct the interface part
+        if (cleanULA.endsWith('::1')) {
+          interfaceID = '::1';
+        } else if (cleanULA.endsWith('::')) {
+          interfaceID = 'de::';
+        } else {
+          // Reformat interface ID in 4-character groups
+          const interfaceIDGroups = [];
+          for (let i = 0; i < interfaceHexString.length; i += 4) {
+            interfaceIDGroups.push(interfaceHexString.substring(i, i + 4));
+          }
+          interfaceID = interfaceIDGroups.join(':');
+        }
+      } else {
+        // Reformat interface ID in 4-character groups, with last group having remaining chars
+        const interfaceIDGroups = [];
+        for (let i = 0; i < interfaceHexString.length; i += 4) {
+          interfaceIDGroups.push(interfaceHexString.substring(i, i + 4));
+        }
+        interfaceID = interfaceIDGroups.join(':');
+      }
+
+      return {
+        isValid: true,
+        prefix: 'fd',
+        globalID,
+        subnetID,
+        interfaceID: zoneId ? `${interfaceID}%${zoneId}` : interfaceID,
+      };
+    }
   } catch (error) {
     return {
       isValid: false,

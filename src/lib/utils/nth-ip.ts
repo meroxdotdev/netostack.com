@@ -74,6 +74,59 @@ function expandIPv6(ip: string): string {
   return [...left, ...middle, ...right].map((g) => g.padStart(4, '0')).join(':');
 }
 
+function compressIPv6(ip: string): string {
+  // Simple IPv6 compression - find longest sequence of consecutive zeros
+  const groups = ip.split(':');
+  
+  // Find longest sequence of '0' groups
+  let longestStart = -1;
+  let longestLength = 0;
+  let currentStart = -1;
+  let currentLength = 0;
+
+  for (let i = 0; i < groups.length; i++) {
+    if (groups[i] === '0') {
+      if (currentStart === -1) {
+        currentStart = i;
+        currentLength = 1;
+      } else {
+        currentLength++;
+      }
+    } else {
+      if (currentLength > longestLength && currentLength > 1) {
+        longestStart = currentStart;
+        longestLength = currentLength;
+      }
+      currentStart = -1;
+      currentLength = 0;
+    }
+  }
+
+  // Check the final sequence
+  if (currentLength > longestLength && currentLength > 1) {
+    longestStart = currentStart;
+    longestLength = currentLength;
+  }
+
+  // Apply compression if we found a sequence to compress
+  if (longestStart !== -1 && longestLength > 1) {
+    const before = groups.slice(0, longestStart);
+    const after = groups.slice(longestStart + longestLength);
+
+    if (before.length === 0 && after.length === 0) {
+      return '::';
+    } else if (before.length === 0) {
+      return '::' + after.join(':');
+    } else if (after.length === 0) {
+      return before.join(':') + '::';
+    } else {
+      return before.join(':') + '::' + after.join(':');
+    }
+  }
+
+  return ip;
+}
+
 function bigIntToIPv6(num: bigint): string {
   const groups = [];
   let remaining = num;
@@ -83,7 +136,21 @@ function bigIntToIPv6(num: bigint): string {
     remaining >>= 16n;
   }
 
-  return groups.join(':');
+  const uncompressed = groups.join(':');
+  
+  // Apply IPv6 compression using our normalize function
+  try {
+    const { normalizeIPv6Addresses } = require('./ipv6-normalize');
+    const result = normalizeIPv6Addresses([uncompressed]);
+    if (result.normalizations[0]?.isValid) {
+      return result.normalizations[0].normalized;
+    }
+  } catch {
+    // Fallback to manual compression if import fails
+  }
+  
+  // Manual compression fallback
+  return compressIPv6(uncompressed);
 }
 
 function detectIPVersion(ip: string): 4 | 6 {
@@ -249,12 +316,12 @@ function parseInputLine(
 } {
   const trimmed = line.trim();
 
-  // Try to find index specification
+  // Try to find index specification - updated to handle negative numbers
   const patterns = [
-    /^(.+?)\s+@\s*(\d+)(?:\s*\+\s*(\d+))?$/, // network @ index + offset
-    /^(.+?)\s+\[\s*(\d+)\s*\](?:\s*\+\s*(\d+))?$/, // network [index] + offset
-    /^(.+?)\s+(\d+)(?:\s*\+\s*(\d+))?$/, // network index + offset
-    /^(.+?)#(\d+)(?:\+(\d+))?$/, // network#index+offset
+    /^(.+?)\s+@\s*(-?\d+)(?:\s*\+\s*(\d+))?$/, // network @ index + offset
+    /^(.+?)\s+\[\s*(-?\d+)\s*\](?:\s*\+\s*(\d+))?$/, // network [index] + offset
+    /^(.+?)\s+(-?\d+)(?:\s*\+\s*(\d+))?$/, // network index + offset
+    /^(.+?)#(-?\d+)(?:\+(\d+))?$/, // network#index+offset
   ];
 
   for (const pattern of patterns) {
@@ -284,10 +351,14 @@ export function calculateNthIPs(inputs: string[], globalOffset: number = 0): Nth
       const calculation = calculateNthIP(network, index, offset);
       calculations.push(calculation);
 
+      // Add to errors if calculation is invalid OR if it's out of bounds with positive index
       if (!calculation.isValid && calculation.error) {
         errors.push(`"${input}": ${calculation.error}`);
-      } else if (!calculation.isInBounds && calculation.error) {
-        errors.push(`"${input}": ${calculation.error}`);
+      } else if (calculation.isValid && !calculation.isInBounds && calculation.details) {
+        // Only add out-of-bounds errors for positive indices (above range)
+        if (calculation.details.actualIndex > calculation.details.maxIndex) {
+          errors.push(`"${input}": ${calculation.error}`);
+        }
       }
     } catch (error) {
       errors.push(`"${input}": ${error instanceof Error ? error.message : 'Unknown error'}`);

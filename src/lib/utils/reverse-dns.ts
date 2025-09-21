@@ -34,9 +34,22 @@ function isValidIPv4(ip: string): boolean {
 
 /* Validate IPv6 address */
 function isValidIPv6(ip: string): boolean {
+  // Check for triple colons (invalid)
+  if (ip.includes(':::')) return false;
+  
+  // Handle zone identifiers (e.g., fe80::1%eth0)
+  let cleanIP = ip;
+  if (ip.includes('%')) {
+    const parts = ip.split('%');
+    if (parts.length !== 2) return false;
+    cleanIP = parts[0];
+    // Zone identifier part should not be empty
+    if (!parts[1]) return false;
+  }
+  
   // Basic IPv6 validation - handles compressed notation
-  if (ip.includes('::')) {
-    const parts = ip.split('::');
+  if (cleanIP.includes('::')) {
+    const parts = cleanIP.split('::');
     if (parts.length > 2) return false;
 
     const leftParts = parts[0] ? parts[0].split(':').filter((p) => p) : [];
@@ -46,7 +59,7 @@ function isValidIPv6(ip: string): boolean {
 
     return [...leftParts, ...rightParts].every((part) => part.length <= 4 && /^[0-9a-fA-F]*$/.test(part));
   } else {
-    const parts = ip.split(':');
+    const parts = cleanIP.split(':');
     return parts.length === 8 && parts.every((part) => part.length <= 4 && /^[0-9a-fA-F]+$/.test(part));
   }
 }
@@ -154,6 +167,11 @@ function parseIPv6CIDR(cidr: string): string[] {
 
   if (!isValidIPv6(network) || prefix < 0 || prefix > 128) {
     throw new Error('Invalid IPv6 CIDR notation');
+  }
+
+  // Special case for /128 - single address
+  if (prefix === 128) {
+    return [network];
   }
 
   // For IPv6, we'll generate a representative set rather than all addresses

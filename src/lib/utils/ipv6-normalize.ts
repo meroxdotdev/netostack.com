@@ -47,7 +47,27 @@ function isValidIPv6(ip: string): boolean {
     if (parts.length === 1) {
       // No compression
       groups = cleanIP.split(':');
-      if (groups.length !== 8) return false;
+      
+      // Check for IPv4-mapped addresses
+      const lastGroup = groups[groups.length - 1];
+      let ipv4Groups = 0;
+      if (lastGroup && lastGroup.includes('.')) {
+        // IPv4-mapped IPv6 address
+        const ipv4Parts = lastGroup.split('.');
+        if (ipv4Parts.length === 4) {
+          // Validate IPv4 part
+          for (const part of ipv4Parts) {
+            const num = parseInt(part, 10);
+            if (isNaN(num) || num < 0 || num > 255) return false;
+          }
+          ipv4Groups = 1; // IPv4 part replaces one group, but we need to account for it being 2 groups worth
+          groups.pop(); // Remove IPv4 part from groups for validation
+        }
+      }
+      
+      // Should have 8 groups total (or 6 + IPv4 which counts as 2)
+      const expectedGroups = ipv4Groups > 0 ? 6 : 8;
+      if (groups.length !== expectedGroups) return false;
     } else if (parts.length === 2) {
       // With compression
       const leftGroups = parts[0] ? parts[0].split(':') : [];
@@ -79,6 +99,7 @@ function isValidIPv6(ip: string): boolean {
 
     // Validate each group (excluding IPv4 part)
     for (const group of groups) {
+      if (group === '') continue; // Empty groups from :: are ok
       if (group.includes('.')) {
         // IPv4 part - validate separately
         const ipv4Parts = group.split('.');
@@ -108,18 +129,22 @@ function expandIPv6(ip: string): string {
   if (!cleanIP.includes('::')) {
     // Already expanded, just pad with zeros
     const groups = cleanIP.split(':');
-    const paddedGroups = groups.map((group) => {
+    const expandedGroups: string[] = [];
+    
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i];
       if (group.includes('.')) {
         // IPv4 part - convert to IPv6 groups
         const ipv4Parts = group.split('.').map(Number);
         const high = ((ipv4Parts[0] << 8) | ipv4Parts[1]).toString(16).padStart(4, '0');
         const low = ((ipv4Parts[2] << 8) | ipv4Parts[3]).toString(16).padStart(4, '0');
-        return high + ':' + low;
+        expandedGroups.push(high, low);
+      } else {
+        expandedGroups.push(group.padStart(4, '0'));
       }
-      return group.padStart(4, '0');
-    });
+    }
 
-    const expanded = paddedGroups.join(':').replace(/([^:]):([^:])/, '$1:$2');
+    const expanded = expandedGroups.join(':');
     return zone ? expanded + '%' + zone : expanded;
   }
 
@@ -128,7 +153,7 @@ function expandIPv6(ip: string): string {
   const right = parts[1] ? parts[1].split(':') : [];
 
   // Handle IPv4-mapped addresses
-  let _ipv4Groups = 0;
+  let ipv4Groups = 0;
   const lastGroup = right[right.length - 1];
   if (lastGroup && lastGroup.includes('.')) {
     const ipv4Parts = lastGroup.split('.').map(Number);
@@ -136,7 +161,7 @@ function expandIPv6(ip: string): string {
     const low = ((ipv4Parts[2] << 8) | ipv4Parts[3]).toString(16).padStart(4, '0');
     right[right.length - 1] = high;
     right.push(low);
-    _ipv4Groups = 2;
+    ipv4Groups = 1; // We added one extra group
   }
 
   const missing = 8 - left.length - right.length;
@@ -156,7 +181,7 @@ function findLongestZeroSequence(groups: string[]): { start: number; length: num
   let currentLength = 0;
 
   for (let i = 0; i < groups.length; i++) {
-    if (groups[i] === '0000') {
+    if (groups[i] === '0') {
       if (currentStart === -1) {
         currentStart = i;
         currentLength = 1;
@@ -164,6 +189,7 @@ function findLongestZeroSequence(groups: string[]): { start: number; length: num
         currentLength++;
       }
     } else {
+      // Only update if we find a strictly longer sequence (prefer leftmost on ties)
       if (currentLength > longestLength && currentLength > 1) {
         longestStart = currentStart;
         longestLength = currentLength;
@@ -173,7 +199,7 @@ function findLongestZeroSequence(groups: string[]): { start: number; length: num
     }
   }
 
-  // Check the final sequence
+  // Check the final sequence - only update if strictly longer
   if (currentLength > longestLength && currentLength > 1) {
     longestStart = currentStart;
     longestLength = currentLength;
@@ -205,10 +231,15 @@ function normalizeIPv6(input: string): IPv6Normalization {
       };
     }
 
-    // Step 1: Convert to lowercase (RFC 5952 Section 4.1)
-    if (current !== current.toLowerCase()) {
+    // Preserve original zone identifier case
+    const [originalIP, originalZone] = input.split('%');
+
+    // Step 1: Convert to lowercase (RFC 5952 Section 4.1) - but preserve zone case
+    const [ipPart, zonePart] = current.split('%');
+    const lowercaseIP = ipPart.toLowerCase();
+    if (ipPart !== lowercaseIP) {
       const before = current;
-      current = current.toLowerCase();
+      current = lowercaseIP + (zonePart ? '%' + zonePart : '');
       lowercaseApplied = true;
       steps.push({
         step: '1',
@@ -219,7 +250,6 @@ function normalizeIPv6(input: string): IPv6Normalization {
     }
 
     // Step 2: Expand to full form
-    const [_cleanIP, _zone] = current.split('%');
     const expanded = expandIPv6(current);
 
     if (expanded !== current) {
@@ -272,7 +302,8 @@ function normalizeIPv6(input: string): IPv6Normalization {
         compressed = before.join(':') + '::' + after.join(':');
       }
 
-      const compressedWithZone = compressed + (trimmedZone ? '%' + trimmedZone : '');
+      // Use original zone case if present
+      const compressedWithZone = compressed + (originalZone ? '%' + originalZone : '');
 
       if (compressedWithZone !== current) {
         steps.push({
@@ -283,6 +314,9 @@ function normalizeIPv6(input: string): IPv6Normalization {
         });
         current = compressedWithZone;
       }
+    } else if (originalZone && trimmedZone !== originalZone) {
+      // Restore original zone case even if no compression was applied
+      current = trimmedClean + '%' + originalZone;
     }
 
     return {

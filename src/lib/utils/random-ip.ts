@@ -355,34 +355,42 @@ function parseInputLine(line: string): {
 
   // Try different patterns to extract count
   const patterns = [
-    /^(.+?)\s+x\s*(\d+)$/, // network x count
-    /^(.+?)\s+\*\s*(\d+)$/, // network * count
-    /^(.+?)\s+(\d+)$/, // network count
-    /^(.+?)#(\d+)$/, // network#count
-    /^(.+?)\[(\d+)\]$/, // network[count]
+    /^(.+?)\s+x\s*(.+)$/, // network x count
+    /^(.+?)\s+\*\s*(.+)$/, // network * count
+    /^(.+?)\s+(.+)$/, // network count
+    /^(.+?)#(.+)$/, // network#count
+    /^(.+?)\[(.+)\]$/, // network[count]
   ];
 
   for (const pattern of patterns) {
     const match = trimmed.match(pattern);
     if (match) {
+      const countStr = match[2].trim();
+      const count = parseInt(countStr, 10);
+      
+      // Check if the count is a valid number
+      if (isNaN(count) || count < 0) {
+        throw new Error(`Invalid count format: "${countStr}"`);
+      }
+      
       return {
         network: match[1].trim(),
-        count: parseInt(match[2]),
+        count: count,
       };
     }
   }
 
-  // Default to 1 if no count specified
+  // Return 0 if no count specified to indicate default should be used
   return {
     network: trimmed,
-    count: 1,
+    count: 0,
   };
 }
 
 /* Generate random IPs for multiple networks */
 export function generateRandomIPAddresses(
   inputs: string[],
-  defaultCount: number = 5,
+  defaultCount: number = 1,
   unique: boolean = true,
   seed?: string,
 ): RandomIPResult {
