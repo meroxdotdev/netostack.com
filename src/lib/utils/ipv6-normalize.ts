@@ -47,7 +47,7 @@ function isValidIPv6(ip: string): boolean {
     if (parts.length === 1) {
       // No compression
       groups = cleanIP.split(':');
-      
+
       // Check for IPv4-mapped addresses
       const lastGroup = groups[groups.length - 1];
       let ipv4Groups = 0;
@@ -64,7 +64,7 @@ function isValidIPv6(ip: string): boolean {
           groups.pop(); // Remove IPv4 part from groups for validation
         }
       }
-      
+
       // Should have 8 groups total (or 6 + IPv4 which counts as 2)
       const expectedGroups = ipv4Groups > 0 ? 6 : 8;
       if (groups.length !== expectedGroups) return false;
@@ -130,7 +130,7 @@ function expandIPv6(ip: string): string {
     // Already expanded, just pad with zeros
     const groups = cleanIP.split(':');
     const expandedGroups: string[] = [];
-    
+
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i];
       if (group.includes('.')) {

@@ -154,14 +154,14 @@ function isValidIPv6(ip: string): boolean {
 
     // Validate all groups
     const allGroups = [...left, ...right];
-    return allGroups.every(group => /^[0-9a-fA-F]{0,4}$/.test(group));
+    return allGroups.every((group) => /^[0-9a-fA-F]{0,4}$/.test(group));
   } else {
     // No compression - must have exactly 8 groups
     const groups = ip.split(':');
     if (groups.length !== 8) return false;
 
     // All groups must be valid hex (1-4 characters)
-    return groups.every(group => /^[0-9a-fA-F]{1,4}$/.test(group));
+    return groups.every((group) => /^[0-9a-fA-F]{1,4}$/.test(group));
   }
 }
 
@@ -331,7 +331,6 @@ export function parseZoneFile(content: string): ParsedZone {
   }
 
   for (const { line, lineNum, startsWithWhitespace } of processedLines) {
-
     try {
       // Handle $ORIGIN directive
       if (line.startsWith('$ORIGIN')) {

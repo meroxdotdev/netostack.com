@@ -367,12 +367,12 @@ function parseInputLine(line: string): {
     if (match) {
       const countStr = match[2].trim();
       const count = parseInt(countStr, 10);
-      
+
       // Check if the count is a valid number
       if (isNaN(count) || count < 0) {
         throw new Error(`Invalid count format: "${countStr}"`);
       }
-      
+
       return {
         network: match[1].trim(),
         count: count,

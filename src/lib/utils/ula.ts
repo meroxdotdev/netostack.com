@@ -90,7 +90,7 @@ function generateULA(subnetId?: string): ULAGeneration {
     const hash = generateHash(hashInput);
     // Global ID is 40 bits = 10 hex chars for RFC compliance
     const fullGlobalIDHex = hash.substring(hash.length - 10); // Last 10 hex chars (40 bits)
-    
+
     // For ULA format, we use 8 hex chars in the address format
     const globalIDHex = fullGlobalIDHex.substring(2); // Take 8 chars for address format
 
@@ -268,7 +268,7 @@ export function parseULA(ula: string): {
 
     // Split into groups
     const groups = addressPart.split(':');
-    
+
     if (groups.length < 3) {
       return {
         isValid: false,
@@ -281,20 +281,21 @@ export function parseULA(ula: string): {
     // Detect format type based on first group length
     if (firstGroup.length > 8) {
       // Compressed format: fd12345678:abcd::1 (our generated format)
-      if (firstGroup.length < 10) { // fd + 8 hex chars
+      if (firstGroup.length < 10) {
+        // fd + 8 hex chars
         return {
           isValid: false,
           error: 'Invalid ULA format - first group too short for compressed format',
         };
       }
-      
+
       // Extract global ID from first group (remove fd prefix)
       const globalIDHex = firstGroup.substring(2); // Remove 'fd'
       const globalID = globalIDHex.match(/.{4}/g)?.join(':') || '';
-      
+
       // Subnet ID is the second group
       const subnetID = groups[1];
-      
+
       // Interface ID is remaining groups
       let interfaceID = '';
       if (groups.length > 2) {
@@ -311,7 +312,7 @@ export function parseULA(ula: string): {
       };
     } else {
       // Standard IPv6 format: fd12:3456:789a:bcde:... or compressed fd12:3456:789a::1
-      
+
       // Handle compressed notation by expanding first
       let expandedULA = cleanULA;
       if (cleanULA.includes('::')) {
@@ -327,7 +328,7 @@ export function parseULA(ula: string): {
         const leftGroups = parts[0] ? parts[0].split(':') : [];
         const rightGroups = parts[1] ? parts[1].split(':') : [];
         const missingGroups = 8 - leftGroups.length - rightGroups.length;
-        
+
         if (missingGroups < 0) {
           return {
             isValid: false,
@@ -342,7 +343,7 @@ export function parseULA(ula: string): {
 
       // Split expanded ULA into groups
       const expandedGroups = expandedULA.split(':');
-      
+
       if (expandedGroups.length !== 8) {
         return {
           isValid: false,
@@ -351,7 +352,7 @@ export function parseULA(ula: string): {
       }
 
       // Pad groups to 4 characters for consistent processing
-      const paddedGroups = expandedGroups.map(group => group.padStart(4, '0'));
+      const paddedGroups = expandedGroups.map((group) => group.padStart(4, '0'));
 
       const globalIDPart1 = paddedGroups[0].substring(2); // '00' from 'fd00'
       const globalIDPart2 = paddedGroups[1]; // '1234'
@@ -367,7 +368,7 @@ export function parseULA(ula: string): {
       const fourthGroupRemainder = paddedGroups[3].substring(2); // 'bc' from '9abc'
       const remainingGroups = paddedGroups.slice(4); // everything after 4th group
       const interfaceHexString = fourthGroupRemainder + remainingGroups.join('');
-      
+
       // Handle special cases for interface ID
       let interfaceID: string;
       if (cleanULA.includes('::')) {

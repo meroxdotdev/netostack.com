@@ -17,11 +17,11 @@
   }
 
   const dnsGenerators = extractNavItems(
-    (
+    ((
       SUB_NAV['/dns']?.find((section) => 'title' in section && section.title === 'Record Generators') as {
         items?: unknown[];
       }
-    )?.items as (NavItem | NavGroup)[] || [],
+    )?.items as (NavItem | NavGroup)[]) || [],
   );
 </script>
 

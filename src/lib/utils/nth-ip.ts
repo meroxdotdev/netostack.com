@@ -78,7 +78,7 @@ function expandIPv6(ip: string): string {
 function compressIPv6(ip: string): string {
   // Simple IPv6 compression - find longest sequence of consecutive zeros
   const groups = ip.split(':');
-  
+
   // Find longest sequence of '0' groups
   let longestStart = -1;
   let longestLength = 0;
@@ -138,7 +138,7 @@ function bigIntToIPv6(num: bigint): string {
   }
 
   const uncompressed = groups.join(':');
-  
+
   // Apply IPv6 compression using our normalize function
   try {
     const result = normalizeIPv6Addresses([uncompressed]);
@@ -148,7 +148,7 @@ function bigIntToIPv6(num: bigint): string {
   } catch {
     // Fallback to manual compression if normalize fails
   }
-  
+
   // Manual compression fallback
   return compressIPv6(uncompressed);
 }

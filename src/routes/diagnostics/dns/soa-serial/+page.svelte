@@ -205,9 +205,8 @@
       }
     ).serialAnalysis}
     {@const soaData = (results as { soa?: { mname?: string; rname?: string; ttl?: number } }).soa}
-    {@const timingData = (
-      results as { soa?: { refresh?: number; retry?: number; expire?: number; minimum?: number } }
-    ).soa}
+    {@const timingData = (results as { soa?: { refresh?: number; retry?: number; expire?: number; minimum?: number } })
+      .soa}
     <div class="card results-card">
       <div class="card-header row">
         <h3>SOA Analysis for {results.name}</h3>

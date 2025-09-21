@@ -36,7 +36,7 @@ function isValidIPv4(ip: string): boolean {
 function isValidIPv6(ip: string): boolean {
   // Check for triple colons (invalid)
   if (ip.includes(':::')) return false;
-  
+
   // Handle zone identifiers (e.g., fe80::1%eth0)
   let cleanIP = ip;
   if (ip.includes('%')) {
@@ -46,7 +46,7 @@ function isValidIPv6(ip: string): boolean {
     // Zone identifier part should not be empty
     if (!parts[1]) return false;
   }
-  
+
   // Basic IPv6 validation - handles compressed notation
   if (cleanIP.includes('::')) {
     const parts = cleanIP.split('::');

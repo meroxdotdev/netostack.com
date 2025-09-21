@@ -360,7 +360,9 @@
               <!-- Includes -->
               {#if results.expanded.includes.length > 0}
                 {@const spfIncludes = (
-                  results as { expanded: { includes: Array<{ domain: string; result: { record?: string; error?: string } }> } }
+                  results as {
+                    expanded: { includes: Array<{ domain: string; result: { record?: string; error?: string } }> };
+                  }
                 ).expanded}
                 <div class="includes-section">
                   <h5>Included SPF Policies</h5>

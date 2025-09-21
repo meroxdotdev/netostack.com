@@ -373,11 +373,7 @@ function createReverseZone(ip: string): string {
   }
 }
 
-async function parseSPFRecord(
-  domain: string,
-  visited = new Set<string>(),
-  lookupCount = { count: 0 },
-): Promise<any> {
+async function parseSPFRecord(domain: string, visited = new Set<string>(), lookupCount = { count: 0 }): Promise<any> {
   if (visited.has(domain) || lookupCount.count > 10) {
     return { error: 'SPF lookup limit exceeded or circular reference' };
   }
@@ -531,11 +527,7 @@ async function checkNSandSOA(domain: string): Promise<any> {
   }
 }
 
-async function checkDNSSECADFlag(
-  name: string,
-  type: keyof typeof DNS_TYPES,
-  opts: ResolverOpts = {},
-): Promise<any> {
+async function checkDNSSECADFlag(name: string, type: keyof typeof DNS_TYPES, opts: ResolverOpts = {}): Promise<any> {
   const { doh = 'cloudflare', timeoutMs = 3500 } = opts;
 
   try {
@@ -710,13 +702,7 @@ function formatDuration(seconds: number): string {
   return `${Math.floor(seconds / 86400)}d ${Math.floor((seconds % 86400) / 3600)}h`;
 }
 
-function getSOARecommendations(
-  refresh: number,
-  retry: number,
-  expire: number,
-  minimum: number,
-  ttl: number,
-): any[] {
+function getSOARecommendations(refresh: number, retry: number, expire: number, minimum: number, ttl: number): any[] {
   const recommendations = [];
 
   if (refresh < 3600) {

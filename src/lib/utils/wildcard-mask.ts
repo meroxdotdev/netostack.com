@@ -73,8 +73,7 @@ function isValidSubnetMask(mask: string): boolean {
 
     // Valid subnet mask has contiguous 1s followed by contiguous 0s
     // Special cases: 0.0.0.0 (all zeros) and 255.255.255.255 (all ones) are valid
-    if (maskBinary === '00000000000000000000000000000000' ||
-        maskBinary === '11111111111111111111111111111111') {
+    if (maskBinary === '00000000000000000000000000000000' || maskBinary === '11111111111111111111111111111111') {
       return true;
     }
 
@@ -113,8 +112,7 @@ function isValidWildcardMask(mask: string): boolean {
 
     // Valid wildcard mask has contiguous 0s followed by contiguous 1s
     // Special cases: 0.0.0.0 (all zeros) and 255.255.255.255 (all ones) are valid
-    if (maskBinary === '00000000000000000000000000000000' ||
-        maskBinary === '11111111111111111111111111111111') {
+    if (maskBinary === '00000000000000000000000000000000' || maskBinary === '11111111111111111111111111111111') {
       return true;
     }
 
