@@ -214,11 +214,6 @@ export function generateULAAddresses(count: number, subnetIds?: string[]): ULARe
   };
 }
 
-/* Validate hex characters in a string */
-function isValidHex(str: string): boolean {
-  return /^[0-9a-fA-F]*$/.test(str);
-}
-
 /* Parse ULA address and extract components */
 export function parseULA(ula: string): {
   isValid: boolean;

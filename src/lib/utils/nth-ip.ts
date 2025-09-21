@@ -1,4 +1,5 @@
 /* Nth IP Calculator Utilities */
+import { normalizeIPv6Addresses } from './ipv6-normalize';
 
 export interface NthIPCalculation {
   input: string;
@@ -140,13 +141,12 @@ function bigIntToIPv6(num: bigint): string {
   
   // Apply IPv6 compression using our normalize function
   try {
-    const { normalizeIPv6Addresses } = require('./ipv6-normalize');
     const result = normalizeIPv6Addresses([uncompressed]);
     if (result.normalizations[0]?.isValid) {
       return result.normalizations[0].normalized;
     }
   } catch {
-    // Fallback to manual compression if import fails
+    // Fallback to manual compression if normalize fails
   }
   
   // Manual compression fallback

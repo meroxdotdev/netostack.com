@@ -153,7 +153,6 @@ function expandIPv6(ip: string): string {
   const right = parts[1] ? parts[1].split(':') : [];
 
   // Handle IPv4-mapped addresses
-  let ipv4Groups = 0;
   const lastGroup = right[right.length - 1];
   if (lastGroup && lastGroup.includes('.')) {
     const ipv4Parts = lastGroup.split('.').map(Number);
@@ -161,7 +160,7 @@ function expandIPv6(ip: string): string {
     const low = ((ipv4Parts[2] << 8) | ipv4Parts[3]).toString(16).padStart(4, '0');
     right[right.length - 1] = high;
     right.push(low);
-    ipv4Groups = 1; // We added one extra group
+    // ipv4Groups = 1; // We added one extra group - removed as unused
   }
 
   const missing = 8 - left.length - right.length;
@@ -232,7 +231,7 @@ function normalizeIPv6(input: string): IPv6Normalization {
     }
 
     // Preserve original zone identifier case
-    const [originalIP, originalZone] = input.split('%');
+    const [_originalIP, originalZone] = input.split('%');
 
     // Step 1: Convert to lowercase (RFC 5952 Section 4.1) - but preserve zone case
     const [ipPart, zonePart] = current.split('%');

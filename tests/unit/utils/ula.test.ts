@@ -18,7 +18,7 @@ describe('ula', () => {
         }),
       };
 
-      Object.defineProperty(global, 'crypto', {
+      Object.defineProperty(globalThis, 'crypto', {
         value: mockCrypto,
         writable: true,
       });
@@ -224,7 +224,7 @@ describe('ula', () => {
     describe('Error handling', () => {
       it('should handle crypto API unavailability gracefully', () => {
         // Remove crypto mock to test fallback
-        delete (global as any).crypto;
+        delete (globalThis as any).crypto;
 
         const result = generateULAAddresses(1);
 

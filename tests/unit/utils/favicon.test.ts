@@ -17,31 +17,31 @@ describe('favicon', () => {
 
   beforeEach(() => {
     // Store original values
-    originalWindow = global.window;
-    originalDocument = global.document;
-    originalGetComputedStyle = global.getComputedStyle;
+    originalWindow = (globalThis as any).window;
+    originalDocument = (globalThis as any).document;
+    originalGetComputedStyle = (globalThis as any).getComputedStyle;
 
     // Set up DOM mocks
     const mockGetComputedStyle = vi.fn().mockReturnValue({
       getPropertyValue: vi.fn().mockReturnValue('#0066ff'),
     });
 
-    global.window = {
+    (globalThis as any).window = {
       getComputedStyle: mockGetComputedStyle,
-    } as any;
+    };
 
-    global.document = {
+    (globalThis as any).document = {
       documentElement: {},
-    } as any;
+    };
 
-    global.getComputedStyle = mockGetComputedStyle;
+    (globalThis as any).getComputedStyle = mockGetComputedStyle;
   });
 
   afterEach(() => {
     // Restore original values
-    global.window = originalWindow;
-    global.document = originalDocument;
-    global.getComputedStyle = originalGetComputedStyle;
+    (globalThis as any).window = originalWindow;
+    (globalThis as any).document = originalDocument;
+    (globalThis as any).getComputedStyle = originalGetComputedStyle;
     vi.clearAllMocks();
   });
 
@@ -64,7 +64,7 @@ describe('favicon', () => {
 
   describe('getPrimaryColor', () => {
     it('should return fallback color when window is undefined', () => {
-      global.window = undefined as any;
+      (globalThis as any).window = undefined;
       const result = getPrimaryColor();
       expect(result).toBe('#e3ed70');
     });
@@ -74,7 +74,7 @@ describe('favicon', () => {
         getPropertyValue: vi.fn().mockReturnValue('  #ff0000  '),
       });
 
-      Object.defineProperty(global, 'getComputedStyle', {
+      Object.defineProperty(globalThis, 'getComputedStyle', {
         value: mockGetComputedStyle,
         writable: true,
       });
@@ -89,7 +89,7 @@ describe('favicon', () => {
         getPropertyValue: vi.fn().mockReturnValue(''),
       });
 
-      Object.defineProperty(global, 'getComputedStyle', {
+      Object.defineProperty(globalThis, 'getComputedStyle', {
         value: mockGetComputedStyle,
         writable: true,
       });
@@ -103,7 +103,7 @@ describe('favicon', () => {
         getPropertyValue: vi.fn().mockReturnValue('  #00ff00  '),
       });
 
-      Object.defineProperty(global, 'getComputedStyle', {
+      Object.defineProperty(globalThis, 'getComputedStyle', {
         value: mockGetComputedStyle,
         writable: true,
       });
@@ -119,7 +119,7 @@ describe('favicon', () => {
         getPropertyValue: vi.fn().mockReturnValue('#0066ff'),
       });
 
-      Object.defineProperty(global, 'getComputedStyle', {
+      Object.defineProperty(globalThis, 'getComputedStyle', {
         value: mockGetComputedStyle,
         writable: true,
       });
