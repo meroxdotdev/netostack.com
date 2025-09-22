@@ -40,15 +40,31 @@
 </header>
 
 <style lang="scss">
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0; // Allow flex children to shrink
+  }
+
+  .logo {
+    min-width: 15rem;
+    flex-shrink: 0; // Prevent logo from shrinking
+  }
+
   .header-actions {
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
+    min-width: 0;
+    flex: 1;
+    justify-content: end;
   }
 
   .header-buttons {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
+    flex-shrink: 0; // Always keep buttons visible
   }
 </style>

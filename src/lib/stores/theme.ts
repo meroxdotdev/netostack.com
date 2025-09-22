@@ -43,7 +43,7 @@ function applyThemeClasses(theme: ThemeOption) {
   if (!browser) return;
 
   // Remove all existing theme classes
-  const allThemeClasses = themes.map(t => `theme-${t.id}`);
+  const allThemeClasses = themes.map((t) => `theme-${t.id}`);
   document.documentElement.classList.remove(...allThemeClasses);
 
   // Add the current theme class (except for default 'dark' theme)
@@ -52,7 +52,7 @@ function applyThemeClasses(theme: ThemeOption) {
   }
 
   // Load custom font if the theme has one
-  const themeConfig = themes.find(t => t.id === theme);
+  const themeConfig = themes.find((t) => t.id === theme);
   if (themeConfig?.font) {
     loadCustomFont(themeConfig.font);
   }
@@ -63,7 +63,7 @@ export const themes: Theme[] = [
   {
     id: 'light',
     name: 'Light',
-    available: true, 
+    available: true,
   },
   {
     id: 'dark',
@@ -77,8 +77,8 @@ export const themes: Theme[] = [
     font: {
       name: 'Inter',
       url: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
-      fallback: 'sans-serif'
-    }
+      fallback: 'sans-serif',
+    },
   },
   {
     id: 'purple',
@@ -86,9 +86,9 @@ export const themes: Theme[] = [
     available: true,
     font: {
       name: 'Poppins',
-      url: 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap',
-      fallback: 'sans'
-    }
+      url: 'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap',
+      fallback: 'sans',
+    },
   },
 ];
 
@@ -102,7 +102,7 @@ function createThemeStore() {
     init: () => {
       if (browser) {
         const saved = localStorage.getItem(STORAGE_KEY);
-        const isValidTheme = themes.some(t => t.id === saved && t.available);
+        const isValidTheme = themes.some((t) => t.id === saved && t.available);
         const initialTheme = isValidTheme ? (saved as ThemeOption) : 'dark';
 
         set(initialTheme);

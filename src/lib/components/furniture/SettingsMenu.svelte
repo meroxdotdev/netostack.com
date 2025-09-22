@@ -6,6 +6,7 @@
   import { tooltip } from '$lib/actions/tooltip';
   import { browser } from '$app/environment';
   import { theme, themes, type ThemeOption } from '$lib/stores/theme';
+  import { navbarDisplay, navbarDisplayOptions, type NavbarDisplayMode } from '$lib/stores/navbarDisplay';
   import { site } from '$lib/constants/site';
 
   interface Props {
@@ -20,6 +21,7 @@
   let triggerRef = $state<HTMLButtonElement>();
   let accessibilitySettings = $state(accessibility);
   let currentTheme = $state(theme);
+  let currentNavbarDisplay = $state(navbarDisplay);
 
   // Shortcut key detection
   const isMac = browser && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
@@ -42,6 +44,12 @@
   // Handle accessibility setting toggle
   function handleAccessibilityToggle(optionId: string) {
     accessibility.toggle(optionId);
+  }
+
+  // Handle navbar display mode change
+  function handleNavbarDisplayChange(event: Event) {
+    const target = event.currentTarget as HTMLSelectElement;
+    navbarDisplay.setMode(target.value as NavbarDisplayMode);
   }
 
   // Primary accessibility options (always visible)
@@ -97,6 +105,7 @@
     // Initialize stores
     accessibility.init();
     theme.init();
+    navbarDisplay.init();
 
     return () => {
       document.removeEventListener('click', handleClickOutside);
@@ -179,6 +188,24 @@
             </button>
           {/each}
         </div>
+      </div>
+
+      <!-- Navbar Display -->
+      <div class="settings-section">
+        <h3>Top Navigation</h3>
+        <div class="navbar-select-wrapper">
+          <select class="navbar-select" value={$currentNavbarDisplay} onchange={handleNavbarDisplayChange}>
+            {#each navbarDisplayOptions as option (option.id)}
+              <option value={option.id}>{option.name}</option>
+            {/each}
+          </select>
+          <div class="dropdown-icon">
+            <Icon name="chevron-down" size="xs" />
+          </div>
+        </div>
+        <small class="navbar-description">
+          {navbarDisplayOptions.find((opt) => opt.id === $currentNavbarDisplay)?.description}
+        </small>
       </div>
 
       <!-- Accessibility Options -->
@@ -390,6 +417,82 @@
       opacity: 0.6;
       cursor: not-allowed;
     }
+  }
+
+  .navbar-select-wrapper {
+    position: relative;
+    display: block;
+
+    .dropdown-icon {
+      position: absolute;
+      right: var(--spacing-sm);
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+      width: 0.75rem;
+      height: 0.75rem;
+      z-index: 1;
+    }
+  }
+
+  .navbar-select {
+    width: 100%;
+    padding: var(--spacing-sm) 2rem var(--spacing-sm) var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    appearance: none;
+    position: relative;
+
+    &:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-secondary);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary), transparent 85%);
+    }
+
+    &:focus ~ .dropdown-icon {
+      color: var(--color-primary);
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    &:hover ~ .dropdown-icon {
+      color: var(--text-primary);
+    }
+
+    // Try to customize option colors (browser support varies)
+    option {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      padding: var(--spacing-sm);
+
+      &:hover {
+        background: var(--surface-hover);
+      }
+
+      &:checked {
+        background: color-mix(in srgb, var(--color-primary), transparent 90%);
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .navbar-description {
+    color: var(--text-tertiary);
+    font-size: var(--font-size-xs);
+    line-height: 1.3;
+    margin-top: var(--spacing-xs);
+    display: block;
   }
 
   .accessibility-options {

@@ -2,6 +2,10 @@
   import { page } from '$app/stores';
   import { TOP_NAV, SUB_NAV, isActive, type NavItem, type NavGroup } from '$lib/constants/nav';
   import Icon from '$lib/components/global/Icon.svelte';
+  import { navbarDisplay } from '$lib/stores/navbarDisplay';
+  import { bookmarks } from '$lib/stores/bookmarks';
+  import { frequentlyUsedTools, toolUsage } from '$lib/stores/toolUsage';
+  import { onMount } from 'svelte';
 
   $: currentPath = $page.url.pathname;
 
@@ -48,7 +52,8 @@
   }
 
   function hasSubPages(href: string): boolean {
-    return href in SUB_NAV;
+    // Only show dropdowns for default mode
+    return $navbarDisplay === 'default' && href in SUB_NAV;
   }
 
   function getSubPages(href: string): (NavItem | NavGroup)[] {
@@ -66,10 +71,56 @@
   function isNavGroup(item: NavItem | NavGroup): item is NavGroup {
     return 'title' in item && 'items' in item;
   }
+
+  // Check if current mode has dropdowns (only default mode has dropdowns)
+  $: hasDropdowns = $navbarDisplay === 'default';
+
+  // Reactive navigation items based on current display mode and store changes
+  $: navigationItems = (() => {
+    let items: NavItem[];
+
+    switch ($navbarDisplay) {
+      case 'bookmarked':
+        items = $bookmarks.map((bookmark) => ({
+          href: bookmark.href,
+          label: bookmark.label,
+          icon: bookmark.icon,
+          description: bookmark.description,
+        }));
+        break;
+
+      case 'frequent':
+        items = $frequentlyUsedTools.slice(0, 8).map(tool => ({
+          href: tool.href,
+          label: tool.label || 'Untitled Tool',
+          icon: tool.icon,
+          description: tool.description
+        }));
+        break;
+
+      case 'none':
+        items = [];
+        break;
+
+      case 'default':
+      default:
+        items = TOP_NAV;
+        break;
+    }
+
+    // Reverse array so items overflow from left but appear in correct visual order
+    return items.reverse();
+  })();
+
+  onMount(() => {
+    navbarDisplay.init();
+    bookmarks.init();
+    toolUsage.init();
+  });
 </script>
 
-<nav class="top-nav" aria-label="Primary navigation">
-  {#each TOP_NAV as item (item.href)}
+<nav class="top-nav" class:has-dropdowns={hasDropdowns} aria-label="Primary navigation">
+  {#each navigationItems as item (item.href)}
     <div
       class="nav-item"
       class:has-dropdown={hasSubPages(item.href)}
@@ -84,7 +135,7 @@
         aria-expanded={activeDropdown === item.href}
         aria-haspopup={hasSubPages(item.href)}
       >
-        {item.label}
+        <span class="nav-text">{item.label}</span>
         {#if hasSubPages(item.href)}
           <svg class="dropdown-icon" width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path
@@ -195,10 +246,25 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-end;
+
+    // Default: Hide horizontal overflow (for bookmarked/frequent modes)
+    overflow-x: hidden;
+    overflow-y: visible;
+
+    // When has dropdowns (default mode): Allow overflow for dropdowns
+    &.has-dropdowns {
+      overflow: visible;
+    }
   }
 
   .nav-item {
     position: relative;
+    max-width: 12rem;
+    min-width: 0;
+    flex-shrink: 0;
   }
 
   .nav-link {
@@ -211,8 +277,20 @@
     text-decoration: none;
     border-radius: var(--radius-md);
     transition: all 0.2s ease;
+    width: 100%;
+    min-width: 0;
+
+    .nav-text {
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
     .dropdown-icon {
       opacity: 0.4;
+      flex-shrink: 0;
     }
 
     &:hover {
@@ -388,7 +466,6 @@
   .secondary-dropdown {
     position: absolute;
     top: 0;
-    left: calc(100% + 0.5rem);
     min-width: 18rem;
     max-width: 28rem;
     background: var(--bg-secondary);
@@ -397,15 +474,37 @@
     box-shadow: var(--shadow-lg);
     z-index: 6;
     animation: secondary-enter 0.15s ease-out;
-    transform-origin: left center;
     pointer-events: auto;
     white-space: normal;
+
+    // Smart positioning: try right first, auto-fallback to left
+    left: calc(100% + 0.5rem);
+    transform-origin: left center;
+
+    // Auto-position to left when overflowing viewport
+    @media (max-width: 1200px) {
+      right: calc(100% + 0.5rem);
+      left: auto;
+      transform-origin: right center;
+      animation: secondary-enter-left 0.15s ease-out;
+    }
   }
 
   @keyframes secondary-enter {
     from {
       opacity: 0;
       transform: scale(0.95) translateX(-0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateX(0);
+    }
+  }
+
+  @keyframes secondary-enter-left {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateX(0.5rem);
     }
     to {
       opacity: 1;

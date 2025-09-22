@@ -140,7 +140,7 @@ function createAccessibilityStore() {
         set({ options });
 
         // Load dyslexic font if it's enabled
-        if (options.some(opt => opt.id === 'dyslexia-font' && opt.enabled)) {
+        if (options.some((opt) => opt.id === 'dyslexia-font' && opt.enabled)) {
           loadDyslexicFont();
         }
       }
@@ -159,7 +159,7 @@ function createAccessibilityStore() {
 
           // Load dyslexic font if dyslexia-font option was just enabled
           if (optionId === 'dyslexia-font') {
-            const isEnabled = newOptions.find(opt => opt.id === 'dyslexia-font')?.enabled;
+            const isEnabled = newOptions.find((opt) => opt.id === 'dyslexia-font')?.enabled;
             if (isEnabled) {
               loadDyslexicFont();
             }

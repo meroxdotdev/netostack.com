@@ -106,16 +106,38 @@
     flex-direction: column;
     gap: var(--spacing-sm);
     padding: var(--spacing-lg);
-    background: linear-gradient(225deg, var(--bg-secondary), color-mix(in srgb, var(--bg-secondary), var(--bg-tertiary) 70%));
+    background: linear-gradient(
+      225deg,
+      var(--bg-secondary),
+      color-mix(in srgb, var(--bg-secondary), var(--bg-tertiary) 70%)
+    );
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-lg);
     text-decoration: none;
     color: inherit;
-    transition: all var(--transition-fast), background 0.5s ease-in-out;
+    transition: all var(--transition-fast);
     position: relative;
     height: 100%;
     min-width: 0;
     overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        180deg,
+        var(--bg-secondary),
+        color-mix(in srgb, var(--bg-secondary), var(--bg-tertiary) 85%)
+      );
+      opacity: 0;
+      transition: opacity var(--transition-slow);
+      border-radius: inherit;
+      z-index: 0;
+    }
 
     .card-header {
       display: flex;
@@ -214,17 +236,13 @@
     }
 
     &:hover {
-      // border-color: var(--color-primary);
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
-      background: linear-gradient(
-        180deg,
-        var(--bg-secondary),
-        color-mix(in srgb, var(--bg-secondary), var(--bg-tertiary) 85%)
-      );
+
       &::before {
         opacity: 1;
       }
+
       .tool-arrow {
         transform: translateX(4px);
         color: var(--color-primary);

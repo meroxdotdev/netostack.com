@@ -62,10 +62,10 @@
       .slice(0, 8);
   }
 
-  const showSearch = () => {
+  export function showSearch() {
     isOpen = true;
     setTimeout(() => searchInput?.focus(), 0);
-  };
+  }
 
   function close() {
     isOpen = false;
