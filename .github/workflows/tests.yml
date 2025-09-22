@@ -11,73 +11,208 @@ concurrency:
 
 permissions:
   contents: read
+  id-token: write  # For OIDC with Codecov
+  checks: write    # For test reporting
 
 jobs:
-  tests:
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        kind: [unit, e2e]
-
     env:
       NODE_OPTIONS: "--max_old_space_size=8192"
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - run: npm ci
 
-      - name: Install deps
-        run: npm ci
+      - name: Run unit tests
+        id: test
+        run: |
+          npx vitest run \
+            --reporter=github-actions \
+            --reporter=verbose \
+            --reporter=junit \
+            --outputFile=test-results.xml
+        continue-on-error: true
 
-      # --- Unit (Vitest) ---
-      - name: Run unit tests (Vitest + coverage)
-        if: matrix.kind == 'unit'
-        run: npm run test:coverage
-      - name: Upload unit coverage
-        if: matrix.kind == 'unit' && (success() || failure())
+      - name: Save test result
+        if: always()
+        run: echo "${{ steps.test.outcome }}" > test-result-unit.txt
+
+      - name: Upload test result
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-unit
-          path: coverage
-          if-no-files-found: ignore
+          name: test-result-unit
+          path: test-result-unit.txt
 
-      # --- E2E (Playwright) ---
-      - name: Install Playwright browsers
-        if: matrix.kind == 'e2e'
-        run: npx playwright install --with-deps
-      - name: Run e2e tests (Playwright)
-        if: matrix.kind == 'e2e'
-        run: npm run test:e2e -- --reporter=junit,html
-      - name: Upload e2e reports
-        if: matrix.kind == 'e2e' && (success() || failure())
+      - name: Upload coverage to Codecov
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: ip-calc
+          fail_ci_if_error: false
+        continue-on-error: true
+
+      - name: Unit Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit Tests
+          path: test-results.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      - name: Fail if tests failed
+        if: steps.test.outcome == 'failure'
+        run: exit 1
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--max_old_space_size=8192"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(npx playwright --version | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright deps only
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run e2e tests
+        id: test
+        run:  npx playwright test
+        continue-on-error: true
+
+      - name: Save test result
+        if: always()
+        run: echo "${{ steps.test.outcome }}" > test-result-e2e.txt
+
+      - name: Upload test result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-result-e2e
+          path: test-result-e2e.txt
+
+      - name: E2E Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: E2E Tests
+          path: e2e-results.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload e2e artifacts
+        if: always() && steps.test.outcome != 'success'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: |
             playwright-report
             test-results
-          if-no-files-found: ignore
+
+      - name: Fail if tests failed
+        if: steps.test.outcome == 'failure'
+        run: exit 1
 
   summary:
     name: Summary
     runs-on: ubuntu-latest
     if: always()
-    needs: [tests]
+    needs: [unit-tests, e2e-tests]
     steps:
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-result-*
+          merge-multiple: true
+
       - name: Write summary
         env:
-          TESTS: ${{ needs.tests.result }} # success | failure | cancelled
+          UNIT_JOB: ${{ needs.unit-tests.result }}
+          E2E_JOB: ${{ needs.e2e-tests.result }}
         run: |
+          # Read actual test results from artifacts (or use job result as fallback)
+          UNIT=$(cat test-result-unit.txt 2>/dev/null || echo "$UNIT_JOB")
+          E2E=$(cat test-result-e2e.txt 2>/dev/null || echo "$E2E_JOB")
+
           em() { case "$1" in success) echo "✅";; failure) echo "❌";; cancelled|skipped) echo "⏭️";; *) echo "❔";; esac; }
-          verb() { [ "$1" = "success" ] && echo "Passing" || { [ "$1" = "cancelled" ] && echo "Skipped" || echo "Failing"; }; }
+          line() { r="$1"; n="$2"; cmd="$3"; s="Passing"; [ "$r" = "failure" ] && s="**Failing** - run \`$cmd\`"; [ "$r" = "skipped" ] && s="Skipped"; echo "- $(em "$r") $n: $s"; }
+
+          # Count test results for chart
+          passing=0; failing=0; skipped=0; unknown=0
+          for result in "$UNIT" "$E2E"; do
+            case "$result" in
+              success) passing=$((passing + 1)) ;;
+              failure) failing=$((failing + 1)) ;;
+              skipped) skipped=$((skipped + 1)) ;;
+              *) unknown=$((unknown + 1)) ;;
+            esac
+          done
+
+          # Calculate percentages for chart
+          total=$((passing + failing + skipped + unknown))
+          [ "$total" -eq 0 ] && total=1  # Avoid division by zero
+          pass_pct=$((passing * 100 / total))
+          fail_pct=$((failing * 100 / total))
+          skip_pct=$((skipped * 100 / total))
+          unkn_pct=$((unknown * 100 / total))
+
+          # Create QuickChart URL (simple URL encoding)
+          chart_config="{\"type\":\"pie\",\"data\":{\"labels\":[\"Passing\",\"Failing\",\"Skipped\",\"Unknown\"],\"datasets\":[{\"data\":[$pass_pct,$fail_pct,$skip_pct,$unkn_pct],\"backgroundColor\":[\"#50fa7b\",\"#ff5555\",\"#8be9fd\",\"#808080\"]}]},\"options\":{\"plugins\":{\"legend\":{\"position\":\"bottom\"}}}}"
+          # Simple URL encoding for the chart config
+          encoded_config=$(echo "$chart_config" | sed 's/ /%20/g; s/{/%7B/g; s/}/%7D/g; s/\[/%5B/g; s/\]/%5D/g; s/"/%22/g; s/:/%3A/g; s/,/%2C/g; s/#/%23/g')
+          chart_url="https://quickchart.io/chart?v=2.9.4&w=300&h=200&c=$encoded_config"
+
           {
-            echo "## Test Summary"
-            echo "- $(em "$TESTS") Tests - $(verb "$TESTS")"
+            echo "## 🧪 Test Results"
             echo ""
-            echo "_See job logs and artifacts for details (coverage & Playwright reports)._"
+            echo "![Test Results Chart]($chart_url)"
+            echo ""
+            line "$UNIT" "Unit Tests" "npm run test:coverage"
+            line "$E2E" "E2E Tests" "npm run test:e2e"
+
+            if [ "$failing" -eq 0 ]; then
+              echo -e "\n🎉 **All test suites passed!**"
+              [ "$passing" -gt 0 ] && echo "📈 Coverage report may be available in [Codecov](https://codecov.io)"
+            else
+              echo -e "\n⚠️ **$failing of $total test suite(s) failed**"
+              echo "📊 Check artifacts for detailed test reports"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"

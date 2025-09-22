@@ -16,12 +16,12 @@ test.describe('Core calculation accuracy', () => {
     // Verify input fields are present
     await expect(page.locator('input').first()).toBeVisible();
 
-    // Input a test value
+    // Input a test value (CIDR notation required)
     const firstInput = page.locator('input').first();
-    await firstInput.fill('192.168.1.100');
+    await firstInput.fill('192.168.1.0/24');
 
     // Verify input was accepted
-    await expect(firstInput).toHaveValue('192.168.1.100');
+    await expect(firstInput).toHaveValue('192.168.1.0/24');
   });
 
   test('CIDR to subnet mask converter works', async ({ page }) => {
@@ -97,7 +97,7 @@ test.describe('Core calculation accuracy', () => {
     // Wait for page to load
     await expect(page.locator('body')).toBeVisible();
 
-    // Check for content
-    await expect(page.locator('p, ul, ol, table').first()).toBeVisible();
+    // Check for content in the main area (not header)
+    await expect(page.locator('main p, main ul, main ol, main table, .content p, .content ul, .content ol, .content table').first()).toBeVisible();
   });
 });

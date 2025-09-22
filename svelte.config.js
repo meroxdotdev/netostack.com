@@ -34,7 +34,6 @@ function getAdapter() {
 			case 'auto':
 				return adapterAuto();
 			default:
-				console.warn(`Unknown DEPLOY_ENV: '${deployEnv}', falling back to auto adapter`);
 				return adapterAuto();
 		}
 	}
@@ -60,7 +59,6 @@ function getAdapter() {
 	} else if (isStatic) {
 		return adapterStatic();
 	}
-	console.log('No specific deployment environment detected, using auto adapter');
 	return adapterAuto();
 }
 

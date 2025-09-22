@@ -90,11 +90,11 @@
         break;
 
       case 'frequent':
-        items = $frequentlyUsedTools.slice(0, 8).map(tool => ({
+        items = $frequentlyUsedTools.slice(0, 8).map((tool) => ({
           href: tool.href,
           label: tool.label || 'Untitled Tool',
           icon: tool.icon,
-          description: tool.description
+          description: tool.description,
         }));
         break;
 

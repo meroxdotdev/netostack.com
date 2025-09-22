@@ -20,18 +20,17 @@ jobs:
       - run: npm ci
       - run: npm run build-check
 
-  # TODO: Fix linting issues, and then re-enable this job.
-  # lint:
-  #   name: 🧼 Lint
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 22
-  #         cache: npm
-  #     - run: npm ci
-  #     - run: npm run lint
+  lint:
+    name: 🧼 Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
 
   format:
     name: 💅 Format
@@ -43,7 +42,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run format
+      - run: npx prettier --check src || (echo "⚠️ Formatting issues found" && exit 1)
 
   types:
     name: 🧩 Types
@@ -69,8 +68,8 @@ jobs:
       - run: npm ci
       - run: npm run check
 
-  deps_lockfile:
-    name: ⛓️‍💥 Deps • Lockfile integrity
+  test:
+    name: 🧪 Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -79,9 +78,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm test
 
-  deps_audit:
-    name: 🔐 Deps • Audit (high+)
+  deps:
+    name: 🔒 Dependencies
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -89,19 +89,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci --ignore-scripts
+      - run: npm ci
       - run: npm audit --audit-level=high
-
-  deps_health:
-    name: 🩺 Deps • Peer/health
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci --ignore-scripts
       - run: npm ls --all
 
   summarize:
@@ -110,36 +99,40 @@ jobs:
     if: always()
     needs:
       - build
-      # - lint
+      - lint
       - format
       - types
       - svelte_check
-      - deps_lockfile
-      - deps_audit
-      - deps_health
+      - test
+      - deps
     steps:
       - name: Create summary
         env:
           BUILD: ${{ needs.build.result }}
-          # LINT: ${{ needs.lint.result }}
+          LINT: ${{ needs.lint.result }}
           FORMAT: ${{ needs.format.result }}
           TYPES: ${{ needs.types.result }}
           SVCHK: ${{ needs.svelte_check.result }}
-          DEP_LOCK: ${{ needs.deps_lockfile.result }}
-          DEP_AUDIT: ${{ needs.deps_audit.result }}
-          DEP_HEALTH: ${{ needs.deps_health.result }}
+          TEST: ${{ needs.test.result }}
+          DEPS: ${{ needs.deps.result }}
         run: |
           em() { case "$1" in success) echo "✅";; failure) echo "❌";; cancelled|skipped) echo "⏭️";; *) echo "❔";; esac; }
-          line() { r="$1"; n="$2"; s="Failing"; [ "$r" = "success" ] && s="Passing"; echo "- $(em "$r") $n - $s"; }
+          line() { r="$1"; n="$2"; cmd="$3"; s="Passing"; [ "$r" != "success" ] && s="**Failing** - run \`$cmd\`"; echo "- $(em "$r") $n: $s"; }
 
           {
-            echo "## PR Checks"
-            line "$BUILD" "Build"
-            line "$LINT" "Lint"
-            line "$FORMAT" "Format"
-            line "$TYPES" "Types"
-            line "$SVCHK" "Svelte Check"
-            line "$DEP_LOCK" "Deps - Lockfile"
-            line "$DEP_AUDIT" "Deps - Audit"
-            line "$DEP_HEALTH" "Deps - Health"
+            echo "## Check Summary"
+            line "$BUILD" "Build" "npm run build"
+            line "$LINT" "Lint" "npm run lint"
+            line "$FORMAT" "Format" "npm run format"
+            line "$TYPES" "Types" "npm run types"
+            line "$SVCHK" "Svelte Check" "npm run check"
+            line "$TEST" "Tests" "npm test"
+            line "$DEPS" "Dependencies" "npm audit --audit-level=high"
+
+            failed_count=$(echo "$BUILD $LINT $FORMAT $TYPES $SVCHK $TEST $DEPS" | tr ' ' '\n' | grep -c failure || echo "0")
+            if [ "$failed_count" -eq 0 ]; then
+              echo -e "\n🎉 **All checks passed!**"
+            else
+              echo -e "\n⚠️ **$failed_count check(s) failed** - please fix the issues above before merging."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
