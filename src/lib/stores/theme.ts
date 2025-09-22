@@ -1,23 +1,69 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-export type ThemeOption = 'light' | 'dark' | 'ocean';
+export type ThemeOption = string;
 
 export interface Theme {
   id: ThemeOption;
   name: string;
   available: boolean;
   preview?: string;
+  font?: {
+    name: string;
+    url: string;
+    fallback?: string;
+  };
 }
 
 const STORAGE_KEY = 'theme';
+
+// Track loaded fonts to avoid duplicates
+const loadedFonts = new Set<string>();
+
+// Helper function to load custom fonts
+function loadCustomFont(fontConfig: { name: string; url: string; fallback?: string }) {
+  if (!browser || loadedFonts.has(fontConfig.url)) return;
+
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = fontConfig.url;
+  link.crossOrigin = 'anonymous';
+
+  // Add fallback handling
+  link.onerror = () => {
+    console.warn(`Failed to load font from ${fontConfig.url}`);
+  };
+
+  document.head.appendChild(link);
+  loadedFonts.add(fontConfig.url);
+}
+
+// Helper function to apply theme classes and load fonts
+function applyThemeClasses(theme: ThemeOption) {
+  if (!browser) return;
+
+  // Remove all existing theme classes
+  const allThemeClasses = themes.map(t => `theme-${t.id}`);
+  document.documentElement.classList.remove(...allThemeClasses);
+
+  // Add the current theme class (except for default 'dark' theme)
+  if (theme !== 'dark') {
+    document.documentElement.classList.add(`theme-${theme}`);
+  }
+
+  // Load custom font if the theme has one
+  const themeConfig = themes.find(t => t.id === theme);
+  if (themeConfig?.font) {
+    loadCustomFont(themeConfig.font);
+  }
+}
 
 // Available themes configuration
 export const themes: Theme[] = [
   {
     id: 'light',
     name: 'Light',
-    available: true,
+    available: true, 
   },
   {
     id: 'dark',
@@ -28,6 +74,21 @@ export const themes: Theme[] = [
     id: 'ocean',
     name: 'Ocean',
     available: true,
+    font: {
+      name: 'Inter',
+      url: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+      fallback: 'sans-serif'
+    }
+  },
+  {
+    id: 'purple',
+    name: 'Purple',
+    available: true,
+    font: {
+      name: 'Poppins',
+      url: 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap',
+      fallback: 'sans'
+    }
   },
 ];
 
@@ -41,21 +102,13 @@ function createThemeStore() {
     init: () => {
       if (browser) {
         const saved = localStorage.getItem(STORAGE_KEY);
-        const initialTheme =
-          saved === 'light' || saved === 'dark' || saved === 'ocean' ? (saved as ThemeOption) : 'dark';
+        const isValidTheme = themes.some(t => t.id === saved && t.available);
+        const initialTheme = isValidTheme ? (saved as ThemeOption) : 'dark';
 
         set(initialTheme);
 
         // Apply theme to document
-        if (initialTheme === 'light') {
-          document.documentElement.classList.add('theme-light');
-          document.documentElement.classList.remove('theme-dark', 'theme-ocean');
-        } else if (initialTheme === 'ocean') {
-          document.documentElement.classList.add('theme-ocean');
-          document.documentElement.classList.remove('theme-light', 'theme-dark');
-        } else {
-          document.documentElement.classList.remove('theme-light', 'theme-ocean');
-        }
+        applyThemeClasses(initialTheme);
 
         return initialTheme;
       }
@@ -77,16 +130,7 @@ function createThemeStore() {
         localStorage.setItem(STORAGE_KEY, theme);
 
         // Apply theme classes to document
-        if (theme === 'light') {
-          document.documentElement.classList.add('theme-light');
-          document.documentElement.classList.remove('theme-dark', 'theme-ocean');
-        } else if (theme === 'ocean') {
-          document.documentElement.classList.add('theme-ocean');
-          document.documentElement.classList.remove('theme-light', 'theme-dark');
-        } else {
-          // Default to dark
-          document.documentElement.classList.remove('theme-light', 'theme-ocean');
-        }
+        applyThemeClasses(theme);
       }
     },
 
@@ -98,12 +142,7 @@ function createThemeStore() {
         if (browser) {
           localStorage.setItem(STORAGE_KEY, newTheme);
 
-          if (newTheme === 'light') {
-            document.documentElement.classList.add('theme-light');
-            document.documentElement.classList.remove('theme-dark');
-          } else {
-            document.documentElement.classList.remove('theme-light');
-          }
+          applyThemeClasses(newTheme);
         }
 
         return newTheme;

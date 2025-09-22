@@ -106,15 +106,16 @@
     flex-direction: column;
     gap: var(--spacing-sm);
     padding: var(--spacing-lg);
-    background-color: var(--bg-secondary);
+    background: linear-gradient(225deg, var(--bg-secondary), color-mix(in srgb, var(--bg-secondary), var(--bg-tertiary) 70%));
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-lg);
     text-decoration: none;
     color: inherit;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast), background 0.5s ease-in-out;
     position: relative;
     height: 100%;
     min-width: 0;
+    overflow: hidden;
 
     .card-header {
       display: flex;
@@ -122,6 +123,7 @@
       justify-content: space-between;
       gap: var(--spacing-sm);
       margin: 0 0 var(--spacing-xs) 0;
+      z-index: 1;
 
       h3 {
         font-size: var(--font-size-lg);
@@ -203,6 +205,8 @@
       align-items: flex-start;
       gap: 1rem;
       min-width: 0;
+      position: relative;
+      z-index: 1;
     }
 
     .tool-content {
@@ -210,11 +214,17 @@
     }
 
     &:hover {
-      background-color: var(--surface-hover);
-      border-color: var(--color-primary);
+      // border-color: var(--color-primary);
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
-
+      background: linear-gradient(
+        180deg,
+        var(--bg-secondary),
+        color-mix(in srgb, var(--bg-secondary), var(--bg-tertiary) 85%)
+      );
+      &::before {
+        opacity: 1;
+      }
       .tool-arrow {
         transform: translateX(4px);
         color: var(--color-primary);
@@ -228,7 +238,10 @@
         var(--shadow-lg),
         0 0 0 4px color-mix(in srgb, var(--color-primary), transparent 85%);
       border-color: var(--color-primary);
-      background-color: var(--surface-hover);
+
+      &::before {
+        opacity: 0.5;
+      }
     }
 
     @media (max-width: 768px) {
@@ -246,6 +259,7 @@
       border-radius: var(--radius-lg);
       color: var(--bg-secondary);
       flex-shrink: 0;
+      transition: all 0.5s ease;
     }
 
     .tool-content {

@@ -54,7 +54,9 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
 
-  /* Font */
+  /* Font categories */
+  --font-body: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+  --font-heading: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
   --font-mono: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
   --font-size-2xs: 0.6rem;
   --font-size-xs: 0.75rem;
@@ -80,9 +82,25 @@ html[data-theme='ocean'] {
   --bg-secondary: #212c3d;
   --bg-tertiary: #151e2f;
   --text-secondary: #a0a7b0;
-
   --surface-hover: #2b384b;
   --border-primary: #30405b;
+  --font-heading: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+.theme-purple,
+html[data-theme='purple'] {
+  --color-primary: #cca6ff;
+  --color-primary-hover: #d4b6fd;
+  --color-primary-dark: #8d67c0;
+  --bg-primary: #13182b;
+  --bg-secondary: #101b31;
+  --bg-tertiary: #222e45;
+  --text-secondary: #a0a7b0;
+  --surface-hover: #2b384b;
+  --border-primary: #30405b;
+  --font-body: 'Poppins', sans-serif;
+  --font-heading: 'Poppins', sans-serif;
 }
 
 /* Light theme */

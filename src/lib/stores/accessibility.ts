@@ -86,6 +86,23 @@ const DEFAULT_OPTIONS: AccessibilityOption[] = [
   },
 ];
 
+// Font loading state tracking
+let dyslexicFontLoaded = false;
+
+function loadDyslexicFont() {
+  if (dyslexicFontLoaded) return;
+
+  // Create a link element to load the font
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.cdnfonts.com/css/opendyslexic';
+  link.crossOrigin = 'anonymous';
+
+  // Add to document head
+  document.head.appendChild(link);
+  dyslexicFontLoaded = true;
+}
+
 function createAccessibilityStore() {
   const { subscribe, set, update } = writable<AccessibilitySettings>({
     options: DEFAULT_OPTIONS,
@@ -121,6 +138,11 @@ function createAccessibilityStore() {
         });
 
         set({ options });
+
+        // Load dyslexic font if it's enabled
+        if (options.some(opt => opt.id === 'dyslexia-font' && opt.enabled)) {
+          loadDyslexicFont();
+        }
       }
     },
 
@@ -134,6 +156,14 @@ function createAccessibilityStore() {
 
         if (browser) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
+
+          // Load dyslexic font if dyslexia-font option was just enabled
+          if (optionId === 'dyslexia-font') {
+            const isEnabled = newOptions.find(opt => opt.id === 'dyslexia-font')?.enabled;
+            if (isEnabled) {
+              loadDyslexicFont();
+            }
+          }
         }
 
         return newSettings;

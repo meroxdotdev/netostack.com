@@ -342,17 +342,18 @@
     height: 1rem;
     border-radius: var(--radius-xs);
     border: 1px solid var(--border-secondary);
-
     &.theme-light {
       background: linear-gradient(135deg, #f4f2fa 50%, #fff 50%);
     }
-
     &.theme-dark {
       background: linear-gradient(135deg, #0d1117 50%, #161b22 50%);
     }
-
     &.theme-ocean {
       background: linear-gradient(135deg, #1a4c7a 50%, #2d5f8f 50%);
+      opacity: 0.6;
+    }
+    &.theme-purple {
+      background: linear-gradient(135deg, #473180 50%, #9052d3 50%);
       opacity: 0.6;
     }
   }
@@ -456,8 +457,9 @@
       gap: var(--spacing-xs);
       min-width: 0;
       flex: 1;
-
+      font-weight: 400;
       .toggle-description {
+        display: none;
         color: var(--text-secondary);
         font-size: var(--font-size-xs);
         line-height: 1.3;
