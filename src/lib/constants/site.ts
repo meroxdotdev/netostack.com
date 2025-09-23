@@ -7,9 +7,9 @@ export const site = {
   heroDescription:
     'Comprehensive suite of networking tools for subnet calculations, CIDR conversions, IP format transformations, and network reference information.',
   keywords: 'IP calculator, subnet calculator, CIDR converter, network tools, IP tools, networking',
-  url: 'https://ip-calc.as93.net',
-  image: 'https://ip-calc.as93.net/og-image.png',
-  repo: 'https://github.com/lissy93/ip-calc',
+  url: 'https://networking-toolbox.as93.net',
+  image: 'https://networking-toolbox.as93.net/og-image.png',
+  repo: 'https://github.com/lissy93/networking-toolbox',
 };
 
 export const about = {
@@ -22,7 +22,7 @@ export const license = {
   date: '2025',
   holder: 'Alicia Sykes',
   ref: 'https://opensource.org/licenses/MIT',
-  url: 'https://github.com/Lissy93/ip-calc/blob/main/LICENSE',
+  url: 'https://github.com/Lissy93/networking-toolbox/blob/main/LICENSE',
   tldr: 'https://www.tldrlegal.com/license/mit-license',
 };
 

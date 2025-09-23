@@ -81,8 +81,8 @@ function isValidSubnetMask(mask: string): boolean {
     const match = maskBinary.match(/^(1*)(0*)$/);
     if (!match) return false;
 
-    const ones = match[1];
-    const zeros = match[2];
+    const _ones = match[1];
+    const _zeros = match[2];
 
     // Must be ones followed by zeros with no gaps
     // The pattern should not have '01' sequence (zeros followed by ones)

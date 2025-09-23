@@ -1,0 +1,108 @@
+{
+  "name": "Networking Toolbox",
+  "short_name": "Networking Toolbox",
+  "description": "A free set of online tools to help with IP addressing and subnetting.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#e3ed70",
+  "background_color": "#ffffff",
+  "categories": ["utilities", "productivity", "developer"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "CIDR Calculator",
+      "short_name": "CIDR",
+      "description": "Calculate CIDR ranges and subnet information",
+      "url": "/cidr",
+      "icons": [
+        {
+          "src": "/favicon-32x32.png",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Subnet Planner",
+      "short_name": "Subnets",
+      "description": "Plan and calculate subnets",
+      "url": "/subnet/planner",
+      "icons": [
+        {
+          "src": "/favicon-32x32.png",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "IPv6 Tools",
+      "short_name": "IPv6",
+      "description": "IPv6 address tools and utilities",
+      "url": "/ipv6",
+      "icons": [
+        {
+          "src": "/favicon-32x32.png",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Bookmarks",
+      "short_name": "Bookmarks",
+      "description": "Your bookmarked tools",
+      "url": "/bookmarks",
+      "icons": [
+        {
+          "src": "/favicon-32x32.png",
+          "sizes": "32x32"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/banner.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "IP Calculator main interface"
+    }
+  ],
+  "features": [
+    "offline-capable",
+    "network-calculator",
+    "subnet-planner",
+    "ipv6-tools",
+    "cidr-operations",
+    "network-diagnostics"
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+}

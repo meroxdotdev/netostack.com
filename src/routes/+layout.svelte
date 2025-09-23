@@ -17,10 +17,13 @@
   import { accessibility } from '$lib/stores/accessibility';
   import { theme } from '$lib/stores/theme';
   import { ALL_PAGES } from '$lib/constants/nav';
+  import { initializeOfflineSupport } from '$lib/stores/offline';
+  import { bookmarks } from '$lib/stores/bookmarks';
 
   import Header from '$lib/components/furniture/Header.svelte';
   import SubHeader from '$lib/components/furniture/SubHeader.svelte';
   import Footer from '$lib/components/furniture/Footer.svelte';
+  import OfflineIndicator from '$lib/components/common/OfflineIndicator.svelte';
 
   let { data, children } = $props(); // Gets data from the server load function
   let faviconTrigger = $state(0); // Trigger to force favicon updates
@@ -64,6 +67,8 @@
     theme.init();
     toolUsage.init();
     accessibility.init();
+    bookmarks.init();
+    initializeOfflineSupport();
   });
 
   // Track tool visits when page changes
@@ -147,6 +152,16 @@
   <meta name="robots" content="index, follow" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="IP Calculator" />
+  <meta name="application-name" content="IP Calculator" />
+  <meta name="msapplication-TileColor" content="#2563eb" />
+  <meta name="theme-color" content="#2563eb" />
+
   <!-- Structured Data -->
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html jsonLdTag(data.breadcrumbJsonLd)}
@@ -158,6 +173,7 @@
 
 <Header />
 <SubHeader />
+<OfflineIndicator />
 <main id="main-content" class="main-content">
   {@render children?.()}
 </main>

@@ -11,6 +11,9 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
+
+  // Make version available globally
+  const __APP_VERSION__: string;
 }
 
 // SVG imports

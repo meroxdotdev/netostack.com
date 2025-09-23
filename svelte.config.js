@@ -1,4 +1,6 @@
 
+import { readFileSync } from 'fs';
+
 // Import plugins
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
@@ -8,6 +10,10 @@ import adapterVercel from '@sveltejs/adapter-vercel';
 import adapterNode from '@sveltejs/adapter-node';
 import adapterNetlify from '@sveltejs/adapter-netlify';
 import adapterStatic from '@sveltejs/adapter-static';
+
+// Read version from package.json
+const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+const appVersion = pkg.version;
 
 /**
  * Determines the appropriate adapter for given deployment context
@@ -76,6 +82,11 @@ const config = {
 		prerender: {
 			handleHttpError: 'warn',
 			handleMissingId: 'warn'
+		}
+	},
+	vite: {
+		define: {
+			__APP_VERSION__: JSON.stringify(appVersion),
 		}
 	}
 };

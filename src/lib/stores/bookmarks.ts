@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
+import { cacheBookmark, cacheAllBookmarks } from './offline';
 
 export interface BookmarkedTool {
   href: string;
@@ -12,6 +13,7 @@ const STORAGE_KEY = 'bookmarked-tools';
 
 function createBookmarksStore() {
   const { subscribe, set, update } = writable<BookmarkedTool[]>([]);
+  let cachingInitialized = false; // Prevent multiple cache requests
 
   return {
     subscribe,
@@ -20,7 +22,13 @@ function createBookmarksStore() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           try {
-            set(JSON.parse(stored));
+            const bookmarks = JSON.parse(stored);
+            set(bookmarks);
+            // Cache all existing bookmarks for offline access (only once per session)
+            if (bookmarks.length > 0 && !cachingInitialized) {
+              cachingInitialized = true;
+              setTimeout(() => cacheAllBookmarks(bookmarks), 1000); // Delay to ensure SW is ready
+            }
           } catch {
             set([]);
           }
@@ -33,6 +41,8 @@ function createBookmarksStore() {
           const newBookmarks = [...bookmarks, tool];
           if (browser) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newBookmarks));
+            // Cache the bookmarked tool for offline access
+            cacheBookmark(tool.href);
           }
           return newBookmarks;
         }
@@ -54,6 +64,10 @@ function createBookmarksStore() {
         const newBookmarks = existing ? bookmarks.filter((b) => b.href !== tool.href) : [...bookmarks, tool];
         if (browser) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(newBookmarks));
+          // Cache the bookmarked tool for offline access when adding
+          if (!existing) {
+            cacheBookmark(tool.href);
+          }
         }
         return newBookmarks;
       });
