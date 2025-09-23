@@ -5,7 +5,7 @@
   import { accessibility, type AccessibilityOption } from '$lib/stores/accessibility';
   import { tooltip } from '$lib/actions/tooltip';
   import { browser } from '$app/environment';
-  import { theme, themes, type ThemeOption } from '$lib/stores/theme';
+  import { theme, themes, type ThemeOption, type Theme } from '$lib/stores/theme';
   import { navbarDisplay, navbarDisplayOptions, type NavbarDisplayMode } from '$lib/stores/navbarDisplay';
   import { site } from '$lib/constants/site';
 
@@ -132,6 +132,24 @@
   </label>
 {/snippet}
 
+{#snippet themeButton(themeOption: Theme)}
+  <button
+    class="theme-option"
+    class:active={$currentTheme === themeOption.id}
+    class:disabled={!themeOption.available}
+    onclick={() => handleThemeChange(themeOption.id)}
+    role="radio"
+    aria-checked={$currentTheme === themeOption.id}
+    disabled={!themeOption.available}
+  >
+    <div class="theme-preview theme-preview-{themeOption.id}"></div>
+    <span>
+      {themeOption.name}
+      {!themeOption.available ? ' (Soon)' : ''}
+    </span>
+  </button>
+{/snippet}
+
 <div class="settings-menu" bind:this={menuRef}>
   <button
     bind:this={triggerRef}
@@ -153,42 +171,14 @@
         <div class="theme-options" role="radiogroup" aria-label="Theme selection">
           <!-- Primary themes (always visible - first 6) -->
           {#each themes.slice(0, 6) as themeOption (themeOption.id)}
-            <button
-              class="theme-option"
-              class:active={$currentTheme === themeOption.id}
-              class:disabled={!themeOption.available}
-              onclick={() => handleThemeChange(themeOption.id)}
-              role="radio"
-              aria-checked={$currentTheme === themeOption.id}
-              disabled={!themeOption.available}
-            >
-              <div class="theme-preview theme-{themeOption.id}"></div>
-              <span>
-                {themeOption.name}
-                {!themeOption.available ? ' (Soon)' : ''}
-              </span>
-            </button>
+            {@render themeButton(themeOption)}
           {/each}
 
           <!-- Additional themes (expandable if more than 6) -->
           {#if showMoreThemes && themes.length > 6}
             <div class="additional-themes" transition:slide={{ duration: 300 }}>
               {#each themes.slice(6) as themeOption (themeOption.id)}
-                <button
-                  class="theme-option"
-                  class:active={$currentTheme === themeOption.id}
-                  class:disabled={!themeOption.available}
-                  onclick={() => handleThemeChange(themeOption.id)}
-                  role="radio"
-                  aria-checked={$currentTheme === themeOption.id}
-                  disabled={!themeOption.available}
-                >
-                  <div class="theme-preview theme-{themeOption.id}"></div>
-                  <span>
-                    {themeOption.name}
-                    {!themeOption.available ? ' (Soon)' : ''}
-                  </span>
-                </button>
+                {@render themeButton(themeOption)}
               {/each}
             </div>
           {/if}
@@ -406,28 +396,29 @@
     height: 1rem;
     border-radius: var(--radius-xs);
     border: 1px solid var(--border-secondary);
-    &.theme-light {
+    &.theme-preview-light {
       background: linear-gradient(135deg, #f4f2fa 50%, #fff 50%);
     }
-    &.theme-dark {
+    &.theme-preview-dark {
       background: linear-gradient(135deg, #0d1117 50%, #161b22 50%);
     }
-    &.theme-ocean {
+    &.theme-preview-ocean {
       background: linear-gradient(135deg, #131c2b 50%, #70edb7 50%);
     }
-    &.theme-purple {
+    &.theme-preview-purple {
       background: linear-gradient(135deg, #13182b 50%, #cca6ff 50%);
     }
-    &.theme-cyberpunk {
-      background: linear-gradient(135deg, #0a0614 50%, #ff00ff 50%);
+    &.theme-preview-cyberpunk {
+      background: linear-gradient(135deg, #000308 30%, #f700ff 70%);
+      box-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
     }
-    &.theme-midnight {
+    &.theme-preview-midnight {
       background: linear-gradient(135deg, #0a0e27 50%, #5e72e4 50%);
     }
-    &.theme-arctic {
+    &.theme-preview-arctic {
       background: linear-gradient(135deg, #f0f4f8 50%, #00acc1 50%);
     }
-    &.theme-terminal {
+    &.theme-preview-terminal {
       background: linear-gradient(135deg, #000000 50%, #00ff00 50%);
     }
   }
