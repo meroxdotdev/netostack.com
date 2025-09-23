@@ -7,40 +7,12 @@ declare global {
   }
 }
 
-// Import navigation structure to get all pages
-const nav = await import('../../src/lib/constants/nav.js');
+// Import test-friendly navigation data (no SvelteKit dependencies)
+import { ALL_TEST_PAGES } from '../fixtures/nav-data.js';
 
 // Extract all page URLs from the navigation structure
 function getAllPageUrls(): string[] {
-  const urls: string[] = [];
-
-  // Add top-level nav pages
-  for (const item of nav.TOP_NAV) {
-    urls.push(item.href);
-  }
-
-  // Add all sub-nav pages
-  for (const [sectionPath, items] of Object.entries(nav.SUB_NAV)) {
-    for (const item of items) {
-      if ('href' in item) {
-        // Direct nav item
-        urls.push(item.href);
-      } else if ('items' in item) {
-        // Nav group with items
-        for (const subItem of item.items) {
-          urls.push(subItem.href);
-        }
-      }
-    }
-  }
-
-  // Add about pages
-  for (const item of nav.aboutPages) {
-    urls.push(item.href);
-  }
-
-  // Add home page
-  urls.push('/');
+  const urls = ALL_TEST_PAGES.map(item => item.href);
 
   // Remove duplicates and sort for consistent test order
   return [...new Set(urls)].sort();

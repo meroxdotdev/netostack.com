@@ -3,9 +3,7 @@ import { site, author, license as _license } from '$lib/constants/site';
 
 // Helper function to create paths with base path support
 function makePath(path: string): string {
-  // resolve automatically handles the base path
-  // We cast the path as any to avoid strict typing issues with dynamic paths
-  return resolve(path as any);
+  return resolve(path as any) || path;
 }
 
 export type NavItem = {
