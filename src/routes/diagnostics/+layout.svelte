@@ -1,6 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-    import Icon from '$lib/components/global/Icon.svelte';
+  import Icon from '$lib/components/global/Icon.svelte';
   import { onMount } from 'svelte';
 
   let isOffline = false;
@@ -26,7 +26,7 @@
         import.meta.env.VITE_DEPLOY_ENV === 'static' ||
         import.meta.env.VITE_DEPLOY_ENV === 'STATIC' ||
         // Fallback: check if we're missing server-side features
-        typeof window !== 'undefined' && !window.fetch;
+        (typeof window !== 'undefined' && !window.fetch);
 
       return () => {
         window.removeEventListener('online', handleOnline);
@@ -60,9 +60,11 @@
 
 <style lang="scss">
   .warning-banner {
-    background: linear-gradient(135deg,
+    background: linear-gradient(
+      135deg,
       color-mix(in srgb, var(--color-warning), transparent 90%),
-      color-mix(in srgb, var(--color-warning), transparent 95%));
+      color-mix(in srgb, var(--color-warning), transparent 95%)
+    );
     border: 1px solid color-mix(in srgb, var(--color-warning), transparent 70%);
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
@@ -95,8 +97,13 @@
   }
 
   @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-0.5rem); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-
 </style>

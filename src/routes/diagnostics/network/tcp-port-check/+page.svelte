@@ -75,7 +75,6 @@
       .slice(0, 50);
 
     try {
-      console.log('Sending targets:', currentTargets); // Debug log
       const response = await fetch('/api/internal/diagnostics/network', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

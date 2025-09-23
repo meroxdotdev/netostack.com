@@ -1,5 +1,6 @@
 <script lang="ts">
   import { TOP_NAV, aboutPages, SUB_NAV, type NavItem, type NavGroup } from '$lib/constants/nav';
+  import { resolve } from '$app/paths';
 
   interface TreeNode {
     label: string;
@@ -78,7 +79,7 @@
   <h1>Site Map</h1>
   <p>
     Site-wide page listing.<br />
-    For machine-readable version, see <a class="xml-link" href="/sitemap.xml">sitemap.xml</a>
+    For machine-readable version, see <a class="xml-link" href={resolve('/sitemap.xml')}>sitemap.xml</a>
   </p>
 
   <div class="tree">

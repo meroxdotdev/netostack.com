@@ -8,6 +8,7 @@
   import { theme, themes, type ThemeOption, type Theme } from '$lib/stores/theme';
   import { navbarDisplay, navbarDisplayOptions, type NavbarDisplayMode } from '$lib/stores/navbarDisplay';
   import { site } from '$lib/constants/site';
+  import { resolve } from '$app/paths';
 
   interface Props {
     onSearchTrigger?: () => void;
@@ -186,7 +187,11 @@
 
         <!-- Show more/less button (only if there are more than 6 themes) -->
         {#if themes.length > 6}
-          <button class="show-more-btn" onclick={() => (showMoreThemes = !showMoreThemes)} aria-expanded={showMoreThemes}>
+          <button
+            class="show-more-btn"
+            onclick={() => (showMoreThemes = !showMoreThemes)}
+            aria-expanded={showMoreThemes}
+          >
             <Icon name={showMoreThemes ? 'chevron-up' : 'chevron-down'} size="sm" />
             <span>{showMoreThemes ? 'Show less' : 'Show more themes'}</span>
           </button>
@@ -264,12 +269,12 @@
           <span>Search</span>
         </button>
 
-        <a href="/bookmarks" class="settings-link" onclick={handleLinkClick}>
+        <a href={resolve('/bookmarks')} class="settings-link" onclick={handleLinkClick}>
           <Icon name="bookmarks" size="sm" />
           <span>Bookmarks</span>
         </a>
 
-        <a href="/about" class="settings-link" onclick={handleLinkClick}>
+        <a href={resolve('/about')} class="settings-link" onclick={handleLinkClick}>
           <Icon name="info" size="sm" />
           <span>About</span>
         </a>
@@ -352,7 +357,8 @@
     }
   }
 
-  .theme-options, .additional-themes {
+  .theme-options,
+  .additional-themes {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
     gap: var(--spacing-xs);

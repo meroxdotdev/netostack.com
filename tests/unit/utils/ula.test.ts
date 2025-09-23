@@ -316,7 +316,6 @@ describe('ula', () => {
 
         malformed.forEach(addr => {
           const result = parseULA(addr);
-          console.log(`Testing malformed: "${addr}" -> valid: ${result.isValid}, error: ${result.error}`);
           expect(result.isValid).toBe(false);
           expect(result.error).toBeDefined();
         });
@@ -359,7 +358,6 @@ describe('ula', () => {
 
         addresses.forEach(addr => {
           const result = parseULA(addr);
-          console.log(`Testing compression: "${addr}" -> valid: ${result.isValid}, error: ${result.error}`);
           expect(result.isValid).toBe(true);
           expect(result.prefix).toBe('fd');
         });

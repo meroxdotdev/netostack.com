@@ -84,19 +84,9 @@ function isValidSubnetMask(mask: string): boolean {
     const ones = match[1];
     const zeros = match[2];
 
-    // Debug logging for specific problematic masks
-    if (mask === '255.255.128.0' || mask === '255.255.255.1') {
-      console.log(`Debug subnet validation for ${mask}:`);
-      console.log(`Binary: ${maskBinary}`);
-      console.log(`Ones: "${ones}" (length: ${ones.length})`);
-      console.log(`Zeros: "${zeros}" (length: ${zeros.length})`);
-      console.log(`Total length: ${ones.length + zeros.length}`);
-      console.log(`Contains 01: ${maskBinary.includes('01')}`);
-    }
-
     // Must be ones followed by zeros with no gaps
     // The pattern should not have '01' sequence (zeros followed by ones)
-    return ones.length + zeros.length === 32 && !maskBinary.includes('01');
+    return _ones.length + _zeros.length === 32 && !maskBinary.includes('01');
   } catch {
     return false;
   }
@@ -120,20 +110,8 @@ function isValidWildcardMask(mask: string): boolean {
     const match = maskBinary.match(/^(0*)(1*)$/);
     if (!match) return false;
 
-    const zeros = match[1];
-    const ones = match[2];
-
-    // Debug logging for specific problematic masks
-    if (mask === '0.0.1.255' || mask === '0.128.0.255') {
-      console.log(`Debug wildcard validation for ${mask}:`);
-      console.log(`Binary: ${maskBinary}`);
-      console.log(`Zeros: "${zeros}" (length: ${zeros.length})`);
-      console.log(`Ones: "${ones}" (length: ${ones.length})`);
-      console.log(`Total length: ${zeros.length + ones.length}`);
-      console.log(`Contains 10: ${maskBinary.includes('10')}`);
-      console.log(`Contains 01: ${maskBinary.includes('01')}`);
-      console.log(`Regex test: ${/^0*1*$/.test(maskBinary)}`);
-    }
+    const _zeros = match[1];
+    const _ones = match[2];
 
     // For wildcard masks, must be contiguous zeros followed by contiguous ones
     // Valid wildcard masks represent powers-of-2 boundaries (2^n - 1 patterns)
@@ -254,14 +232,8 @@ function parseInput(input: string): {
       const isSubnetMask = isValidSubnetMask(mask);
       const isWildcardMask = isValidWildcardMask(mask);
 
-      // Debug logging for failed test cases
-      if (mask === '255.255.255.1' || mask === '255.255.128.0' || mask === '0.0.1.255' || mask === '0.128.0.255') {
-        console.log(`Debug ${mask}: subnet=${isSubnetMask}, wildcard=${isWildcardMask}`);
-      }
-
       // Special case: For 0.0.0.0 with 255.255.255.255, interpret as wildcard "any"
       if (network === '0.0.0.0' && mask === '255.255.255.255' && isWildcardMask) {
-        console.log(`Returning wildcard-mask for ${mask} (any network)`);
         return { type: 'wildcard-mask', network, mask };
       }
 
@@ -272,13 +244,10 @@ function parseInput(input: string): {
 
       // Prioritize wildcard mask interpretation for other ambiguous cases
       if (isWildcardMask) {
-        console.log(`Returning wildcard-mask for ${mask}`);
         return { type: 'wildcard-mask', network, mask };
       } else if (isSubnetMask) {
-        console.log(`Returning subnet-mask for ${mask}`);
         return { type: 'subnet-mask', network, mask };
       } else {
-        console.log(`Throwing error for invalid mask: ${mask}`);
         throw new Error('Invalid mask format');
       }
     } else {
@@ -304,10 +273,8 @@ function convertWildcardMask(input: string): WildcardConversion {
         break;
 
       case 'subnet-mask':
-        console.log(`Processing subnet-mask case for: ${parsed.mask}`);
         subnetMask = parsed.mask!;
         prefixLength = subnetMaskToCIDR(subnetMask);
-        console.log(`Calculated prefix length: ${prefixLength}`);
         wildcardMask = subnetMaskToWildcard(subnetMask);
         break;
 

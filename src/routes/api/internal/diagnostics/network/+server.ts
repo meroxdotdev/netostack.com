@@ -207,10 +207,6 @@ export const POST: RequestHandler = async ({ request }) => {
     switch (body.action) {
       case 'tcp-port-check': {
         const { targets, timeout = 5000 } = body as TcpPortCheckReq;
-
-        console.log('Received targets:', targets); // Debug log
-        console.log('Targets type:', typeof targets, 'Length:', targets?.length); // Debug log
-
         if (!targets || targets.length === 0) {
           throw error(400, 'No targets provided');
         }

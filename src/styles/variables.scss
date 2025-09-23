@@ -190,7 +190,7 @@ html[data-theme='cyberpunk'] {
   --font-heading: 'Orbitron', monospace;
   --font-body: 'Share Tech Mono', monospace;
   --font-mono: 'Share Tech Mono', monospace;
-  
+
   h2 {
     color: #fd3d90 !important;
   }
@@ -207,7 +207,10 @@ html[data-theme='cyberpunk'] {
     z-index: 9999;
     background: linear-gradient(
       180deg,
-      rgba(68, 239, 255, 0.1), transparent 49%, rgb(253, 61, 144, 0.08) 50%, transparent
+      rgba(68, 239, 255, 0.1),
+      transparent 49%,
+      rgb(253, 61, 144, 0.08) 50%,
+      transparent
     );
     background-size: 4px 4px;
     animation: crt-scanlines 8s linear infinite;
@@ -223,11 +226,7 @@ html[data-theme='cyberpunk'] {
     height: 100vh;
     pointer-events: none;
     z-index: 9998;
-    background: radial-gradient(
-      ellipse at center,
-      transparent 60%,
-      rgba(0, 0, 0, 0.2) 100%
-    );
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.2) 100%);
   }
 
   /* Glitch effect for links */
@@ -236,7 +235,9 @@ html[data-theme='cyberpunk'] {
 
     &:hover {
       animation: cyberpunk-glitch 0.3s ease-in-out;
-      text-shadow: -1px 0 #ff006f, 1px 0 #00ffcc;
+      text-shadow:
+        -1px 0 #ff006f,
+        1px 0 #00ffcc;
     }
 
     &:hover::before {
@@ -269,41 +270,83 @@ html[data-theme='cyberpunk'] {
 
 /* Cyberpunk animations */
 @keyframes crt-scanlines {
-  0% { transform: translateY(-5vh); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(-5vh);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 @keyframes crt-flicker {
-  0% { opacity: 1; }
-  98% { opacity: 0.85; }
-  99% { opacity: 0.99; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  98% {
+    opacity: 0.85;
+  }
+  99% {
+    opacity: 0.99;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes cyberpunk-glitch {
-  0%, 100% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); }
-  40% { transform: translate(-2px, -2px); }
-  60% { transform: translate(2px, 2px); }
-  80% { transform: translate(2px, -2px); }
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
 }
 
 @keyframes cyberpunk-glitch-overlay {
-  0% { clip: rect(42px, 9999px, 44px, 0); }
-  25% { clip: rect(12px, 9999px, 59px, 0); }
-  50% { clip: rect(78px, 9999px, 23px, 0); }
-  75% { clip: rect(34px, 9999px, 67px, 0); }
-  100% { clip: rect(91px, 9999px, 18px, 0); }
+  0% {
+    clip: rect(42px, 9999px, 44px, 0);
+  }
+  25% {
+    clip: rect(12px, 9999px, 59px, 0);
+  }
+  50% {
+    clip: rect(78px, 9999px, 23px, 0);
+  }
+  75% {
+    clip: rect(34px, 9999px, 67px, 0);
+  }
+  100% {
+    clip: rect(91px, 9999px, 18px, 0);
+  }
 }
 
 @keyframes cyberpunk-glitch-overlay-2 {
-  0% { clip: rect(65px, 9999px, 23px, 0); }
-  25% { clip: rect(34px, 9999px, 89px, 0); }
-  50% { clip: rect(12px, 9999px, 56px, 0); }
-  75% { clip: rect(78px, 9999px, 34px, 0); }
-  100% { clip: rect(23px, 9999px, 67px, 0); }
+  0% {
+    clip: rect(65px, 9999px, 23px, 0);
+  }
+  25% {
+    clip: rect(34px, 9999px, 89px, 0);
+  }
+  50% {
+    clip: rect(12px, 9999px, 56px, 0);
+  }
+  75% {
+    clip: rect(78px, 9999px, 34px, 0);
+  }
+  100% {
+    clip: rect(23px, 9999px, 67px, 0);
+  }
 }
-
 
 /* Midnight Theme - Sophisticated deep blues and purples */
 .theme-midnight,
@@ -449,7 +492,6 @@ html[data-theme='terminal'] {
   --spacing-lg: 0.75rem;
   --spacing-xl: 1rem;
   --spacing-2xl: 1.5rem;
-  
 
   /* Shadows - CRT monitor glow */
   --shadow-sm: 0 0 2px rgba(0, 255, 0, 0.5);
@@ -461,7 +503,6 @@ html[data-theme='terminal'] {
   --font-body: 'JetBrains Mono', monospace;
   --font-mono: 'JetBrains Mono', monospace;
 }
-
 
 /* Minimal Theme - Clean and modern */
 .theme-light,
@@ -495,7 +536,6 @@ html[data-theme='light'] {
   --font-body: 'Inter', sans-serif;
   --font-mono: 'Roboto Mono', monospace;
 }
-
 
 /* One Dark Theme - VS Code's beloved dark theme */
 .theme-muteddark,
