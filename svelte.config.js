@@ -32,7 +32,7 @@ function getAdapter() {
 			case 'static':
 				return adapterStatic({
 					strict: false,
-					fallback: '404.html',
+					fallback: 'index.html',
 				});
 			case 'auto':
 				return adapterAuto();

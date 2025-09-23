@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: 🐙 Deploy to GitHub Pages
 
 on:
   workflow_dispatch:
@@ -8,15 +8,10 @@ on:
         required: false
         default: '/networking-toolbox'
         type: string
-      target_branch:
-        description: 'Target branch for deployment'
-        required: false
-        default: 'gh-pages'
-        type: string
       node_version:
         description: 'Node.js version'
         required: false
-        default: '18'
+        default: '22'
         type: string
       deploy_env:
         description: 'Deployment environment'
@@ -42,6 +37,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
