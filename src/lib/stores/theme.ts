@@ -60,7 +60,22 @@ function applyThemeClasses(theme: ThemeOption) {
 
 // Available themes configuration
 export const themes: Theme[] = [
-    {
+  {
+    id: 'dark',
+    name: 'Dark',
+    available: true,
+  },
+  {
+    id: 'light',
+    name: 'Light',
+    available: true,
+    font: {
+      name: 'Inter',
+      url: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap',
+      fallback: 'sans-serif',
+    },
+  },
+  {
     id: 'midnight',
     name: 'Midnight',
     available: true,
@@ -79,16 +94,6 @@ export const themes: Theme[] = [
       url: 'https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&family=Source+Code+Pro:wght@400;500;600;700&display=swap',
       fallback: 'sans-serif',
     },
-  },
-  {
-    id: 'dark',
-    name: 'Dark',
-    available: true,
-  },
-  {
-    id: 'light',
-    name: 'Light',
-    available: true,
   },
   {
     id: 'ocean',
@@ -127,6 +132,31 @@ export const themes: Theme[] = [
     font: {
       name: 'JetBrains Mono',
       url: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap',
+      fallback: 'monospace',
+    },
+  },
+  {
+    id: 'lightpurple',
+    name: 'Light Purple',
+    available: true,
+  },
+  {
+    id: 'muteddark',
+    name: 'Muted Dark',
+    available: true,
+    font: {
+      name: 'Source Code Pro',
+      url: 'https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap',
+      fallback: 'monospace',
+    },
+  },
+  {
+    id: 'solarized',
+    name: 'Solarized',
+    available: true,
+    font: {
+      name: 'Inconsolata',
+      url: 'https://fonts.googleapis.com/css2?family=Inconsolata:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap',
       fallback: 'monospace',
     },
   },

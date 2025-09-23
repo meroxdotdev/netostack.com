@@ -13,19 +13,30 @@ export function getSvgContent(iconName: string): string | undefined {
  * Process SVG content for use as favicon
  * @param svgContent - Raw SVG content
  * @param color - Fill color for the SVG (defaults to current theme primary color)
+ * @param accentColor - Fill color for elements with "accent-part" class
  * @returns Processed SVG with proper fill color
  */
-function processSvgForFavicon(svgContent: string, color: string): string {
-  // Remove existing fill and currentColor attributes, set a solid color
+function processSvgForFavicon(svgContent: string, color: string, accentColor: string = '#6fcdff'): string {
+  // Remove existing fill and currentColor attributes, set colors
   let processedSvg = svgContent
     .replace(/fill="currentColor"/g, `fill="${color}"`)
     .replace(/fill="[^"]*"/g, `fill="${color}`)
     .replace(/<path[^>]*>/g, (match) => {
-      // Ensure all path elements have the fill color
-      if (!match.includes('fill=')) {
-        return match.replace('<path', `<path fill="${color}"`);
+      // Handle accent-part class specially
+      if (match.includes('class="accent-part"')) {
+        // For accent parts, use the accent color
+        if (!match.includes('fill=')) {
+          return match.replace('<path', `<path fill="${accentColor}"`);
+        } else {
+          return match.replace(/fill="[^"]*"/, `fill="${accentColor}"`);
+        }
+      } else {
+        // For regular path elements, use the main color
+        if (!match.includes('fill=')) {
+          return match.replace('<path', `<path fill="${color}"`);
+        }
+        return match;
       }
-      return match;
     });
 
   // Add explicit fill to svg element if it doesn't exist
@@ -52,15 +63,16 @@ export function getPrimaryColor(): string {
  * Generate a favicon data URI from an icon name
  * @param iconName - The name of the icon to use
  * @param color - Fill color for the icon (defaults to current CSS primary color)
+ * @param accentColor - Fill color for elements with "accent-part" class (defaults to red)
  * @returns Data URI string for use in link[rel="icon"] or null if icon not found
  */
-export function generateFaviconDataUri(iconName: string, color?: string): string | null {
+export function generateFaviconDataUri(iconName: string, color?: string, accentColor?: string): string | null {
   const svgContent = getSvgContent(iconName);
   if (!svgContent) {
     return null;
   }
   const faviconColor = color || getPrimaryColor();
-  const processedSvg = processSvgForFavicon(svgContent, faviconColor);
+  const processedSvg = processSvgForFavicon(svgContent, faviconColor, accentColor);
   const encodedSvg = encodeURIComponent(processedSvg);
   return `data:image/svg+xml,${encodedSvg}`;
 }

@@ -13,6 +13,8 @@
 		"format": "prettier --check src --write",
 		"types": "tsc -p tsconfig.json --noEmit",
 		"build-check": "vite build --minify=false --sourcemap=false --logLevel error",
+		"build:node": "DEPLOY_ENV='node' npm run build",
+		"build:static": "DEPLOY_ENV='static' npm run build",
 		"test": "vitest",
 		"test:ui": "vitest --ui",
 		"test:coverage": "vitest --coverage",

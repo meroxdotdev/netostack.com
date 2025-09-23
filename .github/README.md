@@ -4,10 +4,9 @@
   <i>The all-in-one offline-first networking toolbox for sysadmins</i><br>
   🌐 <b><a href="https://permissionator.as93.net">networking-toolbox.as93.net</a></b>
 </p>
-
-<a href="https://permissionator.as93.net">
+<a href="https://networking-toolbox.as93.net">
 <p align="center">
-  <img width="64" src="https://github.com/Lissy93/permissionator/blob/main/public/logo.png?raw=true" />
+  <img width="128" src="https://github.com/user-attachments/assets/052a9507-2043-40bf-b697-1a953adb614f" />
   </p>
 </a>
 
@@ -17,15 +16,35 @@
 
 #### Option 1 - Docker
 Run `docker run -p 8080:80 lissy93/networking-toolbox`<br>
-Or, use our example [`docker-compose.yml`](#)
+Or, use our example [`docker-compose.yml`](https://github.com/Lissy93/networking-toolbox/blob/main/docker-compose.yml)
 
 #### Option 2 - Cloud
 Fork the repo, and import into Vercel, Netlify or any static hosting provider of your choice.
 
-#### Option 3 - Source
-Follow the developing instructions below. Then run `npm run build` to compile output<br>
-You can then upload the contents of `./dist` to any web server, CDN or static host.
+#### Option 3 - Source: Node
+Follow the dev steps below.
+Then run `npm run build:node` to compile output.<br>
+You can then start the server with `node build`.
 
+<details>
+<summary>More Deployment Options</summary>
+
+#### Option 4 - Source: Static
+Follow the dev steps below.
+Then run `npm run build:static` to compile output.<br>
+And upload the contents of `./build` to any web server, CDN or static host.
+
+#### Option 5 - Source: Docker
+Follow the dev steps below.
+Then run `docker build -t networking-toolbox .` to build the image.<br>
+You can then start the container with `docker run -p 8080:80 networking-toolbox`.
+
+#### Option 6 - GitHub Pages
+Fork the repo.<br>
+Head to the Actions tab, find the "Deploy to GitHub Pages" workflow, and trigger it.<br>
+Then go to Settings > Pages > Source and select the `gh-pages` branch.<br>
+Visit `https://<your-username>.github.io/networking-toolbox/` to see your deployed app.
+</details>
 
 ---
 
@@ -42,6 +61,14 @@ git clone git@github.com:Lissy93/networking-toolbox.git
 cd networking-toolbox
 yarn
 yarn dev
+```
+
+#### Testing
+
+Before merging, code must pass all unit and end-to-end tests, as well as linting, type checks, svelte check and build checks.<br>
+
+```
+yarn test
 ```
 
 ---

@@ -1,0 +1,25 @@
+name: 🛠️ Deployment / self-hosting
+description: Installation, configuration, upgrades, containers, or Kubernetes.
+title: "[deploy] <short summary>"
+labels: ["type:deploy", "scope:self-hosted"]
+body:
+  - type: dropdown
+    id: method
+    attributes:
+      label: Install method
+      options: [Docker, Source, GitHub Pages, Vercel, Other]
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes:
+      label: App image/tag or chart version
+  - type: textarea
+    id: env
+    attributes:
+      label: Platform details
+      placeholder: OS/distro, CPU/RAM, storage, container runtime, ingress, proxy.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Startup/runtime logs
+      render: shell

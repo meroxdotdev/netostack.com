@@ -117,7 +117,7 @@
 </script>
 
 {#snippet accessibilityOption(option: AccessibilityOption)}
-  <label class="toggle-option">
+  <label class="toggle-option" use:tooltip={option.description}>
     <input
       type="checkbox"
       checked={option.enabled}
@@ -420,6 +420,15 @@
     }
     &.theme-preview-terminal {
       background: linear-gradient(135deg, #000000 50%, #00ff00 50%);
+    }
+    &.theme-preview-lightpurple {
+      background: linear-gradient(135deg, #fafafa 50%, #cca6ff 50%);
+    }
+    &.theme-preview-muteddark {
+      background: linear-gradient(135deg, #21252b 50%, #f1f86d 50%);
+    }
+    &.theme-preview-solarized {
+      background: linear-gradient(135deg, #002b36 50%, #268bd2 50%);
     }
   }
 

@@ -23,6 +23,7 @@ Thumbs.db
 /nyc_output
 /playwright-report
 /test-results
+e2e-results.xml
 
 # AI Crap
 .claude/

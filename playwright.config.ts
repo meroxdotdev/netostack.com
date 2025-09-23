@@ -24,7 +24,7 @@ export default defineConfig({
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
-    // Disabled webkit due to missing system dependencies
+    // i disabled webkit cos of missing system deps on CI
     // {
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },

@@ -30,7 +30,10 @@ function getAdapter() {
 			case 'netlify':
 				return adapterNetlify();
 			case 'static':
-				return adapterStatic();
+				return adapterStatic({
+					strict: false,
+					fallback: '404.html',
+				});
 			case 'auto':
 				return adapterAuto();
 			default:
@@ -66,7 +69,10 @@ function getAdapter() {
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter: getAdapter()
+		adapter: getAdapter(),
+		paths: {
+			base: process.env.BASE_PATH || '',
+		},
 	}
 };
 
