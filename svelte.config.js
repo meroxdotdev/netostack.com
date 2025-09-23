@@ -32,7 +32,6 @@ function getAdapter() {
 			case 'static':
 				return adapterStatic({
 					strict: false,
-					fallback: 'index.html',
 				});
 			case 'auto':
 				return adapterAuto();
@@ -71,7 +70,7 @@ const config = {
 	kit: {
 		adapter: getAdapter(),
 		paths: {
-			base: process.env.BASE_PATH || '',
+			base: process.env.BASE_URL || process.env.BASE_PATH || '',
 		},
 	}
 };

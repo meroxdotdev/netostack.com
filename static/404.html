@@ -3,74 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found | IP Calculator</title>
-    <style>
-        :root {
-            --bg-primary: #1a1b23;
-            --text-primary: #e8e9ed;
-            --text-secondary: #9ca3af;
-            --color-primary: #e3ed70;
-            --border-primary: #374151;
-            --radius-lg: 0.75rem;
-            --spacing-lg: 2rem;
-            --spacing-md: 1rem;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--spacing-md);
-        }
-        .container {
-            text-align: center;
-            max-width: 400px;
-            padding: var(--spacing-lg);
-            border: 1px solid var(--border-primary);
-            border-radius: var(--radius-lg);
-            background: rgba(255, 255, 255, 0.02);
-        }
-        .icon {
-            width: 4rem;
-            height: 4rem;
-            margin: 0 auto var(--spacing-md);
-            fill: var(--color-primary);
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-        p {
-            color: var(--text-secondary);
-            margin-bottom: var(--spacing-md);
-            line-height: 1.5;
-        }
-        a {
-            display: inline-block;
-            background: var(--color-primary);
-            color: var(--bg-primary);
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: 500;
-            transition: opacity 0.2s;
-        }
-        a:hover { opacity: 0.9; }
-    </style>
+    <title>Redirecting... | IP Calculator</title>
+    <script>
+        // GitHub Pages SPA redirect - only for routes, not assets
+        (function() {
+            var path = window.location.pathname;
+
+            // Don't redirect if it's an asset (has file extension)
+            if (path.includes('.')) {
+                // This is likely an asset file, show actual 404
+                document.body.innerHTML = '<div style="font-family: sans-serif; text-align: center; padding: 2rem; background: #1a1b23; color: #e8e9ed; min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div><h1>404</h1><p>File not found</p><a href="/networking-toolbox/" style="color: #e3ed70; text-decoration: none;">← Back to home</a></div></div>';
+                return;
+            }
+
+            // This is a route, redirect to index.html with hash
+            // Remove base path to get the route
+            var route = path.replace('/networking-toolbox', '') || '/';
+            window.location.replace('/networking-toolbox/' + '#' + route);
+        })();
+    </script>
 </head>
 <body>
-    <div class="container">
-        <svg class="icon" viewBox="0 0 640 640">
-            <path d="M192 160C192 142.3 206.3 128 224 128L416 128C433.7 128 448 142.3 448 160L448 192L480 192C497.7 192 512 206.3 512 224L512 256L544 256C561.7 256 576 270.3 576 288L576 480C576 497.7 561.7 512 544 512L96 512C78.3 512 64 497.7 64 480L64 288C64 270.3 78.3 256 96 256L128 256L128 224C128 206.3 142.3 192 160 192L192 192L192 160z"/>
-        </svg>
-        <h1>404</h1>
-        <p>Page not found. The application failed to load or the requested page doesn't exist.</p>
-        <a href="/">Return Home</a>
-    </div>
+    <p style="font-family: sans-serif; text-align: center; padding: 2rem; background: #1a1b23; color: #e8e9ed;">Redirecting...</p>
 </body>
 </html>

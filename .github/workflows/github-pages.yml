@@ -20,7 +20,12 @@ on:
         type: choice
         options:
           - static
-          - github-pages
+          - vercel
+          - node
+          - docker
+          - netlify
+          - static
+          - auto
 
 permissions:
   contents: read
@@ -54,7 +59,7 @@ jobs:
         env:
           BASE_URL: ${{ inputs.base_url }}
           DEPLOY_ENV: ${{ inputs.deploy_env }}
-        run: npm run build:static
+        run: npm run build
 
       - name: Upload build artifacts
         uses: actions/upload-pages-artifact@v3
