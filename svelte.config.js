@@ -32,10 +32,6 @@ function getAdapter() {
 			case 'static':
 				return adapterStatic({
 					strict: false,
-					prerender: {
-						handleHttpError: 'warn',
-						handleMissingId: 'warn'
-					}
 				});
 			case 'auto':
 				return adapterAuto();
@@ -76,6 +72,10 @@ const config = {
 		paths: {
 			base: process.env.BASE_URL || process.env.BASE_PATH || '',
 		},
+		prerender: {
+			handleHttpError: 'warn',
+			handleMissingId: 'warn'
+		}
 	}
 };
 
