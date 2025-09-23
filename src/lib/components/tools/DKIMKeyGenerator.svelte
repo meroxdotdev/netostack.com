@@ -205,7 +205,7 @@
             >
               Selector:
             </label>
-            <input id="selector" type="text" bind:value={selector} placeholder="default" pattern="[a-zA-Z0-9._-]+" />
+            <input id="selector" type="text" bind:value={selector} placeholder="default" />
           </div>
 
           <div class="input-group">

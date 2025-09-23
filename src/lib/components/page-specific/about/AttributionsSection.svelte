@@ -56,7 +56,7 @@
   <h3>Sponsors</h3>
   {#if !loadingSponsors && sponsors.length > 0}
     <div class="avatars-grid">
-      {#each sponsors as sponsor (sponsor.login)}
+      {#each sponsors.filter(s => s.login) as sponsor, index (sponsor.login || `sponsor-${index}`)}
         <a href="https://github.com/{sponsor.login}" target="_blank" rel="noopener" class="avatar-link">
           <img src={sponsor.avatarUrl} alt={sponsor.name || sponsor.login} class="avatar large" />
           <span>{sponsor.name || sponsor.login}</span>
@@ -70,7 +70,7 @@
   <h3>Contributors</h3>
   {#if !loadingContributors && contributors.length > 0}
     <div class="avatars-grid">
-      {#each contributors as contributor (contributor.login)}
+      {#each contributors.filter(c => c.login) as contributor, index (contributor.login || `contributor-${index}`)}
         <a href="https://github.com/{contributor.login}" target="_blank" rel="noopener" class="avatar-link">
           <img src={contributor.avatar_url} alt={contributor.login} class="avatar large" />
           <span>{contributor.login}</span>
@@ -84,7 +84,7 @@
   <h3>Stargazers</h3>
   {#if !loadingStargazers && stargazers.length > 0}
     <div class="avatars-grid small">
-      {#each stargazers as stargazer (stargazer.login)}
+      {#each stargazers.filter(s => s.login) as stargazer, index (stargazer.login || `stargazer-${index}`)}
         <a href="https://github.com/{stargazer.login}" target="_blank" rel="noopener" class="avatar-link small-link">
           <img src={stargazer.avatar_url} alt={stargazer.login} class="avatar small" />
           <span>{stargazer.login}</span>

@@ -9,6 +9,7 @@
   import { frequentlyUsedTools, toolUsage } from '$lib/stores/toolUsage';
   import { tooltip } from '$lib/actions/tooltip';
 
+  // Create reactive state using individual variables
   let isOpen = $state(false);
   let query = $state('');
   let results = $state<NavItem[]>([]);
@@ -62,9 +63,14 @@
       .slice(0, 8);
   }
 
-  export function showSearch() {
+  // Using a separate internal function to avoid reactivity warnings
+  function openSearch() {
     isOpen = true;
     setTimeout(() => searchInput?.focus(), 0);
+  }
+
+  export function showSearch() {
+    openSearch();
   }
 
   function close() {
@@ -108,7 +114,7 @@
   function handleGlobalKeydown(e: KeyboardEvent) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
-      showSearch();
+      openSearch();
     }
   }
 
@@ -130,7 +136,7 @@
 <!-- Trigger Button -->
 <button
   class="action-button search-trigger"
-  onclick={showSearch}
+  onclick={openSearch}
   aria-label="Open search"
   use:tooltip={`Search (${shortcutKey}+K)`}
 >

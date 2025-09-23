@@ -105,13 +105,11 @@
    * Toggle subnet details expansion
    */
   function toggleSubnetExpansion(subnetId: string) {
-    const newSet = new SvelteSet(expandedSubnets);
-    if (newSet.has(subnetId)) {
-      newSet.delete(subnetId);
+    if (expandedSubnets.has(subnetId)) {
+      expandedSubnets.delete(subnetId);
     } else {
-      newSet.add(subnetId);
+      expandedSubnets.add(subnetId);
     }
-    expandedSubnets = newSet;
   }
 
   /**

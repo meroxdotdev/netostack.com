@@ -62,6 +62,7 @@ jobs:
         continue-on-error: true
 
       - name: Unit Test Report
+        id: unit-test-report
         uses: dorny/test-reporter@v1
         if: always()
         with:
@@ -69,6 +70,21 @@ jobs:
           path: test-results.xml
           reporter: java-junit
           fail-on-error: false
+
+      - name: Save unit test report data
+        if: always()
+        run: |
+          echo "passed=${{ steps.unit-test-report.outputs.passed }}" > unit-report-data.txt
+          echo "failed=${{ steps.unit-test-report.outputs.failed }}" >> unit-report-data.txt
+          echo "skipped=${{ steps.unit-test-report.outputs.skipped }}" >> unit-report-data.txt
+          echo "time=${{ steps.unit-test-report.outputs.time }}" >> unit-report-data.txt
+
+      - name: Upload unit test report data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-report-data
+          path: unit-report-data.txt
 
       - name: Upload coverage artifact
         if: always()
@@ -130,6 +146,7 @@ jobs:
           path: test-result-e2e.txt
 
       - name: E2E Test Report
+        id: e2e-test-report
         uses: dorny/test-reporter@v1
         if: always()
         with:
@@ -137,6 +154,21 @@ jobs:
           path: e2e-results.xml
           reporter: java-junit
           fail-on-error: false
+
+      - name: Save e2e test report data
+        if: always()
+        run: |
+          echo "passed=${{ steps.e2e-test-report.outputs.passed }}" > e2e-report-data.txt
+          echo "failed=${{ steps.e2e-test-report.outputs.failed }}" >> e2e-report-data.txt
+          echo "skipped=${{ steps.e2e-test-report.outputs.skipped }}" >> e2e-report-data.txt
+          echo "time=${{ steps.e2e-test-report.outputs.time }}" >> e2e-report-data.txt
+
+      - name: Upload e2e test report data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report-data
+          path: e2e-report-data.txt
 
       - name: Upload e2e artifacts
         if: always() && steps.test.outcome != 'success'
@@ -163,12 +195,11 @@ jobs:
           pattern: test-result-*
           merge-multiple: true
 
-      - name: Get test reports
-        id: reports
-        run: |
-          # Get the test report URLs from the Check API
-          # Note: This is a simplified approach - in practice you'd use GitHub API
-          echo "Getting test report details..."
+      - name: Download test report data
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-report-data"
+          merge-multiple: true
 
       - name: Write summary
         env:
@@ -179,13 +210,49 @@ jobs:
           UNIT=$(cat test-result-unit.txt 2>/dev/null || echo "$UNIT_JOB")
           E2E=$(cat test-result-e2e.txt 2>/dev/null || echo "$E2E_JOB")
 
+          # Helper functions
           em() { case "$1" in success) echo "✅";; failure) echo "❌";; cancelled|skipped) echo "⏭️";; *) echo "❔";; esac; }
           line() { r="$1"; n="$2"; cmd="$3"; s="Passing"; [ "$r" = "failure" ] && s="**Failing** - run \`$cmd\`"; [ "$r" = "skipped" ] && s="Skipped"; echo "- $(em "$r") $n: $s"; }
+
+          # Parse test report data
+          parse_report() {
+            local file=$1
+            if [ -f "$file" ]; then
+              source "$file"
+              echo "passed=${passed:-0} failed=${failed:-0} skipped=${skipped:-0} time=${time:-0}"
+            else
+              echo "passed=0 failed=0 skipped=0 time=0"
+            fi
+          }
 
           # Count failures
           failures=0
           [ "$UNIT" = "failure" ] && failures=$((failures + 1))
           [ "$E2E" = "failure" ] && failures=$((failures + 1))
+
+          # Get detailed test data
+          UNIT_DATA=$(parse_report "unit-report-data.txt")
+          E2E_DATA=$(parse_report "e2e-report-data.txt")
+
+          # Parse unit test data
+          eval "$UNIT_DATA"
+          UNIT_PASSED=$passed; UNIT_FAILED=$failed; UNIT_SKIPPED=$skipped; UNIT_TIME=$time
+
+          # Parse e2e test data
+          eval "$E2E_DATA"
+          E2E_PASSED=$passed; E2E_FAILED=$failed; E2E_SKIPPED=$skipped; E2E_TIME=$time
+
+          # Format time helper
+          format_time() {
+            local ms=$1
+            if [ "$ms" -gt 60000 ]; then
+              echo "$((ms / 60000))m $((ms % 60000 / 1000))s"
+            elif [ "$ms" -gt 1000 ]; then
+              echo "$((ms / 1000))s"
+            else
+              echo "${ms}ms"
+            fi
+          }
 
           {
             echo "## 🧪 Test Results"
@@ -198,19 +265,28 @@ jobs:
               [ "$UNIT" = "success" ] && echo "📈 Coverage report may be available in [Codecov](https://codecov.io)"
             else
               echo -e "\n⚠️ **$failures test suite(s) failed**"
-              echo "📊 Check the detailed test reports below for more information"
             fi
 
-            echo ""
-            echo "---"
-            echo ""
-            echo "### 📋 Detailed Test Reports"
-            echo ""
-            echo "The test reports below are generated by [dorny/test-reporter](https://github.com/dorny/test-reporter) and show detailed results for each test suite:"
-            echo ""
-            echo "- **Unit Tests**: Individual test results with execution times and failure details"
-            echo "- **E2E Tests**: Browser-based test results across Chromium and Firefox"
-            echo ""
-            echo "> 💡 **Tip**: Click on any failed test in the Checks tab to see detailed error information and stack traces."
+            # Detailed Unit Test Report
+            if [ "$UNIT_PASSED" != "0" ] || [ "$UNIT_FAILED" != "0" ] || [ "$UNIT_SKIPPED" != "0" ]; then
+              echo -e "\n### 📊 Unit Test Details"
+              echo "| Metric | Count |"
+              echo "|--------|-------|"
+              [ "$UNIT_PASSED" != "0" ] && echo "| ✅ Passed | $UNIT_PASSED |"
+              [ "$UNIT_FAILED" != "0" ] && echo "| ❌ Failed | $UNIT_FAILED |"
+              [ "$UNIT_SKIPPED" != "0" ] && echo "| ⏭️ Skipped | $UNIT_SKIPPED |"
+              [ "$UNIT_TIME" != "0" ] && echo "| ⏱️ Duration | $(format_time $UNIT_TIME) |"
+            fi
+
+            # Detailed E2E Test Report
+            if [ "$E2E_PASSED" != "0" ] || [ "$E2E_FAILED" != "0" ] || [ "$E2E_SKIPPED" != "0" ]; then
+              echo -e "\n### 🎭 E2E Test Details"
+              echo "| Metric | Count |"
+              echo "|--------|-------|"
+              [ "$E2E_PASSED" != "0" ] && echo "| ✅ Passed | $E2E_PASSED |"
+              [ "$E2E_FAILED" != "0" ] && echo "| ❌ Failed | $E2E_FAILED |"
+              [ "$E2E_SKIPPED" != "0" ] && echo "| ⏭️ Skipped | $E2E_SKIPPED |"
+              [ "$E2E_TIME" != "0" ] && echo "| ⏱️ Duration | $(format_time $E2E_TIME) |"
+            fi
 
           } >> "$GITHUB_STEP_SUMMARY"
