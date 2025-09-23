@@ -83,7 +83,7 @@
     <a href="https://github.com/sponsors/lissy93" target="_blank">Sponsor</a>
   </div>
 
-  <h3>More Apps</h3>
+  <h3 id="more-apps">More Apps</h3>
   <p>If you've found this app useful, you might also like some of my other projects:</p>
   <div class="more-app-list">
     <div class="links-grid">

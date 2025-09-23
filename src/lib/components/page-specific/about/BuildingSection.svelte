@@ -68,6 +68,6 @@
       rel="noopener noreferrer">here</a
     >
     and I'll look into getting it fixed for you.<br />
-    For security issues, please see our <a href="/security.txt"><code>security.txt</code></a>
+    For security issues, please see our <a href="https://networking-toolbox.as93.net/security.txt"><code>security.txt</code></a>
   </p>
 </section>

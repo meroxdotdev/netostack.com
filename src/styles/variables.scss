@@ -145,3 +145,209 @@ html[data-theme='light'] {
   --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.16);
 }
+
+/* Cyberpunk Theme - Neon tech aesthetic with glowing effects */
+.theme-cyberpunk,
+html[data-theme='cyberpunk'] {
+  /* Backgrounds - Dark with subtle purple undertones */
+  --bg-primary: #0a0614;
+  --bg-secondary: #110a1f;
+  --bg-tertiary: #1a0f2e;
+
+  /* Text - High contrast with slight glow */
+  --text-primary: #f0e6ff;
+  --text-secondary: #b8a6d9;
+  --text-tertiary: #8b7ba3;
+
+  /* Primary - Hot pink neon */
+  --color-primary: #ff00ff;
+  --color-primary-hover: #ff66ff;
+  --color-primary-dark: #cc00cc;
+
+  /* Action colors - Neon palette */
+  --color-success: #00ff88;
+  --color-success-light: #66ffaa;
+  --color-warning: #ffaa00;
+  --color-warning-light: #ffcc66;
+  --color-error: #ff0055;
+  --color-error-light: #ff6688;
+  --color-info: #00ddff;
+  --color-info-light: #66eeff;
+
+  --color-purple: #bf40ff;
+  --color-pink: #ff0099;
+
+  /* Borders & surfaces - Subtle neon glow */
+  --border-primary: #3d1f5c;
+  --border-secondary: #2a1540;
+  --surface-hover: #1f1033;
+  --surface-active: #2a1540;
+
+  /* Shadows with neon glow effect */
+  --shadow-sm: 0 0 4px rgba(255, 0, 255, 0.2);
+  --shadow-md: 0 0 12px rgba(255, 0, 255, 0.3);
+  --shadow-lg: 0 0 24px rgba(255, 0, 255, 0.4);
+
+  /* Fonts */
+  --font-heading: 'Orbitron', monospace;
+  --font-body: 'Share Tech Mono', monospace;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+
+/* Midnight Theme - Sophisticated deep blues and purples */
+.theme-midnight,
+html[data-theme='midnight'] {
+  /* Backgrounds - Deep midnight blues */
+  --bg-primary: #0a0e27;
+  --bg-secondary: #0f1538;
+  --bg-tertiary: #141c4c;
+
+  /* Text - Cool silver tones */
+  --text-primary: #e8eaf6;
+  --text-secondary: #9fa8da;
+  --text-tertiary: #7986cb;
+
+  /* Primary - Royal blue */
+  --color-primary: #5e72e4;
+  --color-primary-hover: #7e8fff;
+  --color-primary-dark: #3f51b5;
+
+  /* Action colors - Sophisticated palette */
+  --color-success: #56f1c7;
+  --color-success-light: #7fffd4;
+  --color-warning: #ffd93d;
+  --color-warning-light: #ffe566;
+  --color-error: #ff5252;
+  --color-error-light: #ff7979;
+  --color-info: #82b1ff;
+  --color-info-light: #a3c3ff;
+
+  --color-purple: #9c88ff;
+  --color-pink: #f8b5ce;
+
+  /* Borders & surfaces - Deep space */
+  --border-primary: #2a3f7d;
+  --border-secondary: #1e2c5f;
+  --surface-hover: #1a2555;
+  --surface-active: #243270;
+
+  /* Shadows - Deep and mysterious */
+  --shadow-sm: 0 2px 8px rgba(94, 114, 228, 0.1);
+  --shadow-md: 0 8px 20px rgba(94, 114, 228, 0.15);
+  --shadow-lg: 0 16px 40px rgba(94, 114, 228, 0.2);
+
+  /* Fonts */
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'IBM Plex Mono', monospace;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+/* Arctic Theme - Cool, crisp, and minimal */
+.theme-arctic,
+html[data-theme='arctic'] {
+  /* Backgrounds - Cool whites and light blues */
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e3f2fd;
+
+  /* Text - Deep slate for contrast */
+  --text-primary: #263238;
+  --text-secondary: #546e7a;
+  --text-tertiary: #78909c;
+
+  /* Primary - Ice blue */
+  --color-primary: #00acc1;
+  --color-primary-hover: #26c6da;
+  --color-primary-dark: #0097a7;
+
+  /* Action colors - Cool and crisp */
+  --color-success: #00897b;
+  --color-success-light: #26a69a;
+  --color-warning: #ffb300;
+  --color-warning-light: #ffc947;
+  --color-error: #e53935;
+  --color-error-light: #ef5350;
+  --color-info: #039be5;
+  --color-info-light: #29b6f6;
+
+  --color-purple: #7e57c2;
+  --color-pink: #ec407a;
+
+  /* Borders & surfaces - Clean and minimal */
+  --border-primary: #cfd8dc;
+  --border-secondary: #b0bec5;
+  --surface-hover: #eceff1;
+  --surface-active: #cfd8dc;
+
+  /* Shadows - Light and airy */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12);
+
+  /* Fonts */
+  --font-heading: 'Raleway', sans-serif;
+  --font-body: 'Raleway', sans-serif;
+  --font-mono: 'Source Code Pro', monospace;
+}
+
+/* Terminal Theme - Classic green-on-black terminal aesthetic */
+.theme-terminal,
+html[data-theme='terminal'] {
+  /* Backgrounds - Pure blacks */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #1a1a1a;
+
+  /* Text - Classic terminal green */
+  --text-primary: #00ff00;
+  --text-secondary: #00cc00;
+  --text-tertiary: #009900;
+
+  /* Primary - Bright green */
+  --color-primary: #00ff00;
+  --color-primary-hover: #66ff66;
+  --color-primary-dark: #00cc00;
+
+  /* Action colors - Retro terminal colors */
+  --color-success: #00ff00;
+  --color-success-light: #66ff66;
+  --color-warning: #ffff00;
+  --color-warning-light: #ffff66;
+  --color-error: #ff0000;
+  --color-error-light: #ff6666;
+  --color-info: #00ffff;
+  --color-info-light: #66ffff;
+
+  --color-purple: #ff00ff;
+  --color-pink: #ff00aa;
+
+  /* Borders & surfaces - Subtle terminal feel */
+  --border-primary: #00ff00;
+  --border-secondary: #009900;
+  --surface-hover: #001100;
+  --surface-active: #002200;
+
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 2px;
+
+  --spacing-2xs: 0.125rem;
+  --spacing-xs: 0.125rem;
+  --spacing-sm: 0.25rem;
+  --spacing-md: 0.5rem;
+  --spacing-lg: 0.75rem;
+  --spacing-xl: 1rem;
+  --spacing-2xl: 1.5rem;
+  
+
+  /* Shadows - CRT monitor glow */
+  --shadow-sm: 0 0 2px rgba(0, 255, 0, 0.5);
+  --shadow-md: 0 0 8px rgba(0, 255, 0, 0.3);
+  --shadow-lg: 0 0 20px rgba(0, 255, 0, 0.2);
+
+  /* Fonts */
+  --font-heading: 'JetBrains Mono', monospace;
+  --font-body: 'JetBrains Mono', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
+}

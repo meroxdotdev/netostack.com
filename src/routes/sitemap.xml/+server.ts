@@ -1,6 +1,8 @@
 import { ALL_PAGES, TOP_NAV, footerLinks, aboutPages } from '$lib/constants/nav';
 import { site } from '$lib/constants/site';
 
+export const prerender = true;
+
 /**
  * Dynamic sitemap.xml endpoint
  *

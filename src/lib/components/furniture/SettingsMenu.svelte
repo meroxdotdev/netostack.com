@@ -17,6 +17,7 @@
 
   let isOpen = $state(false);
   let showMoreA11y = $state(false);
+  let showMoreThemes = $state(false);
   let menuRef = $state<HTMLDivElement>();
   let triggerRef = $state<HTMLButtonElement>();
   let accessibilitySettings = $state(accessibility);
@@ -150,7 +151,8 @@
       <div class="settings-section">
         <h3>Theme</h3>
         <div class="theme-options" role="radiogroup" aria-label="Theme selection">
-          {#each themes as themeOption (themeOption.id)}
+          <!-- Primary themes (always visible - first 6) -->
+          {#each themes.slice(0, 6) as themeOption (themeOption.id)}
             <button
               class="theme-option"
               class:active={$currentTheme === themeOption.id}
@@ -167,7 +169,38 @@
               </span>
             </button>
           {/each}
+
+          <!-- Additional themes (expandable if more than 6) -->
+          {#if showMoreThemes && themes.length > 6}
+            <div class="additional-themes" transition:slide={{ duration: 300 }}>
+              {#each themes.slice(6) as themeOption (themeOption.id)}
+                <button
+                  class="theme-option"
+                  class:active={$currentTheme === themeOption.id}
+                  class:disabled={!themeOption.available}
+                  onclick={() => handleThemeChange(themeOption.id)}
+                  role="radio"
+                  aria-checked={$currentTheme === themeOption.id}
+                  disabled={!themeOption.available}
+                >
+                  <div class="theme-preview theme-{themeOption.id}"></div>
+                  <span>
+                    {themeOption.name}
+                    {!themeOption.available ? ' (Soon)' : ''}
+                  </span>
+                </button>
+              {/each}
+            </div>
+          {/if}
         </div>
+
+        <!-- Show more/less button (only if there are more than 6 themes) -->
+        {#if themes.length > 6}
+          <button class="show-more-btn" onclick={() => (showMoreThemes = !showMoreThemes)} aria-expanded={showMoreThemes}>
+            <Icon name={showMoreThemes ? 'chevron-up' : 'chevron-down'} size="sm" />
+            <span>{showMoreThemes ? 'Show less' : 'Show more themes'}</span>
+          </button>
+        {/if}
       </div>
 
       <!-- Language Selection -->
@@ -307,6 +340,8 @@
       left: 0;
       right: 0;
       width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
       animation: slideUp var(--transition-slow);
     }
@@ -327,13 +362,15 @@
     }
   }
 
-  .theme-options {
-    display: flex;
+  .theme-options, .additional-themes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
     gap: var(--spacing-xs);
+    .additional-themes {
+      grid-column: 1 / -1;
+    }
   }
-
   .theme-option {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -376,12 +413,22 @@
       background: linear-gradient(135deg, #0d1117 50%, #161b22 50%);
     }
     &.theme-ocean {
-      background: linear-gradient(135deg, #1a4c7a 50%, #2d5f8f 50%);
-      opacity: 0.6;
+      background: linear-gradient(135deg, #131c2b 50%, #70edb7 50%);
     }
     &.theme-purple {
-      background: linear-gradient(135deg, #473180 50%, #9052d3 50%);
-      opacity: 0.6;
+      background: linear-gradient(135deg, #13182b 50%, #cca6ff 50%);
+    }
+    &.theme-cyberpunk {
+      background: linear-gradient(135deg, #0a0614 50%, #ff00ff 50%);
+    }
+    &.theme-midnight {
+      background: linear-gradient(135deg, #0a0e27 50%, #5e72e4 50%);
+    }
+    &.theme-arctic {
+      background: linear-gradient(135deg, #f0f4f8 50%, #00acc1 50%);
+    }
+    &.theme-terminal {
+      background: linear-gradient(135deg, #000000 50%, #00ff00 50%);
     }
   }
 

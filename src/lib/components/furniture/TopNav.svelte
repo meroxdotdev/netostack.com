@@ -87,7 +87,8 @@
           icon: bookmark.icon,
           description: bookmark.description,
         }));
-        break;
+        // Show most recent bookmarks first
+        return items.reverse();
 
       case 'frequent':
         items = $frequentlyUsedTools.slice(0, 8).map((tool) => ({
@@ -96,20 +97,17 @@
           icon: tool.icon,
           description: tool.description,
         }));
-        break;
+        // Already sorted by frequency, no need to reverse
+        return items;
 
       case 'none':
-        items = [];
-        break;
+        return [];
 
       case 'default':
       default:
-        items = TOP_NAV;
-        break;
+        // Keep default navigation items in their original order
+        return TOP_NAV;
     }
-
-    // Reverse array so items overflow from left but appear in correct visual order
-    return items.reverse();
   })();
 
   onMount(() => {
@@ -119,7 +117,7 @@
   });
 </script>
 
-<nav class="top-nav" class:has-dropdowns={hasDropdowns} aria-label="Primary navigation">
+<nav id="navigation" class="top-nav" class:has-dropdowns={hasDropdowns} aria-label="Primary navigation">
   {#each navigationItems as item (item.href)}
     <div
       class="nav-item"

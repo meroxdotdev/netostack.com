@@ -2,6 +2,8 @@ import { site } from '$lib/constants/site';
 import type { LayoutServerLoad } from './$types';
 import { TOP_NAV, SUB_NAV, type NavItem } from '$lib/constants/nav';
 
+export const prerender = true; // Enable prerendering for all pages using this layout
+
 function findNavItem(href: string): NavItem | null {
   const top = TOP_NAV.find((i) => i.href === href);
   if (top) return top;
