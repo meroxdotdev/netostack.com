@@ -20,7 +20,7 @@ export const serviceWorkerRegistered = writable(false);
 export const offlineCapabilities = writable({
   cacheEnabled: false,
   backgroundSync: false,
-  pushNotifications: false
+  pushNotifications: false,
 });
 
 // Initialize offline functionality
@@ -37,12 +37,14 @@ export function initializeOfflineSupport() {
 
     // Trigger background sync if available
     if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
-      navigator.serviceWorker.ready.then(registration => {
-        // Cast to any to work around TypeScript sync API limitations
-        return (registration as any).sync.register('background-sync-bookmarks');
-      }).catch(err => {
-        log('Offline', ' Background sync failed:', err);
-      });
+      navigator.serviceWorker.ready
+        .then((registration) => {
+          // Cast to any to work around TypeScript sync API limitations
+          return (registration as any).sync.register('background-sync-bookmarks');
+        })
+        .catch((err) => {
+          log('Offline', ' Background sync failed:', err);
+        });
     }
   };
 
@@ -76,7 +78,7 @@ async function registerServiceWorker() {
 
   try {
     const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/'
+      scope: '/',
     });
 
     serviceWorkerRegistered.set(true);
@@ -86,7 +88,7 @@ async function registerServiceWorker() {
     offlineCapabilities.set({
       cacheEnabled: true,
       backgroundSync: 'sync' in (registration as any),
-      pushNotifications: 'showNotification' in registration
+      pushNotifications: 'showNotification' in registration,
     });
 
     // Listen for service worker updates
@@ -119,7 +121,6 @@ async function registerServiceWorker() {
           log('SW', ' Unknown message type:', type);
       }
     });
-
   } catch (error) {
     log('SW', 'Service worker registration failed:', error);
     serviceWorkerRegistered.set(false);
@@ -130,32 +131,36 @@ async function registerServiceWorker() {
 export function cacheBookmark(url: string) {
   if (!browser || !('serviceWorker' in navigator)) return;
 
-  navigator.serviceWorker.ready.then(registration => {
-    if (registration.active) {
-      registration.active.postMessage({
-        type: 'CACHE_BOOKMARK',
-        url: url
-      });
-    }
-  }).catch(error => {
-    log('SW', ' Failed to cache bookmark:', error);
-  });
+  navigator.serviceWorker.ready
+    .then((registration) => {
+      if (registration.active) {
+        registration.active.postMessage({
+          type: 'CACHE_BOOKMARK',
+          url: url,
+        });
+      }
+    })
+    .catch((error) => {
+      log('SW', ' Failed to cache bookmark:', error);
+    });
 }
 
 // Cache all bookmarks at once
 export function cacheAllBookmarks(bookmarks: any[]) {
   if (!browser || !('serviceWorker' in navigator)) return;
 
-  navigator.serviceWorker.ready.then(registration => {
-    if (registration.active) {
-      registration.active.postMessage({
-        type: 'CACHE_ALL_BOOKMARKS',
-        bookmarks: bookmarks
-      });
-    }
-  }).catch(error => {
-    log('SW', ' Failed to cache all bookmarks:', error);
-  });
+  navigator.serviceWorker.ready
+    .then((registration) => {
+      if (registration.active) {
+        registration.active.postMessage({
+          type: 'CACHE_ALL_BOOKMARKS',
+          bookmarks: bookmarks,
+        });
+      }
+    })
+    .catch((error) => {
+      log('SW', ' Failed to cache all bookmarks:', error);
+    });
 }
 
 // Sync bookmarks data (called by service worker)
@@ -176,8 +181,8 @@ function getAllToolRoutes(): string[] {
   const toolRoutes: string[] = [];
 
   // Iterate through all sections in SUB_NAV
-  Object.values(SUB_NAV).forEach(sectionItems => {
-    sectionItems.forEach(item => {
+  Object.values(SUB_NAV).forEach((sectionItems) => {
+    sectionItems.forEach((item) => {
       if ('href' in item && item.href) {
         // Extract the route pattern from the href
         const pathParts = item.href.split('/').filter(Boolean);
@@ -189,7 +194,7 @@ function getAllToolRoutes(): string[] {
         }
       } else if ('items' in item && item.items) {
         // Handle NavGroup - extract routes from nested items
-        item.items.forEach(subItem => {
+        item.items.forEach((subItem) => {
           if (subItem.href) {
             const pathParts = subItem.href.split('/').filter(Boolean);
             if (pathParts.length >= 2) {
@@ -210,11 +215,11 @@ function getAllToolRoutes(): string[] {
 // Check if a URL is an actual downloadable tool (not just a regular page)
 export function isDownloadableTool(url: string): boolean {
   const toolRoutes = getAllToolRoutes();
-  return toolRoutes.some(route => url.includes(route));
+  return toolRoutes.some((route) => url.includes(route));
 }
 
 // Derived store for offline-ready status
 export const offlineReady = derived(
   [serviceWorkerRegistered, offlineCapabilities],
-  ([$registered, $capabilities]) => $registered && $capabilities.cacheEnabled
+  ([$registered, $capabilities]) => $registered && $capabilities.cacheEnabled,
 );

@@ -11,7 +11,7 @@
 
     const handleOnline = () => {
       isOnline = true;
-      setTimeout(() => window.location.href = '/', 1000);
+      setTimeout(() => (window.location.href = '/'), 1000);
     };
 
     const handleOffline = () => {
@@ -35,14 +35,14 @@
 
 <div class="offline-page">
   <div class="status-section">
-    <Icon name={isOnline ? "online" : "offline"} size="lg" />
+    <Icon name={isOnline ? 'online' : 'offline'} size="lg" />
 
     <h1>
-      {isOnline ? "Back Online" : "You're Offline"}
+      {isOnline ? 'Back Online' : "You're Offline"}
     </h1>
 
     <p class="status" class:online={isOnline} class:offline={!isOnline}>
-      {isOnline ? "Connection restored! Redirecting..." : "Your bookmarked tools work offline"}
+      {isOnline ? 'Connection restored! Redirecting...' : 'Your bookmarked tools work offline'}
     </p>
   </div>
 
@@ -59,48 +59,48 @@
 </div>
 
 <style lang="scss">
-.offline-page {
-  width: 100%;
-  max-width: none;
-  padding: 2rem;
-}
-
-.status-section {
-  text-align: center;
-  margin-bottom: 3rem;
-
-  h1 {
-    margin: 1rem 0 0.5rem;
+  .offline-page {
+    width: 100%;
+    max-width: none;
+    padding: 2rem;
   }
 
-  .status {
-    font-weight: 500;
-    padding: 0.75rem;
-    border-radius: var(--radius);
+  .status-section {
+    text-align: center;
+    margin-bottom: 3rem;
 
-    &.online {
-      color: var(--color-success);
-      background: color-mix(in srgb, var(--color-success), transparent 90%);
+    h1 {
+      margin: 1rem 0 0.5rem;
     }
 
-    &.offline {
-      color: var(--color-warning);
-      background: color-mix(in srgb, var(--color-warning), transparent 90%);
-    }
-  }
-}
+    .status {
+      font-weight: 500;
+      padding: 0.75rem;
+      border-radius: var(--radius);
 
-.empty-state {
-  text-align: center;
-  color: var(--color-text-muted);
+      &.online {
+        color: var(--color-success);
+        background: color-mix(in srgb, var(--color-success), transparent 90%);
+      }
 
-  a {
-    color: var(--color-primary);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
+      &.offline {
+        color: var(--color-warning);
+        background: color-mix(in srgb, var(--color-warning), transparent 90%);
+      }
     }
   }
-}
+
+  .empty-state {
+    text-align: center;
+    color: var(--color-text-muted);
+
+    a {
+      color: var(--color-primary);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
 </style>

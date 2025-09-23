@@ -13,10 +13,10 @@
   $: messageData = isOfflinePage
     ? { message: 'Currently offline. Awaiting internet connection...', showLink: false, isError: false }
     : isActualTool
-    ? { message: 'You are offline. This tool has been downloaded.', showLink: false, isError: false }
-    : !worksOffline
-    ? { message: 'This tool may not function correctly without network access', showLink: false, isError: true }
-    : { message: 'Offline, limited functionality available.', showLink: true, isError: false };
+      ? { message: 'You are offline. This tool has been downloaded.', showLink: false, isError: false }
+      : !worksOffline
+        ? { message: 'This tool may not function correctly without network access', showLink: false, isError: true }
+        : { message: 'Offline, limited functionality available.', showLink: true, isError: false };
 
   $: message = messageData.message;
   $: showOfflineLink = messageData.showLink;

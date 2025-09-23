@@ -11,6 +11,6 @@ export const load: PageServerLoad = async () => {
   return {
     breadcrumbJsonLd: null, // No breadcrumbs needed for offline page
     version: '0.2.5', // Hardcoded fallback version for offline page
-    isOfflinePage: true // Flag to indicate this is the special offline page
+    isOfflinePage: true, // Flag to indicate this is the special offline page
   };
 };
