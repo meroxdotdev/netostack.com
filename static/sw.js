@@ -23,9 +23,9 @@ function error(...args) {
 // Removed - using hardcoded cache version
 
 const CACHE_VERSION = '0.2.5';
-const CACHE_NAME = 'ip-calc-v0.2.5';
-const STATIC_CACHE = `ip-calc-static-v${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `ip-calc-dynamic-v${CACHE_VERSION}`;
+const CACHE_NAME = 'networking-toolbox-v0.2.5';
+const STATIC_CACHE = `networking-toolbox-static-v${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `networking-toolbox-dynamic-v${CACHE_VERSION}`;
 
 log('Using cache version:', CACHE_VERSION);
 
@@ -207,7 +207,7 @@ async function handlePageRequest(request) {
     // If not in current cache, try all caches (version fallback)
     const allCaches = await caches.keys();
     for (const cacheName of allCaches) {
-      if (cacheName.startsWith('ip-calc-v')) {
+      if (cacheName.startsWith('networking-toolbox-v')) {
         const oldCache = await caches.open(cacheName);
         cached = await oldCache.match(request);
         if (cached) {

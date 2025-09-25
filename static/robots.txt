@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://ip-calc.as93.net/sitemap.xml
+Sitemap: https://networking-toolbox.as93.net/sitemap.xml

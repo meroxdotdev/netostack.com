@@ -505,7 +505,7 @@
         </div>
 
         <!-- Calculation Steps -->
-        <div class="calculation-steps">
+        <div class="card calculation-steps">
           <h4>
             <Icon name="list-ordered" size="sm" />
             Parsing Steps

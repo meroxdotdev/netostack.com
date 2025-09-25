@@ -677,6 +677,7 @@
       display: flex;
       gap: var(--spacing-sm);
       margin-bottom: var(--spacing-md);
+      max-width: 20rem;
 
       .tab {
         display: flex;

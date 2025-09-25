@@ -397,7 +397,7 @@
     <div class="education-grid">
       <div class="education-card">
         <h4>
-          <Icon name="book-open" size="sm" />
+          <Icon name="info" size="sm" />
           What is NDP?
         </h4>
         <p>
@@ -517,7 +517,7 @@
 
     h3 {
       margin: 0;
-      color: var(--color-info-light);
+      color: var(--color-primary);
       font-size: var(--font-size-md);
     }
   }
@@ -766,7 +766,7 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
-      color: var(--color-info-light);
+      color: var(--color-primary);
       margin-bottom: var(--spacing-lg);
     }
   }
@@ -815,7 +815,7 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
-      color: var(--color-info-light);
+      color: var(--color-primary);
       margin-bottom: var(--spacing-md);
     }
   }
@@ -910,7 +910,7 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
-      color: var(--color-info-light);
+      color: var(--color-primary);
       margin-bottom: var(--spacing-md);
       font-size: var(--font-size-md);
     }
