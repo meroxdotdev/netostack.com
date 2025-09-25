@@ -929,13 +929,6 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       title: 'Zone File Tools',
       items: [
         {
-          href: makePath('/dns/zone'),
-          label: 'Zone File Tools',
-          description: 'DNS zone file management and utilities',
-          icon: 'dns-zone',
-          keywords: ['dns', 'zone', 'file', 'tools', 'management']
-        },
-        {
           href: makePath('/dns/zone/linter'),
           label: 'Zone Linter',
           description: 'Normalize and canonicalize BIND zone files with error checking and formatting',
@@ -1036,13 +1029,6 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
     {
       title: 'DNS Diagnostics',
       items: [
-        {
-          href: makePath('/diagnostics/dns'),
-          label: 'DNS Diagnostics',
-          description: 'Comprehensive DNS troubleshooting and analysis tools',
-          icon: 'dns-diagnostics',
-          keywords: ['dns', 'diagnostics', 'troubleshooting', 'analysis', 'lookup']
-        },
         {
           href: makePath('/diagnostics/dns/lookup'),
           label: 'DNS Lookup',
@@ -1487,7 +1473,7 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'Network Classes (A/B/C)',
           description: 'Legacy network classes and their modern CIDR equivalents',
           icon: 'ref-network-classes',
-          keywords: ['network', 'classes', 'class', 'a', 'b', 'c', 'legacy', 'cidr']
+          keywords: ['network', 'classes', 'class-a', 'class-b', 'class-c', 'legacy', 'cidr']
         },
         {
           href: makePath('/reference/reserved-ranges'),
@@ -1855,12 +1841,12 @@ function extractAllNavItems(navStructure: (NavItem | NavGroup)[]): NavItem[] {
   const items: NavItem[] = [];
 
   for (const item of navStructure) {
-    if ('href' in item) {
-      // It's a NavItem
-      items.push(item);
-    } else if ('title' in item && 'items' in item) {
-      // It's a NavGroup
+    if ('items' in item) {
+      // It's a NavGroup (might have href too, but we only want its items)
       items.push(...item.items);
+    } else if ('href' in item && 'label' in item) {
+      // It's a NavItem (has href and label)
+      items.push(item as NavItem);
     }
   }
 
