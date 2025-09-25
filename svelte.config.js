@@ -53,7 +53,7 @@ function getAdapter() {
 	const isDocker = !!(process.env.DOCKER_CONTAINER || process.env.KUBERNETES_SERVICE_HOST ||
 		process.env.HOSTNAME?.includes('docker') || process.env.container === 'docker');
 	const isNodeServer = !!(process.env.NODE_ENV === 'production' &&
-		(process.env.PORT || process.env.HOST || process.env.SERVER_HOST));
+		(process.env.PORT || process.env.HOST || process.env.SERVER_HOST) || process.env.GITHUB_ACTIONS);
 	const isStatic = !!(process.env.CI && (process.env.GITHUB_ACTIONS || process.env.GITLAB_CI) &&
 		process.env.BUILD_STATIC === 'true');
 

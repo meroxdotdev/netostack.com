@@ -48,7 +48,7 @@ function normalizeCIDR(cidr: string): string {
 
   // Calculate network address
   const ip = parseIP(ipStr);
-  const mask = 0xffffffff << (32 - prefixLength);
+  const mask = (0xffffffff << (32 - prefixLength)) >>> 0;
   const networkAddress = ip & mask;
 
   return `${ipToString(networkAddress)}/${prefixLength}`;

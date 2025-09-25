@@ -103,7 +103,9 @@
 {/if}
 
 <style lang="scss">
-  .sitemap-link { display: none; }
+  .sitemap-link {
+    display: none;
+  }
   /* Homepage specific styles */
   .hero {
     text-align: center;

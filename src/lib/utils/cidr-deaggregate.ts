@@ -31,6 +31,11 @@ function ipToString(ip: number): string {
 function parseCIDR(cidr: string): { network: number; prefixLength: number; size: number } {
   const [networkStr, prefixStr] = cidr.split('/');
   const prefixLength = parseInt(prefixStr);
+
+  if (isNaN(prefixLength) || prefixLength < 0 || prefixLength > 32) {
+    throw new Error(`Invalid prefix length: /${prefixStr}`);
+  }
+
   const network = parseIP(networkStr) & (0xffffffff << (32 - prefixLength));
   const size = Math.pow(2, 32 - prefixLength);
   return { network, prefixLength, size };
