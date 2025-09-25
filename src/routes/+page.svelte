@@ -59,6 +59,7 @@
   <div class="hero-content">
     <h2>{site.title}</h2>
     <p class="hero-description">{about.line1}</p>
+    <a href="/sitemap" class="sitemap-link">Sitemap</a>
   </div>
 </section>
 
@@ -102,6 +103,7 @@
 {/if}
 
 <style lang="scss">
+  .sitemap-link { display: none; }
   /* Homepage specific styles */
   .hero {
     text-align: center;
