@@ -31,6 +31,7 @@ import { ipv4ToIPv6, ipv6ToIPv4, compressIPv6, expandIPv6 } from './ip-family-co
 import { generateULAAddresses } from './ula.js';
 import { processIPv6ZoneIdentifiers } from './ipv6-zone-id.js';
 import { convertEUI64Addresses } from './eui64.js';
+import { serializeBigInt } from './json-serialization.js';
 
 // DNS utilities
 import {
@@ -161,17 +162,6 @@ export const apiRegistry: Record<string, APIEndpoint> = {
   },
   split: {
     handler: (params) => {
-      const serializeBigInt = (obj: any): any => {
-        if (typeof obj === 'bigint') return obj.toString();
-        if (Array.isArray(obj)) return obj.map(serializeBigInt);
-        if (obj !== null && typeof obj === 'object') {
-          const result: any = {};
-          for (const key in obj) result[key] = serializeBigInt(obj[key]);
-          return result;
-        }
-        return obj;
-      };
-
       let result;
       if (params.prefix || params.targetPrefix) {
         result = splitCIDRByPrefix(params.cidr, params.prefix || params.targetPrefix);
@@ -212,16 +202,6 @@ export const apiRegistry: Record<string, APIEndpoint> = {
   },
   diff: {
     handler: (params) => {
-      const serializeBigInt = (obj: any): any => {
-        if (typeof obj === 'bigint') return obj.toString();
-        if (Array.isArray(obj)) return obj.map(serializeBigInt);
-        if (obj !== null && typeof obj === 'object') {
-          const result: any = {};
-          for (const key in obj) result[key] = serializeBigInt(obj[key]);
-          return result;
-        }
-        return obj;
-      };
       const inputA = Array.isArray(params.setA) ? params.setA.join('\n') : params.setA;
       const inputB = Array.isArray(params.setB) ? params.setB.join('\n') : params.setB;
       const result = computeCIDRDifference(inputA, inputB);
@@ -232,16 +212,6 @@ export const apiRegistry: Record<string, APIEndpoint> = {
   },
   overlap: {
     handler: (params) => {
-      const serializeBigInt = (obj: any): any => {
-        if (typeof obj === 'bigint') return obj.toString();
-        if (Array.isArray(obj)) return obj.map(serializeBigInt);
-        if (obj !== null && typeof obj === 'object') {
-          const result: any = {};
-          for (const key in obj) result[key] = serializeBigInt(obj[key]);
-          return result;
-        }
-        return obj;
-      };
       const inputA = Array.isArray(params.setA) ? params.setA.join('\n') : params.setA;
       const inputB = Array.isArray(params.setB) ? params.setB.join('\n') : params.setB;
       const result = computeCIDROverlap(inputA, inputB);
@@ -252,16 +222,6 @@ export const apiRegistry: Record<string, APIEndpoint> = {
   },
   contains: {
     handler: (params) => {
-      const serializeBigInt = (obj: any): any => {
-        if (typeof obj === 'bigint') return obj.toString();
-        if (Array.isArray(obj)) return obj.map(serializeBigInt);
-        if (obj !== null && typeof obj === 'object') {
-          const result: any = {};
-          for (const key in obj) result[key] = serializeBigInt(obj[key]);
-          return result;
-        }
-        return obj;
-      };
       const inputA = Array.isArray(params.setA) ? params.setA.join('\n') : params.setA;
       const inputB = Array.isArray(params.setB) ? params.setB.join('\n') : params.setB;
       const result = computeCIDRContains(inputA, inputB);
@@ -304,16 +264,6 @@ export const apiRegistry: Record<string, APIEndpoint> = {
   },
   distance: {
     handler: (params) => {
-      const serializeBigInt = (obj: any): any => {
-        if (typeof obj === 'bigint') return obj.toString();
-        if (Array.isArray(obj)) return obj.map(serializeBigInt);
-        if (obj !== null && typeof obj === 'object') {
-          const result: any = {};
-          for (const key in obj) result[key] = serializeBigInt(obj[key]);
-          return result;
-        }
-        return obj;
-      };
       const input = `${params.ip1} ${params.ip2}`;
       const result = calculateIPDistances([input], params.inclusive || false);
       return serializeBigInt(result);
@@ -323,16 +273,6 @@ export const apiRegistry: Record<string, APIEndpoint> = {
   },
   random: {
     handler: (params) => {
-      const serializeBigInt = (obj: any): any => {
-        if (typeof obj === 'bigint') return obj.toString();
-        if (Array.isArray(obj)) return obj.map(serializeBigInt);
-        if (obj !== null && typeof obj === 'object') {
-          const result: any = {};
-          for (const key in obj) result[key] = serializeBigInt(obj[key]);
-          return result;
-        }
-        return obj;
-      };
       if (!params.input) throw new Error('input parameter is required');
       const result = generateRandomIPAddresses(params.input, params.count || 10, params.seed);
       return serializeBigInt(result);
@@ -342,16 +282,6 @@ export const apiRegistry: Record<string, APIEndpoint> = {
   },
   'nth-ip': {
     handler: (params) => {
-      const serializeBigInt = (obj: any): any => {
-        if (typeof obj === 'bigint') return obj.toString();
-        if (Array.isArray(obj)) return obj.map(serializeBigInt);
-        if (obj !== null && typeof obj === 'object') {
-          const result: any = {};
-          for (const key in obj) result[key] = serializeBigInt(obj[key]);
-          return result;
-        }
-        return obj;
-      };
       if (!params.input) throw new Error('input parameter is required');
       const result = calculateNthIPs(params.input);
       return serializeBigInt(result);
@@ -441,16 +371,6 @@ export const apiRegistry: Record<string, APIEndpoint> = {
   enumerate: {
     handler: (params) => {
       // This will use existing utilities to enumerate IPs in ranges
-      const serializeBigInt = (obj: any): any => {
-        if (typeof obj === 'bigint') return obj.toString();
-        if (Array.isArray(obj)) return obj.map(serializeBigInt);
-        if (obj !== null && typeof obj === 'object') {
-          const result: any = {};
-          for (const key in obj) result[key] = serializeBigInt(obj[key]);
-          return result;
-        }
-        return obj;
-      };
       if (!params.input) throw new Error('input parameter is required');
       // Use calculateNthIPs with enumerate mode
       const result = calculateNthIPs([`${params.input}\n1,${params.limit || 100}`]);

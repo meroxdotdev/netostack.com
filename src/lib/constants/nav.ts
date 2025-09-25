@@ -21,7 +21,20 @@ export type NavGroup = {
 };
 
 // Individual standalone pages
-export const STANDALONE_PAGES: NavItem[] = [];
+export const STANDALONE_PAGES: NavItem[] = [
+  {
+    href: makePath('/bookmarks'),
+    label: 'Bookmarks',
+    description: 'Saved network calculations and frequently used tools',
+    keywords: ['bookmarks', 'saved', 'favorites', 'shortcuts', 'calculations']
+  },
+  {
+    href: makePath('/offline'),
+    label: 'Offline',
+    description: 'Offline mode and cached calculations',
+    keywords: ['offline', 'cache', 'no-internet', 'local']
+  },
+];
 
 export const TOP_NAV: NavItem[] = [
   {
@@ -214,6 +227,7 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
   ],
   '/cidr': [
     {
+      href: makePath('/cidr/mask-converter'),
       title: 'CIDR Masks',
       description: 'Convert between CIDR notation and subnet masks',
       items: [
@@ -327,6 +341,7 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       ],
     },
     {
+      href: makePath('/cidr/set-operations'),
       title: 'Set Operations',
       items: [
         {
@@ -685,6 +700,20 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
   ],
   '/dns': [
     {
+      href: makePath('/dns/generators'),
+      title: 'DNS Generators',
+      description: 'DNS record generators and zone file tools',
+      items: [
+        {
+          href: makePath('/dns/generators/ptr-generator'),
+          label: 'PTR Generator',
+          description: 'Generate PTR records for reverse DNS zones',
+          icon: 'ptr-generator',
+          keywords: ['ptr', 'reverse', 'dns', 'generator']
+        }
+      ]
+    },
+    {
       title: 'Reverse DNS',
       items: [
         {
@@ -900,6 +929,13 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       title: 'Zone File Tools',
       items: [
         {
+          href: makePath('/dns/zone'),
+          label: 'Zone File Tools',
+          description: 'DNS zone file management and utilities',
+          icon: 'dns-zone',
+          keywords: ['dns', 'zone', 'file', 'tools', 'management']
+        },
+        {
           href: makePath('/dns/zone/linter'),
           label: 'Zone Linter',
           description: 'Normalize and canonicalize BIND zone files with error checking and formatting',
@@ -1000,6 +1036,13 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
     {
       title: 'DNS Diagnostics',
       items: [
+        {
+          href: makePath('/diagnostics/dns'),
+          label: 'DNS Diagnostics',
+          description: 'Comprehensive DNS troubleshooting and analysis tools',
+          icon: 'dns-diagnostics',
+          keywords: ['dns', 'diagnostics', 'troubleshooting', 'analysis', 'lookup']
+        },
         {
           href: makePath('/diagnostics/dns/lookup'),
           label: 'DNS Lookup',
@@ -1433,6 +1476,27 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
       title: 'Special Addresses',
       items: [
         {
+          href: makePath('/reference/common-subnets'),
+          label: 'Common Subnet Sizes',
+          description: 'Quick reference for common subnet sizes and host counts',
+          icon: 'ref-common-subnets',
+          keywords: ['common', 'subnets', 'sizes', 'host', 'counts', 'reference', 'quick']
+        },
+        {
+          href: makePath('/reference/network-classes'),
+          label: 'Network Classes (A/B/C)',
+          description: 'Legacy network classes and their modern CIDR equivalents',
+          icon: 'ref-network-classes',
+          keywords: ['network', 'classes', 'class', 'a', 'b', 'c', 'legacy', 'cidr']
+        },
+        {
+          href: makePath('/reference/reserved-ranges'),
+          label: 'Reserved IP Ranges',
+          description: 'Comprehensive list of reserved and special-use IP address ranges',
+          icon: 'ref-reserved-ranges',
+          keywords: ['reserved', 'ranges', 'special', 'use', 'ip', 'addresses', 'rfc']
+        },
+        {
           href: makePath('/reference/special-use-ipv4'),
           label: 'Special-Use IPv4 Blocks (RFC 6890)',
           description: 'Reserved IPv4 ranges including private networks, CGNAT, and test blocks',
@@ -1735,12 +1799,6 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
 };
 
 export const aboutPages: NavItem[] = [
-  {
-    href: makePath('/about'),
-    label: 'About',
-    description: `About and its mission`,
-    keywords: ['about', 'mission', 'team', 'project', 'information'],
-  },
   {
     href: makePath('/about/api'),
     label: 'API Usage',

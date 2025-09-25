@@ -1,20 +1,25 @@
-name: 🐙 Deploy to GitHub Pages
+name: 🚀 Deploy
 
 on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'Base URL path (e.g., /networking-toolbox)'
+        description: >-
+          Base URL path.
+          If deploying to GH Pages, this must match the repo name - e.g. `/networking-toolbox`.
+          For other environments, use `/` (or leave blank) to deploy to base of the domain.
         required: false
         default: '/networking-toolbox'
         type: string
       node_version:
-        description: 'Node.js version'
+        description: 'Node.js version. >=22 (Jod LTS +) is recommended'
         required: false
         default: '22'
         type: string
       deploy_env:
-        description: 'Deployment environment'
+        description: >-
+            Deployment environment.
+            See the docs for choosing the right environment for your instance.
         required: false
         default: 'static'
         type: choice
@@ -57,7 +62,7 @@ jobs:
 
       - name: Build static site
         env:
-          BASE_URL: ${{ inputs.base_url }}
+          BASE_URL: ${{ inputs.base_url || '/'}}
           DEPLOY_ENV: ${{ inputs.deploy_env }}
         run: npm run build
 
