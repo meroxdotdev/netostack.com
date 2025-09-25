@@ -3,7 +3,7 @@
  * Common helpers for testing API endpoints against Swagger specification
  */
 
-export const API_BASE_URL = 'http://localhost:5175';
+export const API_BASE_URL = 'http://localhost:4175';
 
 /**
  * Convert IP object to dotted decimal notation
