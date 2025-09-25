@@ -11,7 +11,7 @@ export interface ToolUsage {
   };
 }
 
-const STORAGE_KEY = 'ip-calc-tool-usage';
+const STORAGE_KEY = 'networking-toolbox-tool-usage';
 
 const thresholdVisits = 4;
 const maxItems = 6;

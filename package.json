@@ -1,5 +1,5 @@
 {
-	"name": "ip-calc",
+	"name": "networking-toolbox",
 	"private": true,
 	"version": "0.2.5",
 	"type": "module",
@@ -18,6 +18,7 @@
 		"test": "vitest",
 		"test:ui": "vitest --ui",
 		"test:coverage": "vitest --coverage",
+		"test:api": "vitest run --config tests/vitest.api.config.ts",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui"
 	},

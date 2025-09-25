@@ -438,7 +438,7 @@
     <section class="options-section">
       <h4>Advanced Options</h4>
       <div class="options-grid">
-        {#each ADVANCED_OPTIONS as option (option.key)}
+        {#each ADVANCED_OPTIONS as option (`${option.ipClass}-${option.key}`)}
           {#if option.showForType.includes(regexType)}
             <label class="checkbox-label checkbox-option" class:selected={getOptionValue(option)}>
               <input

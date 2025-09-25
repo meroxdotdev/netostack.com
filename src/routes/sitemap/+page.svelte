@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TOP_NAV, aboutPages, SUB_NAV, type NavItem, type NavGroup } from '$lib/constants/nav';
+  import { TOP_NAV, aboutPages, SUB_NAV, STANDALONE_PAGES, type NavItem, type NavGroup } from '$lib/constants/nav';
   import { resolve } from '$app/paths';
 
   interface TreeNode {
@@ -23,9 +23,17 @@
       const subNavData = SUB_NAV[topItem.href];
 
       if (subNavData) {
-        section.children = subNavData.map((item) =>
-          'href' in item ? mapToNode(item) : { ...mapToNode(item), children: item.items.map(mapToNode) },
-        );
+        section.children = subNavData.map((item) => {
+          if ('items' in item) {
+            // It's a NavGroup with items - might have an href for the category page
+            const groupNode = mapToNode(item);
+            groupNode.children = item.items.map(mapToNode);
+            return groupNode;
+          } else {
+            // It's a NavItem
+            return mapToNode(item);
+          }
+        });
       }
       return section;
     }),
@@ -33,9 +41,19 @@
       ? [
           {
             label: 'About',
-            href: null,
+            href: resolve('/about'),
             description: 'Information about the project and documentation',
             children: aboutPages.map(mapToNode),
+          },
+        ]
+      : []),
+    ...(STANDALONE_PAGES.length
+      ? [
+          {
+            label: 'Other Pages',
+            href: resolve('/'),
+            description: 'Additional tools and utilities',
+            children: STANDALONE_PAGES.map(mapToNode),
           },
         ]
       : []),

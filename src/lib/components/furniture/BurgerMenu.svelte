@@ -135,10 +135,13 @@
     let standaloneItems: NavItem[] = [];
 
     for (const item of items) {
-      if ('href' in item) {
-        standaloneItems.push(item);
-      } else if ('title' in item && 'items' in item) {
+      // Check if it's a NavGroup (has 'title' and 'items')
+      if ('title' in item && 'items' in item) {
+        // It's a NavGroup - add its items to a group (ignore the NavGroup's href if it has one)
         groups.push({ title: item.title, items: item.items });
+      } else if ('href' in item && !('items' in item)) {
+        // Only add as standalone if it's purely a NavItem (not a NavGroup with href)
+        standaloneItems.push(item);
       }
     }
 

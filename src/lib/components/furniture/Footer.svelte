@@ -7,7 +7,7 @@
   <!-- <p>
     Built with 🩷 and 🍺 by
     <a href="https://github.com/lissy93" target="_blank" rel="noopener noreferrer">Lissy93</a>.
-    <a href="https://github.com/lissy93/ip-calc" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+    <a href="https://github.com/lissy93/networking-toolbox" target="_blank" rel="noopener noreferrer">View on GitHub</a>
   </p> -->
   <p class="footer-sub">
     <a href={site.url} target="_blank" rel="noopener noreferrer">{site.title}</a>

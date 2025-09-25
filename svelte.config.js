@@ -50,11 +50,11 @@ function getAdapter() {
 	// Auto-detection based on environment variables
 	const isVercel = !!(process.env.VERCEL || process.env.VERCEL_ENV);
 	const isNetlify = !!(process.env.NETLIFY || process.env.NETLIFY_SITE_ID);
-	const isDocker = !!(process.env.DOCKER_CONTAINER || process.env.KUBERNETES_SERVICE_HOST || 
+	const isDocker = !!(process.env.DOCKER_CONTAINER || process.env.KUBERNETES_SERVICE_HOST ||
 		process.env.HOSTNAME?.includes('docker') || process.env.container === 'docker');
-	const isNodeServer = !!(process.env.NODE_ENV === 'production' && 
-		(process.env.PORT || process.env.HOST || process.env.SERVER_HOST));
-	const isStatic = !!(process.env.CI && (process.env.GITHUB_ACTIONS || process.env.GITLAB_CI) && 
+	const isNodeServer = !!(process.env.NODE_ENV === 'production' &&
+		(process.env.PORT || process.env.HOST || process.env.SERVER_HOST) || process.env.GITHUB_ACTIONS);
+	const isStatic = !!(process.env.CI && (process.env.GITHUB_ACTIONS || process.env.GITLAB_CI) &&
 		process.env.BUILD_STATIC === 'true');
 
 	if (isVercel) {
@@ -80,8 +80,10 @@ const config = {
 			base: process.env.BASE_URL || process.env.BASE_PATH || '',
 		},
 		prerender: {
+			entries: ['/', '/sitemap'] ,
 			handleHttpError: 'warn',
-			handleMissingId: 'warn'
+			handleMissingId: 'warn',
+			handleUnseenRoutes: 'warn',
 		}
 	},
 	vite: {
