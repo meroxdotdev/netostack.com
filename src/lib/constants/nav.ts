@@ -26,13 +26,13 @@ export const STANDALONE_PAGES: NavItem[] = [
     href: makePath('/bookmarks'),
     label: 'Bookmarks',
     description: 'Saved network calculations and frequently used tools',
-    keywords: ['bookmarks', 'saved', 'favorites', 'shortcuts', 'calculations']
+    keywords: ['bookmarks', 'saved', 'favorites', 'shortcuts', 'calculations'],
   },
   {
     href: makePath('/offline'),
     label: 'Offline',
     description: 'Offline mode and cached calculations',
-    keywords: ['offline', 'cache', 'no-internet', 'local']
+    keywords: ['offline', 'cache', 'no-internet', 'local'],
   },
 ];
 
@@ -709,9 +709,9 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'PTR Generator',
           description: 'Generate PTR records for reverse DNS zones',
           icon: 'ptr-generator',
-          keywords: ['ptr', 'reverse', 'dns', 'generator']
-        }
-      ]
+          keywords: ['ptr', 'reverse', 'dns', 'generator'],
+        },
+      ],
     },
     {
       title: 'Reverse DNS',
@@ -1466,21 +1466,21 @@ export const SUB_NAV: Record<string, (NavItem | NavGroup)[]> = {
           label: 'Common Subnet Sizes',
           description: 'Quick reference for common subnet sizes and host counts',
           icon: 'ref-common-subnets',
-          keywords: ['common', 'subnets', 'sizes', 'host', 'counts', 'reference', 'quick']
+          keywords: ['common', 'subnets', 'sizes', 'host', 'counts', 'reference', 'quick'],
         },
         {
           href: makePath('/reference/network-classes'),
           label: 'Network Classes (A/B/C)',
           description: 'Legacy network classes and their modern CIDR equivalents',
           icon: 'ref-network-classes',
-          keywords: ['network', 'classes', 'class-a', 'class-b', 'class-c', 'legacy', 'cidr']
+          keywords: ['network', 'classes', 'class-a', 'class-b', 'class-c', 'legacy', 'cidr'],
         },
         {
           href: makePath('/reference/reserved-ranges'),
           label: 'Reserved IP Ranges',
           description: 'Comprehensive list of reserved and special-use IP address ranges',
           icon: 'ref-reserved-ranges',
-          keywords: ['reserved', 'ranges', 'special', 'use', 'ip', 'addresses', 'rfc']
+          keywords: ['reserved', 'ranges', 'special', 'use', 'ip', 'addresses', 'rfc'],
         },
         {
           href: makePath('/reference/special-use-ipv4'),

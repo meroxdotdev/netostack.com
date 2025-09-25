@@ -6,6 +6,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  timeout: 30000,
+  expect: {
+    timeout: 5000,
+  },
   reporter: [
     ['github'],
     ['html', { open: 'never', outputFolder: 'playwright-report' }],
@@ -33,5 +37,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run build && npm run preview',
     port: 4173,
+    timeout: 120000,
+    reuseExistingServer: !process.env.CI,
   },
 });
