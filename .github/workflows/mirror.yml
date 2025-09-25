@@ -1,18 +1,43 @@
-# Pushes the contents of the repo to the Codeberg mirror
+# Mirrors the repository to an alternate (non-Microsoft!) Git hosting service
+
+# The following options can be specified as env vars/secrets:
+# - MIRROR_SSH:  (REQUIRED) SSH private key with write access to target repo
+# - MIRROR_HOST: (optional) Hostname of target Git server, defaults to Codeberg
+# - MIRROR_USER: (optional) User or org name of target repo, defaults to alicia
+# - MIRROR_REPO: (optional) Name of target repo, defaults to same as source repo
+
 name: 🪞 Mirror to Codeberg
+
 on:
   workflow_dispatch:
   schedule:
     - cron: '30 01 * * 0'
   push:
     tags: [ 'v*' ]
+
 jobs:
   codeberg:
     runs-on: ubuntu-latest
+    env: # Get values for target repo from env vars or fallback to defaults
+      MIRROR_HOST: ${{ vars.MIRROR_HOST || 'git@codeberg.org' }}
+      MIRROR_USER: ${{ vars.MIRROR_USER || 'alicia' }}
+      MIRROR_REPO: ${{ vars.MIRROR_REPO || github.event.repository.name }}
+      HAS_SSH: ${{ secrets.MIRROR_SSH != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Cancel if SSH key not set
+        if: env.HAS_SSH != 'true'
+        run: echo "::warning::MIRROR_SSH secret not set" && exit 1
+        
+      - name: Checkout source repository
+        uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - uses: pixta-dev/repository-mirroring-action@v1
-        with:
-          target_repo_url: git@codeberg.org:alicia/networking-toolbox.git
-          ssh_private_key: ${{ secrets.CODEBERG_SSH }}
+          
+      - name: Mirror repository to target
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          echo "${{ secrets.MIRROR_SSH }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan codeberg.org >> ~/.ssh/known_hosts
+          git remote add mirror ${{ env.MIRROR_HOST }}:${{ env.MIRROR_USER }}/${{ env.MIRROR_REPO }}.git || true
+          git push mirror --mirror

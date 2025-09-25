@@ -57,7 +57,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           flags: unittests
-          name: ip-calc
+          name: networking-toolbox
           fail_ci_if_error: false
         continue-on-error: true
 
@@ -92,6 +92,80 @@ jobs:
         with:
           name: coverage
           path: coverage
+
+      - name: Fail if tests failed
+        if: steps.test.outcome == 'failure'
+        run: exit 1
+
+  api-tests:
+    name: API Contract Tests
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--max_old_space_size=8192"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start preview server
+        run: npm run preview -- --port 4175 &
+
+      - name: Wait for server
+        run: |
+          timeout 30 bash -c 'until curl -f http://localhost:4175/api >/dev/null 2>&1; do sleep 1; done'
+
+      - name: Run API contract tests
+        id: test
+        run: |
+          npm run test:api -- \
+            --reporter=github-actions \
+            --reporter=verbose \
+            --reporter=junit \
+            --outputFile=api-test-results.xml
+        continue-on-error: true
+
+      - name: Save test result
+        if: always()
+        run: echo "${{ steps.test.outcome }}" > test-result-api.txt
+
+      - name: Upload test result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-result-api
+          path: test-result-api.txt
+
+      - name: API Test Report
+        id: api-test-report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: API Contract Tests
+          path: api-test-results.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Save API test report data
+        if: always()
+        run: |
+          echo "passed=${{ steps.api-test-report.outputs.passed }}" > api-report-data.txt
+          echo "failed=${{ steps.api-test-report.outputs.failed }}" >> api-report-data.txt
+          echo "skipped=${{ steps.api-test-report.outputs.skipped }}" >> api-report-data.txt
+          echo "time=${{ steps.api-test-report.outputs.time }}" >> api-report-data.txt
+
+      - name: Upload API test report data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-report-data
+          path: api-report-data.txt
 
       - name: Fail if tests failed
         if: steps.test.outcome == 'failure'
@@ -187,7 +261,7 @@ jobs:
     name: Summary
     runs-on: ubuntu-latest
     if: always()
-    needs: [unit-tests, e2e-tests]
+    needs: [unit-tests, api-tests, e2e-tests]
     steps:
       - name: Download test results
         uses: actions/download-artifact@v4
@@ -204,10 +278,12 @@ jobs:
       - name: Write summary
         env:
           UNIT_JOB: ${{ needs.unit-tests.result }}
+          API_JOB: ${{ needs.api-tests.result }}
           E2E_JOB: ${{ needs.e2e-tests.result }}
         run: |
           # Read actual test results from artifacts (or use job result as fallback)
           UNIT=$(cat test-result-unit.txt 2>/dev/null || echo "$UNIT_JOB")
+          API=$(cat test-result-api.txt 2>/dev/null || echo "$API_JOB")
           E2E=$(cat test-result-e2e.txt 2>/dev/null || echo "$E2E_JOB")
 
           # Helper functions
@@ -228,15 +304,21 @@ jobs:
           # Count failures
           failures=0
           [ "$UNIT" = "failure" ] && failures=$((failures + 1))
+          [ "$API" = "failure" ] && failures=$((failures + 1))
           [ "$E2E" = "failure" ] && failures=$((failures + 1))
 
           # Get detailed test data
           UNIT_DATA=$(parse_report "unit-report-data.txt")
+          API_DATA=$(parse_report "api-report-data.txt")
           E2E_DATA=$(parse_report "e2e-report-data.txt")
 
           # Parse unit test data
           eval "$UNIT_DATA"
           UNIT_PASSED=$passed; UNIT_FAILED=$failed; UNIT_SKIPPED=$skipped; UNIT_TIME=$time
+
+          # Parse API test data
+          eval "$API_DATA"
+          API_PASSED=$passed; API_FAILED=$failed; API_SKIPPED=$skipped; API_TIME=$time
 
           # Parse e2e test data
           eval "$E2E_DATA"
@@ -258,6 +340,7 @@ jobs:
             echo "## 🧪 Test Results"
             echo ""
             line "$UNIT" "Unit Tests" "npm run test:coverage"
+            line "$API" "API Contract Tests" "npm run test:api"
             line "$E2E" "E2E Tests" "npm run test:e2e"
 
             if [ "$failures" -eq 0 ]; then
@@ -276,6 +359,17 @@ jobs:
               [ "$UNIT_FAILED" != "0" ] && echo "| ❌ Failed | $UNIT_FAILED |"
               [ "$UNIT_SKIPPED" != "0" ] && echo "| ⏭️ Skipped | $UNIT_SKIPPED |"
               [ "$UNIT_TIME" != "0" ] && echo "| ⏱️ Duration | $(format_time $UNIT_TIME) |"
+            fi
+
+            # Detailed API Test Report
+            if [ "$API_PASSED" != "0" ] || [ "$API_FAILED" != "0" ] || [ "$API_SKIPPED" != "0" ]; then
+              echo -e "\n### 🔗 API Contract Test Details"
+              echo "| Metric | Count |"
+              echo "|--------|-------|"
+              [ "$API_PASSED" != "0" ] && echo "| ✅ Passed | $API_PASSED |"
+              [ "$API_FAILED" != "0" ] && echo "| ❌ Failed | $API_FAILED |"
+              [ "$API_SKIPPED" != "0" ] && echo "| ⏭️ Skipped | $API_SKIPPED |"
+              [ "$API_TIME" != "0" ] && echo "| ⏱️ Duration | $(format_time $API_TIME) |"
             fi
 
             # Detailed E2E Test Report
