@@ -66,6 +66,10 @@
   // Using a separate internal function to avoid reactivity warnings
   function openSearch() {
     isOpen = true;
+    // Push a new history state when opening search on mobile
+    if (browser && window.innerWidth <= 768) {
+      window.history.pushState({ searchOpen: true }, '', window.location.href);
+    }
     setTimeout(() => searchInput?.focus(), 0);
   }
 
@@ -127,7 +131,21 @@
     bookmarks.init();
     toolUsage.init();
     document.addEventListener('keydown', handleGlobalKeydown);
-    return () => document.removeEventListener('keydown', handleGlobalKeydown);
+
+    // Handle browser back button on mobile
+    const handlePopState = (e: PopStateEvent) => {
+      if (isOpen && window.innerWidth <= 768) {
+        e.preventDefault();
+        close();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeydown);
+      window.removeEventListener('popstate', handlePopState);
+    };
   });
 
   export { showSearch };
@@ -294,6 +312,12 @@
     justify-content: center;
     padding-top: 15vh;
     animation: fadeIn var(--transition-fast);
+
+    @media (max-width: 768px) {
+      padding: 0;
+      align-items: stretch;
+      background: var(--bg-primary);
+    }
   }
 
   .search-modal {
@@ -307,8 +331,15 @@
     animation: slideDown var(--transition-normal);
 
     @media (max-width: 768px) {
-      margin: 0 var(--spacing-md);
-      max-width: calc(100vw - 2rem);
+      max-width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      animation: slideInFromBottom var(--transition-normal);
     }
   }
 
@@ -319,6 +350,15 @@
     padding: var(--spacing-lg);
     border-bottom: 1px solid var(--border-primary);
 
+    @media (max-width: 768px) {
+      padding: var(--spacing-md);
+      position: sticky;
+      top: 0;
+      background: var(--bg-primary);
+      z-index: 10;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
     .search-input {
       flex: 1;
       background: transparent;
@@ -326,6 +366,10 @@
       outline: none;
       color: var(--text-primary);
       font-size: var(--font-size-lg);
+
+      @media (max-width: 768px) {
+        font-size: var(--font-size-md);
+      }
 
       &::placeholder {
         color: var(--text-tertiary);
@@ -341,6 +385,10 @@
       border-radius: var(--radius-sm);
       transition: all var(--transition-fast);
 
+      @media (max-width: 768px) {
+        padding: var(--spacing-sm);
+      }
+
       &:hover {
         background: var(--surface-hover);
         color: var(--text-primary);
@@ -351,6 +399,13 @@
   .search-results {
     max-height: 60vh;
     overflow-y: auto;
+
+    @media (max-width: 768px) {
+      max-height: none;
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
   }
 
   .result-item {
@@ -365,6 +420,11 @@
     cursor: pointer;
     text-align: left;
     transition: background var(--transition-fast);
+
+    @media (max-width: 768px) {
+      padding: var(--spacing-md);
+      min-height: 60px;
+    }
 
     &:hover,
     &.selected {
@@ -428,11 +488,21 @@
     padding: var(--spacing-2xl);
     color: var(--text-secondary);
     text-align: center;
+
+    @media (max-width: 768px) {
+      padding: var(--spacing-xl) var(--spacing-md);
+      min-height: 50vh;
+      justify-content: center;
+    }
   }
 
   .search-help {
     padding: var(--spacing-lg);
     border-top: 1px solid var(--border-secondary);
+
+    @media (max-width: 768px) {
+      padding: var(--spacing-md);
+    }
 
     .help-item {
       display: flex;
@@ -449,6 +519,10 @@
   .frequently-used-section {
     padding: var(--spacing-md) var(--spacing-lg);
     border-top: 1px solid var(--border-secondary);
+
+    @media (max-width: 768px) {
+      padding: var(--spacing-md);
+    }
   }
 
   .bookmarks-header,
@@ -568,6 +642,17 @@
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes slideInFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 </style>
