@@ -25,10 +25,9 @@
 
   // Separate tools from reference pages and standalone pages
   const referencePages = extractNavItems(SUB_NAV['/reference'] || []);
-  const toolPages = ALL_PAGES.filter((page) =>
-    !page.href.startsWith('/reference') &&
-    !page.href.startsWith('/bookmarks') &&
-    !page.href.startsWith('/offline')
+  const toolPages = ALL_PAGES.filter(
+    (page) =>
+      !page.href.startsWith('/reference') && !page.href.startsWith('/bookmarks') && !page.href.startsWith('/offline'),
   );
 
   let filteredTools: NavItem[] = $state(toolPages);
