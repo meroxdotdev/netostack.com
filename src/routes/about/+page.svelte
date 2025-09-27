@@ -35,28 +35,7 @@
 </section>
 <!-- Links #1: GitHub -->
 <!-- Links #1: Live Demo, DockerHub, CodeBerg Mirror, Sponsor, More Apps -->
-<section class="contents">
-  <div>
-    <h3>On this page</h3>
-    <ul>
-      <li><a href="#api">API</a></li>
-      <li><a href="#self-hosting">Self-Hosting</a></li>
-      <li><a href="#building">Developing</a></li>
-      <li><a href="#author">Author</a></li>
-      <li><a href="#more-apps">Attributions</a></li>
-      <li><a href="#license">License</a></li>
-    </ul>
-  </div>
-  <div>
-    <h3>External links</h3>
-    <ul>
-      <li><a href={site.repo}>Source on GitHub</a></li>
-      <li><a href={site.repo}>CodeBerg mirror</a></li>
-      <li><a href={site.repo}>DockerHub</a></li>
-      <li><a href={site.repo}>More apps...</a></li>
-    </ul>
-  </div>
-</section>
+
 
 <ApiSection />
 <SelfHostingSection />
