@@ -289,11 +289,10 @@
         {/each}
       </div>
       <p class="license">
-        <a href={site.url} target="_blank" rel="noopener noreferrer">{site.title}</a>
+        <a href=https://systools.merox.dev target="_blank" rel="noopener noreferrer">{site.title}</a>
         is licensed under
         <a href={license.url} target="_blank" rel="noopener noreferrer">{license.name}</a>
-        ©
-        <a href={author.githubUrl} target="_blank" rel="noopener noreferrer">{author.name}</a>
+        
         {license.date}
       </p>
     </div>
