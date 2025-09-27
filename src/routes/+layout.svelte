@@ -165,6 +165,9 @@
   <!-- Structured Data -->
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html jsonLdTag(data.breadcrumbJsonLd)}
+
+  <!-- Plausible Analytics -->
+  <script defer data-domain="networking-toolbox.as93.net" src="https://no-track.as93.net/js/script.js"></script>
 </svelte:head>
 
 <!-- Skip Links for Accessibility -->
