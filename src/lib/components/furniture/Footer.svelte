@@ -12,8 +12,7 @@
   <p class="footer-sub">
     <a href={site.url} target="_blank" rel="noopener noreferrer">{site.title}</a>
     is licensed under
-    <a href={license.url} target="_blank" rel="noopener noreferrer">{license.name}</a>, (C)
-    <a href={author.githubUrl} target="_blank" rel="noopener noreferrer">{author.name}</a>
+    <a href={license.url} target="_blank" rel="noopener noreferrer">{license.name}</a>
     {license.date}
   </p>
   <p class="footer-sub">
