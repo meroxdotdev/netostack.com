@@ -6,7 +6,7 @@
 </p>
 <a href="https://networking-toolbox.as93.net">
 <p align="center">
-  <img width="128" src="https://github.com/user-attachments/assets/052a9507-2043-40bf-b697-1a953adb614f" />
+  <img width="128" src="https://github.com/Lissy93/networking-toolbox/blob/main/static/icon.png?raw=true" />
   </p>
 </a>
 
