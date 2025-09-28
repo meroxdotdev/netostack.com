@@ -127,9 +127,12 @@ function createAccessibilityStore() {
         // Merge stored settings with defaults, checking system preferences
         const options = DEFAULT_OPTIONS.map((defaultOption) => {
           const storedOption = storedSettings.options?.find((opt) => opt.id === defaultOption.id);
+          
 
           // If no stored preference, check system preference
-          const enabled = storedOption?.enabled ?? defaultOption.systemPreference?.() ?? defaultOption.enabled;
+          const enabled = 
+          (storedOption?.enabled ?? defaultOption.systemPreference?.() ?? defaultOption.enabled) 
+            || defaultOption.id === 'dark-mode-high-contrast';
 
           return {
             ...defaultOption,

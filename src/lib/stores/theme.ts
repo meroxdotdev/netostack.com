@@ -163,7 +163,7 @@ export const themes: Theme[] = [
 ];
 
 function createThemeStore() {
-  const { subscribe, set, update } = writable<ThemeOption>('cyberpunk');
+  const { subscribe, set, update } = writable<ThemeOption>('solarized');
 
   return {
     subscribe,
@@ -173,7 +173,7 @@ function createThemeStore() {
       if (browser) {
         const saved = localStorage.getItem(STORAGE_KEY);
         const isValidTheme = themes.some((t) => t.id === saved && t.available);
-        const initialTheme = isValidTheme ? (saved as ThemeOption) : 'cyberpunk';
+        const initialTheme = isValidTheme ? (saved as ThemeOption) : 'solarized';
 
         set(initialTheme);
 
