@@ -31,7 +31,7 @@ info:
 servers:
   - url: http://localhost:5173
     description: Local development server
-  - url: https://networking-toolbox.as93.net
+  - url: https://systools.merox.dev
     description: Production server
 
 tags:
