@@ -20,7 +20,7 @@
         </div>
         <div>
           <h1><a href="/">{site.title}</a></h1>
-          <p class="subtitle">forked by merox.dev</p>
+          <p class="subtitle">network command center</p>
         </div>
       </div>
 
