@@ -1,6 +1,6 @@
 {
-  "name": "Networking Toolbox",
-  "short_name": "Networking Toolbox",
+  "name": "NetoStack",
+  "short_name": "NetoStack",
   "description": "A free set of online tools to help with IP addressing and subnetting.",
   "start_url": "/",
   "scope": "/",

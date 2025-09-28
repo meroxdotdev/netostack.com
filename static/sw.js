@@ -233,7 +233,7 @@ async function handlePageRequest(request) {
     return new Response(`
       <!DOCTYPE html>
       <html>
-      <head><title>Offline - Networking Toolbox</title></head>
+      <head><title>Offline - NetoStack</title></head>
       <body>
         <h1>You're Offline</h1>
         <p>Your bookmarked tools are still available.</p>

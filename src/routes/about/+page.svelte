@@ -26,7 +26,7 @@
 <div class="hero">
   <h2>About {site.title}</h2>
   <p class="lead">
-    Networking Toolbox is a collection of free, open-source networking utilities designed to simplify common
+    NetoStack is a collection of free, open-source networking utilities designed to simplify common
     network-related tasks for system administrators and network engineers.
   </p>
 </div>

@@ -29,7 +29,7 @@
 </script>
 
 <svelte:head>
-  <title>Offline - Networking Toolbox</title>
+  <title>Offline - NetoStack</title>
   <meta name="description" content="Offline mode - your bookmarked tools are still available" />
 </svelte:head>
 
