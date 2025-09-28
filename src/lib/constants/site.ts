@@ -13,7 +13,7 @@ export const site = {
 };
 
 export const about = {
-  line1: 'The all-in-one offline-first networking toolbox for sysadmins',
+  line1: 'Your offline network command center',
   line2: 'IP address calculators, convertors, validators and visualisers',
 };
 
