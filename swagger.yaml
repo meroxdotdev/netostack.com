@@ -31,7 +31,7 @@ info:
 servers:
   - url: http://localhost:5173
     description: Local development server
-  - url: https://systools.merox.dev
+  - url: https://netostack.com
     description: Production server
 
 tags:

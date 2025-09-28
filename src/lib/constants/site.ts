@@ -1,15 +1,15 @@
 export const site = {
-  name: 'Systools',
-  title: 'Systools',
+  name: 'NetoStack',
+  title: 'NetoStack',
   description: 'A free set of online tools to help with IP addressing and subnetting.',
   longDescription:
     'Comprehensive IP address calculator with subnet calculations, CIDR conversion, IP format conversion, and network reference tools.',
   heroDescription:
     'Comprehensive suite of networking tools for subnet calculations, CIDR conversions, IP format transformations, and network reference information.',
   keywords: 'IP calculator, subnet calculator, CIDR converter, network tools, IP tools, networking',
-  url: 'https://systools.merox.dev',
-  image: 'https://systools.merox.dev/og-image.png',
-  repo: 'https://github.com/meroxdotdev/networking-toolbox/',
+  url: 'https://netostack.com',
+  image: 'https://netostack.com/og-image.png',
+  repo: 'https://github.com/meroxdotdev/netostack.com',
 };
 
 export const about = {

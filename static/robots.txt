@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://systools.merox.dev/sitemap.xml
+Sitemap: https://netostack.com/sitemap.xml
