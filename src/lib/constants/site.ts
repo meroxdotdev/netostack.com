@@ -1,12 +1,13 @@
 export const site = {
   name: 'NetoStack',
   title: 'NetoStack',
-  description: 'A free set of online tools to help with IP addressing and subnetting.',
+  description: 'Your offline network command center: IP calculators, subnetting tools, CIDR converters, and essential network utilities — all in one place.',
   longDescription:
-    'Comprehensive IP address calculator with subnet calculations, CIDR conversion, IP format conversion, and network reference tools.',
+    'NetoStack is your offline network command center: a powerful suite of tools for IP addressing, subnetting, CIDR conversions, IP format transformations, and network reference utilities. Works even without an internet connection, right from your browser.',
   heroDescription:
-    'Comprehensive suite of networking tools for subnet calculations, CIDR conversions, IP format transformations, and network reference information.',
-  keywords: 'IP calculator, subnet calculator, CIDR converter, network tools, IP tools, networking',
+    'Your offline network command center for IP calculations, subnetting, CIDR conversions, and network tools — fast, reliable, and available even offline.',
+  keywords:
+    'ip calculator, subnet calculator, cidr converter, ip addressing tools, offline network tools, ipv4 calculator, ipv6 calculator, network command center, ip subnetting tools, network engineers tools, sysadmin networking toolbox, ip address converter, network utilities offline',
   url: 'https://netostack.com',
   image: 'https://netostack.com/og-image.png',
   repo: 'https://github.com/meroxdotdev/netostack.com',

@@ -1,7 +1,7 @@
 {
   "name": "NetoStack",
   "short_name": "NetoStack",
-  "description": "A free set of online tools to help with IP addressing and subnetting.",
+  "description": "Your offline network command center: IP calculators, subnetting tools, CIDR converters, and essential network utilities — all in one place.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
