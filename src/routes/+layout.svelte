@@ -25,12 +25,11 @@
   import Footer from '$lib/components/furniture/Footer.svelte';
   import OfflineIndicator from '$lib/components/common/OfflineIndicator.svelte';
 
-  let { data, children } = $props(); // Gets data from the server load function
-  let faviconTrigger = $state(0); // Trigger to force favicon updates
-  let accessibilitySettings = $state(accessibility); // Accessibility settings store
-  let currentTheme = $state(theme); // Theme store
+  let { data, children } = $props();
+  let faviconTrigger = $state(0);
+  let accessibilitySettings = $state(accessibility);
+  let currentTheme = $state(theme);
 
-  // Get page-specific metadata or fallback to site defaults
   const seoData = $derived.by(() => {
     const currentPath = $page.url.pathname;
     const pageDetails = getPageDetails(currentPath);
@@ -44,9 +43,8 @@
     };
   });
 
-  // Dynamic favicon based on page icon
   const dynamicFavicon = $derived.by(() => {
-    void faviconTrigger; // Include in order to force updates when theme changes
+    void faviconTrigger;
     const currentPath = $page.url.pathname;
     const pageDetailsWithIcon = getPageDetailsWithIcon(currentPath);
 
@@ -71,21 +69,16 @@
     initializeOfflineSupport();
   });
 
-  // Track tool visits when page changes
   $effect(() => {
     const currentPath = $page.url.pathname;
-
-    // Check if current path is a tool page
     const toolPage = ALL_PAGES.find((tool) => tool.href === currentPath);
     if (toolPage) {
       toolUsage.trackVisit(toolPage.href, toolPage.label, toolPage.icon, toolPage.description);
     }
   });
 
-  // Apply accessibility settings to HTML element
   $effect(() => {
     if (typeof document === 'undefined') return;
-
     const cssClasses = accessibility.getCSSClasses($accessibilitySettings);
 
     if (cssClasses.trim()) {
@@ -95,17 +88,13 @@
     }
   });
 
-  // Theme change effect - trigger favicon update when theme changes
   $effect(() => {
-    // Subscribe to theme changes
     void $currentTheme;
-    // Trigger favicon update 50ms after theme change
     setTimeout(() => {
       faviconTrigger++;
     }, 50);
   });
 
-  /* Uses the server-generated breadcrumb data, to build a JSON-LD breadcrumb object */
   function jsonLdTag(data: unknown, type = 'application/ld+json', nonce?: string) {
     if (!data) return '';
     try {
@@ -124,17 +113,27 @@
 </script>
 
 <svelte:head>
+  <!-- Script pentru tema corectă înainte de randare -->
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.classList.add('theme-' + savedTheme);
+      } catch (e) {
+        document.documentElement.classList.add('theme-light');
+      }
+    })();
+  </script>
+
   <link rel="icon" type="image/svg+xml" href={dynamicFavicon} />
   <link rel="shortcut icon" type="image/svg+xml" href={dynamicFavicon} />
 
-  <!-- SEO Meta Tags -->
   <title>{seoData.title}</title>
   <meta name="description" content={seoData.description} />
   <meta name="keywords" content={seoData.keywords} />
   <meta name="author" content={author.name} />
   <link rel="canonical" href={seoData.url} />
 
-  <!-- Open Graph Tags -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content={seoData.title} />
   <meta property="og:description" content={seoData.description} />
@@ -142,17 +141,14 @@
   <meta property="og:image" content={seoData.image} />
   <meta property="og:site_name" content={site.name} />
 
-  <!-- Twitter Card Tags -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={seoData.title} />
   <meta name="twitter:description" content={seoData.description} />
   <meta name="twitter:image" content={seoData.image} />
 
-  <!-- Additional Meta Tags -->
   <meta name="robots" content="index, follow" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -162,15 +158,11 @@
   <meta name="msapplication-TileColor" content="#2563eb" />
   <meta name="theme-color" content="#2563eb" />
 
-  <!-- Structured Data -->
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html jsonLdTag(data.breadcrumbJsonLd)}
 
-  <!-- Plausible Analytics -->
   <script defer data-domain="networking-toolbox.as93.net" src="https://no-track.as93.net/js/script.js"></script>
 </svelte:head>
 
-<!-- Skip Links for Accessibility -->
 <a href="#main-content" class="skip-link">Skip to main content</a>
 <a href="#navigation" class="skip-link">Skip to navigation</a>
 
