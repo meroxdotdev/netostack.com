@@ -34,11 +34,16 @@
   let filteredReference: NavItem[] = $state(referencePages);
   let searchQuery: string = $state('');
 
+  // Pagination state for tools
+  let toolsPerPage = 12;
+  let currentPage: number = $state(1);
+
   // Update filtered items when search changes
   $effect(() => {
     if (searchQuery.trim() === '') {
       filteredTools = toolPages;
       filteredReference = referencePages;
+      currentPage = 1;
     } else {
       const query = searchQuery.toLowerCase().trim();
       filteredTools = toolPages.filter(
@@ -53,8 +58,40 @@
           page.description?.toLowerCase().includes(query) ||
           page.keywords?.some((keyword) => keyword.toLowerCase().includes(query)),
       );
+      currentPage = 1;
     }
   });
+
+  // Get paginated tools
+  function getPaginatedTools(): NavItem[] {
+    const start = (currentPage - 1) * toolsPerPage;
+    return filteredTools.slice(start, start + toolsPerPage);
+  }
+
+  // Calculate total pages
+  function getTotalPages(): number {
+    return Math.ceil(filteredTools.length / toolsPerPage);
+  }
+
+  // Scroll to top of "All Tools" or search results grid on mobile
+  function scrollToSectionOnMobile() {
+    if (window.innerWidth <= 768) {
+      let targetElement: Element | null = null;
+      if (searchQuery.trim() === '') {
+        // Scroll to "All Tools" section if no search query
+        targetElement = document.querySelector('.tools-grid-sub-header') || document.querySelector('#tools-grid');
+      } else {
+        // Scroll to search results grid if there's a search query
+        targetElement = document.querySelector('#search-grid');
+      }
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        // Fallback to page top if target not found
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }
 </script>
 
 <!-- Hero Section -->
@@ -81,12 +118,35 @@
     <section class="tools-grid-sub-header">
       <Icon name="network-port" size="md" />
       <h2>All Tools</h2>
-      <span class="count">{toolPages.length + referencePages.length}</span>
+      <span class="count">{toolPages.length}</span>
     </section>
   {/if}
 
-  <!-- Tools Grid -->
-  <ToolsGrid idPrefix="tools" tools={filteredTools} {searchQuery} />
+  <!-- Tools Grid with Pagination -->
+  <ToolsGrid idPrefix="tools" tools={getPaginatedTools()} {searchQuery} />
+  {#if getTotalPages() > 1}
+    <div class="pagination">
+      <button
+        disabled={currentPage === 1}
+        onclick={() => {
+          currentPage = Math.max(1, currentPage - 1);
+          scrollToSectionOnMobile();
+        }}
+      >
+        Previous
+      </button>
+      <span>{currentPage} / {getTotalPages()}</span>
+      <button
+        disabled={currentPage === getTotalPages()}
+        onclick={() => {
+          currentPage = Math.min(getTotalPages(), currentPage + 1);
+          scrollToSectionOnMobile();
+        }}
+      >
+        Next
+      </button>
+    </div>
+  {/if}
 
   <!-- Reference Pages Section -->
   {#if filteredReference.length > 0}
@@ -97,12 +157,38 @@
           Comprehensive reference materials and documentation for network professionals.
         </p>
       </div>
-      <ToolsGrid idPrefix="reference" tools={filteredReference} {searchQuery} />
+      <ToolsGrid idPrefix="reference" tools={filteredReference.slice(0, 6)} {searchQuery} />
+      {#if filteredReference.length > 6}
+        <a href="/reference" class="view-more">View All References</a>
+      {/if}
     </section>
   {/if}
 {:else}
   <!-- Combined Search Results -->
-  <ToolsGrid idPrefix="search" tools={[...filteredTools, ...filteredReference]} {searchQuery} />
+  <ToolsGrid idPrefix="search" tools={[...filteredTools, ...filteredReference].slice(0, toolsPerPage)} {searchQuery} />
+  {#if [...filteredTools, ...filteredReference].length > toolsPerPage}
+    <div class="pagination">
+      <button
+        disabled={currentPage === 1}
+        onclick={() => {
+          currentPage = Math.max(1, currentPage - 1);
+          scrollToSectionOnMobile();
+        }}
+      >
+        Previous
+      </button>
+      <span>{currentPage} / {Math.ceil([...filteredTools, ...filteredReference].length / toolsPerPage)}</span>
+      <button
+        disabled={currentPage === Math.ceil([...filteredTools, ...filteredReference].length / toolsPerPage)}
+        onclick={() => {
+          currentPage = Math.min(Math.ceil([...filteredTools, ...filteredReference].length / toolsPerPage), currentPage + 1);
+          scrollToSectionOnMobile();
+        }}
+      >
+        Next
+      </button>
+    </div>
+  {/if}
 {/if}
 
 <style lang="scss">
@@ -160,6 +246,57 @@
         margin: 0 auto;
         line-height: 1.6;
       }
+    }
+  }
+
+  .view-more {
+    display: block;
+    text-align: center;
+    font-size: var(--font-size-md);
+    color: var(--text-primary);
+    text-decoration: none;
+    margin-top: var(--spacing-md);
+    &:hover {
+      text-decoration: underline;
+    }
+    &:focus {
+      outline: 2px solid var(--text-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    button {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--text-secondary);
+      border-radius: 4px;
+      background: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      transition: all 0.2s ease;
+      &:hover:not(:disabled) {
+        background: #f0f0f0; /* Light gray for clean hover */
+        color: var(--text-primary);
+        transform: scale(1.05);
+      }
+      &:focus {
+        outline: 2px solid var(--text-primary);
+        outline-offset: 2px;
+      }
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+    span {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
     }
   }
 </style>
