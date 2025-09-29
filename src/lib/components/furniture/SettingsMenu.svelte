@@ -33,9 +33,9 @@
   let selectedLanguage = $state('en');
   const languages = [
     { code: 'en', name: 'English', available: true, flag: '🇺🇸' },
-    { code: 'es', name: 'Español', available: false, flag: '🇪🇸' },
-    { code: 'fr', name: 'Français', available: false, flag: '🇫🇷' },
-    { code: 'de', name: 'Deutsch', available: false, flag: '🇩🇪' },
+    { code: 'ro', name: 'Română', available: false, flag: '🇷🇴' },
+ //   { code: 'fr', name: 'Français', available: false, flag: '🇫🇷' },
+ //   { code: 'de', name: 'Deutsch', available: false, flag: '🇩🇪' },
   ];
 
   // Handle theme change
