@@ -274,15 +274,7 @@
           <span>Bookmarks</span>
         </a>
 
-        <a href={resolve('/about')} class="settings-link" onclick={handleLinkClick}>
-          <Icon name="info" size="sm" />
-          <span>About</span>
-        </a>
 
-        <a href={site.repo} class="settings-link" target="_blank" rel="noopener noreferrer" onclick={handleLinkClick}>
-          <Icon name="github" size="sm" />
-          <span>GitHub</span>
-        </a>
       </div>
     </div>
   {/if}
