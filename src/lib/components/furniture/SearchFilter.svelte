@@ -11,7 +11,7 @@
   } = $props();
 
   let searchInput: HTMLInputElement | undefined = $state();
-  let isSearchOpen: boolean = $state(false);
+  let isSearchOpen: boolean = $state(true);
 
   // Weight different match types for relevance scoring
   const MATCH_WEIGHTS = {
