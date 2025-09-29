@@ -102,6 +102,9 @@
     <a href="/sitemap" class="sitemap-link">Sitemap</a>
   </div>
 </section>
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="92ab65fd-3453-4646-94e5-38179e927ef2"></script>
+
 
 <!-- Search Filter -->
 <SearchFilter bind:filteredTools bind:searchQuery />
