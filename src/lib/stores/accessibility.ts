@@ -130,9 +130,7 @@ function createAccessibilityStore() {
           
 
           // If no stored preference, check system preference
-          const enabled = 
-          (storedOption?.enabled ?? defaultOption.systemPreference?.() ?? defaultOption.enabled) 
-            || defaultOption.id === 'dark-mode-high-contrast';
+          const enabled = storedOption?.enabled ?? defaultOption.systemPreference?.() ?? defaultOption.enabled;
 
           return {
             ...defaultOption,
