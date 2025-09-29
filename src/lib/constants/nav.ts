@@ -1826,7 +1826,6 @@ export const aboutPages: NavItem[] = [
 export const footerLinks: NavItem[] = [
   { href: makePath('/about'), label: 'About' },
   { href: ('https://merox.dev'), label: 'Blog' },
-  { href: ('https://github.com/meroxdotdev'), label: ' ' },
 ];
 
 // Helper: is a nav item active for a given pathname?
