@@ -161,13 +161,13 @@
     <div class="search-results-info">
       {#if searchQuery.length === 0}
         <span class="results-count">
-          Start typing to search {ALL_PAGES.length} tools
+
         </span>
       {:else if filteredTools.length === 0}
         <span class="no-results">No results found</span>
       {:else}
         <span class="results-count">
-          Showing {filteredTools.length} of {ALL_PAGES.length} tools
+
         </span>
       {/if}
     </div>
