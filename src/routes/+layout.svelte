@@ -125,6 +125,10 @@
     })();
   </script>
 
+<!-- umami -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="92ab65fd-3453-4646-94e5-38179e927ef2"></script>
+
+
   <link rel="icon" type="image/svg+xml" href={dynamicFavicon} />
   <link rel="shortcut icon" type="image/svg+xml" href={dynamicFavicon} />
 
